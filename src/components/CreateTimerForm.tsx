@@ -13,7 +13,7 @@ const CreateTimerForm = ({ onAddTimer }: CreateTimerFormProps) => {
     // Scroll to the center of the screen after a brief delay to allow DOM update
     setTimeout(() => {
       window.scrollTo({
-        top: 0,
+        top: document.body.scrollHeight / 2 - window.innerHeight / 2,
         behavior: 'smooth'
       });
     }, 100);
