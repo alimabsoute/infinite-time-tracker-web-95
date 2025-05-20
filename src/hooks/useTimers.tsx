@@ -50,10 +50,11 @@ export const useTimers = () => {
       id: Date.now().toString(),
       name,
       elapsedTime: 0,
-      isRunning: true,
+      isRunning: false, // Changed to false so timer doesn't start until confirmed
       createdAt: new Date(),
     };
     setTimers((prev) => [...prev, newTimer]);
+    return newTimer.id; // Return the ID of the new timer
   }, []);
 
   const toggleTimer = useCallback((id: string) => {
@@ -84,7 +85,7 @@ export const useTimers = () => {
     setTimers((prev) =>
       prev.map((timer) =>
         timer.id === id
-          ? { ...timer, name: newName }
+          ? { ...timer, name: newName, isRunning: true } // Start timer when confirmed
           : timer
       )
     );

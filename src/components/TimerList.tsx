@@ -8,6 +8,7 @@ interface TimerListProps {
   onReset: (id: string) => void;
   onDelete: (id: string) => void;
   onRename: (id: string, newName: string) => void;
+  newTimerId: string | null;
 }
 
 const TimerList = ({
@@ -16,6 +17,7 @@ const TimerList = ({
   onReset,
   onDelete,
   onRename,
+  newTimerId,
 }: TimerListProps) => {
   if (timers.length === 0) {
     return (
@@ -26,7 +28,7 @@ const TimerList = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center">
       {timers.map((timer) => (
         <Timer
           key={timer.id}
@@ -35,6 +37,7 @@ const TimerList = ({
           onReset={onReset}
           onDelete={onDelete}
           onRename={onRename}
+          isNew={timer.id === newTimerId}
         />
       ))}
     </div>
