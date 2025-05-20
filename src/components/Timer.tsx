@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Timer as TimerType } from "../types";
@@ -38,10 +38,70 @@ const Timer = ({
 }: TimerProps) => {
   const [isEditing, setIsEditing] = useState(isNew);
   const [editedName, setEditedName] = useState(timer.name);
+  const [isEnlarged, setIsEnlarged] = useState(isNew);
+  
+  const longPressTimeoutRef = useRef<number | null>(null);
+  const timerRef = useRef<HTMLDivElement>(null);
+  
+  // Handle long press logic
+  const handleMouseDown = () => {
+    if (isEditing) return; // Don't trigger long press during editing
+    
+    longPressTimeoutRef.current = window.setTimeout(() => {
+      setIsEditing(true);
+      setIsEnlarged(true);
+      // Scroll to center this timer if needed
+      timerRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
+    }, 1500); // 1.5 seconds for long press
+  };
+  
+  const handleMouseUp = () => {
+    if (longPressTimeoutRef.current) {
+      clearTimeout(longPressTimeoutRef.current);
+      longPressTimeoutRef.current = null;
+    }
+  };
+  
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimeoutRef.current) {
+        clearTimeout(longPressTimeoutRef.current);
+      }
+    };
+  }, []);
+  
+  // Ensure new timer is centered on screen
+  useEffect(() => {
+    if (isNew && timerRef.current) {
+      setTimeout(() => {
+        timerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center'
+        });
+      }, 100);
+    }
+  }, [isNew]);
 
   const handleRename = () => {
     onRename(timer.id, editedName);
     setIsEditing(false);
+    setIsEnlarged(false);
+  };
+
+  const handleCancel = () => {
+    if (isNew) {
+      onDelete(timer.id);
+    } else {
+      setIsEditing(false);
+      setIsEnlarged(false);
+      setEditedName(timer.name);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -50,16 +110,35 @@ const Timer = ({
     }
   };
   
-  // Calculate size classes based on whether this is a new timer or not
-  const sizeClasses = isNew 
-    ? "w-64 h-64" 
+  // Calculate size classes based on whether this is a new/enlarged timer
+  const sizeClasses = isEnlarged 
+    ? "w-64 h-64 z-10" 
     : "w-40 h-40 hover:scale-105 transition-transform";
+    
+  // Position classes for enlarged timer
+  const positionClasses = isEnlarged 
+    ? "fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" 
+    : "";
 
   return (
-    <div className={cn(
-      "relative flex flex-col items-center justify-center",
-      isNew ? "mb-8" : "mb-4"
-    )}>
+    <div 
+      ref={timerRef}
+      className={cn(
+        "relative flex flex-col items-center justify-center",
+        isEnlarged ? "mb-8" : "mb-4",
+        positionClasses
+      )}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onTouchStart={handleMouseDown}
+      onTouchEnd={handleMouseUp}
+      onTouchCancel={handleMouseUp}
+    >
+      {/* Overlay for enlarged timer */}
+      {isEnlarged && (
+        <div className="fixed inset-0 bg-black/50 z-0" onClick={handleCancel} />
+      )}
+      
       {/* Circular timer container */}
       <div 
         className={cn(
@@ -87,7 +166,7 @@ const Timer = ({
         </div>
         
         {/* Timer display */}
-        <div className="text-2xl font-bold text-center my-1">
+        <div className={cn("font-bold text-center my-1", isEnlarged ? "text-3xl" : "text-2xl")}>
           {formatTime(timer.elapsedTime)}
         </div>
         
@@ -97,7 +176,10 @@ const Timer = ({
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={() => onToggle(timer.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggle(timer.id);
+              }}
               className="h-7 w-7 p-0 rounded-full"
             >
               {timer.isRunning ? <Pause size={16} /> : <Play size={16} />}
@@ -105,7 +187,10 @@ const Timer = ({
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={() => onReset(timer.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onReset(timer.id);
+              }}
               className="h-7 w-7 p-0 rounded-full"
             >
               <RotateCcw size={16} />
@@ -113,7 +198,11 @@ const Timer = ({
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => setIsEditing(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditing(true);
+                setIsEnlarged(true);
+              }}
               className="h-7 w-7 p-0 rounded-full"
             >
               <Pencil size={16} />
@@ -127,25 +216,30 @@ const Timer = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                if (isNew) {
-                  onDelete(timer.id);
-                } else {
-                  setIsEditing(false);
-                  setEditedName(timer.name);
-                }
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCancel();
               }}
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 rounded-full"
+              className={cn(
+                "h-10 w-10 p-0 rounded-full",
+                isEnlarged ? "absolute left-6 top-1/2 transform -translate-y-1/2" : "absolute left-2 top-1/2 transform -translate-y-1/2"
+              )}
             >
-              <X size={16} />
+              <X size={isEnlarged ? 24 : 16} />
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleRename}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 rounded-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRename();
+              }}
+              className={cn(
+                "h-10 w-10 p-0 rounded-full",
+                isEnlarged ? "absolute right-6 top-1/2 transform -translate-y-1/2" : "absolute right-2 top-1/2 transform -translate-y-1/2"
+              )}
             >
-              <Check size={16} />
+              <Check size={isEnlarged ? 24 : 16} />
             </Button>
           </>
         )}

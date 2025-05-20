@@ -14,6 +14,11 @@ const Index = () => {
   const handleAddTimer = (name: string) => {
     const id = addTimer(name);
     setNewTimerId(id);
+    
+    // Clear new timer ID after a delay
+    setTimeout(() => {
+      setNewTimerId(null);
+    }, 5000); // 5 seconds should be enough time for user to name the timer
   };
 
   const handleRename = (id: string, newName: string) => {

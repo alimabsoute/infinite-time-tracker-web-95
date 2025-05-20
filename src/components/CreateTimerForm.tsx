@@ -9,6 +9,14 @@ interface CreateTimerFormProps {
 const CreateTimerForm = ({ onAddTimer }: CreateTimerFormProps) => {
   const handleAddTimer = () => {
     onAddTimer("New Timer");
+    
+    // Scroll to the center of the screen after a brief delay to allow DOM update
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   };
 
   return (
