@@ -1,11 +1,10 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Timer } from "../types";
 import { 
   fetchTimers,
   createTimer,
   updateTimer,
-  deleteTimer,
+  deleteTimer as deleteTimerFromSupabase,
   subscribeToTimers
 } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
@@ -99,7 +98,7 @@ export const useTimers = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  const addTimer = useCallback(async (name: string, category?: string) => {
+  const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
     if (!user) {
       toast.error("You must be logged in to create timers");
       return "";
@@ -225,7 +224,7 @@ export const useTimers = () => {
       setTimers((prev) => prev.filter((timer) => timer.id !== id));
 
       // Delete from Supabase
-      const success = await deleteTimer(id);
+      const success = await deleteTimerFromSupabase(id);
       
       if (!success) {
         // Revert optimistic update if failed

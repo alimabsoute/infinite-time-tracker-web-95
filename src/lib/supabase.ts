@@ -1,37 +1,46 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { Timer } from '../types';
 
-// These environment variables are automatically injected by Lovable's Supabase integration
+// Check if the Supabase environment variables are defined
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Check if environment variables are available
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase environment variables are not defined. Make sure you have connected your project to Supabase.');
+}
+
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
 
 // Timers table helper functions
 export const fetchTimers = async () => {
-  const { data, error } = await supabase
-    .from('timers')
-    .select('*')
-    .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('timers')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching timers:', error);
+    if (error) {
+      console.error('Error fetching timers:', error);
+      return [];
+    }
+
+    // Transform database records to Timer objects
+    return data.map((record: any): Timer => ({
+      id: record.id,
+      name: record.name,
+      elapsedTime: record.elapsed_time,
+      isRunning: record.is_running,
+      createdAt: new Date(record.created_at),
+      category: record.category || undefined,
+      tags: record.tags || undefined,
+      deadline: record.deadline ? new Date(record.deadline) : undefined,
+      priority: record.priority || undefined,
+    }));
+  } catch (err) {
+    console.error('Exception when fetching timers:', err);
     return [];
   }
-
-  // Transform database records to Timer objects
-  return data.map((record: any): Timer => ({
-    id: record.id,
-    name: record.name,
-    elapsedTime: record.elapsed_time,
-    isRunning: record.is_running,
-    createdAt: new Date(record.created_at),
-    category: record.category || undefined,
-    tags: record.tags || undefined,
-    deadline: record.deadline ? new Date(record.deadline) : undefined,
-    priority: record.priority || undefined,
-  }));
 };
 
 export const createTimer = async (timer: Timer) => {

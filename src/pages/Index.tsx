@@ -29,8 +29,8 @@ const Index = () => {
   } = useTimers();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
-  const handleAddTimer = (name: string) => {
-    const id = addTimer(name);
+  const handleAddTimer = async (name: string) => {
+    const id = await addTimer(name);
     setNewTimerId(id);
     
     // Clear new timer ID after a delay
