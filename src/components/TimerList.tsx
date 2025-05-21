@@ -37,7 +37,7 @@ const TimerList = ({
 
   if (timers.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-500 text-lg">
+      <div className="text-center py-16 text-muted-foreground text-lg">
         <p>No timers yet. Tap the + button to get started!</p>
       </div>
     );
@@ -48,10 +48,10 @@ const TimerList = ({
       {/* Category filter */}
       <div className="flex justify-end mb-2">
         <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-secondary/50 border-secondary">
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-secondary border-secondary text-foreground">
             <SelectItem value="all">All Categories</SelectItem>
             {categories.sort().map(category => (
               <SelectItem key={category} value={category}>{category}</SelectItem>
@@ -77,7 +77,7 @@ const TimerList = ({
       
       {/* Show message when filtered results are empty */}
       {filteredTimers.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <p>No timers in this category. Try selecting a different category or create a new timer.</p>
         </div>
       )}

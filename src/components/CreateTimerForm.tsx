@@ -22,10 +22,10 @@ const CreateTimerForm = ({ onAddTimer }: CreateTimerFormProps) => {
   return (
     <Button
       onClick={handleAddTimer}
-      className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg"
+      className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg bg-accent hover:bg-accent/90 transition-all duration-300 shadow-accent/20"
       size="icon"
     >
-      <Plus size={30} />
+      <Plus size={30} className="text-accent-foreground" />
     </Button>
   );
 };

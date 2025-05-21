@@ -36,30 +36,38 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       
       <div className="container mx-auto px-4 pb-20 max-w-5xl">
         <Tabs defaultValue="timers" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="timers">Timers</TabsTrigger>
-            <TabsTrigger value="stats">Analytics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 backdrop-blur-sm">
+            <TabsTrigger value="timers" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground">
+              Timers
+            </TabsTrigger>
+            <TabsTrigger value="stats" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground">
+              Analytics
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="timers" className="space-y-4">
-            <TimerList
-              timers={timers}
-              onToggle={toggleTimer}
-              onReset={resetTimer}
-              onDelete={handleDelete}
-              onRename={handleRename}
-              newTimerId={newTimerId}
-            />
+            <div className="glass-effect rounded-lg p-4">
+              <TimerList
+                timers={timers}
+                onToggle={toggleTimer}
+                onReset={resetTimer}
+                onDelete={handleDelete}
+                onRename={handleRename}
+                newTimerId={newTimerId}
+              />
+            </div>
             <CreateTimerForm onAddTimer={handleAddTimer} />
           </TabsContent>
           
           <TabsContent value="stats">
-            <TimeCharts timers={timers} />
+            <div className="glass-effect rounded-lg p-4">
+              <TimeCharts timers={timers} />
+            </div>
           </TabsContent>
         </Tabs>
       </div>
