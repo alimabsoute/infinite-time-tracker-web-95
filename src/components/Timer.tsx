@@ -124,7 +124,9 @@ const Timer = ({
   }, [isNew, isEnlarged]);
 
   const handleRename = () => {
-    onRename(timer.id, editedName || "Timer", selectedCategory || undefined);
+    // If selectedCategory is "none", treat it as undefined (no category)
+    const category = selectedCategory === "none" ? undefined : selectedCategory || undefined;
+    onRename(timer.id, editedName || "Timer", category);
     setIsEditing(false);
     setIsEnlarged(false);
   };
