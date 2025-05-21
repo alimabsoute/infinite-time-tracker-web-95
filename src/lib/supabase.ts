@@ -1,26 +1,45 @@
+
+// This file is deprecated and kept for backward compatibility
+// Please use the official Supabase client from @/integrations/supabase/client.ts instead
 import { createClient } from '@supabase/supabase-js';
-import { Timer } from '../types';
+import { supabase as officialClient } from '@/integrations/supabase/client';
 
-// Access Supabase environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Provide a warning when this module is imported
+console.warn('The supabase.ts module is deprecated. Please update your imports to use @/integrations/supabase/client');
 
-// Provide clearer error messages if environment variables are missing
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase environment variables are not defined!', {
-    url: supabaseUrl ? 'defined' : 'missing',
-    key: supabaseAnonKey ? 'defined' : 'missing'
+// Export the official client
+export const supabase = officialClient;
+
+// Re-export helper functions but implemented with the official client
+export const getCurrentUser = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
+};
+
+export const signInWithEmail = async (email: string, password: string) => {
+  return await supabase.auth.signInWithPassword({
+    email,
+    password,
   });
-  console.warn('Please make sure you have connected your project to Supabase in the Lovable interface and set up the environment variables.');
-}
+};
 
-// Create the Supabase client with proper type checking
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder-url.supabase.co', // This ensures the client initializes, but won't work without real values
-  supabaseAnonKey || 'placeholder-key'
-);
+export const signUpWithEmail = async (email: string, password: string) => {
+  return await supabase.auth.signUp({
+    email,
+    password,
+  });
+};
 
-// Timers table helper functions
+export const signOut = async () => {
+  return await supabase.auth.signOut();
+};
+
+// Helper functions for timers table
 export const fetchTimers = async () => {
   try {
     const { data, error } = await supabase
@@ -34,7 +53,7 @@ export const fetchTimers = async () => {
     }
 
     // Transform database records to Timer objects
-    return data.map((record: any): Timer => ({
+    return data.map((record: any) => ({
       id: record.id,
       name: record.name,
       elapsedTime: record.elapsed_time,
@@ -51,7 +70,14 @@ export const fetchTimers = async () => {
   }
 };
 
-export const createTimer = async (timer: Timer) => {
+export const createTimer = async (timer: any) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    console.error('User not authenticated');
+    return false;
+  }
+  
   const { error } = await supabase.from('timers').insert({
     id: timer.id,
     name: timer.name,
@@ -62,6 +88,7 @@ export const createTimer = async (timer: Timer) => {
     tags: timer.tags,
     deadline: timer.deadline?.toISOString(),
     priority: timer.priority,
+    user_id: user.id // Important: Set the user_id to satisfy RLS policy
   });
 
   if (error) {
@@ -71,7 +98,7 @@ export const createTimer = async (timer: Timer) => {
   return true;
 };
 
-export const updateTimer = async (timer: Timer) => {
+export const updateTimer = async (timer: any) => {
   const { error } = await supabase
     .from('timers')
     .update({
@@ -106,9 +133,9 @@ export const deleteTimer = async (id: string) => {
 };
 
 // Subscribe to timer changes
-export const subscribeToTimers = (callback: (timers: Timer[]) => void) => {
-  const subscription = supabase
-    .channel('timers_channel')
+export const subscribeToTimers = (callback: (timers: any[]) => void) => {
+  const channel = supabase
+    .channel('timers_changes')
     .on('postgres_changes', { 
       event: '*', 
       schema: 'public', 
@@ -121,40 +148,6 @@ export const subscribeToTimers = (callback: (timers: Timer[]) => void) => {
     .subscribe();
 
   return () => {
-    supabase.removeChannel(subscription);
+    supabase.removeChannel(channel);
   };
-};
-
-// Auth helper functions
-export const getCurrentUser = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
-  } catch (error) {
-    console.error('Error getting current user:', error);
-    return null;
-  }
-};
-
-export const signInWithEmail = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  return { data, error };
-};
-
-export const signUpWithEmail = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
-
-  return { data, error };
-};
-
-export const signOut = async () => {
-  const { error } = await supabase.auth.signOut();
-  return { error };
 };

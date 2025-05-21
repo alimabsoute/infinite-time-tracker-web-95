@@ -1,12 +1,7 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Timer } from "../types";
-import { 
-  fetchTimers,
-  createTimer,
-  updateTimer,
-  deleteTimer as deleteTimerFromSupabase,
-  subscribeToTimers
-} from "../lib/supabase";
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -27,13 +22,31 @@ export const useTimers = () => {
     const loadTimers = async () => {
       try {
         setLoading(true);
-        const data = await fetchTimers();
+        const { data, error } = await supabase
+          .from('timers')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error("Error loading timers:", error);
+          toast.error("Failed to load timers");
+          setTimers([]);
+          return;
+        }
+
         // Process dates to ensure they're Date objects
         const processedTimers = data.map(timer => ({
-          ...timer,
-          createdAt: new Date(timer.createdAt),
+          id: timer.id,
+          name: timer.name,
+          elapsedTime: timer.elapsed_time,
+          isRunning: timer.is_running,
+          createdAt: new Date(timer.created_at),
           deadline: timer.deadline ? new Date(timer.deadline) : undefined,
+          category: timer.category || undefined,
+          tags: timer.tags || undefined,
+          priority: timer.priority || undefined,
         }));
+        
         setTimers(processedTimers);
       } catch (error) {
         console.error("Error loading timers:", error);
@@ -50,18 +63,46 @@ export const useTimers = () => {
   useEffect(() => {
     if (!user) return;
 
-    const unsubscribe = subscribeToTimers((updatedTimers) => {
-      // Process dates to ensure they're Date objects
-      const processedTimers = updatedTimers.map(timer => ({
-        ...timer,
-        createdAt: new Date(timer.createdAt),
-        deadline: timer.deadline ? new Date(timer.deadline) : undefined,
-      }));
-      setTimers(processedTimers);
-    });
+    const channel = supabase
+      .channel('timers_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'timers' 
+        }, 
+        async () => {
+          // When anything changes, fetch the latest timers
+          const { data, error } = await supabase
+            .from('timers')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (error) {
+            console.error("Error fetching updated timers:", error);
+            return;
+          }
+
+          // Process dates to ensure they're Date objects
+          const processedTimers = data.map(timer => ({
+            id: timer.id,
+            name: timer.name,
+            elapsedTime: timer.elapsed_time,
+            isRunning: timer.is_running,
+            createdAt: new Date(timer.created_at),
+            deadline: timer.deadline ? new Date(timer.deadline) : undefined,
+            category: timer.category || undefined,
+            tags: timer.tags || undefined,
+            priority: timer.priority || undefined,
+          }));
+          
+          setTimers(processedTimers);
+        }
+      )
+      .subscribe();
 
     return () => {
-      unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user]);
 
@@ -85,9 +126,16 @@ export const useTimers = () => {
         const runningTimers = updatedTimers.filter(t => t.isRunning);
         if (runningTimers.length > 0) {
           runningTimers.forEach(timer => {
-            updateTimer(timer).catch(err => 
-              console.error("Error updating timer:", err)
-            );
+            supabase
+              .from('timers')
+              .update({
+                elapsed_time: timer.elapsedTime,
+                is_running: timer.isRunning
+              })
+              .eq('id', timer.id)
+              .then(({ error }) => {
+                if (error) console.error("Error updating timer:", error);
+              });
           });
         }
 
@@ -118,12 +166,23 @@ export const useTimers = () => {
       setTimers((prev) => [...prev, newTimer]);
       
       // Save to Supabase
-      const success = await createTimer(newTimer);
+      const { error } = await supabase
+        .from('timers')
+        .insert({
+          id: newTimer.id,
+          name: newTimer.name,
+          elapsed_time: newTimer.elapsedTime,
+          is_running: newTimer.isRunning,
+          created_at: newTimer.createdAt.toISOString(),
+          category: newTimer.category,
+          user_id: user.id // Important: Set the user_id to satisfy RLS policy
+        });
       
-      if (!success) {
+      if (error) {
         // Revert optimistic update if failed
         setTimers((prev) => prev.filter(t => t.id !== newTimer.id));
         toast.error("Failed to create timer");
+        console.error("Error adding timer:", error);
         return "";
       }
       
@@ -154,12 +213,14 @@ export const useTimers = () => {
         const newState = !updatedTimer.isRunning;
         
         // Update in Supabase
-        const success = await updateTimer({
-          ...updatedTimer,
-          isRunning: newState
-        });
+        const { error } = await supabase
+          .from('timers')
+          .update({
+            is_running: newState
+          })
+          .eq('id', id);
         
-        if (!success) {
+        if (error) {
           // Revert optimistic update if failed
           setTimers((prev) =>
             prev.map((timer) =>
@@ -169,6 +230,7 @@ export const useTimers = () => {
             )
           );
           toast.error("Failed to update timer");
+          console.error("Error toggling timer:", error);
         }
       }
     } catch (error) {
@@ -194,16 +256,19 @@ export const useTimers = () => {
       const updatedTimer = timers.find(t => t.id === id);
       if (updatedTimer) {
         // Update in Supabase
-        const success = await updateTimer({
-          ...updatedTimer,
-          elapsedTime: 0,
-          isRunning: false
-        });
+        const { error } = await supabase
+          .from('timers')
+          .update({
+            elapsed_time: 0,
+            is_running: false
+          })
+          .eq('id', id);
         
-        if (!success) {
+        if (error) {
           // Revert optimistic update if failed
           setTimers((prev) => [...prev]); // Force re-render with original data
           toast.error("Failed to reset timer");
+          console.error("Error resetting timer:", error);
         }
       }
     } catch (error) {
@@ -224,12 +289,16 @@ export const useTimers = () => {
       setTimers((prev) => prev.filter((timer) => timer.id !== id));
 
       // Delete from Supabase
-      const success = await deleteTimerFromSupabase(id);
+      const { error } = await supabase
+        .from('timers')
+        .delete()
+        .eq('id', id);
       
-      if (!success) {
+      if (error) {
         // Revert optimistic update if failed
         setTimers((prev) => [...prev, timerToDelete]);
         toast.error("Failed to delete timer");
+        console.error("Error deleting timer:", error);
       }
     } catch (error) {
       console.error("Error deleting timer:", error);
@@ -259,17 +328,20 @@ export const useTimers = () => {
       const originalTimer = timers.find(t => t.id === id);
       if (originalTimer) {
         // Update in Supabase
-        const success = await updateTimer({
-          ...originalTimer,
-          name: newName,
-          isRunning: true,
-          category: category !== undefined ? category : originalTimer.category
-        });
+        const { error } = await supabase
+          .from('timers')
+          .update({
+            name: newName,
+            is_running: true,
+            category: category !== undefined ? category : originalTimer.category
+          })
+          .eq('id', id);
         
-        if (!success) {
+        if (error) {
           // Revert optimistic update if failed
           setTimers((prev) => [...prev]); // Force re-render with original data
           toast.error("Failed to rename timer");
+          console.error("Error renaming timer:", error);
         }
       }
     } catch (error) {
@@ -295,15 +367,18 @@ export const useTimers = () => {
       const originalTimer = timers.find(t => t.id === id);
       if (originalTimer) {
         // Update in Supabase
-        const success = await updateTimer({
-          ...originalTimer,
-          deadline
-        });
+        const { error } = await supabase
+          .from('timers')
+          .update({
+            deadline: deadline?.toISOString()
+          })
+          .eq('id', id);
         
-        if (!success) {
+        if (error) {
           // Revert optimistic update if failed
           setTimers((prev) => [...prev]); // Force re-render with original data
           toast.error("Failed to update deadline");
+          console.error("Error updating deadline:", error);
         } else if (deadline) {
           toast.success("Deadline updated", { 
             description: `Deadline set for ${deadline.toLocaleDateString()} at ${deadline.toLocaleTimeString()}` 
@@ -333,15 +408,18 @@ export const useTimers = () => {
       const originalTimer = timers.find(t => t.id === id);
       if (originalTimer) {
         // Update in Supabase
-        const success = await updateTimer({
-          ...originalTimer,
-          priority
-        });
+        const { error } = await supabase
+          .from('timers')
+          .update({
+            priority
+          })
+          .eq('id', id);
         
-        if (!success) {
+        if (error) {
           // Revert optimistic update if failed
           setTimers((prev) => [...prev]); // Force re-render with original data
           toast.error("Failed to update priority");
+          console.error("Error updating priority:", error);
         } else if (priority !== undefined) {
           toast.success(`Priority set to ${priority}`, {
             description: priority === 1 ? "Highest priority" : priority === 5 ? "Lowest priority" : "",
