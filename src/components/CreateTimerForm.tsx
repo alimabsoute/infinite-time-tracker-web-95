@@ -10,7 +10,7 @@ const CreateTimerForm = ({ onAddTimer }: CreateTimerFormProps) => {
   const handleAddTimer = () => {
     onAddTimer("New Timer");
     
-    // Scroll to the center of the screen after a brief delay to allow DOM update
+    // Center view after a brief delay to allow DOM update
     setTimeout(() => {
       window.scrollTo({
         top: document.body.scrollHeight / 2 - window.innerHeight / 2,
@@ -22,10 +22,10 @@ const CreateTimerForm = ({ onAddTimer }: CreateTimerFormProps) => {
   return (
     <Button
       onClick={handleAddTimer}
-      className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
+      className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg"
       size="icon"
     >
-      <Plus size={24} />
+      <Plus size={30} />
     </Button>
   );
 };

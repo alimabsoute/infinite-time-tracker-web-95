@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Timer as TimerType } from "../types";
-import { Play, Pause, RotateCcw, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TimerProps {
@@ -54,6 +54,7 @@ const Timer = ({
   
   const longPressTimeoutRef = useRef<number | null>(null);
   const timerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   
   // Determine a consistent color based on timer ID
   const colorIndex = parseInt(timer.id.slice(-5), 16) % pastelColors.length;
@@ -66,12 +67,10 @@ const Timer = ({
     longPressTimeoutRef.current = window.setTimeout(() => {
       setIsEditing(true);
       setIsEnlarged(true);
-      // Scroll to center this timer if needed
-      timerRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'center'
-      });
+      // Focus the input after a brief delay to allow the component to render
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
     }, 1500); // 1.5 seconds for long press
   };
   
@@ -93,19 +92,17 @@ const Timer = ({
   
   // Ensure new timer is centered on screen
   useEffect(() => {
-    if (isNew && timerRef.current) {
+    if ((isNew || isEnlarged) && timerRef.current) {
       setTimeout(() => {
-        timerRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'center'
-        });
+        if (isNew && inputRef.current) {
+          inputRef.current.focus();
+        }
       }, 100);
     }
-  }, [isNew]);
+  }, [isNew, isEnlarged]);
 
   const handleRename = () => {
-    onRename(timer.id, editedName);
+    onRename(timer.id, editedName || "Timer");
     setIsEditing(false);
     setIsEnlarged(false);
   };
@@ -128,34 +125,29 @@ const Timer = ({
   
   // Size classes based on whether this is a new/enlarged timer
   const sizeClasses = isEnlarged 
-    ? "w-72 h-72 z-20" 
-    : "w-40 h-40 hover:scale-105 transition-transform";
-    
-  // Position classes for enlarged timer - no longer using a card/background
-  const positionClasses = isEnlarged 
-    ? "fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" 
-    : "";
+    ? "w-64 h-64 z-20" 
+    : "w-36 h-36 hover:scale-105 transition-transform";
 
   return (
     <div 
       ref={timerRef}
       className={cn(
-        "relative flex flex-col items-center justify-center",
-        isEnlarged ? "mb-8" : "mb-4",
-        positionClasses
+        "relative",
+        isEnlarged ? "" : "mb-4"
       )}
     >
       {/* Overlay for enlarged timer */}
       {isEnlarged && (
-        <div className="fixed inset-0 bg-black/50 z-10" onClick={handleCancel} />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10" onClick={handleCancel} />
       )}
       
       {/* Circular timer container */}
       <div 
         className={cn(
-          "rounded-full shadow-lg flex flex-col items-center justify-center relative transition-all",
+          "rounded-full flex flex-col items-center justify-center relative transition-all",
           sizeClasses,
-          timer.isRunning ? "border-4 border-primary" : "border border-gray-200 dark:border-gray-700"
+          isEnlarged ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" : "",
+          timer.isRunning ? "border-4 border-primary" : "border-2 border-gray-300"
         )}
         style={{ backgroundColor: bgColor }}
         onMouseDown={handleMouseDown}
@@ -165,57 +157,73 @@ const Timer = ({
         onTouchCancel={handleMouseUp}
       >
         {/* Edit/name section at top of circle */}
-        <div className="absolute top-4 left-0 right-0 flex justify-center px-2">
+        <div className={cn(
+          "absolute top-4 w-full flex justify-center px-2",
+          isEnlarged ? "top-2" : ""
+        )}>
           {isEditing ? (
             <Input
+              ref={inputRef}
               value={editedName}
               onChange={(e) => setEditedName(e.target.value)}
               onKeyDown={handleKeyDown}
               autoFocus
-              className="w-3/4 h-8 text-sm bg-white/80"
+              className={cn(
+                "text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0",
+                isEnlarged ? "text-lg" : "text-sm h-6 px-1"
+              )}
               placeholder="Timer name"
             />
           ) : (
-            <div className="font-medium text-center truncate w-3/4 px-2">
+            <div className={cn(
+              "font-medium text-center truncate w-4/5 px-2",
+              isEnlarged ? "text-lg" : "text-sm"
+            )}>
               {timer.name}
             </div>
           )}
         </div>
         
         {/* Timer display */}
-        <div className={cn("font-bold text-center my-1", isEnlarged ? "text-4xl" : "text-2xl")}>
+        <div className={cn(
+          "font-bold text-center mt-4",
+          isEnlarged ? "text-5xl" : "text-xl"
+        )}>
           {formatTime(timer.elapsedTime)}
         </div>
         
-        {/* Controls at the bottom of the circle when not editing */}
-        {!isEditing && (
-          <div className="absolute bottom-4 flex justify-center gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggle(timer.id);
-              }}
-              className="h-8 w-8 p-0 rounded-full bg-white/30 hover:bg-white/50"
-            >
-              {timer.isRunning ? <Pause size={16} /> : <Play size={16} />}
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={(e) => {
-                e.stopPropagation();
-                onReset(timer.id);
-              }}
-              className="h-8 w-8 p-0 rounded-full bg-white/30 hover:bg-white/50"
-            >
-              <RotateCcw size={16} />
-            </Button>
+        {/* Controls are only visible when not editing */}
+        {!isEditing && !isEnlarged && (
+          <div className="absolute bottom-2 flex justify-center gap-2 mt-2">
+            {timer.isRunning ? (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggle(timer.id);
+                }}
+                className="h-7 w-7 p-0 rounded-full bg-white/30 hover:bg-white/50"
+              >
+                <div className="w-2 h-4 bg-gray-800 rounded-sm"></div>
+              </Button>
+            ) : (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggle(timer.id);
+                }}
+                className="h-7 w-7 p-0 rounded-full bg-white/30 hover:bg-white/50"
+              >
+                <div className="w-0 h-0 border-t-transparent border-t-8 border-b-transparent border-b-8 border-l-gray-800 border-l-12"></div>
+              </Button>
+            )}
           </div>
         )}
         
-        {/* Add confirm/cancel buttons when editing - positioned higher up */}
+        {/* Add confirm/cancel buttons when editing - positioned at the top edges */}
         {isEditing && (
           <>
             <Button
@@ -225,9 +233,9 @@ const Timer = ({
                 e.stopPropagation();
                 handleCancel();
               }}
-              className="absolute left-6 top-6 h-10 w-10 p-0 rounded-full bg-white/70 hover:bg-white/90"
+              className="absolute left-4 top-4 h-10 w-10 p-0 rounded-full bg-white"
             >
-              <X size={20} />
+              <X size={20} className="text-red-500" />
             </Button>
             <Button
               variant="ghost"
@@ -236,9 +244,9 @@ const Timer = ({
                 e.stopPropagation();
                 handleRename();
               }}
-              className="absolute right-6 top-6 h-10 w-10 p-0 rounded-full bg-white/70 hover:bg-white/90"
+              className="absolute right-4 top-4 h-10 w-10 p-0 rounded-full bg-white"
             >
-              <Check size={20} />
+              <Check size={20} className="text-green-500" />
             </Button>
           </>
         )}
