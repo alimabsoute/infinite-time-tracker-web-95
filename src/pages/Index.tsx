@@ -21,8 +21,8 @@ const Index = () => {
     }, 5000); // 5 seconds should be enough time for user to name the timer
   };
 
-  const handleRename = (id: string, newName: string) => {
-    renameTimer(id, newName);
+  const handleRename = (id: string, newName: string, category?: string) => {
+    renameTimer(id, newName, category);
     if (id === newTimerId) {
       setNewTimerId(null);
     }
@@ -43,7 +43,7 @@ const Index = () => {
         <Tabs defaultValue="timers" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="timers">Timers</TabsTrigger>
-            <TabsTrigger value="stats">Statistics</TabsTrigger>
+            <TabsTrigger value="stats">Analytics</TabsTrigger>
           </TabsList>
           
           <TabsContent value="timers" className="space-y-4">

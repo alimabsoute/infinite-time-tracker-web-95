@@ -45,13 +45,14 @@ export const useTimers = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const addTimer = useCallback((name: string) => {
+  const addTimer = useCallback((name: string, category?: string) => {
     const newTimer: Timer = {
       id: Date.now().toString(),
       name,
       elapsedTime: 0,
       isRunning: false, // Changed to false so timer doesn't start until confirmed
       createdAt: new Date(),
+      category,
     };
     setTimers((prev) => [...prev, newTimer]);
     return newTimer.id; // Return the ID of the new timer
@@ -81,11 +82,16 @@ export const useTimers = () => {
     setTimers((prev) => prev.filter((timer) => timer.id !== id));
   }, []);
 
-  const renameTimer = useCallback((id: string, newName: string) => {
+  const renameTimer = useCallback((id: string, newName: string, category?: string) => {
     setTimers((prev) =>
       prev.map((timer) =>
         timer.id === id
-          ? { ...timer, name: newName, isRunning: true } // Start timer when confirmed
+          ? { 
+              ...timer, 
+              name: newName, 
+              isRunning: true,  // Start timer when confirmed
+              category: category !== undefined ? category : timer.category // Only update category if provided
+            }
           : timer
       )
     );

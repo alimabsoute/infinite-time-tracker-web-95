@@ -2,8 +2,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Timer as TimerType } from "../types";
-import { Check, X } from "lucide-react";
+import { Check, Tag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TimerProps {
@@ -11,7 +12,7 @@ interface TimerProps {
   onToggle: (id: string) => void;
   onReset: (id: string) => void;
   onDelete: (id: string) => void;
-  onRename: (id: string, newName: string) => void;
+  onRename: (id: string, newName: string, category?: string) => void;
   isNew?: boolean;
 }
 
@@ -40,6 +41,18 @@ const pastelColors = [
   "#F1F0FB", // Soft Gray
 ];
 
+// Available categories for timers
+const categories = [
+  "Work",
+  "Personal",
+  "Health",
+  "Study",
+  "Leisure",
+  "Project",
+  "Meeting",
+  "Other",
+];
+
 const Timer = ({ 
   timer, 
   onToggle, 
@@ -51,6 +64,7 @@ const Timer = ({
   const [isEditing, setIsEditing] = useState(isNew);
   const [editedName, setEditedName] = useState(timer.name);
   const [isEnlarged, setIsEnlarged] = useState(isNew);
+  const [selectedCategory, setSelectedCategory] = useState(timer.category || "");
   
   const longPressTimeoutRef = useRef<number | null>(null);
   const timerRef = useRef<HTMLDivElement>(null);
@@ -102,7 +116,7 @@ const Timer = ({
   }, [isNew, isEnlarged]);
 
   const handleRename = () => {
-    onRename(timer.id, editedName || "Timer");
+    onRename(timer.id, editedName || "Timer", selectedCategory || undefined);
     setIsEditing(false);
     setIsEnlarged(false);
   };
@@ -114,6 +128,7 @@ const Timer = ({
       setIsEditing(false);
       setIsEnlarged(false);
       setEditedName(timer.name);
+      setSelectedCategory(timer.category || "");
     }
   };
 
@@ -156,6 +171,13 @@ const Timer = ({
         onTouchEnd={handleMouseUp}
         onTouchCancel={handleMouseUp}
       >
+        {/* Category indicator (small tag icon) - only when not editing */}
+        {!isEditing && timer.category && (
+          <div className="absolute top-2 right-2">
+            <Tag size={14} className="text-gray-500" />
+          </div>
+        )}
+        
         {/* Edit/name section at top of circle */}
         <div className={cn(
           "absolute top-4 w-full flex justify-center px-2",
@@ -191,6 +213,26 @@ const Timer = ({
         )}>
           {formatTime(timer.elapsedTime)}
         </div>
+        
+        {/* Category selector - only visible when editing and enlarged */}
+        {isEditing && isEnlarged && (
+          <div className="absolute bottom-14 w-10/12">
+            <Select 
+              value={selectedCategory} 
+              onValueChange={setSelectedCategory}
+            >
+              <SelectTrigger className="h-8 text-sm">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">No Category</SelectItem>
+                {categories.map(category => (
+                  <SelectItem key={category} value={category}>{category}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         
         {/* Controls are only visible when not editing */}
         {!isEditing && !isEnlarged && (
