@@ -133,8 +133,10 @@ const Timer = ({
 
   const handleCancel = () => {
     if (isNew) {
+      // For new timers, delete them when canceled
       onDelete(timer.id);
-    } else {
+    } else if (isEnlarged) {
+      // When in enlarged view, just close the enlarged view
       setIsEditing(false);
       setIsEnlarged(false);
       setEditedName(timer.name);
