@@ -29,16 +29,16 @@ const formatTime = (milliseconds: number): string => {
   ].join(":");
 };
 
-// Array of pastel colors for timer backgrounds
-const pastelColors = [
-  "#F2FCE2", // Soft Green
-  "#FEF7CD", // Soft Yellow
-  "#FEC6A1", // Soft Orange
-  "#E5DEFF", // Soft Purple
-  "#FFDEE2", // Soft Pink
-  "#FDE1D3", // Soft Peach
-  "#D3E4FD", // Soft Blue
-  "#F1F0FB", // Soft Gray
+// Enhanced timer colors - more vibrant for better visibility
+const timerColors = [
+  "#6366F1", // Indigo
+  "#EC4899", // Pink
+  "#8B5CF6", // Purple
+  "#10B981", // Emerald
+  "#F59E0B", // Amber
+  "#EF4444", // Red
+  "#3B82F6", // Blue
+  "#14B8A6", // Teal
 ];
 
 // Available categories for timers
@@ -71,8 +71,16 @@ const Timer = ({
   const inputRef = useRef<HTMLInputElement>(null);
   
   // Determine a consistent color based on timer ID
-  const colorIndex = parseInt(timer.id.slice(-5), 16) % pastelColors.length;
-  const bgColor = pastelColors[colorIndex];
+  const colorIndex = parseInt(timer.id.slice(-5), 16) % timerColors.length;
+  const primaryColor = timerColors[colorIndex];
+  
+  // Calculate contrasting text color based on background
+  const getContrastingTextColor = (bgColor: string) => {
+    // Using a fixed white text for now as our backgrounds are all deep enough
+    return "#FFFFFF";
+  };
+  
+  const textColor = getContrastingTextColor(primaryColor);
   
   // Handle long press logic - activate on ANY part of the timer
   const handleMouseDown = () => {
@@ -147,7 +155,7 @@ const Timer = ({
     <div 
       ref={timerRef}
       className={cn(
-        "relative",
+        "relative timer-container",
         isEnlarged ? "" : "mb-4"
       )}
     >
@@ -159,29 +167,32 @@ const Timer = ({
       {/* Circular timer container */}
       <div 
         className={cn(
-          "rounded-full flex flex-col items-center justify-center relative transition-all",
+          "rounded-full flex flex-col items-center justify-center relative transition-all timer-circle",
           sizeClasses,
-          isEnlarged ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" : "",
-          timer.isRunning ? "border-4 border-primary" : "border-2 border-gray-300"
+          isEnlarged ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 enlarged" : "",
+          timer.isRunning ? "running" : ""
         )}
-        style={{ backgroundColor: bgColor }}
+        style={{ 
+          backgroundColor: primaryColor,
+          color: textColor
+        }}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onTouchStart={handleMouseDown}
         onTouchEnd={handleMouseUp}
         onTouchCancel={handleMouseUp}
       >
-        {/* Category indicator (small tag icon) - only when not editing */}
+        {/* Category indicator - more visible now */}
         {!isEditing && timer.category && (
-          <div className="absolute top-2 right-2">
-            <Tag size={14} className="text-gray-500" />
+          <div className="absolute top-2 right-2 bg-white/20 px-1.5 py-0.5 rounded-full text-[10px] max-w-[70px] truncate">
+            {timer.category}
           </div>
         )}
         
         {/* Edit/name section at top of circle */}
         <div className={cn(
           "absolute top-4 w-full flex justify-center px-2",
-          isEnlarged ? "top-2" : ""
+          isEnlarged ? "top-6" : ""
         )}>
           {isEditing ? (
             <Input
@@ -191,7 +202,7 @@ const Timer = ({
               onKeyDown={handleKeyDown}
               autoFocus
               className={cn(
-                "text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0",
+                "text-center border-0 bg-white/20 focus-visible:ring-1 focus-visible:ring-white/40 focus-visible:ring-offset-0",
                 isEnlarged ? "text-lg" : "text-sm h-6 px-1"
               )}
               placeholder="Timer name"
@@ -221,7 +232,7 @@ const Timer = ({
               value={selectedCategory} 
               onValueChange={setSelectedCategory}
             >
-              <SelectTrigger className="h-8 text-sm">
+              <SelectTrigger className="h-8 text-sm bg-white/20 border-white/20 text-white">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
@@ -247,7 +258,7 @@ const Timer = ({
                 }}
                 className="h-7 w-7 p-0 rounded-full bg-white/30 hover:bg-white/50"
               >
-                <div className="w-2 h-4 bg-gray-800 rounded-sm"></div>
+                <div className="w-2 h-4 bg-white rounded-sm"></div>
               </Button>
             ) : (
               <Button 
@@ -259,7 +270,7 @@ const Timer = ({
                 }}
                 className="h-7 w-7 p-0 rounded-full bg-white/30 hover:bg-white/50"
               >
-                <div className="w-0 h-0 border-t-transparent border-t-8 border-b-transparent border-b-8 border-l-gray-800 border-l-12"></div>
+                <div className="w-0 h-0 border-t-transparent border-t-8 border-b-transparent border-b-8 border-l-white border-l-12"></div>
               </Button>
             )}
           </div>
@@ -275,9 +286,9 @@ const Timer = ({
                 e.stopPropagation();
                 handleCancel();
               }}
-              className="absolute left-4 top-4 h-10 w-10 p-0 rounded-full bg-white"
+              className="absolute left-4 top-4 h-10 w-10 p-0 rounded-full bg-white/20 hover:bg-white/30"
             >
-              <X size={20} className="text-red-500" />
+              <X size={20} className="text-white" />
             </Button>
             <Button
               variant="ghost"
@@ -286,9 +297,9 @@ const Timer = ({
                 e.stopPropagation();
                 handleRename();
               }}
-              className="absolute right-4 top-4 h-10 w-10 p-0 rounded-full bg-white"
+              className="absolute right-4 top-4 h-10 w-10 p-0 rounded-full bg-white/20 hover:bg-white/30"
             >
-              <Check size={20} className="text-green-500" />
+              <Check size={20} className="text-white" />
             </Button>
           </>
         )}
