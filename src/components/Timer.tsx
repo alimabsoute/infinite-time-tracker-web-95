@@ -1,12 +1,17 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Timer as TimerType } from "../types";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Check, Edit, RotateCcw, Tag, Trash2, X } from "lucide-react";
+import { Check, Clock, Edit, RotateCcw, Tag, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { format, isPast, isWithinInterval, addHours, addMinutes } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { useEffect as useLayoutEffect } from "react";
 
 interface TimerProps {
   timer: TimerType;
@@ -14,6 +19,8 @@ interface TimerProps {
   onReset: (id: string) => void;
   onDelete: (id: string) => void;
   onRename: (id: string, newName: string, category?: string) => void;
+  onUpdateDeadline: (id: string, deadline: Date | undefined) => void;
+  onUpdatePriority: (id: string, priority: number | undefined) => void;
   isNew?: boolean;
 }
 
@@ -54,12 +61,17 @@ const categories = [
   "Other",
 ];
 
+// Priority levels
+const priorityLevels = [1, 2, 3, 4, 5];
+
 const Timer = ({ 
   timer, 
   onToggle, 
   onReset, 
   onDelete, 
   onRename,
+  onUpdateDeadline,
+  onUpdatePriority,
   isNew = false 
 }: TimerProps) => {
   const [isEditing, setIsEditing] = useState(isNew);
@@ -67,6 +79,11 @@ const Timer = ({
   const [isEnlarged, setIsEnlarged] = useState(isNew);
   const [selectedCategory, setSelectedCategory] = useState(timer.category || "");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedDeadline, setSelectedDeadline] = useState<Date | undefined>(timer.deadline);
+  const [selectedPriority, setSelectedPriority] = useState<number | undefined>(timer.priority);
+  const [deadlineHours, setDeadlineHours] = useState("12");
+  const [deadlineMinutes, setDeadlineMinutes] = useState("00");
+  const [isBlinking, setIsBlinking] = useState(false);
   
   const timerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +99,35 @@ const Timer = ({
   };
   
   const textColor = getContrastingTextColor(primaryColor);
+
+  // Check if deadline is approaching (within 1 hour) or passed
+  useEffect(() => {
+    if (!timer.deadline) return;
+
+    // Determine if deadline is approaching or passed
+    const now = new Date();
+    const isApproaching = timer.deadline && 
+      isWithinInterval(now, {
+        start: addHours(timer.deadline, -1),
+        end: timer.deadline
+      });
+    const hasExpired = timer.deadline && isPast(timer.deadline);
+    
+    // Set up blinking effect for approaching deadlines
+    if (isApproaching || hasExpired) {
+      const blinkInterval = setInterval(() => {
+        setIsBlinking(prev => !prev);
+      }, 1000);
+      
+      // Play sound if deadline has passed
+      if (hasExpired) {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/914/914.wav');
+        audio.play().catch(e => console.log("Audio play error:", e));
+      }
+      
+      return () => clearInterval(blinkInterval);
+    }
+  }, [timer.deadline]);
   
   // Handle timer click - now just enlarges the timer view
   const handleTimerClick = () => {
@@ -117,6 +163,11 @@ const Timer = ({
     // If selectedCategory is "none", treat it as undefined (no category)
     const category = selectedCategory === "none" ? undefined : selectedCategory || undefined;
     onRename(timer.id, editedName || "Timer", category);
+    
+    // Update deadline and priority
+    onUpdateDeadline(timer.id, selectedDeadline);
+    onUpdatePriority(timer.id, selectedPriority);
+    
     setIsEditing(false);
     setIsEnlarged(false);
   };
@@ -131,6 +182,8 @@ const Timer = ({
       setIsEnlarged(false);
       setEditedName(timer.name);
       setSelectedCategory(timer.category || "");
+      setSelectedDeadline(timer.deadline);
+      setSelectedPriority(timer.priority);
     }
   };
 
@@ -159,10 +212,70 @@ const Timer = ({
     }
   };
   
+  const handleDeadlineChange = (date: Date | undefined) => {
+    if (date) {
+      // Apply the time from hours/minutes inputs
+      const newDate = new Date(date);
+      newDate.setHours(parseInt(deadlineHours));
+      newDate.setMinutes(parseInt(deadlineMinutes));
+      setSelectedDeadline(newDate);
+    } else {
+      setSelectedDeadline(undefined);
+    }
+  };
+  
+  const clearDeadline = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedDeadline(undefined);
+  };
+
+  const formatDeadline = (date?: Date) => {
+    if (!date) return "No deadline";
+    return format(date, "MMM d, h:mm a");
+  };
+
+  // Format deadline time remaining or alert if passed
+  const getDeadlineStatus = (deadline?: Date) => {
+    if (!deadline) return null;
+    
+    const now = new Date();
+    const isPassed = isPast(deadline);
+    
+    if (isPassed) {
+      return <span className="text-red-500 font-bold">OVERDUE</span>;
+    }
+    
+    // Calculate time remaining
+    const diffMs = deadline.getTime() - now.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffHrs = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (diffDays > 0) {
+      return `${diffDays}d ${diffHrs}h remaining`;
+    } else if (diffHrs > 0) {
+      return `${diffHrs}h ${diffMins}m remaining`;
+    } else {
+      return `${diffMins}m remaining`;
+    }
+  };
+  
   // Size classes based on whether this is a new/enlarged timer
   const sizeClasses = isEnlarged 
     ? "w-64 h-64 z-20" 
     : "w-36 h-36 hover:scale-105 transition-transform";
+
+  // Determine if deadline should be highlighted due to approaching or passed
+  const deadlineClasses = cn(
+    "text-xs",
+    timer.deadline && isPast(timer.deadline) ? 
+      "text-red-500 font-bold" : 
+      (timer.deadline && isWithinInterval(new Date(), { 
+        start: addHours(timer.deadline, -1), 
+        end: timer.deadline 
+      }) ? "text-yellow-300" : "text-white/70"),
+    isBlinking ? "animate-pulse" : ""
+  );
 
   return (
     <ContextMenu>
@@ -177,6 +290,15 @@ const Timer = ({
           {/* Overlay for enlarged timer */}
           {isEnlarged && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10" onClick={handleCancel} />
+          )}
+          
+          {/* Priority badge - show only if priority is set */}
+          {timer.priority !== undefined && !isEditing && (
+            <div 
+              className="absolute -top-2 -right-2 bg-white text-black rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold z-10"
+            >
+              {timer.priority}
+            </div>
           )}
           
           {/* Circular timer container */}
@@ -236,9 +358,19 @@ const Timer = ({
               {formatTime(timer.elapsedTime)}
             </div>
             
+            {/* Display deadline if set (only when not editing) */}
+            {!isEditing && timer.deadline && (
+              <div className="absolute bottom-4 w-full flex justify-center">
+                <div className={deadlineClasses}>
+                  <Clock size={12} className="inline mr-1" />
+                  {formatDeadline(timer.deadline)}
+                </div>
+              </div>
+            )}
+            
             {/* Category selector - only visible when editing and enlarged */}
             {isEditing && isEnlarged && (
-              <div className="absolute bottom-14 w-10/12">
+              <div className="absolute bottom-36 w-10/12">
                 <Select 
                   value={selectedCategory} 
                   onValueChange={setSelectedCategory}
@@ -253,6 +385,79 @@ const Timer = ({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            )}
+            
+            {/* Priority selector - only visible when editing and enlarged */}
+            {isEditing && isEnlarged && (
+              <div className="absolute bottom-26 w-10/12 mt-2">
+                <Select 
+                  value={selectedPriority?.toString() || ""} 
+                  onValueChange={(value) => setSelectedPriority(value ? parseInt(value) : undefined)}
+                >
+                  <SelectTrigger className="h-8 text-sm bg-white/20 border-white/20 text-white mt-2">
+                    <SelectValue placeholder="Set priority (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">No Priority</SelectItem>
+                    {priorityLevels.map(level => (
+                      <SelectItem key={level} value={level.toString()}>
+                        {level} {level === 1 ? "(Highest)" : level === 5 ? "(Lowest)" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            {/* Deadline picker - only visible when editing and enlarged */}
+            {isEditing && isEnlarged && (
+              <div className="absolute bottom-16 w-10/12 mt-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal h-8 text-sm bg-white/20 border-white/20 text-white mt-2"
+                    >
+                      <Clock className="mr-2 h-4 w-4" />
+                      {selectedDeadline ? format(selectedDeadline, "PPP") : "Set deadline (optional)"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="center">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDeadline}
+                      onSelect={handleDeadlineChange}
+                      initialFocus
+                    />
+                    <div className="p-3 border-t border-border flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          className="w-14"
+                          value={deadlineHours}
+                          onChange={(e) => setDeadlineHours(e.target.value)}
+                          placeholder="HH"
+                          maxLength={2}
+                        />
+                        <span>:</span>
+                        <Input
+                          className="w-14"
+                          value={deadlineMinutes}
+                          onChange={(e) => setDeadlineMinutes(e.target.value)}
+                          placeholder="MM"
+                          maxLength={2}
+                        />
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={clearDeadline}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             )}
             

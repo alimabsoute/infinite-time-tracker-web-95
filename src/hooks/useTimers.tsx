@@ -10,9 +10,10 @@ export const useTimers = () => {
     const savedTimers = localStorage.getItem("timers");
     if (savedTimers) {
       try {
-        const parsedTimers = JSON.parse(savedTimers).map((timer: Timer) => ({
+        const parsedTimers = JSON.parse(savedTimers).map((timer: any) => ({
           ...timer,
           createdAt: new Date(timer.createdAt),
+          deadline: timer.deadline ? new Date(timer.deadline) : undefined,
         }));
         setTimers(parsedTimers);
       } catch (error) {
@@ -97,6 +98,35 @@ export const useTimers = () => {
     );
   }, []);
 
+  const updateDeadline = useCallback((id: string, deadline: Date | undefined) => {
+    setTimers((prev) =>
+      prev.map((timer) =>
+        timer.id === id
+          ? { ...timer, deadline }
+          : timer
+      )
+    );
+  }, []);
+
+  const updatePriority = useCallback((id: string, priority: number | undefined) => {
+    setTimers((prev) =>
+      prev.map((timer) =>
+        timer.id === id
+          ? { ...timer, priority }
+          : timer
+      )
+    );
+  }, []);
+
+  const reorderTimers = useCallback((reorderedTimers: Timer[]) => {
+    // Find the timers that aren't in the reordered list and add them at the end
+    const otherTimers = timers.filter(
+      timer => !reorderedTimers.some(rt => rt.id === timer.id)
+    );
+    
+    setTimers([...reorderedTimers, ...otherTimers]);
+  }, [timers]);
+
   return {
     timers,
     addTimer,
@@ -104,5 +134,8 @@ export const useTimers = () => {
     resetTimer,
     deleteTimer,
     renameTimer,
+    updateDeadline,
+    updatePriority,
+    reorderTimers,
   };
 };

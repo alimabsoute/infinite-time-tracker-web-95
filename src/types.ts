@@ -1,4 +1,5 @@
 
+
 export interface Timer {
   id: string;
   name: string;
@@ -7,6 +8,8 @@ export interface Timer {
   createdAt: Date;
   category?: string; // Optional category for grouping timers
   tags?: string[]; // Optional tags for filtering
+  deadline?: Date; // Optional deadline for timer completion
+  priority?: number; // Optional priority level (1-5, with 1 being highest)
 }
 
 export interface TimerChartData {

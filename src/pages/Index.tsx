@@ -8,9 +8,20 @@ import TimeCharts from "../components/TimeCharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Timer as TimerIcon, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
 
 const Index = () => {
-  const { timers, addTimer, toggleTimer, resetTimer, deleteTimer, renameTimer } = useTimers();
+  const { 
+    timers, 
+    addTimer, 
+    toggleTimer, 
+    resetTimer, 
+    deleteTimer, 
+    renameTimer,
+    updateDeadline,
+    updatePriority,
+    reorderTimers
+  } = useTimers();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
   const handleAddTimer = (name: string) => {
@@ -35,6 +46,31 @@ const Index = () => {
     if (id === newTimerId) {
       setNewTimerId(null);
     }
+  };
+
+  const handleUpdateDeadline = (id: string, deadline: Date | undefined) => {
+    updateDeadline(id, deadline);
+    
+    // Show toast notification when setting a deadline
+    if (deadline) {
+      toast("Deadline set", {
+        description: `Deadline set for ${deadline.toLocaleDateString()} at ${deadline.toLocaleTimeString()}`,
+      });
+    }
+  };
+
+  const handleUpdatePriority = (id: string, priority: number | undefined) => {
+    updatePriority(id, priority);
+    
+    if (priority !== undefined) {
+      toast(`Priority set to ${priority}`, {
+        description: priority === 1 ? "Highest priority" : priority === 5 ? "Lowest priority" : "",
+      });
+    }
+  };
+
+  const handleReorderTimers = (reorderedTimers: any[]) => {
+    reorderTimers(reorderedTimers);
   };
 
   // Calculate quick stats for the header
@@ -63,6 +99,23 @@ const Index = () => {
     }
     return `${minutes}m`;
   };
+
+  // Check for deadline notifications on component mount
+  useState(() => {
+    const now = new Date();
+    
+    // Find timers with passed deadlines
+    const overdueTimers = timers.filter(
+      timer => timer.deadline && timer.deadline < now
+    );
+    
+    // Show toast for overdue timers
+    overdueTimers.forEach(timer => {
+      toast.warning(`"${timer.name}" is overdue!`, {
+        description: `The deadline was ${timer.deadline?.toLocaleDateString()} at ${timer.deadline?.toLocaleTimeString()}`
+      });
+    });
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -128,6 +181,9 @@ const Index = () => {
                 onReset={resetTimer}
                 onDelete={handleDelete}
                 onRename={handleRename}
+                onUpdateDeadline={handleUpdateDeadline}
+                onUpdatePriority={handleUpdatePriority}
+                onReorder={handleReorderTimers}
                 newTimerId={newTimerId}
               />
             </div>
