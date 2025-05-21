@@ -6,6 +6,8 @@ import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import TimeCharts from "../components/TimeCharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, Timer as TimerIcon, TrendingUp } from "lucide-react";
 
 const Index = () => {
   const { timers, addTimer, toggleTimer, resetTimer, deleteTimer, renameTimer } = useTimers();
@@ -35,11 +37,79 @@ const Index = () => {
     }
   };
 
+  // Calculate quick stats for the header
+  const activeTimers = timers.filter(timer => timer.isRunning).length;
+  const totalTimers = timers.length;
+  
+  // Calculate total time tracked today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const todayTracked = timers.reduce((total, timer) => {
+    const timerDate = new Date(timer.createdAt);
+    if (timerDate >= today || timer.isRunning) {
+      return total + timer.elapsedTime;
+    }
+    return total;
+  }, 0);
+  
+  // Format time for display
+  const formatTimeForHeader = (ms: number): string => {
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       
       <div className="container mx-auto px-4 pb-20 max-w-5xl">
+        {/* New header stats section */}
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-indigo-900/10 backdrop-blur-sm">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="bg-indigo-500/20 p-2 rounded-full">
+                <TimerIcon size={20} className="text-indigo-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Active Timers</p>
+                <p className="text-xl font-semibold">{activeTimers} / {totalTimers}</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-emerald-900/10 backdrop-blur-sm">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="bg-emerald-500/20 p-2 rounded-full">
+                <Calendar size={20} className="text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Today</p>
+                <p className="text-xl font-semibold">{formatTimeForHeader(todayTracked)}</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-purple-900/10 backdrop-blur-sm">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="bg-purple-500/20 p-2 rounded-full">
+                <TrendingUp size={20} className="text-purple-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Categories</p>
+                <p className="text-xl font-semibold">
+                  {new Set(timers.map(t => t.category)).size}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
         <Tabs defaultValue="timers" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 backdrop-blur-sm">
             <TabsTrigger value="timers" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground">
