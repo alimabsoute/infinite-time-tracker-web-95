@@ -1,16 +1,24 @@
 import { createClient } from '@supabase/supabase-js';
 import { Timer } from '../types';
 
-// Check if the Supabase environment variables are defined
+// Access Supabase environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Check if environment variables are available
+// Provide clearer error messages if environment variables are missing
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase environment variables are not defined. Make sure you have connected your project to Supabase.');
+  console.error('Supabase environment variables are not defined!', {
+    url: supabaseUrl ? 'defined' : 'missing',
+    key: supabaseAnonKey ? 'defined' : 'missing'
+  });
+  console.warn('Please make sure you have connected your project to Supabase in the Lovable interface and set up the environment variables.');
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+// Create the Supabase client with proper type checking
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder-url.supabase.co', // This ensures the client initializes, but won't work without real values
+  supabaseAnonKey || 'placeholder-key'
+);
 
 // Timers table helper functions
 export const fetchTimers = async () => {
@@ -119,8 +127,13 @@ export const subscribeToTimers = (callback: (timers: Timer[]) => void) => {
 
 // Auth helper functions
 export const getCurrentUser = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
 };
 
 export const signInWithEmail = async (email: string, password: string) => {
