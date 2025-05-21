@@ -94,17 +94,13 @@ const Calendar = () => {
                 modifiers={{
                   booked: (date) => getTotalTimeForDate(date) > 0,
                 }}
-                styles={{
-                  day_today: { fontWeight: 'bold' },
-                  day: ({ isSelected, date }) => {
-                    // Add custom styling to days with activity
-                    const hasActivity = date && getTotalTimeForDate(date) > 0;
-                    const dotClass = hasActivity ? 'after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:size-1 after:rounded-full after:bg-primary' : '';
-                    return {
-                      position: 'relative',
-                      fontWeight: hasActivity ? 500 : 400,
-                      className: dotClass
-                    };
+                // Fix the styles property by using modifiersStyles instead
+                modifiersStyles={{
+                  today: { fontWeight: 'bold' },
+                  booked: { 
+                    position: 'relative',
+                    fontWeight: 500,
+                    // Use an element with absolute positioning for the dot indicator instead
                   }
                 }}
               />
