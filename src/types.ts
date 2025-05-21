@@ -1,5 +1,4 @@
 
-
 export interface Timer {
   id: string;
   name: string;
@@ -25,3 +24,16 @@ export interface CategoryChartData {
   percentage: number;
 }
 
+// Supabase database timer format (for reference)
+export interface DbTimer {
+  id: string;
+  user_id: string;
+  name: string;
+  elapsed_time: number;
+  is_running: boolean;
+  created_at: string; // ISO string format
+  category?: string;
+  tags?: string[];
+  deadline?: string; // ISO string format
+  priority?: number;
+}

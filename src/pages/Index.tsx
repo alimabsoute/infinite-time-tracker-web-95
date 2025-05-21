@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useTimers } from "../hooks/useTimers";
 import Header from "../components/Header";
+import AuthHeader from "../components/AuthHeader";
 import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import TimeCharts from "../components/TimeCharts";
@@ -9,10 +10,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Timer as TimerIcon, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "../contexts/AuthContext";
 
 const Index = () => {
+  const { user } = useAuth();
   const { 
     timers, 
+    loading,
     addTimer, 
     toggleTimer, 
     resetTimer, 
@@ -50,23 +55,10 @@ const Index = () => {
 
   const handleUpdateDeadline = (id: string, deadline: Date | undefined) => {
     updateDeadline(id, deadline);
-    
-    // Show toast notification when setting a deadline
-    if (deadline) {
-      toast("Deadline set", {
-        description: `Deadline set for ${deadline.toLocaleDateString()} at ${deadline.toLocaleTimeString()}`,
-      });
-    }
   };
 
   const handleUpdatePriority = (id: string, priority: number | undefined) => {
     updatePriority(id, priority);
-    
-    if (priority !== undefined) {
-      toast(`Priority set to ${priority}`, {
-        description: priority === 1 ? "Highest priority" : priority === 5 ? "Lowest priority" : "",
-      });
-    }
   };
 
   const handleReorderTimers = (reorderedTimers: any[]) => {
@@ -120,82 +112,107 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
+      <AuthHeader />
       
       <div className="container mx-auto px-4 pb-20 max-w-5xl">
-        {/* New header stats section */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-indigo-900/10 backdrop-blur-sm">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="bg-indigo-500/20 p-2 rounded-full">
-                <TimerIcon size={20} className="text-indigo-500" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Active Timers</p>
-                <p className="text-xl font-semibold">{activeTimers} / {totalTimers}</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-emerald-900/10 backdrop-blur-sm">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="bg-emerald-500/20 p-2 rounded-full">
-                <Calendar size={20} className="text-emerald-500" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Today</p>
-                <p className="text-xl font-semibold">{formatTimeForHeader(todayTracked)}</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-purple-900/10 backdrop-blur-sm">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="bg-purple-500/20 p-2 rounded-full">
-                <TrendingUp size={20} className="text-purple-500" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Categories</p>
-                <p className="text-xl font-semibold">
-                  {new Set(timers.map(t => t.category)).size}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Welcome message and user status */}
+        <div className="my-6">
+          <h1 className="text-2xl font-bold">
+            Welcome, {user?.email ? user.email.split('@')[0] : 'User'}!
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Track your time efficiently and stay productive
+          </p>
         </div>
-        
-        <Tabs defaultValue="timers" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 backdrop-blur-sm">
-            <TabsTrigger value="timers" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground">
-              Timers
-            </TabsTrigger>
-            <TabsTrigger value="stats" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground">
-              Analytics
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="timers" className="space-y-4">
-            <div className="glass-effect rounded-lg p-4">
-              <TimerList
-                timers={timers}
-                onToggle={toggleTimer}
-                onReset={resetTimer}
-                onDelete={handleDelete}
-                onRename={handleRename}
-                onUpdateDeadline={handleUpdateDeadline}
-                onUpdatePriority={handleUpdatePriority}
-                onReorder={handleReorderTimers}
-                newTimerId={newTimerId}
-              />
+
+        {/* Loading state */}
+        {loading ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
             </div>
-            <CreateTimerForm onAddTimer={handleAddTimer} />
-          </TabsContent>
-          
-          <TabsContent value="stats">
-            <div className="glass-effect rounded-lg p-4">
-              <TimeCharts timers={timers} />
+            <Skeleton className="h-[400px] w-full rounded-lg" />
+          </div>
+        ) : (
+          <>
+            {/* Stats section */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="bg-indigo-900/10 backdrop-blur-sm">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-indigo-500/20 p-2 rounded-full">
+                    <TimerIcon size={20} className="text-indigo-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Timers</p>
+                    <p className="text-xl font-semibold">{activeTimers} / {totalTimers}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-emerald-900/10 backdrop-blur-sm">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-emerald-500/20 p-2 rounded-full">
+                    <Calendar size={20} className="text-emerald-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Today</p>
+                    <p className="text-xl font-semibold">{formatTimeForHeader(todayTracked)}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-purple-900/10 backdrop-blur-sm">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-purple-500/20 p-2 rounded-full">
+                    <TrendingUp size={20} className="text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Categories</p>
+                    <p className="text-xl font-semibold">
+                      {new Set(timers.map(t => t.category)).size}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </TabsContent>
-        </Tabs>
+            
+            <Tabs defaultValue="timers" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 backdrop-blur-sm">
+                <TabsTrigger value="timers" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground">
+                  Timers
+                </TabsTrigger>
+                <TabsTrigger value="stats" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground">
+                  Analytics
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="timers" className="space-y-4">
+                <div className="glass-effect rounded-lg p-4">
+                  <TimerList
+                    timers={timers}
+                    onToggle={toggleTimer}
+                    onReset={resetTimer}
+                    onDelete={handleDelete}
+                    onRename={handleRename}
+                    onUpdateDeadline={handleUpdateDeadline}
+                    onUpdatePriority={handleUpdatePriority}
+                    onReorder={handleReorderTimers}
+                    newTimerId={newTimerId}
+                  />
+                </div>
+                <CreateTimerForm onAddTimer={handleAddTimer} />
+              </TabsContent>
+              
+              <TabsContent value="stats">
+                <div className="glass-effect rounded-lg p-4">
+                  <TimeCharts timers={timers} />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
       </div>
     </div>
   );
