@@ -392,14 +392,14 @@ const Timer = ({
             {isEditing && isEnlarged && (
               <div className="absolute bottom-26 w-10/12 mt-2">
                 <Select 
-                  value={selectedPriority?.toString() || ""} 
-                  onValueChange={(value) => setSelectedPriority(value ? parseInt(value) : undefined)}
+                  value={selectedPriority?.toString() || "no-priority"} 
+                  onValueChange={(value) => setSelectedPriority(value === "no-priority" ? undefined : parseInt(value))}
                 >
                   <SelectTrigger className="h-8 text-sm bg-white/20 border-white/20 text-white mt-2">
                     <SelectValue placeholder="Set priority (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Priority</SelectItem>
+                    <SelectItem value="no-priority">No Priority</SelectItem>
                     {priorityLevels.map(level => (
                       <SelectItem key={level} value={level.toString()}>
                         {level} {level === 1 ? "(Highest)" : level === 5 ? "(Lowest)" : ""}
