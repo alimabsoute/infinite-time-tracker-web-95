@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Timer as TimerType } from '../types';
 import { Check, Clock, Pencil, Play, RefreshCw, Trash2, X } from 'lucide-react';
@@ -153,7 +154,7 @@ const Timer = ({
                 <SelectContent>
                   <SelectItem value="uncategorized">Uncategorized</SelectItem>
                   <SelectItem value="Work">Work</SelectItem>
-                  <SelectItem value="Study">Study</StudyItem>
+                  <SelectItem value="Study">Study</SelectItem>
                   <SelectItem value="Personal">Personal</SelectItem>
                   <SelectItem value="Health">Health</SelectItem>
                   <SelectItem value="Leisure">Leisure</SelectItem>
