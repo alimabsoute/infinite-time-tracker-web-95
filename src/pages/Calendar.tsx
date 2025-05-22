@@ -1,21 +1,18 @@
-import { useState, useMemo } from "react";
+
+import { useState, useMemo, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
-import Header from "../components/Header";
-import AuthHeader from "../components/AuthHeader";
-import { Card, CardContent } from "@/components/ui/card";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format, subMonths, addMonths } from "date-fns";
-import { CalendarIcon, Activity } from "lucide-react";
+import { format, subMonths, addMonths, isSameMonth } from "date-fns";
+import { motion } from "framer-motion";
 
 // Import our components
-import CalendarHeader from "../components/calendar/CalendarHeader";
-import { renderDay } from "../components/calendar/CustomDayRenderer";
-import DayView from "../components/calendar/DayView";
+import CalendarLayout from "../components/calendar/CalendarLayout";
+import CalendarActionButtons from "../components/calendar/CalendarActionButtons";
+import FilterPanel from "../components/calendar/FilterPanel";
+import CalendarMainView from "../components/calendar/CalendarMainView";
+import CalendarTabs from "../components/calendar/CalendarTabs";
 import WeekView from "../components/calendar/WeekView";
 import ActivityVisualization from "../components/calendar/ActivityVisualization";
-import { formatTime, getTimersForDate, getTotalTimeForDate, getHeatMapColor } from "../components/calendar/CalendarUtils";
+import { formatTime, getTimersForDate } from "../components/calendar/CalendarUtils";
 
 const CalendarPage = () => {
   const { timers } = useTimers();
@@ -23,6 +20,7 @@ const CalendarPage = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("day");
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const [showFilters, setShowFilters] = useState<boolean>(false);
 
   // Get unique categories from timers
   const categories = Array.from(new Set(timers.map(timer => timer.category || "Uncategorized")));
@@ -86,115 +84,70 @@ const CalendarPage = () => {
     setCurrentMonth(direction === 'prev' ? subMonths(currentMonth, 1) : addMonths(currentMonth, 1));
   };
 
+  // Synchronize selected date with month view
+  useEffect(() => {
+    if (selectedDate && !isSameMonth(selectedDate, currentMonth)) {
+      setCurrentMonth(selectedDate);
+    }
+  }, [selectedDate]);
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Header />
-      <AuthHeader />
+    <CalendarLayout 
+      title="Activity Calendar"
+      actionButtons={
+        <CalendarActionButtons 
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          setShowFilters={setShowFilters}
+          showFilters={showFilters}
+        />
+      }
+    >
+      <FilterPanel 
+        showFilters={showFilters}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+        categories={categories}
+      />
       
-      <div className="container mx-auto px-4 pb-20 max-w-5xl">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Activity Calendar</h1>
-          
-          <div className="flex gap-2">
-            <Select value={viewMode} onValueChange={(value) => setViewMode(value as "day" | "week" | "month")}>
-              <SelectTrigger className="w-28">
-                <SelectValue placeholder="View mode" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="day">Day View</SelectItem>
-                <SelectItem value="week">Week View</SelectItem>
-                <SelectItem value="month">Month View</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        
-        <Tabs defaultValue="calendar" className="w-full mb-6">
-          <TabsList className="grid grid-cols-2 w-full mb-4">
-            <TabsTrigger value="calendar">
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              Calendar
-            </TabsTrigger>
-            <TabsTrigger value="analytics">
-              <Activity className="mr-2 h-4 w-4" />
-              Time Analytics
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="calendar">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Calendar view */}
-              <Card className="md:col-span-2 glass-effect">
-                <CalendarHeader 
-                  currentMonth={currentMonth} 
-                  onMonthChange={handleMonthChange} 
-                />
-                <CardContent className="p-2 pt-0">
-                  <CalendarComponent
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    month={currentMonth}
-                    onMonthChange={setCurrentMonth}
-                    className="w-full rounded-md border p-3 pointer-events-auto"
-                    components={{
-                      Day: renderDay(
-                        (date) => getTotalTimeForDate(date, timers),
-                        (date) => getHeatMapColor(date, timers)
-                      )
-                    }}
-                  />
-                  
-                  {/* Color scale legend */}
-                  <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground">
-                    <span>Activity Level:</span>
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 bg-blue-500/20 rounded-sm"></div>
-                      <span className="ml-1">Low</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 bg-blue-500/40 rounded-sm"></div>
-                      <span className="ml-1">Medium</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 bg-blue-500/80 rounded-sm"></div>
-                      <span className="ml-1">High</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Daily details */}
-              <Card className="glass-effect">
-                <CardContent className="pt-6">
-                  <DayView
-                    selectedDate={selectedDate}
-                    filteredTimers={filteredTimers}
-                    formatTime={formatTime}
-                    categoryFilter={categoryFilter}
-                    setCategoryFilter={setCategoryFilter}
-                    categories={categories}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-            
-            {/* Weekly view when selected */}
-            {selectedDate && viewMode !== "day" && (
-              <WeekView weekData={weekData} formatTime={formatTime} />
-            )}
-          </TabsContent>
-          
-          <TabsContent value="analytics">
+      <CalendarTabs
+        analyticsContent={
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
             <ActivityVisualization
               categoryDistribution={categoryDistribution}
               filteredTimers={filteredTimers}
               formatTime={formatTime}
             />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+          </motion.div>
+        }
+      >
+        <CalendarMainView 
+          currentMonth={currentMonth}
+          handleMonthChange={handleMonthChange}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          setCurrentMonth={setCurrentMonth}
+          timers={timers}
+          filteredTimers={filteredTimers}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+          categories={categories}
+        />
+        
+        {/* Weekly view */}
+        {selectedDate && (
+          <WeekView 
+            weekData={weekData} 
+            formatTime={formatTime} 
+            selectedDate={selectedDate} 
+          />
+        )}
+      </CalendarTabs>
+    </CalendarLayout>
   );
 };
 
