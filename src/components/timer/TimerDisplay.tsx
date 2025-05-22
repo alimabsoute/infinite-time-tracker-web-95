@@ -55,21 +55,23 @@ const TimerDisplay = ({
         </Badge>
       )}
 
-      {/* Add a subtle glow effect for running timers */}
-      <style jsx>{`
-        .timer-pulsing {
-          animation: subtle-pulse 2s infinite alternate;
-        }
-        
-        @keyframes subtle-pulse {
-          0% {
-            filter: drop-shadow(0 0 1px ${timerColor});
+      {/* Add animation styles globally via regular style tag */}
+      <style>
+        {`
+          @keyframes subtle-pulse {
+            0% {
+              filter: drop-shadow(0 0 1px ${timerColor});
+            }
+            100% {
+              filter: drop-shadow(0 0 5px ${timerColor});
+            }
           }
-          100% {
-            filter: drop-shadow(0 0 5px ${timerColor});
+          
+          .timer-pulsing {
+            animation: subtle-pulse 2s infinite alternate;
           }
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
