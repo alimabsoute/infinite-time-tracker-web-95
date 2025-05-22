@@ -26,19 +26,20 @@ const TimerDisplay = ({
     <div className={`w-36 h-36 relative mx-auto ${isRunning ? 'timer-pulsing' : ''}`}>
       <CircularProgressbar
         value={progressPercentage}
-        strokeWidth={4}
+        strokeWidth={3}
         styles={buildStyles({
+          // Sharper outer lines with no color bleed
           pathColor: timerColor,
           trailColor: 'rgba(226, 232, 240, 0.2)',
           textSize: '0px', // Hide the default text
           pathTransitionDuration: 0.3,
           rotation: 0.25,
-          // Add a shadow to the path for more visibility
-          strokeLinecap: 'round',
+          strokeLinecap: 'butt', // Sharp edges instead of round
+          // Remove any shadows for a cleaner look
         })}
       />
       
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center bg-transparent">
         <div className="text-xl font-semibold tracking-tight">
           {formatTime(currentTime)}
         </div>
@@ -55,7 +56,7 @@ const TimerDisplay = ({
         </Badge>
       )}
 
-      {/* Add animation styles globally via regular style tag */}
+      {/* Update animation styles to better highlight the timer edge */}
       <style>
         {`
           @keyframes subtle-pulse {
