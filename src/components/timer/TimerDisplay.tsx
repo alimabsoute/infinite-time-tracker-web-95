@@ -9,9 +9,16 @@ interface TimerDisplayProps {
   isRunning: boolean;
   sessionCount?: number;
   category?: string;
+  timerColor?: string;
 }
 
-const TimerDisplay = ({ currentTime, isRunning, sessionCount = 1, category }: TimerDisplayProps) => {
+const TimerDisplay = ({ 
+  currentTime, 
+  isRunning, 
+  sessionCount = 1, 
+  category,
+  timerColor = 'hsl(221, 83%, 53%)' 
+}: TimerDisplayProps) => {
   // Calculate progress percentage for circular progress
   const progressPercentage = Math.min(100, (currentTime / 3600000) * 100); // Max at 1 hour
 
@@ -21,8 +28,8 @@ const TimerDisplay = ({ currentTime, isRunning, sessionCount = 1, category }: Ti
         value={progressPercentage}
         strokeWidth={4}
         styles={buildStyles({
-          pathColor: isRunning ? 'rgb(99 102 241)' : 'rgb(148 163 184)',
-          trailColor: 'rgba(203, 213, 225, 0.2)',
+          pathColor: timerColor,
+          trailColor: 'rgba(226, 232, 240, 0.3)',
           textSize: '0px', // Hide the default text
         })}
       />

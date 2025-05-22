@@ -1,9 +1,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Timer as TimerType } from '../../types';
-import { Card } from '../ui/card';
 import { cn } from '@/lib/utils';
-import { getPriorityColor } from './TimerUtils';
+import { getPriorityColor, getTimerColorClass } from './TimerUtils';
 import TimerDisplay from './TimerDisplay';
 import TimerHeader from './TimerHeader';
 import TimerControls from './TimerControls';
@@ -41,6 +40,10 @@ const Timer = ({
   const [date, setDate] = useState<Date | undefined>(deadline ? new Date(deadline) : undefined);
   const [selectedPriority, setSelectedPriority] = useState<string>(priority?.toString() || 'none');
   const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // Get timer color class
+  const timerColorClass = getTimerColorClass(id);
+  const timerColor = `hsl(var(--timer-color))`;
 
   // Calculate total sessions (for display purposes)
   const sessionCount = 1; // Default to 1 if not available
@@ -99,8 +102,8 @@ const Timer = ({
   const isOverdue = deadline && new Date(deadline) < new Date();
 
   return (
-    <Card className={`relative overflow-hidden shadow-lg mb-4 bg-card border-border/60 transition-all duration-300 ${isRunning ? 'ring-2 ring-primary/30' : ''}`}>
-      <div className="p-4">
+    <div className={`relative ${timerColorClass} mb-8 px-2`}>
+      <div className="p-4 bg-transparent rounded-lg">
         {isEditing ? (
           <TimerEditForm
             nameInputRef={nameInputRef}
@@ -120,20 +123,22 @@ const Timer = ({
               onDeleteClick={() => onDelete(id)}
             />
             
-            <div className="grid grid-cols-1 gap-4 items-center">
+            <div className="grid grid-cols-1 gap-2 items-center">
               <div className="flex items-center justify-center">
                 <TimerDisplay
                   currentTime={currentTime}
                   isRunning={isRunning}
                   category={category}
+                  timerColor={timerColor}
                 />
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <TimerControls
                   isRunning={isRunning}
                   onToggle={() => onToggle(id)}
                   onReset={() => onReset(id)}
+                  timerColor={timerColor}
                 />
                 
                 <TimerMetadata
@@ -146,25 +151,19 @@ const Timer = ({
               </div>
             </div>
             
-            {/* Priority indicator bar */}
-            <div
-              className="absolute bottom-0 left-0 right-0 h-1"
-              style={{ backgroundColor: getPriorityColor(priority) }}
-            />
-            
             {/* Running indicator pulse */}
             {isRunning && (
               <div className="absolute top-1 right-1 flex items-center">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: timerColor }}></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: timerColor }}></span>
                 </span>
               </div>
             )}
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };
 
