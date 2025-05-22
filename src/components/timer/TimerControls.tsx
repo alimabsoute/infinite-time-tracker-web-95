@@ -17,26 +17,27 @@ const TimerControls = ({
   timerColor 
 }: TimerControlsProps) => {
   return (
-    <div className="flex justify-center gap-4 items-center mt-2">
+    <div className="flex justify-center gap-2 items-center mt-1">
       <Button
         onClick={onToggle}
         variant="outline"
         size="icon"
-        className="rounded-full h-12 w-12 border border-transparent hover:bg-secondary/50 shadow-none"
+        className="rounded-full h-10 w-10 border border-transparent hover:bg-secondary/30 shadow-none"
         style={{
-          borderColor: timerColor ? `${timerColor}30` : undefined, // Add slight border with timer color
+          borderColor: timerColor ? `${timerColor}40` : undefined, // Add slight border with timer color
+          transition: 'all 0.2s ease-in-out'
         }}
       >
-        {isRunning ? <Pause size={22} /> : <Play size={22} className="ml-1" />}
+        {isRunning ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
       </Button>
       
       <Button
         onClick={onReset}
         variant="ghost"
         size="sm"
-        className="text-sm text-muted-foreground hover:text-foreground hover:bg-transparent"
+        className="text-xs text-muted-foreground hover:text-foreground hover:bg-transparent px-2 py-1 h-auto"
       >
-        <RefreshCw size={14} className="mr-1"/> Reset
+        <RefreshCw size={12} className="mr-1"/> Reset
       </Button>
     </div>
   );

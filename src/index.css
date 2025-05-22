@@ -144,14 +144,44 @@
   background: hsl(var(--accent));
 }
 
-/* Timer color variations */
-.timer-color-1 { --timer-color: 221, 83%, 53%; }
-.timer-color-2 { --timer-color: 262, 83%, 58%; }
-.timer-color-3 { --timer-color: 292, 76%, 54%; }
-.timer-color-4 { --timer-color: 322, 75%, 60%; }
-.timer-color-5 { --timer-color: 354, 70%, 54%; }
-.timer-color-6 { --timer-color: 24, 75%, 50%; }
-.timer-color-7 { --timer-color: 43, 96%, 56%; }
-.timer-color-8 { --timer-color: 142, 76%, 36%; }
-.timer-color-9 { --timer-color: 172, 66%, 50%; }
-.timer-color-10 { --timer-color: 199, 89%, 48%; }
+/* Timer color variations - more refined professional palette */
+.timer-color-1 { --timer-color: 221, 83%, 53%; }  /* Blue */
+.timer-color-2 { --timer-color: 262, 80%, 55%; }  /* Purple */
+.timer-color-3 { --timer-color: 291, 64%, 50%; }  /* Magenta */
+.timer-color-4 { --timer-color: 326, 72%, 48%; }  /* Rose */
+.timer-color-5 { --timer-color: 354, 70%, 54%; }  /* Red */
+.timer-color-6 { --timer-color: 24, 90%, 50%; }   /* Orange */
+.timer-color-7 { --timer-color: 43, 96%, 45%; }   /* Amber */
+.timer-color-8 { --timer-color: 142, 71%, 40%; }  /* Green */
+.timer-color-9 { --timer-color: 172, 66%, 48%; }  /* Teal */
+.timer-color-10 { --timer-color: 199, 89%, 48%; } /* Cyan */
+
+/* Add professional fade effects */
+.fade-edge {
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 90%, rgba(0,0,0,0));
+}
+
+/* Timer animation effects */
+.timer-pip {
+  height: 4px;
+  width: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.timer-pip.active {
+  transform: scale(1.5);
+}
+
+/* Enhanced timer controls */
+.timer-control-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timer-control-btn:hover {
+  transform: scale(1.08);
+}
+
+.timer-control-btn:active {
+  transform: scale(0.95);
+}

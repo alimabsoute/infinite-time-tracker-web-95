@@ -102,8 +102,8 @@ const Timer = ({
   const isOverdue = deadline && new Date(deadline) < new Date();
 
   return (
-    <div className={`relative ${timerColorClass} mb-8 px-2`}>
-      <div className="p-4 bg-transparent rounded-lg">
+    <div className={`relative ${timerColorClass} mb-4 px-1`}>
+      <div className="p-3 bg-transparent rounded-lg">
         {isEditing ? (
           <TimerEditForm
             nameInputRef={nameInputRef}
@@ -115,7 +115,7 @@ const Timer = ({
             onCancel={() => setIsEditing(false)}
           />
         ) : (
-          <div>
+          <div className="flex flex-col">
             <TimerHeader
               name={name}
               category={category}
@@ -123,7 +123,7 @@ const Timer = ({
               onDeleteClick={() => onDelete(id)}
             />
             
-            <div className="grid grid-cols-1 gap-2 items-center">
+            <div className="grid grid-cols-1 gap-1">
               <div className="flex items-center justify-center">
                 <TimerDisplay
                   currentTime={currentTime}
@@ -133,7 +133,7 @@ const Timer = ({
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <TimerControls
                   isRunning={isRunning}
                   onToggle={() => onToggle(id)}

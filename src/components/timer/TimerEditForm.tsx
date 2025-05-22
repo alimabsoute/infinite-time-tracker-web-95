@@ -25,20 +25,20 @@ const TimerEditForm = ({
   onCancel
 }: TimerEditFormProps) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form onSubmit={onSubmit} className="space-y-2">
       <div className="flex">
         <Input
           ref={nameInputRef}
           value={editedName}
           onChange={(e) => onNameChange(e.target.value)}
-          className="bg-background/70 border-border/30"
+          className="bg-background/60 border-border/20 text-sm h-8"
           placeholder="Timer name"
         />
       </div>
       
-      <div className="flex gap-2">
+      <div className="flex gap-1">
         <Select value={editedCategory} onValueChange={onCategoryChange}>
-          <SelectTrigger className="bg-background/70 border-border/30 flex-1">
+          <SelectTrigger className="bg-background/60 border-border/20 flex-1 text-xs h-7">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -59,17 +59,17 @@ const TimerEditForm = ({
             variant="outline" 
             size="icon"
             onClick={onCancel}
-            className="bg-background/70 border-border/30"
+            className="bg-background/60 border-border/20 h-7 w-7"
           >
-            <X size={16} />
+            <X size={14} />
           </Button>
           <Button 
             type="submit" 
             variant="outline" 
             size="icon"
-            className="bg-background/70 border-border/30"
+            className="bg-background/60 border-border/20 h-7 w-7"
           >
-            <Check size={16} />
+            <Check size={14} />
           </Button>
         </div>
       </div>
