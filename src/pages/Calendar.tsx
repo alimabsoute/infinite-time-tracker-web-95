@@ -1,16 +1,15 @@
-
 import { useState, useMemo } from "react";
 import { useTimers } from "../hooks/useTimers";
 import Header from "../components/Header";
 import AuthHeader from "../components/AuthHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, subMonths, addMonths } from "date-fns";
 import { CalendarIcon, Activity } from "lucide-react";
 
-// Import our new components
+// Import our components
 import CalendarHeader from "../components/calendar/CalendarHeader";
 import { renderDay } from "../components/calendar/CustomDayRenderer";
 import DayView from "../components/calendar/DayView";
@@ -167,12 +166,7 @@ const CalendarPage = () => {
               
               {/* Daily details */}
               <Card className="glass-effect">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">
-                    {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Select a date'}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <DayView
                     selectedDate={selectedDate}
                     filteredTimers={filteredTimers}
