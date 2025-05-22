@@ -1,66 +1,70 @@
 
 import React from 'react';
-import { format } from 'date-fns';
 import { DayContentProps } from 'react-day-picker';
+import { cn } from "@/lib/utils";
 
-interface CustomDayRendererProps {
-  date: Date;
-  getTotalTimeForDate: (date: Date) => number;
-  getHeatMapColor: (date: Date) => string;
+interface ExtendedDayContentProps extends DayContentProps {
   selected?: boolean;
-  today?: boolean;
+  modifiers?: Record<string, boolean>;
 }
 
-const CustomDayRenderer: React.FC<CustomDayRendererProps> = ({ 
-  date, 
-  getTotalTimeForDate, 
-  getHeatMapColor,
-  selected,
-  today
-}) => {
-  const totalTime = getTotalTimeForDate(date);
-  const hasActivity = totalTime > 0;
-  const heatMapClass = getHeatMapColor(date);
-  
-  return (
-    <div
-      className={`relative w-full h-full flex items-center justify-center ${
-        hasActivity ? heatMapClass : ""
-      } rounded-full`}
-    >
-      <div
-        className={`w-8 h-8 flex items-center justify-center rounded-full ${
-          today ? "border-2 border-primary font-bold" : ""
-        } ${selected ? "bg-primary text-primary-foreground" : ""}`}
-      >
-        {format(date, "d")}
-      </div>
-      {hasActivity && !heatMapClass.includes("bg-blue-500") && (
-        <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></span>
-      )}
-    </div>
-  );
-};
+type GetTimeFunction = (date: Date) => number;
+type GetColorFunction = (date: Date) => string;
 
-// This wrapper is needed to make it compatible with DayPicker's Day component expectations
 export const renderDay = (
-  getTotalTimeForDate: (date: Date) => number,
-  getHeatMapColor: (date: Date) => string
+  getTime: GetTimeFunction,
+  getColor: GetColorFunction
 ) => {
-  return function(props: DayContentProps) {
-    const { date, selected } = props;
-    const isToday = props.modifiers?.today === true;
+  return function DayContent(props: ExtendedDayContentProps) {
+    const { date, ...rest } = props;
+    
+    if (!date) {
+      return <div {...rest}>-</div>;
+    }
+    
+    // Don't show activity indicators for future dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (date > today) {
+      return (
+        <div 
+          className={cn(
+            "flex items-center justify-center h-9 w-9",
+            rest.selected && "bg-primary text-primary-foreground rounded-md"
+          )}
+          {...rest}
+        >
+          <div>{date.getDate()}</div>
+        </div>
+      );
+    }
+    
+    // Get tracked time for this date
+    const timeTracked = getTime(date);
+    const hasActivity = timeTracked > 0;
+    
+    // Get background color based on activity level
+    const bgColor = getColor(date);
+    const isSelected = rest.selected || 
+                       (rest.modifiers && rest.modifiers.selected);
     
     return (
-      <CustomDayRenderer
-        date={date}
-        getTotalTimeForDate={getTotalTimeForDate}
-        getHeatMapColor={getHeatMapColor}
-        selected={selected}
-        today={isToday}
-      />
+      <div 
+        className={cn(
+          "flex flex-col items-center justify-center h-9 w-9 relative",
+          isSelected && "bg-primary text-primary-foreground rounded-md"
+        )}
+        {...rest}
+      >
+        <div>{date.getDate()}</div>
+        {hasActivity && (
+          <div 
+            className="absolute bottom-1 w-4 h-1 rounded-sm" 
+            style={{ backgroundColor: bgColor }}
+          />
+        )}
+      </div>
     );
   };
 };
-
-export default CustomDayRenderer;

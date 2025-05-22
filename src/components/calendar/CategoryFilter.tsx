@@ -17,7 +17,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ categoryFilter, setCate
       <SelectContent className="bg-secondary border-secondary text-foreground">
         <SelectItem value="all">All Categories</SelectItem>
         {categories.sort().map(category => (
-          <SelectItem key={category} value={category}>{category}</SelectItem>
+          <SelectItem key={category} value={category || "uncategorized"}>{category}</SelectItem>
         ))}
       </SelectContent>
     </Select>

@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Timer as TimerType } from '../types';
 import { Check, Clock, Pencil, Play, RefreshCw, Trash2, X } from 'lucide-react';
@@ -40,10 +39,10 @@ const Timer = ({
   // New state variables
   const [isEditing, setIsEditing] = useState(isNew);
   const [editedName, setEditedName] = useState(name);
-  const [editedCategory, setEditedCategory] = useState(category || '');
+  const [editedCategory, setEditedCategory] = useState(category || 'uncategorized');
   const [currentTime, setCurrentTime] = useState(elapsedTime);
   const [date, setDate] = useState<Date | undefined>(deadline ? new Date(deadline) : undefined);
-  const [selectedPriority, setSelectedPriority] = useState<string>(priority?.toString() || '');
+  const [selectedPriority, setSelectedPriority] = useState<string>(priority?.toString() || 'none');
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Calculate total sessions (for display purposes)
@@ -94,14 +93,15 @@ const Timer = ({
   const handleCategoryChange = (value: string) => {
     setEditedCategory(value);
     if (!isEditing) {
-      onRename(id, name, value || undefined);
+      // Convert "uncategorized" back to empty string for the data model
+      onRename(id, name, value === "uncategorized" ? undefined : value);
     }
   };
 
   // Handle priority change
   const handlePriorityChange = (value: string) => {
     setSelectedPriority(value);
-    onUpdatePriority(id, value ? parseInt(value) : undefined);
+    onUpdatePriority(id, value !== 'none' ? parseInt(value) : undefined);
   };
 
   // Handle deadline change
@@ -151,9 +151,9 @@ const Timer = ({
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Uncategorized</SelectItem>
+                  <SelectItem value="uncategorized">Uncategorized</SelectItem>
                   <SelectItem value="Work">Work</SelectItem>
-                  <SelectItem value="Study">Study</SelectItem>
+                  <SelectItem value="Study">Study</StudyItem>
                   <SelectItem value="Personal">Personal</SelectItem>
                   <SelectItem value="Health">Health</SelectItem>
                   <SelectItem value="Leisure">Leisure</SelectItem>
@@ -248,7 +248,7 @@ const Timer = ({
                       <SelectValue placeholder="Priority" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       <SelectItem value="1">Low</SelectItem>
                       <SelectItem value="2">Medium</SelectItem>
                       <SelectItem value="3">High</SelectItem>
