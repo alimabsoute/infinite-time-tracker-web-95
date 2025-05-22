@@ -1,627 +1,542 @@
 
-import { useMemo } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Timer } from "../types";
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, subDays, isToday } from "date-fns";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
-import { ChartContainer } from "@/components/ui/chart";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Activity, Clock, Calendar, CalendarDays, TrendingUp } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useMemo } from 'react';
+import { Timer } from '../types';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, differenceInDays, addDays } from 'date-fns';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend
+} from 'recharts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Activity, BarChart2, ChevronDown, Clock, PieChart as PieChartIcon, TrendingUp } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { HeatMapGrid } from './ui/heat-map';
 
-interface TimeChartsProps {
+type Props = {
   timers: Timer[];
-}
+};
 
-// Helper function to format time
-const formatTime = (milliseconds: number): string => {
-  const totalSeconds = Math.floor(milliseconds / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
+const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#6b7280'];
+const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const TIME_RANGES = [
+  '12am-2am', '2am-4am', '4am-6am', '6am-8am', '8am-10am', '10am-12pm',
+  '12pm-2pm', '2pm-4pm', '4pm-6pm', '6pm-8pm', '8pm-10pm', '10pm-12am'
+];
+
+const TimeCharts: React.FC<Props> = ({ timers }) => {
+  const today = new Date();
   
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  return `${minutes}m`;
-};
-
-// Colors for chart elements
-const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
-
-// Function to get timer status (completed, in progress, overdue)
-const getTimerStatus = (timer: Timer): "completed" | "in-progress" | "overdue" => {
-  if (timer.isRunning) return "in-progress";
-  if (timer.deadline && new Date() > timer.deadline) return "overdue";
-  return "completed";
-};
-
-const TimeCharts = ({ timers }: TimeChartsProps) => {
-  // Prepare data for weekly chart
+  // Get start and end of current week
+  const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 0 });
+  const endOfCurrentWeek = endOfWeek(today, { weekStartsOn: 0 });
+  
+  // Function to get timers for a specific day
+  const getTimersForDay = (date: Date) => {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    return timers.filter(timer => {
+      const timerDate = new Date(timer.createdAt);
+      return timerDate >= startOfDay && timerDate <= endOfDay;
+    });
+  };
+  
+  // Weekly data
   const weeklyData = useMemo(() => {
-    const today = new Date();
-    const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 1 });
-    const endOfCurrentWeek = endOfWeek(today, { weekStartsOn: 1 });
-    
-    const days = eachDayOfInterval({ start: startOfCurrentWeek, end: endOfCurrentWeek });
-    
-    return days.map(day => {
-      const dayTimers = timers.filter(timer => {
-        const timerDate = new Date(timer.createdAt);
-        return isSameDay(timerDate, day);
-      });
-      
-      const totalTime = dayTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
+    return eachDayOfInterval({
+      start: startOfCurrentWeek,
+      end: endOfCurrentWeek
+    }).map(day => {
+      const dayTimers = getTimersForDay(day);
+      const totalTime = dayTimers.reduce((total, timer) => total + timer.elapsedTime, 0);
       
       return {
-        name: format(day, "EEE"),
-        value: totalTime / 3600000, // Convert to hours
+        day: format(day, 'EEE'),
         date: day,
+        hours: totalTime / 3600000, // Convert ms to hours
         timers: dayTimers.length
       };
     });
   }, [timers]);
-
-  // Prepare data for category distribution
+  
+  // Category distribution data
   const categoryData = useMemo(() => {
     const categories = new Map<string, number>();
     
     timers.forEach(timer => {
-      const category = timer.category || "Uncategorized";
+      const category = timer.category || 'Uncategorized';
       categories.set(category, (categories.get(category) || 0) + timer.elapsedTime);
     });
     
     return Array.from(categories.entries())
-      .map(([name, value]) => ({ name, value }))
+      .map(([name, value]) => ({ name, value: value / 3600000 })) // Convert to hours
       .sort((a, b) => b.value - a.value);
   }, [timers]);
-
-  // Prepare data for status distribution
-  const statusData = useMemo(() => {
-    const statuses = {
-      completed: 0,
-      "in-progress": 0,
-      overdue: 0
-    };
+  
+  // Time of day heatmap data
+  const timeOfDayData = useMemo(() => {
+    // Initialize heatmap data structure (7 days x 12 time ranges)
+    const heatmapData: { day: number; hour: number; value: number }[] = [];
     
+    // Create empty grid
+    for (let day = 0; day < 7; day++) {
+      for (let hour = 0; hour < 12; hour++) {
+        heatmapData.push({ day, hour, value: 0 });
+      }
+    }
+    
+    // Fill in data from timers
     timers.forEach(timer => {
-      const status = getTimerStatus(timer);
-      statuses[status] += 1;
-    });
-    
-    return Object.entries(statuses).map(([name, value]) => ({ name, value }));
-  }, [timers]);
-
-  // Prepare trend data (last 14 days)
-  const trendData = useMemo(() => {
-    const today = new Date();
-    const days = Array.from({ length: 14 }, (_, i) => subDays(today, 13 - i));
-    
-    return days.map(day => {
-      const dayTimers = timers.filter(timer => {
-        const timerDate = new Date(timer.createdAt);
-        return isSameDay(timerDate, day);
-      });
+      const date = new Date(timer.createdAt);
+      const day = date.getDay(); // 0-6
+      const hour = Math.floor(date.getHours() / 2); // 0-11 (2-hour blocks)
       
-      const totalTime = dayTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
-      
-      return {
-        name: format(day, "MMM d"),
-        value: totalTime / 3600000, // Convert to hours
-        date: day
-      };
-    });
-  }, [timers]);
-
-  // Calculate productivity score (simplified version)
-  const calculateProductivityScore = (): number => {
-    if (timers.length === 0) return 0;
-    
-    // Calculate total time tracked today
-    const todayTimers = timers.filter(timer => {
-      const timerDate = new Date(timer.createdAt);
-      return isToday(timerDate);
+      // Find the correct cell and add timer duration
+      const index = day * 12 + hour;
+      if (index >= 0 && index < heatmapData.length) {
+        heatmapData[index].value += timer.elapsedTime / 3600000; // hours
+      }
     });
     
-    const todayTime = todayTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
-    
-    // Base score on time tracked (simplified)
-    const hoursTracked = todayTime / 3600000;
-    
-    // Productivity score out of 100
-    return Math.min(Math.round((hoursTracked / 8) * 100), 100);
-  };
-
-  // Get total tracked time
-  const totalTrackedTime = useMemo(() => {
-    return timers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
-  }, [timers]);
-
-  // Get today's tracked time
-  const todayTrackedTime = useMemo(() => {
-    const todayTimers = timers.filter(timer => {
-      const timerDate = new Date(timer.createdAt);
-      return isToday(timerDate);
-    });
-    
-    return todayTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
+    return heatmapData;
   }, [timers]);
   
-  const productivityScore = calculateProductivityScore();
+  // Top performers data
+  const topTimersData = useMemo(() => {
+    return [...timers]
+      .sort((a, b) => b.elapsedTime - a.elapsedTime)
+      .slice(0, 5)
+      .map(timer => ({
+        name: timer.name,
+        time: timer.elapsedTime / 3600000,
+        category: timer.category || 'Uncategorized'
+      }));
+  }, [timers]);
+  
+  // Most focused times
+  const focusedTimes = useMemo(() => {
+    const hourlyData = Array(24).fill(0);
+    
+    timers.forEach(timer => {
+      const date = new Date(timer.createdAt);
+      const hour = date.getHours();
+      hourlyData[hour] += timer.elapsedTime;
+    });
+    
+    // Find the hour with the most time tracked
+    let maxHour = 0;
+    let maxTime = 0;
+    
+    hourlyData.forEach((time, hour) => {
+      if (time > maxTime) {
+        maxTime = time;
+        maxHour = hour;
+      }
+    });
+    
+    return {
+      hour: maxHour,
+      formattedHour: maxHour === 0 || maxHour === 12 ? 12 : maxHour % 12,
+      amPm: maxHour >= 12 ? 'PM' : 'AM',
+      time: maxTime / 3600000
+    };
+  }, [timers]);
+  
+  // Format time helper function
+  const formatTime = (hours: number): string => {
+    const wholePart = Math.floor(hours);
+    const minutePart = Math.round((hours - wholePart) * 60);
+    
+    if (wholePart > 0) {
+      return `${wholePart}h ${minutePart > 0 ? `${minutePart}m` : ''}`;
+    }
+    return `${minutePart}m`;
+  };
+  
+  // Calculate total tracked time
+  const totalTrackedHours = timers.reduce((total, timer) => total + timer.elapsedTime, 0) / 3600000;
+  
+  const categories = Array.from(new Set(timers.map(t => t.category || 'Uncategorized')));
+  const uniqueDays = Array.from(new Set(timers.map(t => 
+    format(new Date(t.createdAt), 'yyyy-MM-dd')
+  ))).length;
+  
+  // Custom tooltip for bar chart
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const hours = payload[0].value;
+      return (
+        <div className="bg-popover border border-border p-2 rounded-md text-popover-foreground">
+          <p className="font-medium">{label}</p>
+          <p>Time: {formatTime(hours)}</p>
+          <p className="text-xs text-muted-foreground">
+            {payload[0].payload.timers} {payload[0].payload.timers === 1 ? 'timer' : 'timers'}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+  
+  // Custom tooltip for pie chart
+  const PieTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-popover border border-border p-2 rounded-md text-popover-foreground">
+          <p className="font-medium">{data.name}</p>
+          <p>Time: {formatTime(data.value)}</p>
+          <p className="text-xs text-muted-foreground">
+            {((data.value / totalTrackedHours) * 100).toFixed(0)}% of total
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="space-y-6">
-      {/* Quick stats */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="stats-card">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Time</p>
-              <p className="text-2xl font-bold">{formatTime(totalTrackedTime)}</p>
+        <Card className="bg-card/60 border-border/60">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium">Total Time</h3>
             </div>
-            <div className="h-12 w-12 bg-blue-500/10 rounded-full flex items-center justify-center">
-              <Clock className="h-6 w-6 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="stats-card">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Today</p>
-              <p className="text-2xl font-bold">{formatTime(todayTrackedTime)}</p>
-            </div>
-            <div className="h-12 w-12 bg-green-500/10 rounded-full flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-green-500" />
+            <div className="mt-2">
+              <p className="text-2xl font-bold">
+                {formatTime(totalTrackedHours)}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Across {timers.length} sessions
+              </p>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="stats-card">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Sessions</p>
-              <p className="text-2xl font-bold">{timers.length}</p>
+        <Card className="bg-card/60 border-border/60">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-indigo-500" />
+              <h3 className="text-sm font-medium">Active Days</h3>
             </div>
-            <div className="h-12 w-12 bg-amber-500/10 rounded-full flex items-center justify-center">
-              <CalendarDays className="h-6 w-6 text-amber-500" />
+            <div className="mt-2">
+              <p className="text-2xl font-bold">{uniqueDays}</p>
+              <p className="text-xs text-muted-foreground">
+                Days with tracked time
+              </p>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="stats-card">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Productivity</p>
-              <p className="text-2xl font-bold">{productivityScore}%</p>
+        <Card className="bg-card/60 border-border/60">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <PieChartIcon className="h-4 w-4 text-purple-500" />
+              <h3 className="text-sm font-medium">Categories</h3>
             </div>
-            <div className="h-12 w-12 bg-purple-500/10 rounded-full flex items-center justify-center">
-              <TrendingUp className="h-6 w-6 text-purple-500" />
+            <div className="mt-2">
+              <p className="text-2xl font-bold">{categories.length}</p>
+              <p className="text-xs text-muted-foreground">
+                Different types of activities
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-card/60 border-border/60">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-emerald-500" />
+              <h3 className="text-sm font-medium">Peak Hour</h3>
+            </div>
+            <div className="mt-2">
+              <p className="text-2xl font-bold">
+                {focusedTimes.formattedHour}{focusedTimes.amPm}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Most productive time
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      <Tabs defaultValue="weekly" className="w-full">
-        <TabsList className="grid grid-cols-3 mb-4">
-          <TabsTrigger value="weekly">
-            <Calendar className="mr-2 h-4 w-4" />
-            Weekly View
-          </TabsTrigger>
-          <TabsTrigger value="categories">
-            <Activity className="mr-2 h-4 w-4" />
-            By Category
-          </TabsTrigger>
-          <TabsTrigger value="trends">
-            <TrendingUp className="mr-2 h-4 w-4" />
-            Trends
-          </TabsTrigger>
-        </TabsList>
+      
+      <Tabs defaultValue="productivity">
+        <div className="flex justify-between items-center mb-4">
+          <TabsList>
+            <TabsTrigger value="productivity" className="text-xs">
+              <BarChart2 className="h-4 w-4 mr-1" />
+              Productivity
+            </TabsTrigger>
+            <TabsTrigger value="categories" className="text-xs">
+              <PieChartIcon className="h-4 w-4 mr-1" />
+              Categories
+            </TabsTrigger>
+            <TabsTrigger value="insights" className="text-xs">
+              <Activity className="h-4 w-4 mr-1" />
+              Insights
+            </TabsTrigger>
+          </TabsList>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 text-xs">
+                This Week
+                <ChevronDown className="ml-1 h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>This Week</DropdownMenuItem>
+              <DropdownMenuItem>Last Week</DropdownMenuItem>
+              <DropdownMenuItem>This Month</DropdownMenuItem>
+              <DropdownMenuItem>All Time</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         
-        <TabsContent value="weekly">
-          <div className="grid grid-cols-1 gap-6">
-            <Card className="stats-card">
-              <CardHeader>
-                <CardTitle>Weekly Activity</CardTitle>
-                <CardDescription>Time tracked per day this week</CardDescription>
+        <TabsContent value="productivity" className="p-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="bg-card/60 border-border/60">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Weekly Overview</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ChartContainer config={{}} className="w-full h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={weeklyData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                      <XAxis dataKey="name" />
+              <CardContent className="p-0">
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%" className="p-4">
+                    <BarChart data={weeklyData}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                      <XAxis dataKey="day" />
                       <YAxis />
-                      <Tooltip 
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const data = payload[0].payload;
-                            return (
-                              <div className="bg-popover text-popover-foreground border border-border p-2 rounded-md shadow-md">
-                                <p className="font-medium">{format(data.date, 'MMMM d')}</p>
-                                <p className="text-sm">
-                                  {formatTime(data.value * 3600000)}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {data.timers} {data.timers === 1 ? 'timer' : 'timers'}
-                                </p>
-                              </div>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
-                      <Bar 
-                        dataKey="value" 
-                        fill="#3b82f6"
-                        radius={[4, 4, 0, 0]}
-                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="hours" fill="#6366f1" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
-                </ChartContainer>
+                </div>
               </CardContent>
             </Card>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="stats-card">
-                <CardHeader>
-                  <CardTitle>Productivity Score</CardTitle>
-                  <CardDescription>Based on today's activity</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col items-center justify-center h-[200px]">
-                    <div className="productivity-score mb-2">{productivityScore}%</div>
-                    <Progress value={productivityScore} className="h-2 w-1/2 mb-4" />
-                    <p className="text-sm text-muted-foreground">
-                      {productivityScore < 30 ? "You can do better!" : 
-                       productivityScore < 70 ? "Good progress today!" :
-                       "Excellent work today!"}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="stats-card">
-                <CardHeader>
-                  <CardTitle>Timer Status</CardTitle>
-                  <CardDescription>Overview of all your timers</CardDescription>
-                </CardHeader>
-                <CardContent className="flex items-center justify-center">
-                  <ChartContainer config={{}} className="w-full h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={statusData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={70}
-                          innerRadius={40}
-                          dataKey="value"
-                          nameKey="name"
-                          paddingAngle={5}
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        >
-                          {statusData.map((entry, index) => (
-                            <Cell 
-                              key={`cell-${index}`} 
-                              fill={
-                                entry.name === "completed" ? "#10B981" :
-                                entry.name === "in-progress" ? "#3B82F6" : "#EF4444"
-                              } 
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              const data = payload[0].payload;
-                              return (
-                                <div className="bg-popover text-popover-foreground border border-border p-2 rounded-md shadow-md">
-                                  <p className="font-medium capitalize">{data.name}</p>
-                                  <p className="text-sm">{data.value} timers</p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                </CardContent>
-              </Card>
-            </div>
+            
+            <Card className="bg-card/60 border-border/60">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Productivity Heatmap</CardTitle>
+              </CardHeader>
+              <CardContent className="pb-0">
+                <p className="text-xs text-muted-foreground mb-6">
+                  Time tracked throughout the week by day and time
+                </p>
+                
+                <div className="pl-6 pb-4 pt-2">
+                  <HeatMapGrid
+                    data={timeOfDayData}
+                    xLabels={TIME_RANGES}
+                    yLabels={DAYS_OF_WEEK}
+                    cellHeight="22px"
+                    cellWidth="42px"
+                    cellRadius={2}
+                    xLabelsPos="top"
+                    yLabelsPos="left"
+                    cellStyle={(x, y, value) => ({
+                      background: `rgba(99, 102, 241, ${Math.min(value, 2) / 2})`,
+                      fontSize: '8px',
+                      color: value > 1 ? '#fff' : '#666',
+                    })}
+                    cellRender={(x, y, value) => value ? (value).toFixed(1) : ''}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="mt-6">
+            <Card className="bg-card/60 border-border/60">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Top Timers</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {topTimersData.length > 0 ? (
+                    topTimersData.map((timer, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-12 rounded-full" 
+                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                          />
+                          <div>
+                            <p className="font-medium">{timer.name}</p>
+                            <p className="text-xs text-muted-foreground">{timer.category}</p>
+                          </div>
+                        </div>
+                        <p className="font-mono font-medium">{formatTime(timer.time)}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-muted-foreground py-8">
+                      No timer data available
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
         
-        <TabsContent value="categories">
-          <Card className="stats-card">
-            <CardHeader>
-              <CardTitle>Time by Category</CardTitle>
-              <CardDescription>Distribution of time across categories</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {categoryData.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    {categoryData.map((category, index) => (
-                      <div key={category.name} className="space-y-1">
-                        <div className="flex justify-between">
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-3 h-3 rounded-full" 
-                              style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                            ></div>
-                            <span className="capitalize">{category.name}</span>
-                          </div>
-                          <span className="text-sm font-mono">
-                            {formatTime(category.value)}
-                          </span>
-                        </div>
-                        <Progress 
-                          value={
-                            (category.value / categoryData.reduce((sum, item) => sum + item.value, 0)) * 100
-                          } 
-                          className="h-2"
-                          style={{
-                            backgroundColor: `${COLORS[index % COLORS.length]}20`,
-                            "--tw-progress-filled-bg": COLORS[index % COLORS.length]
-                          } as React.CSSProperties}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <ChartContainer config={{}} className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={categoryData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          dataKey="value"
-                          nameKey="name"
-                          paddingAngle={3}
-                          labelLine={false}
-                        >
-                          {categoryData.map((entry, index) => (
-                            <Cell 
-                              key={`cell-${index}`} 
-                              fill={COLORS[index % COLORS.length]} 
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              const data = payload[0].payload;
-                              return (
-                                <div className="bg-popover text-popover-foreground border border-border p-2 rounded-md shadow-md">
-                                  <p className="font-medium capitalize">{data.name}</p>
-                                  <p className="text-sm">
-                                    {formatTime(data.value)}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {((data.value / categoryData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1)}%
-                                  </p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-                  No categories found. Add categories to your timers to see data here.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          {/* Most active categories */}
-          {categoryData.length > 0 && (
-            <Card className="stats-card mt-6">
-              <CardHeader>
-                <CardTitle>Category Insights</CardTitle>
-                <CardDescription>Top categories by time tracked</CardDescription>
+        <TabsContent value="categories" className="p-0">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <Card className="bg-card/60 border-border/60 md:col-span-3">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Time Distribution</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {categoryData.slice(0, 5).map((category, index) => (
-                    <Badge 
-                      key={category.name} 
-                      variant="secondary"
-                      className="flex items-center gap-1 py-1"
-                      style={{
-                        backgroundColor: `${COLORS[index % COLORS.length]}20`,
-                        color: COLORS[index % COLORS.length],
-                      }}
-                    >
-                      <div 
-                        className="w-2 h-2 rounded-full" 
-                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                      ></div>
-                      {category.name}
-                    </Badge>
-                  ))}
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={categoryData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={90}
+                        innerRadius={40}
+                        fill="#8884d8"
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {categoryData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<PieTooltip />} />
+                      <Legend formatter={(value) => <span className="text-xs">{value}</span>} />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-                
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card/60 border-border/60 md:col-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Category Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-3">
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Top category</span>
-                    <span>% of total time</span>
-                  </div>
-                  {categoryData.slice(0, 5).map((category, index) => (
-                    <div key={category.name} className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-1 h-10 rounded-full" 
-                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                        ></div>
-                        <div>
-                          <p className="font-medium capitalize">{category.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatTime(category.value)}
-                          </p>
+                  {categoryData.map((category, index) => (
+                    <div key={index}>
+                      <div className="flex justify-between items-center text-sm mb-1">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                          />
+                          <span>{category.name}</span>
                         </div>
+                        <span className="font-mono">{formatTime(category.value)}</span>
                       </div>
-                      <span className="font-medium">
-                        {((category.value / categoryData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1)}%
-                      </span>
+                      <div className="w-full bg-secondary/20 rounded-full h-1.5">
+                        <div 
+                          className="h-1.5 rounded-full" 
+                          style={{ 
+                            width: `${Math.min(100, (category.value / totalTrackedHours) * 100)}%`,
+                            backgroundColor: COLORS[index % COLORS.length] 
+                          }}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          )}
+          </div>
         </TabsContent>
         
-        <TabsContent value="trends">
-          <Card className="stats-card">
-            <CardHeader>
-              <CardTitle>14-Day Trend</CardTitle>
-              <CardDescription>Time tracked over the last two weeks</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={{}} className="w-full h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={trendData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis 
-                      dataKey="name" 
-                      tickFormatter={(value) => {
-                        // Only show every other tick
-                        return value.split(' ')[1];
-                      }}
+        <TabsContent value="insights" className="p-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="bg-card/60 border-border/60">
+              <CardHeader>
+                <CardTitle className="text-base">Productivity Score</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center justify-center">
+                <div className="text-3xl font-bold productivity-score mb-2">
+                  {Math.min(100, Math.floor(totalTrackedHours / 40 * 100))}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Based on {formatTime(totalTrackedHours)} tracked over {uniqueDays} days
+                </p>
+                
+                <div className="w-full mt-6 space-y-2">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Low</span>
+                    <span>Excellent</span>
+                  </div>
+                  <div className="w-full bg-secondary/20 rounded-full h-2">
+                    <div 
+                      className="goal-progress-bar h-2 rounded-full" 
+                      style={{ width: `${Math.min(100, Math.floor(totalTrackedHours / 40 * 100))}%` }}
                     />
-                    <YAxis />
-                    <Tooltip 
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="bg-popover text-popover-foreground border border-border p-2 rounded-md shadow-md">
-                              <p className="font-medium">{format(data.date, 'MMMM d')}</p>
-                              <p className="text-sm">
-                                {formatTime(data.value * 3600000)}
-                              </p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#3b82f6" 
-                      fillOpacity={1} 
-                      fill="url(#colorValue)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-              
-              {/* Average time per day */}
-              <div className="mt-4 p-4 bg-secondary/20 rounded-md">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm">Average daily time:</span>
-                  <span className="font-mono font-medium">
-                    {formatTime(
-                      (trendData.reduce((sum, day) => sum + day.value, 0) / trendData.length) * 3600000
-                    )}
-                  </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-card/60 border-border/60">
+              <CardHeader>
+                <CardTitle className="text-base">Productivity Insights</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-1">
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-primary" />
+                    Most Productive Time
+                  </div>
+                  <p className="text-sm">
+                    Your most productive time is around{' '}
+                    <span className="font-semibold">{focusedTimes.formattedHour} {focusedTimes.amPm}</span>
+                  </p>
                 </div>
                 
-                {/* Most active day */}
-                <div className="flex justify-between items-center mt-3">
-                  <span className="text-sm">Most active day:</span>
-                  <span className="font-medium">
-                    {trendData.reduce((max, day) => max.value > day.value ? max : day, { value: 0 }).name}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Productivity insights */}
-          <Card className="stats-card mt-6">
-            <CardHeader>
-              <CardTitle>Time Insights</CardTitle>
-              <CardDescription>Based on your tracking patterns</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Weekly trend</p>
-                    <div className="flex items-center">
-                      <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
-                      <p className="font-medium">
-                        {weeklyData.reduce((sum, day) => sum + day.value, 0).toFixed(1)} hours tracked this week
-                      </p>
-                    </div>
+                <Separator />
+                
+                <div className="space-y-1">
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-purple-500" />
+                    Top Category
                   </div>
-                  
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Most productive day</p>
-                    <p className="font-medium">
-                      {
-                        weeklyData.reduce((max, day) => max.value > day.value ? max : day, { value: 0, name: 'None' }).name
-                      }
+                  {categoryData.length > 0 ? (
+                    <p className="text-sm">
+                      <span className="font-semibold">{categoryData[0].name}</span> takes most of your time
+                      ({((categoryData[0].value / totalTrackedHours) * 100).toFixed(0)}%)
                     </p>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Goal tracking</p>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span>Weekly goal (20h)</span>
-                        <span>{Math.min(100, weeklyData.reduce((sum, day) => sum + day.value, 0) / 20 * 100).toFixed(0)}%</span>
-                      </div>
-                      <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                        <div 
-                          className="goal-progress-bar" 
-                          style={{ width: `${Math.min(100, weeklyData.reduce((sum, day) => sum + day.value, 0) / 20 * 100)}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No category data available</p>
+                  )}
                 </div>
                 
-                <div className="border-l border-border pl-6 space-y-3">
-                  <p className="font-medium mb-2">Time tracking tips</p>
-                  <div className="text-sm space-y-3">
-                    <p className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                      Track consistently for better analytics
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-green-500"></span>
-                      Use categories to organize your time
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-amber-500"></span>
-                      Set deadlines for better productivity
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-purple-500"></span>
-                      Prioritize tasks for focused work
-                    </p>
+                <Separator />
+                
+                <div className="space-y-1">
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    Consistency
                   </div>
+                  <p className="text-sm">
+                    You tracked time on {uniqueDays} days this month
+                  </p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

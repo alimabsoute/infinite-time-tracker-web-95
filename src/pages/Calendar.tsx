@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { DayProps } from "react-day-picker";
 
 const CalendarPage = () => {
   const { timers } = useTimers();
@@ -87,11 +88,12 @@ const CalendarPage = () => {
   };
 
   // Generate day cell component
-  const renderDay = (day: Date, modifiers: any) => {
-    const isToday = modifiers.today;
-    const totalTime = getTotalTimeForDate(day);
+  const renderDay = (props: DayProps) => {
+    const { date, modifiers } = props;
+    const isToday = modifiers?.today;
+    const totalTime = getTotalTimeForDate(date);
     const hasActivity = totalTime > 0;
-    const heatMapClass = getHeatMapColor(day);
+    const heatMapClass = getHeatMapColor(date);
     
     return (
       <div
@@ -102,9 +104,9 @@ const CalendarPage = () => {
         <div
           className={`w-8 h-8 flex items-center justify-center rounded-full ${
             isToday ? "border-2 border-primary font-bold" : ""
-          } ${modifiers.selected ? "bg-primary text-primary-foreground" : ""}`}
+          } ${modifiers?.selected ? "bg-primary text-primary-foreground" : ""}`}
         >
-          {format(day, "d")}
+          {format(date, "d")}
         </div>
         {hasActivity && !heatMapClass.includes("bg-blue-500") && (
           <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary"></span>
@@ -226,9 +228,9 @@ const CalendarPage = () => {
                     onSelect={setSelectedDate}
                     month={currentMonth}
                     onMonthChange={setCurrentMonth}
-                    className="w-full rounded-md border p-3"
+                    className="w-full rounded-md border p-3 pointer-events-auto"
                     components={{
-                      Day: ({ date, activeModifiers }) => renderDay(date, activeModifiers)
+                      Day: renderDay
                     }}
                   />
                   
