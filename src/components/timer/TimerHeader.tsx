@@ -12,7 +12,7 @@ interface TimerHeaderProps {
 
 const TimerHeader = ({ name, category, onEditClick, onDeleteClick }: TimerHeaderProps) => {
   return (
-    <div className="flex justify-between items-start mb-0">
+    <div className="flex justify-between items-start mb-1 p-1">
       <div className="flex-1">
         <h3 className="text-sm font-medium text-foreground flex items-center">
           {name}
@@ -27,7 +27,7 @@ const TimerHeader = ({ name, category, onEditClick, onDeleteClick }: TimerHeader
         </h3>
         <div className="flex items-center gap-1 mt-0">
           {category && (
-            <Badge variant="secondary" className="bg-secondary/20 text-foreground text-[0.65rem] py-0 px-1 h-3.5">
+            <Badge variant="outline" className="bg-secondary/30 text-foreground text-[0.65rem] py-0 px-1.5 h-3.5 border-border/50">
               {category}
             </Badge>
           )}

@@ -84,6 +84,10 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
 }
 
 .timer-card {
@@ -118,6 +122,13 @@
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+}
+
+.glass-effect:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* Smooth transitions */
@@ -184,4 +195,69 @@
 
 .timer-control-btn:active {
   transform: scale(0.95);
+}
+
+/* Custom scrollbar for timer lists */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 40%);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 60%);
+}
+
+/* Calendar day highlight styles */
+.rdp-day_selected {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.rdp-day_today {
+  border: 1px solid hsl(var(--primary) / 50%) !important;
+  font-weight: bold;
+}
+
+/* Timer focus highlight */
+.timer-focused {
+  box-shadow: 0 0 0 2px hsl(var(--primary)), 
+              0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Stats cards enhanced style */
+.stats-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced heat map for calendar */
+.heat-low {
+  background-color: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.heat-medium {
+  background-color: rgba(59, 130, 246, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+}
+
+.heat-high {
+  background-color: rgba(59, 130, 246, 0.65);
+  border: 1px solid rgba(59, 130, 246, 0.7);
 }

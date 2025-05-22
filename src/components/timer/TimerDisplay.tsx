@@ -23,7 +23,7 @@ const TimerDisplay = ({
   const progressPercentage = Math.min(100, (currentTime / 3600000) * 100); // Max at 1 hour
 
   return (
-    <div className="w-36 h-36 relative mx-auto">
+    <div className={`w-36 h-36 relative mx-auto ${isRunning ? 'timer-pulsing' : ''}`}>
       <CircularProgressbar
         value={progressPercentage}
         strokeWidth={4}
@@ -32,7 +32,9 @@ const TimerDisplay = ({
           trailColor: 'rgba(226, 232, 240, 0.2)',
           textSize: '0px', // Hide the default text
           pathTransitionDuration: 0.3,
-          rotation: 0.25
+          rotation: 0.25,
+          // Add a shadow to the path for more visibility
+          strokeLinecap: 'round',
         })}
       />
       
@@ -52,6 +54,22 @@ const TimerDisplay = ({
           {sessionCount} sessions
         </Badge>
       )}
+
+      {/* Add a subtle glow effect for running timers */}
+      <style jsx>{`
+        .timer-pulsing {
+          animation: subtle-pulse 2s infinite alternate;
+        }
+        
+        @keyframes subtle-pulse {
+          0% {
+            filter: drop-shadow(0 0 1px ${timerColor});
+          }
+          100% {
+            filter: drop-shadow(0 0 5px ${timerColor});
+          }
+        }
+      `}</style>
     </div>
   );
 };

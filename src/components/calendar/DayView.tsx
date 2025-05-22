@@ -3,7 +3,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Clock } from "lucide-react";
+import { Clock, Calendar as CalendarIcon } from "lucide-react";
 import { Timer } from "../../types";
 import CategoryFilter from './CategoryFilter';
 
@@ -24,8 +24,29 @@ const DayView: React.FC<DayViewProps> = ({
   setCategoryFilter,
   categories
 }) => {
+  // Get total time tracked for the selected date
+  const totalTrackedTime = filteredTimers.reduce((sum, t) => sum + t.elapsedTime, 0);
+  
+  // Calculate progress percentage (assuming 8-hour workday as 100%)
+  const progressPercentage = Math.min(
+    (totalTrackedTime / (8 * 3600000)) * 100, 
+    100
+  );
+
   return (
     <>
+      {/* Date header */}
+      {selectedDate && (
+        <div className="mb-4 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <CalendarIcon size={16} className="text-primary" />
+            <h3 className="font-medium">
+              {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+            </h3>
+          </div>
+        </div>
+      )}
+      
       {/* Category filter */}
       <div className="mb-4">
         <CategoryFilter 
@@ -37,34 +58,35 @@ const DayView: React.FC<DayViewProps> = ({
       
       {/* Total time summary */}
       {selectedDate && (
-        <div className="bg-secondary/30 p-3 rounded-md mb-4">
+        <div className="bg-secondary/30 p-3 rounded-md mb-4 border border-secondary">
           <div className="flex justify-between items-center">
             <span className="text-sm">Total tracked time:</span>
             <span className="font-mono font-bold">
-              {formatTime(filteredTimers.reduce((sum, t) => sum + t.elapsedTime, 0))}
+              {formatTime(totalTrackedTime)}
             </span>
           </div>
           <Progress 
             className="h-2 mt-2" 
-            value={Math.min(
-              (filteredTimers.reduce((sum, t) => sum + t.elapsedTime, 0) / (8 * 3600000)) * 100, 
-              100
-            )} 
+            value={progressPercentage}
           />
+          <div className="flex justify-between mt-1 text-xs text-muted-foreground">
+            <span>0h</span>
+            <span>8h</span>
+          </div>
         </div>
       )}
       
       {/* Session count */}
       {selectedDate && filteredTimers.length > 0 && (
         <div className="mb-4 text-center">
-          <Badge variant="outline" className="bg-primary/10">
+          <Badge variant="outline" className="bg-primary/10 text-primary-foreground/90">
             {filteredTimers.length} {filteredTimers.length === 1 ? 'session' : 'sessions'} tracked
           </Badge>
         </div>
       )}
       
       {/* Timers list for selected day */}
-      <div className="space-y-3 mt-4 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+      <div className="space-y-2 mt-4 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
         {filteredTimers.length > 0 ? (
           <>
             {filteredTimers.map((timer) => (
@@ -89,28 +111,31 @@ const DayView: React.FC<DayViewProps> = ({
                       <Clock size={12} className="mr-1" />
                       {format(new Date(timer.createdAt), "h:mm a")}
                       {timer.category && (
-                        <Badge variant="outline" className="ml-2 h-5 text-[0.65rem]">
+                        <Badge variant="outline" className="ml-2 h-5 text-[0.65rem] border-border/50">
                           {timer.category}
                         </Badge>
                       )}
                     </div>
                   </div>
                 </div>
-                <div className="text-sm font-mono font-medium">{formatTime(timer.elapsedTime)}</div>
+                <div className="text-sm font-mono font-medium bg-secondary/40 px-2 py-1 rounded-md">
+                  {formatTime(timer.elapsedTime)}
+                </div>
               </div>
             ))}
             
             {/* Total time */}
-            <div className="flex justify-between items-center p-2 border-t border-border mt-4 pt-4">
+            <div className="flex justify-between items-center p-3 border-t border-border mt-4 pt-4 bg-secondary/10 rounded-md">
               <p className="font-medium">Total</p>
-              <p className="font-bold font-mono">
-                {formatTime(filteredTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0))}
+              <p className="font-bold font-mono bg-primary/10 text-primary px-2 py-1 rounded-md">
+                {formatTime(totalTrackedTime)}
               </p>
             </div>
           </>
         ) : (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-10 text-muted-foreground border border-dashed border-border/50 rounded-lg bg-secondary/10">
             <p>No activity recorded for this day.</p>
+            <p className="text-xs mt-1">Track time to see your activity here.</p>
           </div>
         )}
       </div>

@@ -108,7 +108,14 @@ const Timer = ({
   const isOverdue = deadline && new Date(deadline) < new Date();
 
   return (
-    <div className={`relative ${timerColorClass} mb-3 px-1`}>
+    <div 
+      className={`relative ${timerColorClass} mb-3 px-1`}
+      style={{
+        borderRadius: "0.5rem", 
+        boxShadow: `0 0 0 2px ${timerColor}40, 0 4px 6px -1px rgba(0, 0, 0, 0.1)`,
+        transition: "all 0.2s ease-in-out"
+      }}
+    >
       <div className="p-2 bg-transparent rounded-lg">
         {isEditing ? (
           <TimerEditForm
@@ -139,7 +146,7 @@ const Timer = ({
                 />
               </div>
               
-              <div className="space-y-0">
+              <div className="space-y-1">
                 <TimerControls
                   isRunning={isRunning}
                   onToggle={() => onToggle(id)}

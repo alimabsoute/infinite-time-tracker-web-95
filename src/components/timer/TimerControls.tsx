@@ -17,14 +17,15 @@ const TimerControls = ({
   timerColor 
 }: TimerControlsProps) => {
   return (
-    <div className="flex justify-center items-center mt-0.5">
+    <div className="flex justify-center items-center mt-1">
       <Button
         onClick={onToggle}
         variant="outline"
         size="icon"
-        className="rounded-full h-9 w-9 border border-transparent hover:bg-secondary/30 shadow-none relative"
+        className="rounded-full h-10 w-10 border-2 hover:bg-secondary/30 shadow-none relative"
         style={{
-          borderColor: timerColor ? `${timerColor}40` : undefined, // Add slight border with timer color
+          borderColor: timerColor || 'hsl(var(--primary))',
+          backgroundColor: isRunning ? `${timerColor}20` : 'transparent',
           transition: 'all 0.2s ease-in-out'
         }}
       >
@@ -35,9 +36,10 @@ const TimerControls = ({
         onClick={onReset}
         variant="ghost"
         size="icon"
-        className="text-xs text-muted-foreground hover:text-foreground hover:bg-transparent h-6 w-6 p-0 ml-1"
+        className="text-xs text-muted-foreground hover:text-foreground hover:bg-transparent h-6 w-6 p-0 ml-2"
+        title="Reset Timer"
       >
-        <RefreshCw size={13} />
+        <RefreshCw size={14} />
       </Button>
     </div>
   );
