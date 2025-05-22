@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Timer } from "../types";
 import { supabase } from '@/integrations/supabase/client';
@@ -71,32 +70,82 @@ export const useTimers = () => {
           schema: 'public', 
           table: 'timers' 
         }, 
-        async () => {
-          // When anything changes, fetch the latest timers
-          const { data, error } = await supabase
-            .from('timers')
-            .select('*')
-            .order('created_at', { ascending: false });
+        async (payload) => {
+          // Only fetch all timers if there's a new timer or deletion
+          // For updates, we'll handle them more selectively to avoid interrupting running timers
+          if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
+            const { data, error } = await supabase
+              .from('timers')
+              .select('*')
+              .order('created_at', { ascending: false });
 
-          if (error) {
-            console.error("Error fetching updated timers:", error);
-            return;
+            if (error) {
+              console.error("Error fetching updated timers:", error);
+              return;
+            }
+
+            // Process dates to ensure they're Date objects
+            const processedTimers = data.map(timer => ({
+              id: timer.id,
+              name: timer.name,
+              elapsedTime: timer.elapsed_time,
+              isRunning: timer.is_running,
+              createdAt: new Date(timer.created_at),
+              deadline: timer.deadline ? new Date(timer.deadline) : undefined,
+              category: timer.category || undefined,
+              tags: timer.tags || undefined,
+              priority: timer.priority || undefined,
+            }));
+            
+            // Update timers while preserving the elapsed time of running timers
+            setTimers(prevTimers => {
+              const runningTimers = prevTimers.filter(t => t.isRunning);
+              
+              // Merge running timers' current time with new data
+              return processedTimers.map(newTimer => {
+                const runningTimer = runningTimers.find(rt => rt.id === newTimer.id);
+                if (runningTimer && newTimer.isRunning) {
+                  // Keep the elapsed time from our running state for continuity
+                  return { ...newTimer, elapsedTime: runningTimer.elapsedTime };
+                }
+                return newTimer;
+              });
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            // For updates, only apply non-time related changes
+            const { data, error } = await supabase
+              .from('timers')
+              .select('*')
+              .eq('id', payload.new.id)
+              .single();
+
+            if (error || !data) {
+              console.error("Error fetching updated timer:", error);
+              return;
+            }
+
+            // Apply update to a single timer without resetting elapsed time if running
+            setTimers(prevTimers => {
+              return prevTimers.map(timer => {
+                if (timer.id === data.id) {
+                  // Preserve current elapsed time if timer is running
+                  const preservedElapsedTime = timer.isRunning ? timer.elapsedTime : data.elapsed_time;
+                  
+                  return {
+                    ...timer,
+                    name: data.name,
+                    isRunning: data.is_running,
+                    category: data.category || undefined,
+                    deadline: data.deadline ? new Date(data.deadline) : undefined,
+                    priority: data.priority || undefined,
+                    // Only update elapsed time if timer is not running
+                    elapsedTime: preservedElapsedTime
+                  };
+                }
+                return timer;
+              });
+            });
           }
-
-          // Process dates to ensure they're Date objects
-          const processedTimers = data.map(timer => ({
-            id: timer.id,
-            name: timer.name,
-            elapsedTime: timer.elapsed_time,
-            isRunning: timer.is_running,
-            createdAt: new Date(timer.created_at),
-            deadline: timer.deadline ? new Date(timer.deadline) : undefined,
-            category: timer.category || undefined,
-            tags: timer.tags || undefined,
-            priority: timer.priority || undefined,
-          }));
-          
-          setTimers(processedTimers);
         }
       )
       .subscribe();
@@ -122,9 +171,10 @@ export const useTimers = () => {
           return timer;
         });
 
-        // If any timers were updated, sync with Supabase
+        // If any timers were updated, sync with Supabase less frequently to reduce interruptions
+        // We'll do this every 5 seconds instead of every second
         const runningTimers = updatedTimers.filter(t => t.isRunning);
-        if (runningTimers.length > 0) {
+        if (runningTimers.length > 0 && Date.now() % 5000 < 1000) {
           runningTimers.forEach(timer => {
             supabase
               .from('timers')
@@ -310,6 +360,13 @@ export const useTimers = () => {
     if (!user) return;
 
     try {
+      // Find the timer to preserve its running state
+      const timerToUpdate = timers.find(t => t.id === id);
+      if (!timerToUpdate) return;
+      
+      // Keep its running state rather than forcing it to start
+      const isCurrentlyRunning = timerToUpdate.isRunning;
+
       // Optimistic update
       setTimers((prev) =>
         prev.map((timer) =>
@@ -317,32 +374,28 @@ export const useTimers = () => {
             ? { 
                 ...timer, 
                 name: newName, 
-                isRunning: true,  // Start timer when confirmed
-                category: category !== undefined ? category : timer.category // Only update category if provided
+                isRunning: isCurrentlyRunning,  // Preserve running state
+                category: category !== undefined ? category : timer.category
               }
             : timer
         )
       );
 
-      // Get updated timer
-      const originalTimer = timers.find(t => t.id === id);
-      if (originalTimer) {
-        // Update in Supabase
-        const { error } = await supabase
-          .from('timers')
-          .update({
-            name: newName,
-            is_running: true,
-            category: category !== undefined ? category : originalTimer.category
-          })
-          .eq('id', id);
-        
-        if (error) {
-          // Revert optimistic update if failed
-          setTimers((prev) => [...prev]); // Force re-render with original data
-          toast.error("Failed to rename timer");
-          console.error("Error renaming timer:", error);
-        }
+      // Update in Supabase
+      const { error } = await supabase
+        .from('timers')
+        .update({
+          name: newName,
+          is_running: isCurrentlyRunning, // Preserve running state
+          category: category !== undefined ? category : timerToUpdate.category
+        })
+        .eq('id', id);
+      
+      if (error) {
+        // Revert optimistic update if failed
+        setTimers((prev) => [...prev]); // Force re-render with original data
+        toast.error("Failed to rename timer");
+        console.error("Error renaming timer:", error);
       }
     } catch (error) {
       console.error("Error renaming timer:", error);

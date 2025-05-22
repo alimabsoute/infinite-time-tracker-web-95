@@ -23,10 +23,10 @@ const TimerDisplay = ({
   const progressPercentage = Math.min(100, (currentTime / 3600000) * 100); // Max at 1 hour
 
   return (
-    <div className="w-40 h-40 relative mx-auto">
+    <div className="w-36 h-36 relative mx-auto">
       <CircularProgressbar
         value={progressPercentage}
-        strokeWidth={3}
+        strokeWidth={4}
         styles={buildStyles({
           pathColor: timerColor,
           trailColor: 'rgba(226, 232, 240, 0.2)',
@@ -37,11 +37,11 @@ const TimerDisplay = ({
       />
       
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-        <div className="text-2xl font-semibold tracking-tight">
+        <div className="text-xl font-semibold tracking-tight">
           {formatTime(currentTime)}
         </div>
         {category && (
-          <div className="text-xs text-muted-foreground mt-0.5 uppercase tracking-wider font-medium opacity-80">
+          <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium opacity-80">
             {category}
           </div>
         )}

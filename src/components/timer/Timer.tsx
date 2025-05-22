@@ -48,18 +48,24 @@ const Timer = ({
   // Calculate total sessions (for display purposes)
   const sessionCount = 1; // Default to 1 if not available
 
-  // Update time while running
+  // Update time while running - FIXED to use a local interval that doesn't reset
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
+    
+    // Set current time to match elapsed time from props when timer changes or stops
+    setCurrentTime(elapsedTime);
+    
+    // Start a local interval for display updates
     if (isRunning) {
       interval = setInterval(() => {
-        setCurrentTime((prevTime) => prevTime + 1000);
+        setCurrentTime(prevTime => prevTime + 1000);
       }, 1000);
-    } else {
-      setCurrentTime(elapsedTime);
     }
-    return () => clearInterval(interval);
-  }, [isRunning, elapsedTime]);
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isRunning, elapsedTime, id]);
 
   // Auto-focus name input when editing begins
   useEffect(() => {
@@ -102,8 +108,8 @@ const Timer = ({
   const isOverdue = deadline && new Date(deadline) < new Date();
 
   return (
-    <div className={`relative ${timerColorClass} mb-4 px-1`}>
-      <div className="p-3 bg-transparent rounded-lg">
+    <div className={`relative ${timerColorClass} mb-3 px-1`}>
+      <div className="p-2 bg-transparent rounded-lg">
         {isEditing ? (
           <TimerEditForm
             nameInputRef={nameInputRef}
@@ -123,7 +129,7 @@ const Timer = ({
               onDeleteClick={() => onDelete(id)}
             />
             
-            <div className="grid grid-cols-1 gap-1">
+            <div className="grid grid-cols-1 gap-0">
               <div className="flex items-center justify-center">
                 <TimerDisplay
                   currentTime={currentTime}
@@ -133,7 +139,7 @@ const Timer = ({
                 />
               </div>
               
-              <div className="space-y-1">
+              <div className="space-y-0">
                 <TimerControls
                   isRunning={isRunning}
                   onToggle={() => onToggle(id)}
