@@ -1,18 +1,24 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
-import { format, subMonths, addMonths, isSameMonth } from "date-fns";
-import { motion } from "framer-motion";
+import Header from "../components/Header";
+import AuthHeader from "../components/AuthHeader";
+import { format, subMonths, addMonths, subWeeks, addWeeks, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
+import { CalendarIcon, Activity, Filter, ArrowLeftRight, ChevronsUpDown } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 // Import our components
-import CalendarLayout from "../components/calendar/CalendarLayout";
-import CalendarActionButtons from "../components/calendar/CalendarActionButtons";
-import FilterPanel from "../components/calendar/FilterPanel";
-import CalendarMainView from "../components/calendar/CalendarMainView";
-import CalendarTabs from "../components/calendar/CalendarTabs";
+import CalendarHeader from "../components/calendar/CalendarHeader";
+import { renderDay } from "../components/calendar/CustomDayRenderer";
+import DayView from "../components/calendar/DayView";
 import WeekView from "../components/calendar/WeekView";
 import ActivityVisualization from "../components/calendar/ActivityVisualization";
-import { formatTime, getTimersForDate } from "../components/calendar/CalendarUtils";
+import { formatTime, getTimersForDate, getTotalTimeForDate, getHeatMapColor } from "../components/calendar/CalendarUtils";
 
 const CalendarPage = () => {
   const { timers } = useTimers();
@@ -84,70 +90,270 @@ const CalendarPage = () => {
     setCurrentMonth(direction === 'prev' ? subMonths(currentMonth, 1) : addMonths(currentMonth, 1));
   };
 
+  // Handle week navigation
+  const handleWeekChange = (direction: 'prev' | 'next') => {
+    if (selectedDate) {
+      const newDate = direction === 'prev' 
+        ? subWeeks(selectedDate, 1) 
+        : addWeeks(selectedDate, 1);
+      setSelectedDate(newDate);
+    }
+  };
+
+  // Generate days with data for the current month
+  const daysWithData = useMemo(() => {
+    if (!currentMonth) return [];
+    
+    const start = startOfMonth(currentMonth);
+    const end = endOfMonth(currentMonth);
+    
+    return eachDayOfInterval({ start, end }).map(date => ({
+      date,
+      totalTime: getTotalTimeForDate(date, timers),
+      timers: getTimersForDate(date, timers).length,
+      inCurrentMonth: isSameMonth(date, currentMonth)
+    }));
+  }, [currentMonth, timers]);
+
   // Synchronize selected date with month view
   useEffect(() => {
     if (selectedDate && !isSameMonth(selectedDate, currentMonth)) {
       setCurrentMonth(selectedDate);
     }
-  }, [selectedDate]);
+  }, [selectedDate, currentMonth]);
 
   return (
-    <CalendarLayout 
-      title="Activity Calendar"
-      actionButtons={
-        <CalendarActionButtons 
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          setShowFilters={setShowFilters}
-          showFilters={showFilters}
-        />
-      }
-    >
-      <FilterPanel 
-        showFilters={showFilters}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-        categories={categories}
-      />
+    <div className="min-h-screen bg-background text-foreground">
+      <Header />
+      <AuthHeader />
       
-      <CalendarTabs
-        analyticsContent={
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ActivityVisualization
-              categoryDistribution={categoryDistribution}
-              filteredTimers={filteredTimers}
-              formatTime={formatTime}
-            />
-          </motion.div>
-        }
+      <motion.div 
+        className="container mx-auto px-4 pb-20 max-w-5xl"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
       >
-        <CalendarMainView 
-          currentMonth={currentMonth}
-          handleMonthChange={handleMonthChange}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          setCurrentMonth={setCurrentMonth}
-          timers={timers}
-          filteredTimers={filteredTimers}
-          categoryFilter={categoryFilter}
-          setCategoryFilter={setCategoryFilter}
-          categories={categories}
-        />
+        <div className="flex justify-between items-center mb-6">
+          <motion.h1 
+            className="text-2xl font-bold" 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            Activity Calendar
+          </motion.h1>
+          
+          <motion.div 
+            className="flex gap-2"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-1"
+            >
+              <Filter size={14} />
+              Filters
+            </Button>
+            
+            <Select value={viewMode} onValueChange={(value) => setViewMode(value as "day" | "week" | "month")}>
+              <SelectTrigger className="w-28">
+                <SelectValue placeholder="View mode" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Day View</SelectItem>
+                <SelectItem value="week">Week View</SelectItem>
+                <SelectItem value="month">Month View</SelectItem>
+              </SelectContent>
+            </Select>
+          </motion.div>
+        </div>
         
-        {/* Weekly view */}
-        {selectedDate && (
-          <WeekView 
-            weekData={weekData} 
-            formatTime={formatTime} 
-            selectedDate={selectedDate} 
-          />
-        )}
-      </CalendarTabs>
-    </CalendarLayout>
+        {/* Advanced filter panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div 
+              className="mb-6 p-4 border border-border/30 rounded-lg bg-background/50 backdrop-blur-sm"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="flex flex-wrap gap-4 items-center">
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Category</h3>
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="w-32 h-8 text-xs">
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      {categories.map(category => (
+                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium mb-1">Date Range</h3>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="h-8 text-xs">
+                      <ArrowLeftRight size={12} className="mr-1" />
+                      This Month
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-8 text-xs">
+                      <ChevronsUpDown size={12} className="mr-1" />
+                      Custom Range
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        <Tabs defaultValue="calendar" className="w-full mb-6">
+          <TabsList className="grid grid-cols-2 w-full mb-4">
+            <TabsTrigger value="calendar">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              Calendar
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <Activity className="mr-2 h-4 w-4" />
+              Time Analytics
+            </TabsTrigger>
+          </TabsList>
+          
+          <AnimatePresence mode="wait">
+            <TabsContent value="calendar" className="mt-0">
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Calendar view */}
+                <Card className="md:col-span-2 glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CalendarHeader 
+                    currentMonth={currentMonth} 
+                    onMonthChange={handleMonthChange} 
+                  />
+                  <CardContent className="p-4 pt-0">
+                    <CalendarComponent
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={setSelectedDate}
+                      month={currentMonth}
+                      onMonthChange={setCurrentMonth}
+                      className="w-full rounded-md border border-border/40 p-3 pointer-events-auto"
+                      components={{
+                        Day: renderDay(
+                          (date) => getTotalTimeForDate(date, timers),
+                          (date) => getHeatMapColor(date, timers)
+                        )
+                      }}
+                    />
+                    
+                    {/* Calendar summary and stats */}
+                    <div className="mt-4 p-3 border border-border/30 rounded-lg bg-secondary/10">
+                      <div className="grid grid-cols-3 gap-2 text-center">
+                        {daysWithData.filter(d => d.totalTime > 0).length > 0 ? (
+                          <>
+                            <div>
+                              <div className="text-xs text-muted-foreground">Active Days</div>
+                              <div className="text-xl font-medium">
+                                {daysWithData.filter(d => d.totalTime > 0).length}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">Avg Time/Day</div>
+                              <div className="text-xl font-medium">
+                                {formatTime(
+                                  daysWithData.reduce((sum, day) => sum + day.totalTime, 0) / 
+                                  Math.max(1, daysWithData.filter(d => d.totalTime > 0).length)
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">Total Hours</div>
+                              <div className="text-xl font-medium">
+                                {Math.round(daysWithData.reduce((sum, day) => sum + day.totalTime, 0) / 36000) / 100}h
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="col-span-3 py-2 text-center text-muted-foreground text-sm">
+                            No activity recorded this month
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Color scale legend */}
+                    <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground">
+                      <span>Activity Level:</span>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-blue-500/20 rounded-sm"></div>
+                        <span className="ml-1">Low</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-blue-500/40 rounded-sm"></div>
+                        <span className="ml-1">Medium</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-blue-500/80 rounded-sm"></div>
+                        <span className="ml-1">High</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Daily details */}
+                <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="pt-6">
+                    <DayView
+                      selectedDate={selectedDate}
+                      filteredTimers={filteredTimers}
+                      formatTime={formatTime}
+                      categoryFilter={categoryFilter}
+                      setCategoryFilter={setCategoryFilter}
+                      categories={categories}
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
+              
+              {/* Weekly view with fixed selectedDate prop type */}
+              {selectedDate && (
+                <WeekView 
+                  weekData={weekData} 
+                  formatTime={formatTime} 
+                  selectedDate={selectedDate} 
+                />
+              )}
+            </TabsContent>
+            
+            <TabsContent value="analytics">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ActivityVisualization
+                  categoryDistribution={categoryDistribution}
+                  filteredTimers={filteredTimers}
+                  formatTime={formatTime}
+                />
+              </motion.div>
+            </TabsContent>
+          </AnimatePresence>
+        </Tabs>
+      </motion.div>
+    </div>
   );
 };
 
