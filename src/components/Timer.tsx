@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } 
 import { format, isPast, isWithinInterval, addHours, addMinutes } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { useEffect as useLayoutEffect } from "react";
+import { Progress } from "@/components/ui/progress";
 
 interface TimerProps {
   timer: TimerType;
@@ -37,16 +37,16 @@ const formatTime = (milliseconds: number): string => {
   ].join(":");
 };
 
-// Enhanced timer colors - more vibrant for better visibility
+// Enhanced timer colors with more vibrant, solid colors
 const timerColors = [
-  "#6366F1", // Indigo
-  "#EC4899", // Pink
-  "#8B5CF6", // Purple
-  "#10B981", // Emerald
-  "#F59E0B", // Amber
-  "#EF4444", // Red
-  "#3B82F6", // Blue
-  "#14B8A6", // Teal
+  "#4F46E5", // Indigo
+  "#DB2777", // Pink
+  "#7C3AED", // Purple
+  "#059669", // Emerald
+  "#D97706", // Amber
+  "#DC2626", // Red
+  "#2563EB", // Blue
+  "#0D9488", // Teal
 ];
 
 // Available categories for timers
@@ -81,9 +81,10 @@ const Timer = ({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedDeadline, setSelectedDeadline] = useState<Date | undefined>(timer.deadline);
   const [selectedPriority, setSelectedPriority] = useState<number | undefined>(timer.priority);
-  const [deadlineHours, setDeadlineHours] = useState("12");
-  const [deadlineMinutes, setDeadlineMinutes] = useState("00");
+  const [deadlineHours, setDeadlineHours] = useState(timer.deadline ? format(timer.deadline, "HH") : "12");
+  const [deadlineMinutes, setDeadlineMinutes] = useState(timer.deadline ? format(timer.deadline, "mm") : "00");
   const [isBlinking, setIsBlinking] = useState(false);
+  const [sessionCount, setSessionCount] = useState(timer.sessions || 0);
   
   const timerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -92,14 +93,21 @@ const Timer = ({
   const colorIndex = parseInt(timer.id.slice(-5), 16) % timerColors.length;
   const primaryColor = timerColors[colorIndex];
   
-  // Calculate contrasting text color based on background
-  const getContrastingTextColor = (bgColor: string) => {
-    // Using a fixed white text for now as our backgrounds are all deep enough
-    return "#FFFFFF";
+  // Calculate progress based on deadline if it exists
+  const calculateProgress = () => {
+    if (!timer.deadline) return 0;
+    
+    const now = new Date();
+    const createdDate = new Date(timer.createdAt);
+    const totalDuration = timer.deadline.getTime() - createdDate.getTime();
+    const elapsedDuration = now.getTime() - createdDate.getTime();
+    
+    if (elapsedDuration >= totalDuration) return 100;
+    return Math.round((elapsedDuration / totalDuration) * 100);
   };
   
-  const textColor = getContrastingTextColor(primaryColor);
-
+  const progress = calculateProgress();
+  
   // Check if deadline is approaching (within 1 hour) or passed
   useEffect(() => {
     if (!timer.deadline) return;
@@ -118,12 +126,6 @@ const Timer = ({
       const blinkInterval = setInterval(() => {
         setIsBlinking(prev => !prev);
       }, 1000);
-      
-      // Play sound if deadline has passed
-      if (hasExpired) {
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/914/914.wav');
-        audio.play().catch(e => console.log("Audio play error:", e));
-      }
       
       return () => clearInterval(blinkInterval);
     }
@@ -273,7 +275,7 @@ const Timer = ({
       (timer.deadline && isWithinInterval(new Date(), { 
         start: addHours(timer.deadline, -1), 
         end: timer.deadline 
-      }) ? "text-yellow-300" : "text-white/70"),
+      }) ? "text-yellow-300" : "text-white"),
     isBlinking ? "animate-pulse" : ""
   );
 
@@ -289,35 +291,73 @@ const Timer = ({
         >
           {/* Overlay for enlarged timer */}
           {isEnlarged && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-10" onClick={handleCancel} />
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-10" onClick={handleCancel} />
           )}
           
           {/* Priority badge - show only if priority is set */}
           {timer.priority !== undefined && !isEditing && (
             <div 
-              className="absolute -top-2 -right-2 bg-white text-black rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold z-10"
+              className="absolute -top-2 -right-2 bg-white text-black rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold z-10 shadow-md"
             >
               {timer.priority}
             </div>
           )}
           
-          {/* Circular timer container */}
+          {/* Session count badge */}
+          {!isEditing && (
+            <div className="absolute -bottom-2 -left-2 bg-white/90 text-gray-800 rounded-full px-2 py-0.5 text-xs font-medium z-10 shadow-sm">
+              <span className="mr-1">○</span>
+              {sessionCount} sessions
+            </div>
+          )}
+          
+          {/* Circular timer container with progress ring */}
           <div 
             className={cn(
-              "rounded-full flex flex-col items-center justify-center relative transition-all timer-circle",
+              "rounded-full flex flex-col items-center justify-center relative transition-all shadow-lg",
               sizeClasses,
               isEnlarged ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 enlarged" : "",
-              timer.isRunning ? "running" : ""
+              timer.isRunning ? "glow-effect" : ""
             )}
             style={{ 
               backgroundColor: primaryColor,
-              color: textColor
+              boxShadow: timer.isRunning ? `0 0 20px ${primaryColor}40` : 'none',
+              border: `4px solid ${timer.isRunning ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)'}`
             }}
             onClick={handleTimerClick}
           >
+            {/* Progress ring (only show if deadline exists and not editing) */}
+            {timer.deadline && !isEditing && (
+              <div className="absolute inset-0 rounded-full">
+                <svg className="w-full h-full" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="46"
+                    fill="none"
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth="4"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="46"
+                    fill="none"
+                    stroke={isPast(timer.deadline) ? "#f87171" : "#ffffff"}
+                    strokeWidth="3"
+                    strokeDasharray="289.1"
+                    strokeDashoffset={289.1 - (289.1 * progress / 100)}
+                    strokeLinecap="round"
+                    transform="rotate(-90 50 50)"
+                    style={{ transition: "stroke-dashoffset 0.5s ease" }}
+                  />
+                </svg>
+              </div>
+            )}
+            
             {/* Category indicator */}
             {!isEditing && timer.category && (
-              <div className="absolute top-2 right-2 bg-white/20 px-1.5 py-0.5 rounded-full text-[10px] max-w-[70px] truncate">
+              <div className="absolute top-3 left-3 bg-black/30 px-1.5 py-0.5 rounded-full text-[10px] max-w-[70px] truncate text-white/90 border border-white/10">
                 {timer.category}
               </div>
             )}
@@ -325,7 +365,7 @@ const Timer = ({
             {/* Edit/name section at top of circle */}
             <div className={cn(
               "absolute top-4 w-full flex justify-center px-2",
-              isEnlarged ? "top-6" : ""
+              isEnlarged ? "top-8" : ""
             )}>
               {isEditing ? (
                 <Input
@@ -335,14 +375,14 @@ const Timer = ({
                   onKeyDown={handleKeyDown}
                   autoFocus
                   className={cn(
-                    "text-center border-0 bg-white/20 focus-visible:ring-1 focus-visible:ring-white/40 focus-visible:ring-offset-0",
-                    isEnlarged ? "text-lg" : "text-sm h-6 px-1"
+                    "text-center bg-black/30 text-white border-white/20 focus-visible:ring-white/30 focus-visible:ring-offset-0",
+                    isEnlarged ? "text-lg" : "text-sm h-7 px-2"
                   )}
                   placeholder="Timer name"
                 />
               ) : (
                 <div className={cn(
-                  "font-medium text-center truncate w-4/5 px-2",
+                  "font-medium text-center truncate w-4/5 px-2 text-white",
                   isEnlarged ? "text-lg" : "text-sm"
                 )}>
                   {timer.name}
@@ -352,8 +392,8 @@ const Timer = ({
             
             {/* Timer display */}
             <div className={cn(
-              "font-bold text-center mt-4",
-              isEnlarged ? "text-5xl" : "text-xl"
+              "font-bold text-center text-white",
+              isEnlarged ? "text-5xl mt-2" : "text-xl"
             )}>
               {formatTime(timer.elapsedTime)}
             </div>
@@ -372,13 +412,13 @@ const Timer = ({
             {isEditing && isEnlarged && (
               <div className="absolute bottom-36 w-10/12">
                 <Select 
-                  value={selectedCategory} 
+                  value={selectedCategory || "none"} 
                   onValueChange={setSelectedCategory}
                 >
-                  <SelectTrigger className="h-8 text-sm bg-white/20 border-white/20 text-white">
+                  <SelectTrigger className="h-8 text-sm bg-black/30 text-white border-white/20">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-gray-800 text-white border-white/20">
                     <SelectItem value="none">No Category</SelectItem>
                     {categories.map(category => (
                       <SelectItem key={category} value={category}>{category}</SelectItem>
@@ -390,15 +430,15 @@ const Timer = ({
             
             {/* Priority selector - only visible when editing and enlarged */}
             {isEditing && isEnlarged && (
-              <div className="absolute bottom-26 w-10/12 mt-2">
+              <div className="absolute bottom-[5.5rem] w-10/12 mt-2">
                 <Select 
                   value={selectedPriority?.toString() || "no-priority"} 
                   onValueChange={(value) => setSelectedPriority(value === "no-priority" ? undefined : parseInt(value))}
                 >
-                  <SelectTrigger className="h-8 text-sm bg-white/20 border-white/20 text-white mt-2">
+                  <SelectTrigger className="h-8 text-sm bg-black/30 text-white border-white/20 mt-2">
                     <SelectValue placeholder="Set priority (optional)" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-gray-800 text-white border-white/20">
                     <SelectItem value="no-priority">No Priority</SelectItem>
                     {priorityLevels.map(level => (
                       <SelectItem key={level} value={level.toString()}>
@@ -417,33 +457,44 @@ const Timer = ({
                   <PopoverTrigger asChild>
                     <Button 
                       variant="outline"
-                      className="w-full justify-start text-left font-normal h-8 text-sm bg-white/20 border-white/20 text-white mt-2"
+                      className="w-full justify-start text-left font-normal h-8 text-sm bg-black/30 text-white border-white/20 mt-2"
                     >
                       <Clock className="mr-2 h-4 w-4" />
                       {selectedDeadline ? format(selectedDeadline, "PPP") : "Set deadline (optional)"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="center">
+                  <PopoverContent className="w-auto p-0 bg-gray-800 text-white border-white/20" align="center">
                     <Calendar
                       mode="single"
                       selected={selectedDeadline}
                       onSelect={handleDeadlineChange}
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
-                    <div className="p-3 border-t border-border flex items-center justify-between">
+                    <div className="p-3 border-t border-white/10 flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Input
-                          className="w-14"
+                          className="w-14 bg-black/30 text-white border-white/20"
                           value={deadlineHours}
-                          onChange={(e) => setDeadlineHours(e.target.value)}
+                          onChange={(e) => {
+                            const hours = parseInt(e.target.value);
+                            if (!isNaN(hours) && hours >= 0 && hours <= 23) {
+                              setDeadlineHours(hours.toString().padStart(2, '0'));
+                            }
+                          }}
                           placeholder="HH"
                           maxLength={2}
                         />
                         <span>:</span>
                         <Input
-                          className="w-14"
+                          className="w-14 bg-black/30 text-white border-white/20"
                           value={deadlineMinutes}
-                          onChange={(e) => setDeadlineMinutes(e.target.value)}
+                          onChange={(e) => {
+                            const mins = parseInt(e.target.value);
+                            if (!isNaN(mins) && mins >= 0 && mins <= 59) {
+                              setDeadlineMinutes(mins.toString().padStart(2, '0'));
+                            }
+                          }}
                           placeholder="MM"
                           maxLength={2}
                         />
@@ -452,6 +503,7 @@ const Timer = ({
                         size="sm" 
                         variant="outline"
                         onClick={clearDeadline}
+                        className="text-white border-white/20"
                       >
                         Clear
                       </Button>
@@ -463,30 +515,30 @@ const Timer = ({
             
             {/* Action buttons - only visible when not editing and not enlarged */}
             {!isEditing && !isEnlarged && (
-              <div className="absolute bottom-2 flex justify-center gap-1 mt-2">
+              <div className="absolute bottom-3 flex justify-center gap-1">
                 {timer.isRunning ? (
                   <Button 
-                    variant="ghost" 
+                    variant="secondary" 
                     size="sm" 
                     onClick={(e) => {
                       e.stopPropagation();
                       onToggle(timer.id);
                     }}
-                    className="h-7 w-7 p-0 rounded-full bg-white/30 hover:bg-white/50"
+                    className="h-8 w-8 p-0 rounded-full bg-black/30 hover:bg-black/50 border border-white/10"
                   >
-                    <div className="w-2 h-4 bg-white rounded-sm"></div>
+                    <div className="w-2.5 h-2.5 bg-white rounded-sm"></div>
                   </Button>
                 ) : (
                   <Button 
-                    variant="ghost" 
+                    variant="secondary" 
                     size="sm" 
                     onClick={(e) => {
                       e.stopPropagation();
                       onToggle(timer.id);
                     }}
-                    className="h-7 w-7 p-0 rounded-full bg-white/30 hover:bg-white/50"
+                    className="h-8 w-8 p-0 rounded-full bg-black/30 hover:bg-black/50 border border-white/10"
                   >
-                    <div className="w-0 h-0 border-t-transparent border-t-8 border-b-transparent border-b-8 border-l-white border-l-12"></div>
+                    <div className="w-0 h-0 border-t-transparent border-t-[6px] border-b-transparent border-b-[6px] border-l-white border-l-[10px] ml-0.5"></div>
                   </Button>
                 )}
               </div>
@@ -502,9 +554,9 @@ const Timer = ({
                     e.stopPropagation();
                     handleCancel();
                   }}
-                  className="absolute left-4 top-4 h-10 w-10 p-0 rounded-full bg-white/20 hover:bg-white/30"
+                  className="absolute left-4 top-4 h-9 w-9 p-0 rounded-full bg-black/40 hover:bg-black/60 text-white"
                 >
-                  <X size={20} className="text-white" />
+                  <X size={18} />
                 </Button>
                 <Button
                   variant="ghost"
@@ -513,24 +565,24 @@ const Timer = ({
                     e.stopPropagation();
                     handleRename();
                   }}
-                  className="absolute right-4 top-4 h-10 w-10 p-0 rounded-full bg-white/20 hover:bg-white/30"
+                  className="absolute right-4 top-4 h-9 w-9 p-0 rounded-full bg-black/40 hover:bg-black/60 text-white"
                 >
-                  <Check size={20} className="text-white" />
+                  <Check size={18} />
                 </Button>
               </>
             )}
             
             {/* Quick action buttons that appear on hover - only visible when not editing and not enlarged */}
             {!isEditing && !isEnlarged && (
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-full bg-black/30">
-                <div className="flex gap-1">
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-full bg-black/50 backdrop-blur-sm">
+                <div className="flex gap-2">
                   <Button 
                     variant="ghost" 
                     size="sm" 
                     onClick={handleEdit}
                     className="h-8 w-8 p-0 rounded-full bg-white/20 hover:bg-white/40"
                   >
-                    <Edit size={16} className="text-white" />
+                    <Edit size={15} className="text-white" />
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -538,7 +590,7 @@ const Timer = ({
                     onClick={handleDeleteRequest}
                     className="h-8 w-8 p-0 rounded-full bg-white/20 hover:bg-red-400/40"
                   >
-                    <Trash2 size={16} className="text-white" />
+                    <Trash2 size={15} className="text-white" />
                   </Button>
                   <Button 
                     variant="ghost" 
@@ -546,7 +598,7 @@ const Timer = ({
                     onClick={handleResetTimer}
                     className="h-8 w-8 p-0 rounded-full bg-white/20 hover:bg-white/40"
                   >
-                    <RotateCcw size={16} className="text-white" />
+                    <RotateCcw size={15} className="text-white" />
                   </Button>
                 </div>
               </div>

@@ -16,10 +16,11 @@
 /* Clean up and keep only what's needed */
 .card {
   padding: 1.5em;
-  background: rgba(30, 34, 45, 0.5);
+  background: rgba(30, 34, 45, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* Add subtle mask gradients for sections */
@@ -38,17 +39,29 @@
 }
 
 .timer-circle {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
   transition: all 0.3s ease;
-  border: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 .timer-circle.enlarged {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .timer-circle.running {
   animation: pulse-border 1.5s infinite;
+}
+
+.glow-effect {
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.2);
+  }
+  to {
+    box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.4);
+  }
 }
 
 @keyframes pulse-border {
@@ -65,13 +78,101 @@
 
 /* Enhanced analytics cards */
 .stats-card {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(30, 41, 59, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced glass effect */
+.glass-effect {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Calendar styles */
+.calendar-day-with-activity {
+  position: relative;
+}
+
+.calendar-day-with-activity::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 4px;
+  width: 4px;
+  border-radius: 50%;
+  background-color: hsl(var(--primary));
+}
+
+/* Heat map gradient */
+.heat-low {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.heat-medium {
+  background-color: rgba(59, 130, 246, 0.5);
+}
+
+.heat-high {
+  background-color: rgba(59, 130, 246, 0.8);
+}
+
+/* Time chart styles */
+.chart-container {
+  position: relative;
+  height: 300px;
+}
+
+/* Progress bar animation */
+.animate-progress-bar {
+  animation: progress-grow 1s ease-out;
+}
+
+@keyframes progress-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Category pills */
+.category-pill {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Goal progress styles */
+.goal-progress-bar {
+  height: 8px;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  border-radius: 4px;
+  transition: width 1s ease-out;
+}
+
+/* Productivity score */
+.productivity-score {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

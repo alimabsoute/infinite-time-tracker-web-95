@@ -139,7 +139,7 @@ const Index = () => {
           <>
             {/* Stats section */}
             <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="bg-indigo-900/10 backdrop-blur-sm">
+              <Card className="stats-card">
                 <CardContent className="p-4 flex items-center gap-3">
                   <div className="bg-indigo-500/20 p-2 rounded-full">
                     <TimerIcon size={20} className="text-indigo-500" />
@@ -151,7 +151,7 @@ const Index = () => {
                 </CardContent>
               </Card>
               
-              <Card className="bg-emerald-900/10 backdrop-blur-sm">
+              <Card className="stats-card">
                 <CardContent className="p-4 flex items-center gap-3">
                   <div className="bg-emerald-500/20 p-2 rounded-full">
                     <Calendar size={20} className="text-emerald-500" />
@@ -163,7 +163,7 @@ const Index = () => {
                 </CardContent>
               </Card>
               
-              <Card className="bg-purple-900/10 backdrop-blur-sm">
+              <Card className="stats-card">
                 <CardContent className="p-4 flex items-center gap-3">
                   <div className="bg-purple-500/20 p-2 rounded-full">
                     <TrendingUp size={20} className="text-purple-500" />
@@ -181,9 +181,11 @@ const Index = () => {
             <Tabs defaultValue="timers" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 backdrop-blur-sm">
                 <TabsTrigger value="timers" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground">
+                  <TimerIcon className="mr-2 h-4 w-4" />
                   Timers
                 </TabsTrigger>
                 <TabsTrigger value="stats" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-muted-foreground">
+                  <TrendingUp className="mr-2 h-4 w-4" />
                   Analytics
                 </TabsTrigger>
               </TabsList>
@@ -206,7 +208,7 @@ const Index = () => {
               </TabsContent>
               
               <TabsContent value="stats">
-                <div className="glass-effect rounded-lg p-4">
+                <div className="glass-effect rounded-lg p-6">
                   <TimeCharts timers={timers} />
                 </div>
               </TabsContent>
