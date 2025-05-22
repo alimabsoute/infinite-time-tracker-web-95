@@ -120,30 +120,28 @@ const Timer = ({
               onDeleteClick={() => onDelete(id)}
             />
             
-            <div className="grid grid-cols-7 gap-4 items-center">
-              <div className="col-span-2 flex items-center justify-center">
+            <div className="grid grid-cols-1 gap-4 items-center">
+              <div className="flex items-center justify-center">
                 <TimerDisplay
                   currentTime={currentTime}
                   isRunning={isRunning}
-                  sessionCount={sessionCount}
+                  category={category}
                 />
               </div>
               
-              <div className="col-span-3 space-y-2">
+              <div className="space-y-4">
+                <TimerControls
+                  isRunning={isRunning}
+                  onToggle={() => onToggle(id)}
+                  onReset={() => onReset(id)}
+                />
+                
                 <TimerMetadata
                   selectedPriority={selectedPriority}
                   date={date}
                   isOverdue={!!isOverdue}
                   onPriorityChange={handlePriorityChange}
                   onDateSelect={handleDateSelect}
-                />
-              </div>
-              
-              <div className="col-span-2">
-                <TimerControls
-                  isRunning={isRunning}
-                  onToggle={() => onToggle(id)}
-                  onReset={() => onReset(id)}
                 />
               </div>
             </div>

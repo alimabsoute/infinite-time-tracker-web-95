@@ -1,5 +1,5 @@
 
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Play, Pause } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 
@@ -11,25 +11,20 @@ interface TimerControlsProps {
 
 const TimerControls = ({ isRunning, onToggle, onReset }: TimerControlsProps) => {
   return (
-    <div className="flex flex-col space-y-1 items-center">
-      <div className="flex gap-2 w-full">
-        <Button
-          onClick={onToggle}
-          className={cn(
-            "w-full h-10 text-sm",
-            isRunning 
-              ? "bg-amber-500/80 hover:bg-amber-500 text-amber-950" 
-              : "bg-emerald-500/80 hover:bg-emerald-500 text-emerald-950"
-          )}
-        >
-          {isRunning ? 'Pause' : 'Start'}
-        </Button>
-      </div>
+    <div className="flex flex-col space-y-3 items-center">
+      <Button
+        onClick={onToggle}
+        variant="outline"
+        size="icon"
+        className="rounded-full h-14 w-14 border-2 hover:bg-secondary/50 shadow-sm"
+      >
+        {isRunning ? <Pause size={30} /> : <Play size={30} className="ml-1" />}
+      </Button>
       
       <Button
         onClick={onReset}
-        variant="outline"
-        className="w-full h-9 text-sm bg-secondary/20"
+        variant="ghost"
+        className="text-sm text-muted-foreground hover:text-foreground"
       >
         <RefreshCw size={14} className="mr-1"/> Reset
       </Button>

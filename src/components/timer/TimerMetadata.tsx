@@ -23,8 +23,8 @@ const TimerMetadata = ({
   onDateSelect 
 }: TimerMetadataProps) => {
   return (
-    <div className="space-y-2">
-      <div className="flex flex-col space-y-1">
+    <div className="flex gap-3 justify-center">
+      <div className="flex flex-col space-y-1 flex-1">
         <span className="text-xs text-muted-foreground">Priority</span>
         <Select value={selectedPriority} onValueChange={onPriorityChange}>
           <SelectTrigger className="h-8 text-sm bg-secondary/30">
@@ -39,7 +39,7 @@ const TimerMetadata = ({
         </Select>
       </div>
       
-      <div className="flex flex-col space-y-1">
+      <div className="flex flex-col space-y-1 flex-1">
         <span className="text-xs text-muted-foreground">Deadline</span>
         <Popover>
           <PopoverTrigger asChild>
