@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { format, startOfWeek, addDays, subWeeks, addWeeks, isSameDay } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid, LineChart, Line } from 'recharts';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Clock, BarChart as BarChartIcon, LineChart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, BarChart as BarChartIcon, LineChart as LineChartIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -111,7 +111,7 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
                   onClick={() => setChartType('line')}
                   className="px-2 h-7"
                 >
-                  <LineChart className="h-3 w-3" />
+                  <LineChartIcon className="h-3 w-3" />
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -249,11 +249,10 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
                       fontSize: 10
                     }} 
                   />
-                  <Bar 
-                    dataKey="totalHours" 
-                    fill="transparent" 
-                    stroke="rgba(var(--primary), 0.8)" 
-                    type="monotone" 
+                  <Line 
+                    type="monotone"
+                    dataKey="totalHours"
+                    stroke="rgba(var(--primary), 0.8)"
                     dot={{ r: 4, fill: "rgba(var(--primary), 0.8)", stroke: "rgba(var(--background), 1)", strokeWidth: 2 }}
                     activeDot={{ r: 6, fill: "rgba(var(--accent), 0.9)", stroke: "rgba(var(--background), 1)", strokeWidth: 2 }}
                   />

@@ -35,11 +35,12 @@ const TimerDisplay = ({
           pathTransitionDuration: 0.3,
           rotation: 0.25,
           strokeLinecap: 'butt', // Sharp edges instead of round
-          // Remove any shadows for a cleaner look
+          // Remove background fill color
+          backgroundColor: 'transparent',
         })}
       />
       
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center bg-transparent">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
         <div className="text-xl font-semibold tracking-tight">
           {formatTime(currentTime)}
         </div>
