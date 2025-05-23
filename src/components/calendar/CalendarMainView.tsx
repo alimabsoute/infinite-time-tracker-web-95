@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import CalendarHeader from "./CalendarHeader";
 import DayView from "./DayView";
 import { Timer } from "../../types";
-import { getTotalTimeForDate, getTimersForDate, getHeatMapColor } from "./CalendarUtils";
+import { getTotalTimeForDate, getTimersForDate, getHeatMapColor, formatTime } from "./CalendarUtils";
 import { cn } from "@/lib/utils";
 import CalendarControls from "./CalendarControls";
 import YearView from "./YearView";
