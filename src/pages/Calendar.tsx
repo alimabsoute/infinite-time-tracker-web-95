@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
 import Header from "../components/Header";
@@ -14,7 +13,6 @@ import { Button } from "@/components/ui/button";
 
 // Import our components
 import CalendarHeader from "../components/calendar/CalendarHeader";
-import { renderDay } from "../components/calendar/CustomDayRenderer";
 import DayView from "../components/calendar/DayView";
 import WeekView from "../components/calendar/WeekView";
 import ActivityVisualization from "../components/calendar/ActivityVisualization";
