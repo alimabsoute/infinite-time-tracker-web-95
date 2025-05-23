@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -14,19 +13,22 @@ const screenshots = [
     title: "Timer Dashboard",
     description: "Track your time with a sleek, intuitive interface",
     image: "/screenshots/timer-dashboard.png",
-    fallbackColor: "bg-blue-100"
+    fallbackColor: "bg-blue-100",
+    icon: <Clock className="h-16 w-16 text-blue-500/70" />
   },
   {
     title: "Calendar View",
     description: "Visualize your productivity across days, weeks, and months",
     image: "/screenshots/calendar-view.png",
-    fallbackColor: "bg-purple-100"
+    fallbackColor: "bg-purple-100",
+    icon: <Calendar className="h-16 w-16 text-purple-500/70" />
   },
   {
     title: "Analytics",
     description: "Get insights into how you spend your time",
     image: "/screenshots/analytics.png",
-    fallbackColor: "bg-green-100"
+    fallbackColor: "bg-green-100",
+    icon: <BarChart3 className="h-16 w-16 text-green-500/70" />
   }
 ];
 
