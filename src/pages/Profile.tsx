@@ -8,17 +8,46 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, CreditCard, Shield, User } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, 
+  AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Settings, CreditCard, Shield, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const Profile = () => {
   const { user } = useAuth();
-  const { subscribed, subscriptionTier, subscriptionEnd, createCheckoutSession } = useSubscription();
+  const { 
+    subscribed, 
+    subscriptionTier, 
+    subscriptionEnd, 
+    createCheckoutSession,
+    createCustomerPortalSession,
+    checkSubscription
+  } = useSubscription();
+  
+  const [isManagingSubscription, setIsManagingSubscription] = React.useState(false);
 
   const handleSubscribe = async () => {
     const url = await createCheckoutSession();
     if (url) {
       window.open(url, '_blank');
+    }
+  };
+  
+  const handleManageSubscription = async () => {
+    try {
+      setIsManagingSubscription(true);
+      const url = await createCustomerPortalSession();
+      if (url) {
+        window.open(url, '_blank');
+        // Refresh subscription status after a short delay to catch any changes
+        setTimeout(checkSubscription, 5000);
+      }
+    } catch (error) {
+      console.error("Failed to open customer portal:", error);
+      toast.error("Could not access subscription management");
+    } finally {
+      setIsManagingSubscription(false);
     }
   };
 
@@ -83,13 +112,53 @@ const Profile = () => {
                     </div>
                   )}
                   
-                  {!subscribed && (
+                  {subscribed ? (
+                    <Button 
+                      onClick={handleManageSubscription} 
+                      variant="outline"
+                      className="w-full mt-4"
+                      disabled={isManagingSubscription}
+                    >
+                      {isManagingSubscription ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        "Manage Subscription"
+                      )}
+                    </Button>
+                  ) : (
                     <Button 
                       onClick={handleSubscribe} 
                       className="w-full mt-4"
                     >
                       Upgrade to Pro
                     </Button>
+                  )}
+                  
+                  {subscribed && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-100 w-full">
+                          Cancel Subscription
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Canceling your subscription will remove access to premium features when your current billing period ends on {formatDate(subscriptionEnd)}.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Nevermind</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleManageSubscription}>
+                            Continue to Cancellation
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
                 </div>
               </CardContent>
@@ -175,8 +244,19 @@ const Profile = () => {
                           
                           <div>
                             {subscribed ? (
-                              <Button variant="outline">
-                                Manage Subscription
+                              <Button 
+                                variant="outline" 
+                                onClick={handleManageSubscription}
+                                disabled={isManagingSubscription}
+                              >
+                                {isManagingSubscription ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Loading...
+                                  </>
+                                ) : (
+                                  "Manage Subscription"
+                                )}
                               </Button>
                             ) : (
                               <Button onClick={handleSubscribe}>

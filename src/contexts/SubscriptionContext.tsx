@@ -13,6 +13,7 @@ interface SubscriptionContextType {
   isLoading: boolean;
   checkSubscription: () => Promise<void>;
   createCheckoutSession: () => Promise<string | null>;
+  createCustomerPortalSession: () => Promise<string | null>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -91,6 +92,33 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   };
 
+  const createCustomerPortalSession = async (): Promise<string | null> => {
+    if (!user) {
+      toast.error("You must be logged in to manage your subscription");
+      return null;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      
+      if (error) {
+        console.error("Error creating customer portal session:", error);
+        toast.error("Failed to access subscription management");
+        return null;
+      }
+
+      if (data.success && data.url) {
+        return data.url;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Error creating customer portal session:", error);
+      toast.error("Failed to access subscription management");
+      return null;
+    }
+  };
+
   // Check subscription when user changes
   useEffect(() => {
     checkSubscription();
@@ -105,7 +133,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     subscriptionEnd,
     isLoading,
     checkSubscription,
-    createCheckoutSession
+    createCheckoutSession,
+    createCustomerPortalSession
   };
 
   return (
