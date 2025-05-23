@@ -12,14 +12,14 @@ const screenshots = [
   {
     title: "Timer Dashboard",
     description: "Track multiple timers with customizable categories and deadlines",
-    image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=1600&h=900&q=80",
+    image: "/lovable-uploads/a140a9bd-50a7-485d-b7ba-3853a08ee647.png",
     fallbackColor: "bg-blue-100",
     icon: <Clock className="h-16 w-16 text-blue-500/70" />
   },
   {
     title: "Calendar View",
     description: "Visualize your productivity across days, weeks, and months",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&h=900&q=80",
+    image: "/lovable-uploads/28eb3aee-75f0-45d2-8754-f301d50dd6a1.png",
     fallbackColor: "bg-purple-100",
     icon: <Calendar className="h-16 w-16 text-purple-500/70" />
   },
