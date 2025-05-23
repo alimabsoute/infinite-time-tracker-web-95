@@ -19,14 +19,14 @@ const screenshots = [
   {
     title: "Calendar View",
     description: "Visualize your productivity across days, weeks, and months",
-    image: "/screenshots/calendar-view.jpg", 
+    image: "/placeholder.svg?height=400&width=600&text=Calendar+View", 
     fallbackColor: "bg-purple-100",
     icon: <Calendar className="h-16 w-16 text-purple-500/70" />
   },
   {
     title: "Analytics",
     description: "Get detailed insights into how you spend your time",
-    image: "/screenshots/analytics.jpg",
+    image: "/placeholder.svg?height=400&width=600&text=Analytics+Dashboard",
     fallbackColor: "bg-green-100",
     icon: <BarChart3 className="h-16 w-16 text-green-500/70" />
   }
@@ -77,27 +77,11 @@ const ScreenshotCarousel = () => {
                           
                           <div className="aspect-video overflow-hidden rounded-xl shadow-md order-1 md:order-2">
                             <div className="relative w-full h-full">
-                              {/* Image with fallback */}
-                              <div className="w-full h-full">
-                                <img 
-                                  src={screenshot.image} 
-                                  alt={screenshot.title}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    // Show fallback on error
-                                    target.style.display = 'none';
-                                    target.parentElement?.classList.add(screenshot.fallbackColor);
-                                    const iconElement = target.parentElement?.querySelector('.fallback-icon');
-                                    if (iconElement) {
-                                      iconElement.classList.remove('hidden');
-                                    }
-                                  }}
-                                />
-                                <div className={`fallback-icon hidden absolute inset-0 flex items-center justify-center`}>
-                                  {screenshot.icon}
-                                </div>
-                              </div>
+                              <img 
+                                src={screenshot.image} 
+                                alt={screenshot.title}
+                                className="w-full h-full object-cover"
+                              />
                             </div>
                           </div>
                         </div>
