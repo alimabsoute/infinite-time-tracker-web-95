@@ -24,7 +24,7 @@ const CalendarLayout: React.FC<CalendarLayoutProps> = ({
         className="container mx-auto px-4 pb-20 max-w-5xl"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
       >
         {title && (
           <div className="flex justify-between items-center mb-6">
@@ -32,7 +32,7 @@ const CalendarLayout: React.FC<CalendarLayoutProps> = ({
               className="text-2xl font-bold" 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
             >
               {title}
             </motion.h1>
@@ -42,7 +42,7 @@ const CalendarLayout: React.FC<CalendarLayoutProps> = ({
                 className="flex gap-2"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
               >
                 {actionButtons}
               </motion.div>

@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, Home } from "lucide-react";
 
 const Header = () => {
   const location = useLocation();
@@ -20,6 +20,16 @@ const Header = () => {
           <Link to="/">
             <Button 
               variant={location.pathname === "/" ? "secondary" : "ghost"} 
+              className="gap-2"
+            >
+              <Home size={18} />
+              <span className="hidden sm:inline">Home</span>
+            </Button>
+          </Link>
+          
+          <Link to="/dashboard">
+            <Button 
+              variant={location.pathname === "/dashboard" ? "secondary" : "ghost"} 
               className="gap-2"
             >
               <Clock size={18} />
