@@ -12,21 +12,21 @@ const screenshots = [
   {
     title: "Timer Dashboard",
     description: "Track multiple timers with customizable categories and deadlines",
-    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=1600&h=900&q=80",
+    image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=1600&h=900&q=80",
     fallbackColor: "bg-blue-100",
     icon: <Clock className="h-16 w-16 text-blue-500/70" />
   },
   {
     title: "Calendar View",
     description: "Visualize your productivity across days, weeks, and months",
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1600&h=900&q=80",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&h=900&q=80",
     fallbackColor: "bg-purple-100",
     icon: <Calendar className="h-16 w-16 text-purple-500/70" />
   },
   {
     title: "Analytics",
     description: "Get detailed insights into how you spend your time",
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&h=900&q=80",
+    image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1600&h=900&q=80",
     fallbackColor: "bg-green-100",
     icon: <BarChart3 className="h-16 w-16 text-green-500/70" />
   }
