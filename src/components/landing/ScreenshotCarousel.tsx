@@ -29,7 +29,7 @@ const screenshots = [
   {
     title: "Analytics",
     description: "Get detailed insights into how you spend your time",
-    image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1600&h=900&q=80",
+    image: "/lovable-uploads/e4b39c63-d261-4756-9c9a-b26aaf39d02f.png",
     fallbackColor: "bg-green-100",
     icon: <BarChart3 className="h-16 w-16 text-green-500/70" />,
     isAnimated: false
