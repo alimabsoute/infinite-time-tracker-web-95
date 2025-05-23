@@ -19,14 +19,14 @@ const screenshots = [
   {
     title: "Calendar View",
     description: "Visualize your productivity across days, weeks, and months",
-    image: "/placeholder.svg?height=400&width=600&text=Calendar+View", 
+    image: "/screenshots/calendar-view.jpg",
     fallbackColor: "bg-purple-100",
     icon: <Calendar className="h-16 w-16 text-purple-500/70" />
   },
   {
     title: "Analytics",
     description: "Get detailed insights into how you spend your time",
-    image: "/placeholder.svg?height=400&width=600&text=Analytics+Dashboard",
+    image: "/screenshots/analytics.jpg",
     fallbackColor: "bg-green-100",
     icon: <BarChart3 className="h-16 w-16 text-green-500/70" />
   }
