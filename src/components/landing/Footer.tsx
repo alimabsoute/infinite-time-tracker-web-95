@@ -13,7 +13,7 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center">
               <Clock className="h-6 w-6 text-primary mr-2" />
-              <span className="text-xl font-semibold">TimeKeeper</span>
+              <span className="text-xl font-semibold">VigliaFlux</span>
             </div>
             <p className="text-muted-foreground">
               Track your time, boost your productivity, and focus on what matters most.
@@ -101,7 +101,7 @@ const Footer = () => {
         </div>
         
         <div className="mt-16 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© {currentYear} TimeKeeper. All rights reserved.</p>
+          <p>© {currentYear} VigliaFlux. All rights reserved.</p>
         </div>
       </div>
     </footer>
