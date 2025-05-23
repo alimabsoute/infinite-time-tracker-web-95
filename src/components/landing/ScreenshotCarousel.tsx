@@ -5,53 +5,32 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import { FadeInWhenVisible } from "./Animation";
 
-// Mock screenshots for the app
+// App screenshots with actual images
 const screenshots = [
   {
     title: "Timer Dashboard",
     description: "Track your time with a sleek, intuitive interface",
-    image: "/screenshots/timer-dashboard.png",
+    image: "/screenshots/timer-dashboard.jpg",
     fallbackColor: "bg-blue-100",
     icon: <Clock className="h-16 w-16 text-blue-500/70" />
   },
   {
     title: "Calendar View",
     description: "Visualize your productivity across days, weeks, and months",
-    image: "/screenshots/calendar-view.png",
+    image: "/screenshots/calendar-view.jpg", 
     fallbackColor: "bg-purple-100",
     icon: <Calendar className="h-16 w-16 text-purple-500/70" />
   },
   {
     title: "Analytics",
     description: "Get insights into how you spend your time",
-    image: "/screenshots/analytics.png",
+    image: "/screenshots/analytics.jpg",
     fallbackColor: "bg-green-100",
     icon: <BarChart3 className="h-16 w-16 text-green-500/70" />
   }
 ];
-
-// Animation variants
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-};
-
-const FadeInWhenVisible = ({ children }: { children: React.ReactNode }) => {
-  const ref = React.useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      variants={fadeIn}
-    >
-      {children}
-    </motion.div>
-  );
-};
 
 const ScreenshotCarousel = () => {
   return (
@@ -69,9 +48,30 @@ const ScreenshotCarousel = () => {
                   <Card className="overflow-hidden border shadow-md">
                     <CardContent className="p-0">
                       <div className="aspect-video w-full overflow-hidden">
-                        {/* Use real screenshot if available, otherwise fallback */}
-                        <div className={`w-full h-full ${screenshot.fallbackColor} relative flex items-center justify-center`}>
-                          {screenshot.icon}
+                        <div className="relative w-full h-full">
+                          {/* Image with fallback */}
+                          <div className="w-full h-full">
+                            <img 
+                              src={screenshot.image} 
+                              alt={screenshot.title}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                // Show fallback on error
+                                target.style.display = 'none';
+                                target.parentElement?.classList.add(screenshot.fallbackColor);
+                                const iconElement = target.parentElement?.querySelector('.fallback-icon');
+                                if (iconElement) {
+                                  iconElement.classList.remove('hidden');
+                                }
+                              }}
+                            />
+                            <div className={`fallback-icon hidden absolute inset-0 flex items-center justify-center`}>
+                              {screenshot.icon}
+                            </div>
+                          </div>
+                          
+                          {/* Caption overlay */}
                           <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent flex flex-col items-center justify-end p-6">
                             <h3 className="text-xl font-semibold mb-2">{screenshot.title}</h3>
                             <p className="text-center text-muted-foreground">{screenshot.description}</p>
