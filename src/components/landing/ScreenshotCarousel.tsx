@@ -6,29 +6,33 @@ import { useInView } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { FadeInWhenVisible } from "./Animation";
+import AnimatedDashboard from "./AnimatedDashboard";
 
 // App screenshots with actual images
 const screenshots = [
   {
     title: "Timer Dashboard",
     description: "Track multiple timers with customizable categories and deadlines",
-    image: "/lovable-uploads/a140a9bd-50a7-485d-b7ba-3853a08ee647.png",
+    image: null,
     fallbackColor: "bg-blue-100",
-    icon: <Clock className="h-16 w-16 text-blue-500/70" />
+    icon: <Clock className="h-16 w-16 text-blue-500/70" />,
+    isAnimated: true
   },
   {
     title: "Calendar View",
     description: "Visualize your productivity across days, weeks, and months",
     image: "/lovable-uploads/28eb3aee-75f0-45d2-8754-f301d50dd6a1.png",
     fallbackColor: "bg-purple-100",
-    icon: <Calendar className="h-16 w-16 text-purple-500/70" />
+    icon: <Calendar className="h-16 w-16 text-purple-500/70" />,
+    isAnimated: false
   },
   {
     title: "Analytics",
     description: "Get detailed insights into how you spend your time",
     image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1600&h=900&q=80",
     fallbackColor: "bg-green-100",
-    icon: <BarChart3 className="h-16 w-16 text-green-500/70" />
+    icon: <BarChart3 className="h-16 w-16 text-green-500/70" />,
+    isAnimated: false
   }
 ];
 
@@ -37,7 +41,7 @@ const ScreenshotCarousel = () => {
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <FadeInWhenVisible>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">See TimeKeeper in Action</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">See VigliaFlux in Action</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
             Powerful features to help you make the most of your time and boost productivity
           </p>
@@ -77,11 +81,15 @@ const ScreenshotCarousel = () => {
                           
                           <div className="aspect-video overflow-hidden rounded-xl shadow-md order-1 md:order-2">
                             <div className="relative w-full h-full">
-                              <img 
-                                src={screenshot.image} 
-                                alt={screenshot.title}
-                                className="w-full h-full object-cover"
-                              />
+                              {screenshot.isAnimated ? (
+                                <AnimatedDashboard />
+                              ) : (
+                                <img 
+                                  src={screenshot.image} 
+                                  alt={screenshot.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
                             </div>
                           </div>
                         </div>
