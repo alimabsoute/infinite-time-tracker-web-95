@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format, startOfWeek, addDays, subWeeks, addWeeks, isSameDay } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid, LineChart, Line } from 'recharts';
@@ -16,16 +16,23 @@ interface WeekViewProps {
     timers: number;
   }[];
   formatTime: (ms: number) => string;
-  selectedDate: Date | undefined;
+  selectedDate: Date;
 }
 
 const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate }) => {
   // State for week navigation and chart type
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
-    selectedDate ? startOfWeek(selectedDate) : startOfWeek(new Date())
+    startOfWeek(selectedDate || new Date())
   );
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
+  
+  // Update currentWeekStart when selectedDate changes
+  useEffect(() => {
+    if (selectedDate) {
+      setCurrentWeekStart(startOfWeek(selectedDate));
+    }
+  }, [selectedDate]);
 
   // Generate week data based on current week start
   const generateWeekData = (startDate: Date) => {

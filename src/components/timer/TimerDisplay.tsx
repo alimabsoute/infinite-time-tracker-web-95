@@ -35,8 +35,7 @@ const TimerDisplay = ({
           pathTransitionDuration: 0.3,
           rotation: 0.25,
           strokeLinecap: 'butt', // Sharp edges instead of round
-          // Remove background fill color
-          backgroundColor: 'transparent',
+          backgroundColor: 'transparent', // Remove background fill color
         })}
       />
       
