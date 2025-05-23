@@ -1,5 +1,6 @@
 
 import React from "react";
+import { motion } from "framer-motion";
 import HeroSection from "@/components/landing/HeroSection";
 import ScreenshotCarousel from "@/components/landing/ScreenshotCarousel";
 import FeaturesSection from "@/components/landing/FeaturesSection";
@@ -10,7 +11,12 @@ import Footer from "@/components/landing/Footer";
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <motion.div 
+      className="min-h-screen bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <HeroSection />
       <ScreenshotCarousel />
       <FeaturesSection />
@@ -18,7 +24,7 @@ const LandingPage = () => {
       <TestimonialsSection />
       <CTASection />
       <Footer />
-    </div>
+    </motion.div>
   );
 };
 
