@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -29,7 +28,7 @@ const HeroSection = () => {
               className="inline-flex items-center gap-3 mb-6"
             >
               <Clock className="h-8 w-8 text-primary" />
-              <h1 className="text-5xl md:text-7xl font-bold">TimeKeeper</h1>
+              <h1 className="text-5xl md:text-7xl font-bold">VigliaFlux</h1>
             </motion.div>
             
             <motion.h2 
