@@ -208,11 +208,13 @@ const TimeCharts: React.FC<Props> = ({ timers }) => {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-card/60 border-border/60">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-primary" />
+              <div className="bg-primary/20 p-2 rounded-full">
+                <Clock className="h-5 w-5 text-primary" />
+              </div>
               <h3 className="text-sm font-medium">Total Time</h3>
             </div>
             <div className="mt-2">
@@ -229,7 +231,9 @@ const TimeCharts: React.FC<Props> = ({ timers }) => {
         <Card className="bg-card/60 border-border/60">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-indigo-500" />
+              <div className="bg-indigo-500/20 p-2 rounded-full">
+                <Activity className="h-5 w-5 text-indigo-500" />
+              </div>
               <h3 className="text-sm font-medium">Active Days</h3>
             </div>
             <div className="mt-2">
@@ -244,7 +248,9 @@ const TimeCharts: React.FC<Props> = ({ timers }) => {
         <Card className="bg-card/60 border-border/60">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              <PieChartIcon className="h-4 w-4 text-purple-500" />
+              <div className="bg-purple-500/20 p-2 rounded-full">
+                <PieChartIcon className="h-5 w-5 text-purple-500" />
+              </div>
               <h3 className="text-sm font-medium">Categories</h3>
             </div>
             <div className="mt-2">
@@ -259,7 +265,9 @@ const TimeCharts: React.FC<Props> = ({ timers }) => {
         <Card className="bg-card/60 border-border/60">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-emerald-500" />
+              <div className="bg-emerald-500/20 p-2 rounded-full">
+                <TrendingUp className="h-5 w-5 text-emerald-500" />
+              </div>
               <h3 className="text-sm font-medium">Peak Hour</h3>
             </div>
             <div className="mt-2">
@@ -497,7 +505,9 @@ const TimeCharts: React.FC<Props> = ({ timers }) => {
               <CardContent className="space-y-4">
                 <div className="space-y-1">
                   <div className="text-sm font-medium flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-primary" />
+                    <div className="bg-primary/20 p-1 rounded-full">
+                      <Clock className="h-3 w-3 text-primary" />
+                    </div>
                     Most Productive Time
                   </div>
                   <p className="text-sm">
@@ -510,7 +520,9 @@ const TimeCharts: React.FC<Props> = ({ timers }) => {
                 
                 <div className="space-y-1">
                   <div className="text-sm font-medium flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-purple-500" />
+                    <div className="bg-purple-500/20 p-1 rounded-full">
+                      <Activity className="h-3 w-3 text-purple-500" />
+                    </div>
                     Top Category
                   </div>
                   {categoryData.length > 0 ? (
@@ -527,7 +539,9 @@ const TimeCharts: React.FC<Props> = ({ timers }) => {
                 
                 <div className="space-y-1">
                   <div className="text-sm font-medium flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    <div className="bg-emerald-500/20 p-1 rounded-full">
+                      <TrendingUp className="h-3 w-3 text-emerald-500" />
+                    </div>
                     Consistency
                   </div>
                   <p className="text-sm">

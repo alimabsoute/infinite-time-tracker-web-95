@@ -2,6 +2,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import HeroSection from "@/components/landing/HeroSection";
+import AnalyticsPreviewSection from "@/components/landing/AnalyticsPreviewSection";
 import ScreenshotCarousel from "@/components/landing/ScreenshotCarousel";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import PricingSection from "@/components/landing/PricingSection";
@@ -18,6 +19,7 @@ const LandingPage = () => {
       transition={{ duration: 0.5 }}
     >
       <HeroSection />
+      <AnalyticsPreviewSection />
       <ScreenshotCarousel />
       <FeaturesSection />
       <PricingSection />

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useTimers } from "../hooks/useTimers";
 import Header from "../components/Header";
@@ -203,8 +204,8 @@ const Index = () => {
             <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="stats-card">
                 <CardContent className="p-4 flex items-center gap-3">
-                  <div className="bg-indigo-500/20 p-2 rounded-full border-2 border-blue-500">
-                    <TimerIcon size={20} className="text-indigo-500" />
+                  <div className="bg-primary/20 p-2 rounded-full">
+                    <TimerIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Active Timers</p>
@@ -217,8 +218,8 @@ const Index = () => {
               
               <Card className="stats-card">
                 <CardContent className="p-4 flex items-center gap-3">
-                  <div className="bg-emerald-500/20 p-2 rounded-full border-2 border-blue-500">
-                    <Calendar size={20} className="text-emerald-500" />
+                  <div className="bg-emerald-500/20 p-2 rounded-full">
+                    <Calendar className="h-5 w-5 text-emerald-500" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Today</p>
@@ -229,8 +230,8 @@ const Index = () => {
               
               <Card className="stats-card">
                 <CardContent className="p-4 flex items-center gap-3">
-                  <div className="bg-purple-500/20 p-2 rounded-full border-2 border-blue-500">
-                    <TrendingUp size={20} className="text-purple-500" />
+                  <div className="bg-purple-500/20 p-2 rounded-full">
+                    <TrendingUp className="h-5 w-5 text-purple-500" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Categories</p>
