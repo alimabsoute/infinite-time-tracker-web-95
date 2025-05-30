@@ -1,9 +1,9 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, BarChart3, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import PhynxTimerLogo from "../PhynxTimerLogo";
 
 const HeroSection = () => {
   return (
@@ -28,11 +28,7 @@ const HeroSection = () => {
               transition={{ delay: 0.2, duration: 0.8 }}
               className="inline-flex items-center gap-3 mb-6"
             >
-              <img 
-                src="/lovable-uploads/2d2a4123-86c9-499a-ae22-54e54db1b0df.png" 
-                alt="PhynxTimer" 
-                className="h-12 w-auto"
-              />
+              <PhynxTimerLogo width={48} height={48} className="text-primary" />
               <h1 className="text-5xl md:text-7xl font-bold">PhynxTimer</h1>
             </motion.div>
             

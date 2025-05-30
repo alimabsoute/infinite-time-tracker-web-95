@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Github, Twitter, Instagram } from "lucide-react";
+import PhynxTimerLogo from "../PhynxTimerLogo";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -11,11 +12,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-10">
           <div className="space-y-4">
             <div className="flex items-center">
-              <img 
-                src="/lovable-uploads/2d2a4123-86c9-499a-ae22-54e54db1b0df.png" 
-                alt="PhynxTimer" 
-                className="h-6 w-auto mr-2"
-              />
+              <PhynxTimerLogo width={24} height={24} className="text-primary mr-2" />
               <span className="text-xl font-semibold">PhynxTimer</span>
             </div>
             <p className="text-muted-foreground">
