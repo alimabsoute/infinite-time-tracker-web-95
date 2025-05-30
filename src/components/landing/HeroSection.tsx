@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -32,10 +31,6 @@ const HeroSection = () => {
                 src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
                 alt="PhynxTimer" 
                 className="h-12 w-auto"
-                style={{
-                  filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 0 white)',
-                  mixBlendMode: 'multiply'
-                }}
               />
               <h1 className="text-5xl md:text-7xl font-bold">PhynxTimer</h1>
             </motion.div>

@@ -15,10 +15,6 @@ const Header = () => {
               src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
               alt="PhynxTimer" 
               className="h-8 w-auto"
-              style={{
-                filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 0 white)',
-                mixBlendMode: 'multiply'
-              }}
             />
             <span className="text-xl font-semibold">PhynxTimer</span>
           </Link>
@@ -44,10 +40,6 @@ const Header = () => {
                 src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
                 alt="" 
                 className="h-4 w-auto opacity-70"
-                style={{
-                  filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 0 white)',
-                  mixBlendMode: 'multiply'
-                }}
               />
               <span className="hidden sm:inline">Timers</span>
             </Button>
