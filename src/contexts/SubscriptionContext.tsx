@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +25,14 @@ export const useSubscription = () => {
     throw new Error("useSubscription must be used within a SubscriptionProvider");
   }
   return context;
+};
+
+// Helper function to validate and normalize subscription tier
+const normalizeSubscriptionTier = (tier: string | null | undefined): SubscriptionTier => {
+  if (tier === "pro" || tier === "team") {
+    return tier;
+  }
+  return "free";
 };
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -84,7 +91,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         // Fall back to database data if edge function fails
         if (dbSubscription) {
           setSubscribed(dbSubscription.subscribed);
-          setSubscriptionTier(dbSubscription.subscription_tier || "free");
+          setSubscriptionTier(normalizeSubscriptionTier(dbSubscription.subscription_tier));
           setSubscriptionEnd(dbSubscription.subscription_end ? new Date(dbSubscription.subscription_end) : null);
         } else {
           toast.error("Failed to check subscription status");
@@ -94,7 +101,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (data.success) {
         setSubscribed(data.subscribed);
-        setSubscriptionTier(data.subscription_tier || "free");
+        setSubscriptionTier(normalizeSubscriptionTier(data.subscription_tier));
         setSubscriptionEnd(data.subscription_end ? new Date(data.subscription_end) : null);
       }
     } catch (error) {
