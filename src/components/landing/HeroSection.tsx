@@ -94,8 +94,8 @@ const HeroSection = () => {
               </div>
               
               <div className="flex flex-col items-center">
-                <div className="rounded-full bg-secondary/20 p-3 mb-2">
-                  <BarChart3 className="h-5 w-5 text-secondary-foreground" />
+                <div className="rounded-full bg-emerald-500/10 p-3 mb-2">
+                  <BarChart3 className="h-5 w-5 text-emerald-500" />
                 </div>
                 <p className="text-sm">Analytics</p>
               </div>
@@ -108,10 +108,10 @@ const HeroSection = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            <div className="aspect-square relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-muted bg-card p-6">
-              <div className="relative h-full w-full overflow-hidden rounded-xl">
+            <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border border-muted bg-card p-6">
+              <div className="relative w-full overflow-hidden rounded-xl">
                 {/* Realistic Timer Interface */}
-                <div className="space-y-4 h-full">
+                <div className="space-y-4">
                   {/* Header */}
                   <div className="flex items-center justify-between pb-2 border-b border-border/50">
                     <h3 className="font-semibold text-lg">Active Timers</h3>
@@ -119,7 +119,7 @@ const HeroSection = () => {
                   </div>
 
                   {/* Timer Cards */}
-                  <div className="space-y-3 flex-1">
+                  <div className="space-y-3">
                     {/* Active Timer */}
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
