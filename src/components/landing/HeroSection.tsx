@@ -1,7 +1,8 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, BarChart3, Calendar } from "lucide-react";
+import { ArrowRight, BarChart3, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
