@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Github, Twitter, Instagram } from "lucide-react";
@@ -13,13 +12,9 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center">
               <img 
-                src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
+                src="/lovable-uploads/2d2a4123-86c9-499a-ae22-54e54db1b0df.png" 
                 alt="PhynxTimer" 
                 className="h-6 w-auto mr-2"
-                style={{
-                  filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 0 white)',
-                  mixBlendMode: 'multiply'
-                }}
               />
               <span className="text-xl font-semibold">PhynxTimer</span>
             </div>

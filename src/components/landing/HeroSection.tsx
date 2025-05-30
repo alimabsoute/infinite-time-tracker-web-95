@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -28,7 +29,7 @@ const HeroSection = () => {
               className="inline-flex items-center gap-3 mb-6"
             >
               <img 
-                src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
+                src="/lovable-uploads/2d2a4123-86c9-499a-ae22-54e54db1b0df.png" 
                 alt="PhynxTimer" 
                 className="h-12 w-auto"
               />

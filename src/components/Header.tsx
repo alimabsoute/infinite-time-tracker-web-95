@@ -12,7 +12,7 @@ const Header = () => {
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
             <img 
-              src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
+              src="/lovable-uploads/2d2a4123-86c9-499a-ae22-54e54db1b0df.png" 
               alt="PhynxTimer" 
               className="h-8 w-auto"
             />
@@ -37,7 +37,7 @@ const Header = () => {
               className="gap-2"
             >
               <img 
-                src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
+                src="/lovable-uploads/2d2a4123-86c9-499a-ae22-54e54db1b0df.png" 
                 alt="" 
                 className="h-4 w-auto opacity-70"
               />
