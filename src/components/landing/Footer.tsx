@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Clock, Github, Twitter, Instagram } from "lucide-react";
+import { Github, Twitter, Instagram } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -12,8 +12,16 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-10">
           <div className="space-y-4">
             <div className="flex items-center">
-              <Clock className="h-6 w-6 text-primary mr-2" />
-              <span className="text-xl font-semibold">VigliaFlux</span>
+              <img 
+                src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
+                alt="PhynxTimer" 
+                className="h-6 w-auto mr-2"
+                style={{
+                  filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 0 white)',
+                  mixBlendMode: 'multiply'
+                }}
+              />
+              <span className="text-xl font-semibold">PhynxTimer</span>
             </div>
             <p className="text-muted-foreground">
               Track your time, boost your productivity, and focus on what matters most.
@@ -101,7 +109,7 @@ const Footer = () => {
         </div>
         
         <div className="mt-16 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© {currentYear} VigliaFlux. All rights reserved.</p>
+          <p>© {currentYear} PhynxTimer. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -6,7 +6,7 @@ import { Star } from "lucide-react";
 
 const testimonials = [
   {
-    quote: "TimeKeeper has transformed how I manage my day. I'm now much more aware of where my time goes.",
+    quote: "PhynxTimer has transformed how I manage my day. I'm now much more aware of where my time goes.",
     author: "Sarah J.",
     role: "Freelance Designer",
     stars: 5
@@ -18,7 +18,7 @@ const testimonials = [
     stars: 5
   },
   {
-    quote: "I've tried many time tracking apps, but TimeKeeper stands out with its intuitive interface and useful insights.",
+    quote: "I've tried many time tracking apps, but PhynxTimer stands out with its intuitive interface and useful insights.",
     author: "Alex R.",
     role: "Software Developer",
     stars: 4

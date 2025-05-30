@@ -1,8 +1,7 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Clock, BarChart3, Calendar } from "lucide-react";
+import { ArrowRight, BarChart3, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
@@ -28,8 +27,16 @@ const HeroSection = () => {
               transition={{ delay: 0.2, duration: 0.8 }}
               className="inline-flex items-center gap-3 mb-6"
             >
-              <Clock className="h-8 w-8 text-primary" />
-              <h1 className="text-5xl md:text-7xl font-bold">VigliaFlux</h1>
+              <img 
+                src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
+                alt="PhynxTimer" 
+                className="h-12 w-auto"
+                style={{
+                  filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 0 white)',
+                  mixBlendMode: 'multiply'
+                }}
+              />
+              <h1 className="text-5xl md:text-7xl font-bold">PhynxTimer</h1>
             </motion.div>
             
             <motion.h2 
@@ -47,7 +54,7 @@ const HeroSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
             >
-              VigliaFlux helps you understand how you spend your time, 
+              PhynxTimer helps you understand how you spend your time, 
               so you can focus on what matters most. Start with 3 free timers,
               then unlock unlimited tracking with our Pro plan.
             </motion.p>

@@ -43,7 +43,7 @@ const CTASection = () => {
           <FadeInWhenVisible>
             <h2 className="text-3xl md:text-5xl font-bold text-center mb-6">Ready to Take Control of Your Time?</h2>
             <p className="text-lg md:text-xl text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Join thousands of users who have improved their productivity with TimeKeeper.
+              Join thousands of users who have improved their productivity with PhynxTimer.
               Start tracking your time more effectively today.
             </p>
             

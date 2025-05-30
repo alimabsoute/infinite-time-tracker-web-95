@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Home } from "lucide-react";
+import { Calendar, Home } from "lucide-react";
 
 const Header = () => {
   const location = useLocation();
@@ -11,8 +11,16 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between px-4 max-w-5xl mx-auto">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
-            <Clock className="h-6 w-6 text-primary" />
-            <span className="text-xl font-semibold">VigliaFlux</span>
+            <img 
+              src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
+              alt="PhynxTimer" 
+              className="h-8 w-auto"
+              style={{
+                filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 0 white)',
+                mixBlendMode: 'multiply'
+              }}
+            />
+            <span className="text-xl font-semibold">PhynxTimer</span>
           </Link>
         </div>
         
@@ -32,7 +40,15 @@ const Header = () => {
               variant={location.pathname === "/dashboard" ? "secondary" : "ghost"} 
               className="gap-2"
             >
-              <Clock size={18} />
+              <img 
+                src="/lovable-uploads/0a240b32-170e-4528-9aa9-abd771509555.png" 
+                alt="" 
+                className="h-4 w-auto opacity-70"
+                style={{
+                  filter: 'drop-shadow(0 0 0 white) drop-shadow(0 0 0 white)',
+                  mixBlendMode: 'multiply'
+                }}
+              />
               <span className="hidden sm:inline">Timers</span>
             </Button>
           </Link>

@@ -41,7 +41,7 @@ const ScreenshotCarousel = () => {
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
         <FadeInWhenVisible>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">See VigliaFlux in Action</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">See PhynxTimer in Action</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
             Powerful features to help you make the most of your time and boost productivity
           </p>
