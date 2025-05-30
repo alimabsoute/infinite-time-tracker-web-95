@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, 
   AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Settings, CreditCard, Shield, User, Loader2 } from "lucide-react";
+import { Settings, CreditCard, Shield, User, Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const Profile = () => {
@@ -22,15 +22,30 @@ const Profile = () => {
     subscriptionEnd, 
     createCheckoutSession,
     createCustomerPortalSession,
-    checkSubscription
+    checkSubscription,
+    isLoading
   } = useSubscription();
   
   const [isManagingSubscription, setIsManagingSubscription] = React.useState(false);
 
+  // Check for success parameter in URL (from Stripe redirect)
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+    
+    if (sessionId) {
+      toast.success("Subscription activated successfully!");
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Refresh subscription status
+      checkSubscription();
+    }
+  }, [checkSubscription]);
+
   const handleSubscribe = async () => {
     const url = await createCheckoutSession();
     if (url) {
-      window.open(url, '_blank');
+      window.location.href = url; // Full redirect for Stripe checkout
     }
   };
   
@@ -98,9 +113,15 @@ const Profile = () => {
                     <div className="flex items-center gap-2">
                       <p className="font-medium capitalize">{subscriptionTier} Plan</p>
                       {subscribed && (
-                        <span className="bg-primary/20 text-primary text-xs py-0.5 px-2 rounded-full">
-                          Active
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span className="bg-green-100 text-green-800 text-xs py-0.5 px-2 rounded-full">
+                            Active
+                          </span>
+                        </div>
+                      )}
+                      {isLoading && (
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                       )}
                     </div>
                   </div>
@@ -230,14 +251,19 @@ const Profile = () => {
                       <div className="border p-4 rounded-md flex flex-col">
                         <div className="flex justify-between items-center">
                           <div>
-                            <h3 className="font-semibold capitalize">{subscriptionTier} Plan</h3>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold capitalize">{subscriptionTier} Plan</h3>
+                              {subscribed && (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              )}
+                            </div>
                             {subscribed ? (
                               <p className="text-sm text-muted-foreground">
                                 Renews on {formatDate(subscriptionEnd)}
                               </p>
                             ) : (
                               <p className="text-sm text-muted-foreground">
-                                Free tier with limited features
+                                Free tier with limited features (3 timers max)
                               </p>
                             )}
                           </div>
@@ -260,7 +286,7 @@ const Profile = () => {
                               </Button>
                             ) : (
                               <Button onClick={handleSubscribe}>
-                                Upgrade
+                                Upgrade to Pro
                               </Button>
                             )}
                           </div>

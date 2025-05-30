@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,11 +64,31 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     try {
       setIsLoading(true);
+      
+      // First try to get subscription info from our database
+      const { data: dbSubscription, error: dbError } = await supabase
+        .from('subscribers')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (dbError) {
+        console.error("Database error:", dbError);
+      }
+
+      // Then call the edge function to sync with Stripe and update database
       const { data, error } = await supabase.functions.invoke("check-subscription");
       
       if (error) {
         console.error("Error checking subscription:", error);
-        toast.error("Failed to check subscription status");
+        // Fall back to database data if edge function fails
+        if (dbSubscription) {
+          setSubscribed(dbSubscription.subscribed);
+          setSubscriptionTier(dbSubscription.subscription_tier || "free");
+          setSubscriptionEnd(dbSubscription.subscription_end ? new Date(dbSubscription.subscription_end) : null);
+        } else {
+          toast.error("Failed to check subscription status");
+        }
         return;
       }
 
