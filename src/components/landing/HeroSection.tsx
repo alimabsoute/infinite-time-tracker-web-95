@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -46,9 +47,9 @@ const HeroSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
             >
-              TimeKeeper helps you understand how you spend your time, 
-              so you can focus on what matters most. Effortless tracking, 
-              powerful insights, and beautiful visualizations.
+              VigliaFlux helps you understand how you spend your time, 
+              so you can focus on what matters most. Start with 3 free timers,
+              then unlock unlimited tracking with our Pro plan.
             </motion.p>
             
             <motion.div 

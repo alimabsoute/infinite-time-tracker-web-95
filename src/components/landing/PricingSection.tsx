@@ -11,7 +11,7 @@ const pricingPlans = [
   {
     name: "Free",
     price: "0",
-    features: ["5 active timers", "7-day history", "Basic reports"],
+    features: ["3 active timers", "7-day history", "Basic reports"],
     recommended: false
   },
   {

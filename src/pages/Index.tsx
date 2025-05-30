@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useTimers } from "../hooks/useTimers";
 import Header from "../components/Header";
@@ -8,13 +7,21 @@ import CreateTimerForm from "../components/CreateTimerForm";
 import TimeCharts from "../components/TimeCharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Timer as TimerIcon, TrendingUp } from "lucide-react";
+import { Calendar, Timer as TimerIcon, TrendingUp, Crown } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "../contexts/AuthContext";
+import { useSubscription } from "../contexts/SubscriptionContext";
 
 const Index = () => {
   const { user } = useAuth();
+  const { 
+    subscriptionTier, 
+    getTimerLimit, 
+    canCreateTimer, 
+    createCheckoutSession 
+  } = useSubscription();
   const { 
     timers, 
     loading,
@@ -30,6 +37,24 @@ const Index = () => {
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
   const handleAddTimer = async (name: string) => {
+    // Check if user can create more timers
+    if (!canCreateTimer(timers.length)) {
+      const limit = getTimerLimit();
+      toast.error(`Free tier is limited to ${limit} timers`, {
+        description: "Upgrade to Pro for unlimited timers",
+        action: {
+          label: "Upgrade",
+          onClick: async () => {
+            const checkoutUrl = await createCheckoutSession();
+            if (checkoutUrl) {
+              window.open(checkoutUrl, '_blank');
+            }
+          }
+        }
+      });
+      return;
+    }
+
     const id = await addTimer(name);
     setNewTimerId(id);
     
@@ -68,6 +93,7 @@ const Index = () => {
   // Calculate quick stats for the header
   const activeTimers = timers.filter(timer => timer.isRunning).length;
   const totalTimers = timers.length;
+  const timerLimit = getTimerLimit();
   
   // Calculate total time tracked today
   const today = new Date();
@@ -123,6 +149,42 @@ const Index = () => {
           <p className="text-muted-foreground mt-1">
             Track your time efficiently and stay productive
           </p>
+          
+          {/* Subscription tier indicator */}
+          {subscriptionTier === "free" && (
+            <div className="mt-3 flex items-center gap-2 text-sm">
+              <span className="bg-muted px-2 py-1 rounded-full">Free Tier</span>
+              <span className="text-muted-foreground">
+                {totalTimers}/{timerLimit === Infinity ? '∞' : timerLimit} timers used
+              </span>
+              {totalTimers >= timerLimit && (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="ml-2"
+                  onClick={async () => {
+                    const checkoutUrl = await createCheckoutSession();
+                    if (checkoutUrl) {
+                      window.open(checkoutUrl, '_blank');
+                    }
+                  }}
+                >
+                  <Crown className="h-3 w-3 mr-1" />
+                  Upgrade
+                </Button>
+              )}
+            </div>
+          )}
+          
+          {subscriptionTier === "pro" && (
+            <div className="mt-3 flex items-center gap-2 text-sm">
+              <span className="bg-primary/20 text-primary px-2 py-1 rounded-full flex items-center gap-1">
+                <Crown className="h-3 w-3" />
+                Pro
+              </span>
+              <span className="text-muted-foreground">Unlimited timers</span>
+            </div>
+          )}
         </div>
 
         {/* Loading state */}
@@ -146,7 +208,9 @@ const Index = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Active Timers</p>
-                    <p className="text-xl font-semibold">{activeTimers} / {totalTimers}</p>
+                    <p className="text-xl font-semibold">
+                      {activeTimers} / {timerLimit === Infinity ? '∞' : timerLimit}
+                    </p>
                   </div>
                 </CardContent>
               </Card>

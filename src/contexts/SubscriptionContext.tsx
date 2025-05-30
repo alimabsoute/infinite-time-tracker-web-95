@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +13,8 @@ interface SubscriptionContextType {
   checkSubscription: () => Promise<void>;
   createCheckoutSession: () => Promise<string | null>;
   createCustomerPortalSession: () => Promise<string | null>;
+  getTimerLimit: () => number;
+  canCreateTimer: (currentTimerCount: number) => boolean;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -32,6 +33,24 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier>("free");
   const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const getTimerLimit = (): number => {
+    switch (subscriptionTier) {
+      case "free":
+        return 3;
+      case "pro":
+        return Infinity;
+      case "team":
+        return Infinity;
+      default:
+        return 3;
+    }
+  };
+
+  const canCreateTimer = (currentTimerCount: number): boolean => {
+    const limit = getTimerLimit();
+    return limit === Infinity || currentTimerCount < limit;
+  };
 
   const checkSubscription = async () => {
     if (!user) {
@@ -134,7 +153,9 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     isLoading,
     checkSubscription,
     createCheckoutSession,
-    createCustomerPortalSession
+    createCustomerPortalSession,
+    getTimerLimit,
+    canCreateTimer
   };
 
   return (
