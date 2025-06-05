@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import YearView from "./YearView";
 import CalendarStats from "./CalendarStats";
 import ColorLegend from "./ColorLegend";
 import { renderDay } from "./CustomDayRenderer";
+import UpcomingDeadlines from "./UpcomingDeadlines";
 
 interface CalendarMainViewProps {
   currentMonth: Date;
@@ -43,6 +44,18 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [calendarView, setCalendarView] = useState<'month' | 'year'>('month');
   const [showDateDetail, setShowDateDetail] = useState<boolean>(false);
+
+  // Ensure calendar opens on current month initially
+  useEffect(() => {
+    const today = new Date();
+    if (!selectedDate) {
+      setSelectedDate(today);
+    }
+    // Only set current month to today if it's significantly different
+    if (Math.abs(currentMonth.getTime() - today.getTime()) > 40 * 24 * 60 * 60 * 1000) {
+      setCurrentMonth(today);
+    }
+  }, []);
 
   // Generate days with data for the current month
   const daysWithData = useMemo(() => {
@@ -104,6 +117,11 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
+      {/* Upcoming Deadlines Section */}
+      <div className="col-span-full">
+        <UpcomingDeadlines timers={timers} />
+      </div>
+
       {/* Calendar view */}
       <Card className={cn(
         `${isExpanded ? 'md:col-span-1' : 'md:col-span-2'} glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300`,

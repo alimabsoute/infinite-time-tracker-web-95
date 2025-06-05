@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
 import { motion } from "framer-motion";
 import { format, subMonths, addMonths, subWeeks, addWeeks, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
@@ -15,6 +15,13 @@ const CalendarPage = () => {
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("day");
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [showFilters, setShowFilters] = useState<boolean>(false);
+
+  // Initialize with current date and month
+  useEffect(() => {
+    const today = new Date();
+    setSelectedDate(today);
+    setCurrentMonth(today);
+  }, []);
 
   // Get unique categories from timers
   const categories = Array.from(new Set(timers.map(timer => timer.category || "Uncategorized")));
