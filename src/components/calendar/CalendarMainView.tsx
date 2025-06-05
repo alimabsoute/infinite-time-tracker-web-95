@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import CalendarHeader from "./CalendarHeader";
 import DayView from "./DayView";
 import { Timer } from "../../types";
-import { getTotalTimeForDate, getTimersForDate, getHeatMapColor, formatTime } from "./CalendarUtils";
+import { getTotalTimeForDate, getAllTimersForDate, getHeatMapColor, formatTime } from "./CalendarUtils";
 import { cn } from "@/lib/utils";
 import CalendarControls from "./CalendarControls";
 import YearView from "./YearView";
@@ -66,7 +66,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
     return eachDayOfInterval({ start, end }).map(date => ({
       date,
       totalTime: getTotalTimeForDate(date, timers),
-      timers: getTimersForDate(date, timers).length,
+      timers: getAllTimersForDate(date, timers).length,
       inCurrentMonth: isSameMonth(date, currentMonth)
     }));
   }, [currentMonth, timers]);
@@ -100,7 +100,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
     return renderDay(
       (date: Date) => getTotalTimeForDate(date, timers),
       (date: Date) => getHeatMapColor(date, timers),
-      (date: Date) => getTimersForDate(date, timers)
+      (date: Date) => getAllTimersForDate(date, timers)
     );
   }, [timers]);
   

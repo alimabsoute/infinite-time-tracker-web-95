@@ -13,7 +13,7 @@ export const formatTime = (milliseconds: number): string => {
   return `${minutes}m`;
 };
 
-// Calculate timers for selected date
+// Calculate timers for selected date (by creation date)
 export const getTimersForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
   if (!date) return [];
   
@@ -30,7 +30,43 @@ export const getTimersForDate = (date: Date | undefined, timers: Timer[]): Timer
   });
 };
 
-// Calculate total time tracked for a specific date
+// Calculate timers that have deadlines on a specific date
+export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
+  if (!date) return [];
+  
+  // Set time to midnight for comparison
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+  
+  return timers.filter(timer => {
+    if (!timer.deadline) return false;
+    const deadlineDate = new Date(timer.deadline);
+    return deadlineDate >= startOfDay && deadlineDate <= endOfDay;
+  });
+};
+
+// Get all timers relevant to a specific date (created on that date OR have deadline on that date)
+export const getAllTimersForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
+  if (!date) return [];
+  
+  const createdTimers = getTimersForDate(date, timers);
+  const deadlineTimers = getTimersWithDeadlinesForDate(date, timers);
+  
+  // Combine and deduplicate timers
+  const allTimers = [...createdTimers];
+  deadlineTimers.forEach(deadlineTimer => {
+    if (!allTimers.find(timer => timer.id === deadlineTimer.id)) {
+      allTimers.push(deadlineTimer);
+    }
+  });
+  
+  return allTimers;
+};
+
+// Calculate total time tracked for a specific date (only from timers created on that date)
 export const getTotalTimeForDate = (date: Date, timers: Timer[]): number => {
   const dayTimers = getTimersForDate(date, timers);
   return dayTimers.reduce((total, timer) => total + timer.elapsedTime, 0);

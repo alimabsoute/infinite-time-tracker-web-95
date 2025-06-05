@@ -14,12 +14,12 @@ interface ExtendedDayContentProps extends DayContentProps {
 
 type GetTimeFunction = (date: Date) => number;
 type GetColorFunction = (date: Date) => string;
-type GetTimersFunction = (date: Date) => Timer[];
+type GetAllTimersFunction = (date: Date) => Timer[];
 
 export const renderDay = (
   getTime: GetTimeFunction,
   getColor: GetColorFunction,
-  getTimers: GetTimersFunction
+  getAllTimers: GetAllTimersFunction
 ) => {
   return function DayContent(props: ExtendedDayContentProps) {
     const { date, ...rest } = props;
@@ -28,12 +28,12 @@ export const renderDay = (
       return <div {...rest}>-</div>;
     }
     
-    const dayTimers = getTimers(date);
+    const allDayTimers = getAllTimers(date);
     const timeTracked = getTime(date);
     const hasActivity = timeTracked > 0;
     
     // Check for deadlines
-    const deadlineTimers = dayTimers.filter(timer => 
+    const deadlineTimers = allDayTimers.filter(timer => 
       timer.deadline && 
       new Date(timer.deadline).toDateString() === date.toDateString()
     );
@@ -147,7 +147,7 @@ export const renderDay = (
             <div className="font-medium text-blue-700 dark:text-blue-300 text-xs">Activity</div>
             <div className="text-blue-600 dark:text-blue-400 text-xs">{formattedTime} tracked</div>
             <div className="text-xs text-blue-500 dark:text-blue-500 mt-1">
-              {dayTimers.length} session{dayTimers.length !== 1 ? 's' : ''}
+              {allDayTimers.filter(t => new Date(t.createdAt).toDateString() === date.toDateString()).length} session{allDayTimers.filter(t => new Date(t.createdAt).toDateString() === date.toDateString()).length !== 1 ? 's' : ''}
             </div>
           </div>
         )}

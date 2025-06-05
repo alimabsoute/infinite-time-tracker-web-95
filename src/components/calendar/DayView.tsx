@@ -7,6 +7,7 @@ import DeadlinesList from './DeadlinesList';
 import DayViewSummary from './DayViewSummary';
 import TimersList from './TimersList';
 import DayViewFilters from './DayViewFilters';
+import { getAllTimersForDate, getTimersForDate } from './CalendarUtils';
 
 interface DayViewProps {
   selectedDate: Date | undefined;
@@ -25,11 +26,17 @@ const DayView: React.FC<DayViewProps> = ({
   setCategoryFilter,
   categories
 }) => {
-  // Get total time tracked for the selected date
-  const totalTrackedTime = filteredTimers.reduce((sum, t) => sum + t.elapsedTime, 0);
+  // Get all timers relevant to the selected date (created or with deadlines)
+  const allDayTimers = selectedDate ? getAllTimersForDate(selectedDate, filteredTimers) : [];
+  
+  // Get only timers created on the selected date for time tracking calculation
+  const createdOnDateTimers = selectedDate ? getTimersForDate(selectedDate, filteredTimers) : [];
+  
+  // Get total time tracked for the selected date (only from timers created on that date)
+  const totalTrackedTime = createdOnDateTimers.reduce((sum, t) => sum + t.elapsedTime, 0);
 
   // Get deadlines for the selected date
-  const deadlineTimers = selectedDate ? filteredTimers.filter(timer => 
+  const deadlineTimers = selectedDate ? allDayTimers.filter(timer => 
     timer.deadline && 
     new Date(timer.deadline).toDateString() === selectedDate.toDateString()
   ) : [];
@@ -67,11 +74,11 @@ const DayView: React.FC<DayViewProps> = ({
         selectedDate={selectedDate}
         totalTrackedTime={totalTrackedTime}
         formatTime={formatTime}
-        sessionCount={filteredTimers.length}
+        sessionCount={createdOnDateTimers.length}
       />
       
       <TimersList
-        filteredTimers={filteredTimers}
+        filteredTimers={createdOnDateTimers}
         formatTime={formatTime}
         totalTrackedTime={totalTrackedTime}
       />
