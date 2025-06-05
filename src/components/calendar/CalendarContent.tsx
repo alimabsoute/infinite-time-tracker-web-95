@@ -51,44 +51,42 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
         </TabsTrigger>
       </TabsList>
       
-      <AnimatePresence mode="wait">
-        <TabsContent value="calendar" className="mt-0">
-          <CalendarMainView
-            currentMonth={currentMonth}
-            handleMonthChange={handleMonthChange}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            setCurrentMonth={setCurrentMonth}
-            timers={timers}
-            filteredTimers={filteredTimers}
-            categoryFilter={categoryFilter}
-            setCategoryFilter={setCategoryFilter}
-            categories={categories}
-          />
-          
-          {selectedDate && (
-            <WeekView 
-              weekData={weekData} 
-              formatTime={formatTime} 
-              selectedDate={selectedDate} 
-            />
-          )}
-        </TabsContent>
+      <TabsContent value="calendar" className="mt-0">
+        <CalendarMainView
+          currentMonth={currentMonth}
+          handleMonthChange={handleMonthChange}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          setCurrentMonth={setCurrentMonth}
+          timers={timers}
+          filteredTimers={filteredTimers}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+          categories={categories}
+        />
         
-        <TabsContent value="analytics">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ActivityVisualization
-              categoryDistribution={categoryDistribution}
-              filteredTimers={filteredTimers}
-              formatTime={formatTime}
-            />
-          </motion.div>
-        </TabsContent>
-      </AnimatePresence>
+        {selectedDate && (
+          <WeekView 
+            weekData={weekData} 
+            formatTime={formatTime} 
+            selectedDate={selectedDate} 
+          />
+        )}
+      </TabsContent>
+      
+      <TabsContent value="analytics">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <ActivityVisualization
+            categoryDistribution={categoryDistribution}
+            filteredTimers={filteredTimers}
+            formatTime={formatTime}
+          />
+        </motion.div>
+      </TabsContent>
     </Tabs>
   );
 };

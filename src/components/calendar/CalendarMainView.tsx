@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import CalendarHeader from "./CalendarHeader";
@@ -41,9 +41,8 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   setCategoryFilter,
   categories
 }) => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(false); // Changed to false by default
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [calendarView, setCalendarView] = useState<'month' | 'year'>('month');
-  const [showDateDetail, setShowDateDetail] = useState<boolean>(false);
 
   // Ensure calendar opens on current month initially
   useEffect(() => {
@@ -94,11 +93,6 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
     const today = new Date();
     setSelectedDate(today);
     setCurrentMonth(today);
-  };
-
-  // Toggle date details overlay
-  const toggleDateDetail = () => {
-    setShowDateDetail(!showDateDetail);
   };
 
   // Create enhanced day renderer with timers data
@@ -188,28 +182,26 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
       
       {/* Daily details - show by default when not expanded */}
       {!isExpanded && (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={selectedDate ? selectedDate.toString() : "no-date"}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
-              <CardContent className="pt-6">
-                <DayView
-                  selectedDate={selectedDate}
-                  filteredTimers={filteredTimers}
-                  formatTime={formatTime}
-                  categoryFilter={categoryFilter}
-                  setCategoryFilter={setCategoryFilter}
-                  categories={categories}
-                />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "no-date"}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardContent className="pt-6">
+              <DayView
+                selectedDate={selectedDate}
+                filteredTimers={filteredTimers}
+                formatTime={formatTime}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+                categories={categories}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
     </motion.div>
   );
