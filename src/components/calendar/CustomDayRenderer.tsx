@@ -4,7 +4,7 @@ import { DayContentProps } from 'react-day-picker';
 import { cn } from "@/lib/utils";
 import { motion } from 'framer-motion';
 import { Timer } from '../../types';
-import { format } from 'date-fns';
+import { format, isPast, isToday } from 'date-fns';
 
 interface ExtendedDayContentProps extends DayContentProps {
   selected?: boolean;
@@ -42,11 +42,20 @@ export const renderDay = (
     );
     
     // Check for overdue deadlines (past deadlines that might still be relevant)
-    const overdueDeadlines = dayTimers.filter(timer => 
+    const overdueDeadlines = deadlineTimers.filter(timer => 
       timer.deadline && 
-      new Date(timer.deadline) < today &&
-      new Date(timer.deadline).toDateString() === date.toDateString()
+      isPast(new Date(timer.deadline)) && 
+      !isToday(new Date(timer.deadline))
     );
+    
+    const todayDeadlines = deadlineTimers.filter(timer =>
+      timer.deadline &&
+      isToday(new Date(timer.deadline))
+    );
+    
+    const hasDeadlines = deadlineTimers.length > 0;
+    const hasOverdueDeadlines = overdueDeadlines.length > 0;
+    const hasTodayDeadlines = todayDeadlines.length > 0;
     
     const isSelected = rest.selected || 
                        (rest.modifiers && rest.modifiers.selected);
@@ -75,17 +84,40 @@ export const renderDay = (
     
     const activityLevel = getActivityLevel();
     
+    // Determine deadline styling
+    const getDeadlineStyle = () => {
+      if (hasOverdueDeadlines) {
+        return "bg-red-100 border-2 border-red-500 text-red-800 dark:bg-red-950/40 dark:border-red-400 dark:text-red-200";
+      }
+      if (hasTodayDeadlines) {
+        return "bg-red-50 border-2 border-red-400 text-red-700 dark:bg-red-950/20 dark:border-red-500 dark:text-red-300";
+      }
+      if (hasDeadlines) {
+        return "bg-red-25 border border-red-300 text-red-600 dark:bg-red-950/10 dark:border-red-600 dark:text-red-400";
+      }
+      return "";
+    };
+    
+    const deadlineStyle = getDeadlineStyle();
+    
     return (
       <motion.div 
         className={cn(
-          "flex flex-col items-center justify-center h-9 w-9 relative group cursor-pointer",
-          isSelected ? "bg-primary text-primary-foreground rounded-md" : "hover:bg-secondary/50 rounded-md transition-colors"
+          "flex flex-col items-center justify-center h-9 w-9 relative group cursor-pointer rounded-md transition-all duration-200",
+          // Apply deadline styling first, then handle selection
+          deadlineStyle,
+          // Override with selection styling if selected
+          isSelected && !hasDeadlines && "bg-primary text-primary-foreground",
+          isSelected && hasDeadlines && "ring-2 ring-primary ring-offset-1",
+          // Hover effects
+          !isSelected && !hasDeadlines && "hover:bg-secondary/50",
+          !isSelected && hasDeadlines && "hover:brightness-110"
         )}
         {...rest}
         whileHover={{ scale: 1.05 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
       >
-        <div className="relative z-10">{date.getDate()}</div>
+        <div className="relative z-10 font-medium">{date.getDate()}</div>
         
         {/* Enhanced Activity indicator with multiple levels */}
         {hasActivity && date <= today && (
@@ -98,55 +130,63 @@ export const renderDay = (
                 activityLevel === 2 && !isSelected && "bg-blue-500/70 w-3",
                 activityLevel === 3 && !isSelected && "bg-blue-600/80 w-4",
                 activityLevel === 4 && !isSelected && "bg-blue-700/90 w-5",
-                activityLevel === 5 && !isSelected && "bg-blue-800 w-6"
+                activityLevel === 5 && !isSelected && "bg-blue-800 w-6",
+                // Adjust for deadline styling
+                hasDeadlines && !isSelected && "bg-white/80"
               )}
             />
           </div>
         )}
         
         {/* Enhanced Deadline indicators */}
-        {deadlineTimers.length > 0 && (
+        {hasDeadlines && (
           <motion.div 
             className={cn(
-              "absolute top-0.5 right-0.5 rounded-full border border-background shadow-sm",
-              overdueDeadlines.length > 0 ? "w-2.5 h-2.5 bg-red-600" : "w-2 h-2 bg-red-500"
+              "absolute top-0.5 right-0.5 rounded-full text-xs font-bold min-w-4 h-4 flex items-center justify-center",
+              hasOverdueDeadlines ? "bg-red-600 text-white border border-white" : 
+              hasTodayDeadlines ? "bg-red-500 text-white border border-white" :
+              "bg-red-400 text-white border border-white"
             )}
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 500, damping: 20 }}
-          />
-        )}
-        
-        {/* Multiple deadlines indicator */}
-        {deadlineTimers.length > 1 && (
-          <div className="absolute top-1 right-1 w-1 h-1 bg-red-300 rounded-full border border-background" />
+          >
+            {deadlineTimers.length}
+          </motion.div>
         )}
         
         {/* Enhanced tooltip with richer information */}
-        {(hasActivity || deadlineTimers.length > 0) && (
-          <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 bg-popover p-3 rounded-lg text-xs border border-border opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg z-20 whitespace-nowrap pointer-events-none min-w-48 max-w-64">
+        {(hasActivity || hasDeadlines) && (
+          <div className="absolute -top-24 left-1/2 transform -translate-x-1/2 bg-popover p-3 rounded-lg text-xs border border-border opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg z-50 whitespace-nowrap pointer-events-none min-w-48 max-w-64">
             <div className="font-semibold mb-2 text-sm">{format(date, 'MMM d, yyyy')}</div>
             
-            {hasActivity && (
-              <div className="mb-2 p-2 bg-blue-50 dark:bg-blue-950/30 rounded border-l-2 border-blue-500">
-                <div className="font-medium text-blue-700 dark:text-blue-300">Activity</div>
-                <div className="text-blue-600 dark:text-blue-400">{formattedTime} tracked</div>
-                <div className="text-xs text-blue-500 dark:text-blue-500 mt-1">
-                  {dayTimers.length} session{dayTimers.length !== 1 ? 's' : ''}
-                </div>
-              </div>
-            )}
-            
-            {deadlineTimers.length > 0 && (
-              <div className="p-2 bg-red-50 dark:bg-red-950/30 rounded border-l-2 border-red-500">
-                <div className="font-medium text-red-700 dark:text-red-300 mb-1">
-                  Deadline{deadlineTimers.length > 1 ? 's' : ''}
+            {hasDeadlines && (
+              <div className={cn(
+                "mb-2 p-2 rounded border-l-2",
+                hasOverdueDeadlines ? "bg-red-100 border-red-500 dark:bg-red-950/30" :
+                hasTodayDeadlines ? "bg-red-50 border-red-400 dark:bg-red-950/20" :
+                "bg-red-25 border-red-300 dark:bg-red-950/10"
+              )}>
+                <div className={cn(
+                  "font-medium mb-1",
+                  hasOverdueDeadlines ? "text-red-800 dark:text-red-200" :
+                  hasTodayDeadlines ? "text-red-700 dark:text-red-300" :
+                  "text-red-600 dark:text-red-400"
+                )}>
+                  {hasOverdueDeadlines ? "⚠️ Overdue Deadlines" :
+                   hasTodayDeadlines ? "🔥 Today's Deadlines" :
+                   "📅 Upcoming Deadlines"}
                 </div>
                 {deadlineTimers.slice(0, 3).map((timer) => (
-                  <div key={timer.id} className="text-xs text-red-600 dark:text-red-400 mb-1">
+                  <div key={timer.id} className={cn(
+                    "text-xs mb-1",
+                    hasOverdueDeadlines ? "text-red-700 dark:text-red-300" :
+                    hasTodayDeadlines ? "text-red-600 dark:text-red-400" :
+                    "text-red-500 dark:text-red-500"
+                  )}>
                     • {timer.name}
                     {timer.deadline && (
-                      <span className="ml-1 text-red-500">
+                      <span className="ml-1 font-mono">
                         {format(new Date(timer.deadline), 'HH:mm')}
                       </span>
                     )}
@@ -157,6 +197,16 @@ export const renderDay = (
                     +{deadlineTimers.length - 3} more deadline{deadlineTimers.length - 3 > 1 ? 's' : ''}
                   </div>
                 )}
+              </div>
+            )}
+
+            {hasActivity && (
+              <div className="p-2 bg-blue-50 dark:bg-blue-950/30 rounded border-l-2 border-blue-500">
+                <div className="font-medium text-blue-700 dark:text-blue-300">Activity</div>
+                <div className="text-blue-600 dark:text-blue-400">{formattedTime} tracked</div>
+                <div className="text-xs text-blue-500 dark:text-blue-500 mt-1">
+                  {dayTimers.length} session{dayTimers.length !== 1 ? 's' : ''}
+                </div>
               </div>
             )}
           </div>

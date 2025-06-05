@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { isPast, isToday } from 'date-fns';
 import { Timer } from "../../types";
 import DayViewHeader from './DayViewHeader';
 import DeadlinesList from './DeadlinesList';
@@ -33,6 +34,13 @@ const DayView: React.FC<DayViewProps> = ({
     new Date(timer.deadline).toDateString() === selectedDate.toDateString()
   ) : [];
 
+  // Check for overdue deadlines
+  const overdueDeadlines = deadlineTimers.filter(timer => 
+    timer.deadline && 
+    isPast(new Date(timer.deadline)) && 
+    !isToday(new Date(timer.deadline))
+  );
+
   // Sort deadline timers by deadline time
   const sortedDeadlineTimers = deadlineTimers.sort((a, b) => {
     if (!a.deadline || !b.deadline) return 0;
@@ -41,7 +49,11 @@ const DayView: React.FC<DayViewProps> = ({
 
   return (
     <>
-      <DayViewHeader selectedDate={selectedDate} />
+      <DayViewHeader 
+        selectedDate={selectedDate} 
+        hasDeadlines={deadlineTimers.length > 0}
+        hasOverdueDeadlines={overdueDeadlines.length > 0}
+      />
       
       <DeadlinesList deadlineTimers={sortedDeadlineTimers} />
       

@@ -1,14 +1,20 @@
 
 import React from 'react';
 import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
-import { Calendar as CalendarIcon, Clock } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface DayViewHeaderProps {
   selectedDate: Date | undefined;
+  hasDeadlines?: boolean;
+  hasOverdueDeadlines?: boolean;
 }
 
-const DayViewHeader: React.FC<DayViewHeaderProps> = ({ selectedDate }) => {
+const DayViewHeader: React.FC<DayViewHeaderProps> = ({ 
+  selectedDate, 
+  hasDeadlines = false,
+  hasOverdueDeadlines = false 
+}) => {
   if (!selectedDate) return null;
 
   const getDateLabel = () => {
@@ -30,6 +36,18 @@ const DayViewHeader: React.FC<DayViewHeaderProps> = ({ selectedDate }) => {
         {dateLabel && (
           <Badge variant="secondary" className="ml-2">
             {dateLabel}
+          </Badge>
+        )}
+        {hasOverdueDeadlines && (
+          <Badge variant="destructive" className="ml-2 flex items-center gap-1">
+            <AlertTriangle size={12} />
+            Overdue
+          </Badge>
+        )}
+        {hasDeadlines && !hasOverdueDeadlines && (
+          <Badge variant="outline" className="ml-2 border-red-300 text-red-600 dark:border-red-600 dark:text-red-400">
+            <Clock size={12} className="mr-1" />
+            Deadlines
           </Badge>
         )}
       </div>

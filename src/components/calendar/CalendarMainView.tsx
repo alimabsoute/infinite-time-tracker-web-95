@@ -41,7 +41,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   setCategoryFilter,
   categories
 }) => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false); // Changed to false by default
   const [calendarView, setCalendarView] = useState<'month' | 'year'>('month');
   const [showDateDetail, setShowDateDetail] = useState<boolean>(false);
 
@@ -186,7 +186,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
         </CardContent>
       </Card>
       
-      {/* Daily details - only show if not in expanded mode */}
+      {/* Daily details - show by default when not expanded */}
       {!isExpanded && (
         <AnimatePresence mode="wait">
           <motion.div
