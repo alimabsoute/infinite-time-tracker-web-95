@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { Timer } from "../../types";
-import CategoryFilter from './CategoryFilter';
 import DayViewHeader from './DayViewHeader';
 import DeadlinesList from './DeadlinesList';
 import DayViewSummary from './DayViewSummary';
 import TimersList from './TimersList';
+import DayViewFilters from './DayViewFilters';
 
 interface DayViewProps {
   selectedDate: Date | undefined;
@@ -45,14 +45,11 @@ const DayView: React.FC<DayViewProps> = ({
       
       <DeadlinesList deadlineTimers={sortedDeadlineTimers} />
       
-      {/* Category filter */}
-      <div className="mb-4">
-        <CategoryFilter 
-          categoryFilter={categoryFilter} 
-          setCategoryFilter={setCategoryFilter}
-          categories={categories}
-        />
-      </div>
+      <DayViewFilters 
+        categoryFilter={categoryFilter} 
+        setCategoryFilter={setCategoryFilter}
+        categories={categories}
+      />
       
       <DayViewSummary
         selectedDate={selectedDate}
