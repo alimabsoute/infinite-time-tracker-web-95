@@ -71,7 +71,7 @@ const DayView: React.FC<DayViewProps> = ({
             {sortedDeadlineTimers.map((timer) => {
               const deadline = timer.deadline ? new Date(timer.deadline) : null;
               const isOverdue = deadline ? isPast(deadline) && !isToday(deadline) : false;
-              const isToday = deadline ? isToday(deadline) : false;
+              const isTodayDate = deadline ? isToday(deadline) : false;
               
               return (
                 <div 
@@ -79,7 +79,7 @@ const DayView: React.FC<DayViewProps> = ({
                   className={cn(
                     "flex justify-between items-center p-2 rounded-md border",
                     isOverdue ? "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800" :
-                    isToday ? "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800" :
+                    isTodayDate ? "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800" :
                     "bg-secondary/20 border-border/50"
                   )}
                 >
@@ -107,7 +107,7 @@ const DayView: React.FC<DayViewProps> = ({
                   <div className={cn(
                     "text-xs font-mono font-medium px-2 py-1 rounded-md",
                     isOverdue ? "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" :
-                    isToday ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" :
+                    isTodayDate ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" :
                     "bg-secondary/40"
                   )}>
                     {deadline ? format(deadline, "HH:mm") : "No time"}
