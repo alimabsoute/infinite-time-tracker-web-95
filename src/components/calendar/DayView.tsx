@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { format } from 'date-fns';
+import { format, isToday, isPast } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Clock, Calendar as CalendarIcon } from "lucide-react";
+import { Clock, Calendar as CalendarIcon, AlertTriangle } from "lucide-react";
 import { Timer } from "../../types";
 import CategoryFilter from './CategoryFilter';
+import { cn } from "@/lib/utils";
 
 interface DayViewProps {
   selectedDate: Date | undefined;
@@ -33,6 +34,18 @@ const DayView: React.FC<DayViewProps> = ({
     100
   );
 
+  // Get deadlines for the selected date
+  const deadlineTimers = selectedDate ? filteredTimers.filter(timer => 
+    timer.deadline && 
+    new Date(timer.deadline).toDateString() === selectedDate.toDateString()
+  ) : [];
+
+  // Sort deadline timers by deadline time
+  const sortedDeadlineTimers = deadlineTimers.sort((a, b) => {
+    if (!a.deadline || !b.deadline) return 0;
+    return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+  });
+
   return (
     <>
       {/* Date header */}
@@ -43,6 +56,65 @@ const DayView: React.FC<DayViewProps> = ({
             <h3 className="font-medium">
               {format(selectedDate, 'EEEE, MMMM d, yyyy')}
             </h3>
+          </div>
+        </div>
+      )}
+      
+      {/* Deadlines section */}
+      {sortedDeadlineTimers.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle size={14} className="text-red-500" />
+            <h4 className="font-medium text-sm">Deadlines</h4>
+          </div>
+          <div className="space-y-2">
+            {sortedDeadlineTimers.map((timer) => {
+              const deadline = timer.deadline ? new Date(timer.deadline) : null;
+              const isOverdue = deadline ? isPast(deadline) && !isToday(deadline) : false;
+              const isToday = deadline ? isToday(deadline) : false;
+              
+              return (
+                <div 
+                  key={timer.id}
+                  className={cn(
+                    "flex justify-between items-center p-2 rounded-md border",
+                    isOverdue ? "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800" :
+                    isToday ? "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800" :
+                    "bg-secondary/20 border-border/50"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "w-1.5 h-8 rounded-full",
+                      timer.category === "Work" ? "bg-blue-500" :
+                      timer.category === "Study" ? "bg-purple-500" :
+                      timer.category === "Personal" ? "bg-green-500" :
+                      timer.category === "Health" ? "bg-red-500" :
+                      timer.category === "Leisure" ? "bg-amber-500" :
+                      timer.category === "Project" ? "bg-indigo-500" :
+                      timer.category === "Meeting" ? "bg-pink-500" :
+                      "bg-gray-500"
+                    )}></div>
+                    <div>
+                      <p className="font-medium text-sm">{timer.name}</p>
+                      {timer.category && (
+                        <Badge variant="outline" className="h-4 text-[0.6rem] border-border/50 mt-1">
+                          {timer.category}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className={cn(
+                    "text-xs font-mono font-medium px-2 py-1 rounded-md",
+                    isOverdue ? "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" :
+                    isToday ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" :
+                    "bg-secondary/40"
+                  )}>
+                    {deadline ? format(deadline, "HH:mm") : "No time"}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

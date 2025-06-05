@@ -13,7 +13,7 @@ import CalendarControls from "./CalendarControls";
 import YearView from "./YearView";
 import CalendarStats from "./CalendarStats";
 import ColorLegend from "./ColorLegend";
-import { useEnhancedDayRenderer } from "./EnhancedDayRenderer";
+import { renderDay } from "./CustomDayRenderer";
 
 interface CalendarMainViewProps {
   currentMonth: Date;
@@ -40,7 +40,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   setCategoryFilter,
   categories
 }) => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(true); // Default to expanded view
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [calendarView, setCalendarView] = useState<'month' | 'year'>('month');
   const [showDateDetail, setShowDateDetail] = useState<boolean>(false);
 
@@ -88,12 +88,14 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
     setShowDateDetail(!showDateDetail);
   };
 
-  // Get enhanced day renderer
-  const enhancedDay = useEnhancedDayRenderer(
-    (date: Date) => getTotalTimeForDate(date, timers),
-    (date: Date) => getHeatMapColor(date, timers),
-    selectedDate
-  );
+  // Create enhanced day renderer with timers data
+  const enhancedDayRenderer = useMemo(() => {
+    return renderDay(
+      (date: Date) => getTotalTimeForDate(date, timers),
+      (date: Date) => getHeatMapColor(date, timers),
+      (date: Date) => getTimersForDate(date, timers)
+    );
+  }, [timers]);
   
   return (
     <motion.div 
@@ -139,7 +141,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
                   isExpanded ? "w-full max-w-[800px]" : "w-full"
                 )}
                 components={{
-                  Day: enhancedDay
+                  Day: enhancedDayRenderer
                 }}
                 showOutsideDays={true}
                 numberOfMonths={isExpanded ? 1 : 1}
@@ -153,8 +155,6 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
               />
             )}
           </motion.div>
-          
-          {/* Calendar navigation controls are now part of CalendarControls */}
           
           {/* Calendar summary and stats */}
           <CalendarStats

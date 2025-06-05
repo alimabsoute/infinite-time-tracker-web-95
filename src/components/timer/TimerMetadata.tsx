@@ -1,11 +1,14 @@
 
-import { Clock } from 'lucide-react';
+import { Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '../ui/button';
 import { Calendar } from '../ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface TimerMetadataProps {
   selectedPriority: string;
@@ -22,6 +25,12 @@ const TimerMetadata = ({
   onPriorityChange, 
   onDateSelect 
 }: TimerMetadataProps) => {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(date);
+  const [selectedTime, setSelectedTime] = useState<string>(
+    date ? format(date, 'HH:mm') : '23:59'
+  );
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
   // Map priority to color
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -40,6 +49,58 @@ const TimerMetadata = ({
       case "3": return "High";
       default: return "None";
     }
+  };
+
+  // Handle date selection from calendar
+  const handleDateSelect = (newDate: Date | undefined) => {
+    if (newDate) {
+      setSelectedDate(newDate);
+      // If we have a time, apply it to the selected date
+      if (selectedTime) {
+        const [hours, minutes] = selectedTime.split(':').map(Number);
+        const finalDate = new Date(newDate);
+        finalDate.setHours(hours, minutes, 0, 0);
+        onDateSelect(finalDate);
+      } else {
+        // Default to end of day if no time is set
+        const finalDate = new Date(newDate);
+        finalDate.setHours(23, 59, 0, 0);
+        onDateSelect(finalDate);
+      }
+    } else {
+      setSelectedDate(undefined);
+      onDateSelect(undefined);
+    }
+  };
+
+  // Handle time change
+  const handleTimeChange = (newTime: string) => {
+    setSelectedTime(newTime);
+    if (selectedDate && newTime) {
+      const [hours, minutes] = newTime.split(':').map(Number);
+      const finalDate = new Date(selectedDate);
+      finalDate.setHours(hours, minutes, 0, 0);
+      onDateSelect(finalDate);
+    }
+  };
+
+  // Apply current date and time
+  const handleApplyDateTime = () => {
+    if (selectedDate && selectedTime) {
+      const [hours, minutes] = selectedTime.split(':').map(Number);
+      const finalDate = new Date(selectedDate);
+      finalDate.setHours(hours, minutes, 0, 0);
+      onDateSelect(finalDate);
+    }
+    setIsPopoverOpen(false);
+  };
+
+  // Clear deadline
+  const handleClearDeadline = () => {
+    setSelectedDate(undefined);
+    setSelectedTime('23:59');
+    onDateSelect(undefined);
+    setIsPopoverOpen(false);
   };
 
   return (
@@ -66,7 +127,7 @@ const TimerMetadata = ({
       
       <div className="flex flex-col space-y-1 flex-1">
         <span className="text-xs text-muted-foreground">Deadline</span>
-        <Popover>
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <Button 
               variant="outline" 
@@ -77,17 +138,58 @@ const TimerMetadata = ({
               )}
             >
               <Clock className="mr-1 h-3 w-3" />
-              {date ? format(date, 'MMM d') : <span>Set date</span>}
+              {date ? (
+                <span>
+                  {format(date, 'MMM d')} at {format(date, 'HH:mm')}
+                </span>
+              ) : (
+                <span>Set deadline</span>
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={onDateSelect}
-              initialFocus
-              className="pointer-events-auto"
-            />
+            <div className="flex flex-col space-y-4 p-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Select Date</Label>
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={handleDateSelect}
+                  initialFocus
+                  className="pointer-events-auto border rounded-md"
+                  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Select Time</Label>
+                <Input
+                  type="time"
+                  value={selectedTime}
+                  onChange={(e) => handleTimeChange(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              
+              <div className="flex gap-2 pt-2">
+                <Button 
+                  onClick={handleApplyDateTime}
+                  size="sm"
+                  className="flex-1"
+                  disabled={!selectedDate}
+                >
+                  Apply
+                </Button>
+                <Button 
+                  onClick={handleClearDeadline}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                >
+                  Clear
+                </Button>
+              </div>
+            </div>
           </PopoverContent>
         </Popover>
       </div>
