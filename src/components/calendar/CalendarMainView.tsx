@@ -180,7 +180,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
         </CardContent>
       </Card>
       
-      {/* Daily details - show by default when not expanded */}
+      {/* Daily details - always show when not expanded */}
       {!isExpanded && (
         <motion.div
           key={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "no-date"}

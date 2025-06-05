@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
+import { format, isToday, isTomorrow, isYesterday, isPast } from 'date-fns';
 import { Calendar as CalendarIcon, Clock, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -28,7 +28,7 @@ const DayViewHeader: React.FC<DayViewHeaderProps> = ({
 
   return (
     <div className="mb-4 text-center">
-      <div className="flex items-center justify-center gap-2 mb-2">
+      <div className="flex items-center justify-center gap-2 mb-2 flex-wrap">
         <CalendarIcon size={16} className="text-primary" />
         <h3 className="font-medium">
           {format(selectedDate, 'EEEE, MMMM d, yyyy')}
@@ -39,22 +39,27 @@ const DayViewHeader: React.FC<DayViewHeaderProps> = ({
           </Badge>
         )}
         {hasOverdueDeadlines && (
-          <Badge variant="destructive" className="ml-2 flex items-center gap-1">
+          <Badge variant="destructive" className="ml-2 flex items-center gap-1 animate-pulse">
             <AlertTriangle size={12} />
             Overdue
           </Badge>
         )}
         {hasDeadlines && !hasOverdueDeadlines && (
-          <Badge variant="outline" className="ml-2 border-red-300 text-red-600 dark:border-red-600 dark:text-red-400">
+          <Badge variant="outline" className="ml-2 border-red-300 text-red-600 dark:border-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20">
             <Clock size={12} className="mr-1" />
-            Deadlines
+            Deadlines Today
           </Badge>
         )}
       </div>
       
       <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
         <Clock size={12} />
-        <span>Track time to see your daily activity</span>
+        <span>
+          {hasDeadlines ? 
+            "Review your deadlines and track time" : 
+            "Track time to see your daily activity"
+          }
+        </span>
       </div>
     </div>
   );
