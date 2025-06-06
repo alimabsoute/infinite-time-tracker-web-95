@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Github, Twitter, Instagram } from "lucide-react";
@@ -45,14 +46,14 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="#features" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="#features" className="text-muted-foreground hover:text-primary transition-colors">
                   Features
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="#pricing" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="#pricing" className="text-muted-foreground hover:text-primary transition-colors">
                   Pricing
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -61,18 +62,18 @@ const Footer = () => {
             <h3 className="font-medium text-lg mb-4">Support</h3>
             <ul className="space-y-3">
               <li>
-                <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/help" className="text-muted-foreground hover:text-primary transition-colors">
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Documentation
+                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">
+                  Contact Us
                 </Link>
               </li>
               <li>
-                <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Contact Us
+                <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
+                  About
                 </Link>
               </li>
             </ul>
@@ -82,18 +83,13 @@ const Footer = () => {
             <h3 className="font-medium text-lg mb-4">Legal</h3>
             <ul className="space-y-3">
               <li>
-                <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
                   Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Cookies
                 </Link>
               </li>
             </ul>
