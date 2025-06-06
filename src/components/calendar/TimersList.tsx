@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
 import { Timer } from "../../types";
+import EmptyState from "../EmptyState";
 
 interface TimersListProps {
   filteredTimers: Timer[];
@@ -64,9 +65,11 @@ const TimersList: React.FC<TimersListProps> = ({
           </div>
         </>
       ) : (
-        <div className="text-center py-10 text-muted-foreground border border-dashed border-border/50 rounded-lg bg-secondary/10">
-          <p>No activity recorded for this day.</p>
-          <p className="text-xs mt-1">Track time to see your activity here.</p>
+        <div className="py-4">
+          <EmptyState 
+            type="calendar" 
+            showCreateButton={false}
+          />
         </div>
       )}
     </div>

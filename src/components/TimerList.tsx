@@ -1,7 +1,7 @@
-
 import { useState } from "react";
 import { Timer as TimerType } from "../types";
 import Timer from "./Timer";
+import EmptyState from "./EmptyState";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "./ui/button";
 import { ArrowDownAZ, ArrowDownUp, Clock, Trash2 } from "lucide-react";
@@ -33,6 +33,7 @@ interface TimerListProps {
   onUpdatePriority: (id: string, priority: number | undefined) => void;
   onReorder: (reorderedTimers: TimerType[]) => void;
   newTimerId: string | null;
+  onCreateTimer?: () => void;
 }
 
 type SortOption = "custom" | "name" | "priority" | "deadline";
@@ -47,6 +48,7 @@ const TimerList = ({
   onUpdatePriority,
   onReorder,
   newTimerId,
+  onCreateTimer,
 }: TimerListProps) => {
   const [filter, setFilter] = useState<string>("all");
   const [selectedTimers, setSelectedTimers] = useState<string[]>([]);
@@ -108,9 +110,11 @@ const TimerList = ({
 
   if (timers.length === 0) {
     return (
-      <div className="text-center py-16 text-muted-foreground text-lg">
-        <p>No timers yet. Tap the + button to get started!</p>
-      </div>
+      <EmptyState 
+        type="timers" 
+        onCreateTimer={onCreateTimer}
+        showCreateButton={!!onCreateTimer}
+      />
     );
   }
 
@@ -220,10 +224,17 @@ const TimerList = ({
         </Droppable>
       </DragDropContext>
       
-      {/* Show message when filtered results are empty */}
+      {/* Show enhanced empty state when filtered results are empty */}
       {filteredTimers.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          <p>No timers in this category. Try selecting a different category or create a new timer.</p>
+        <div className="text-center py-8">
+          <EmptyState 
+            type="timers" 
+            onCreateTimer={onCreateTimer}
+            showCreateButton={false}
+          />
+          <p className="text-muted-foreground mt-4">
+            No timers in this category. Try selecting a different category or create a new timer.
+          </p>
         </div>
       )}
 

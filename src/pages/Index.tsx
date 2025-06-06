@@ -1,11 +1,12 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
 import Header from "../components/Header";
 import AuthHeader from "../components/AuthHeader";
 import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import TimeCharts from "../components/TimeCharts";
+import WelcomeGuide from "../components/WelcomeGuide";
+import EmptyState from "../components/EmptyState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Timer as TimerIcon, TrendingUp, Crown } from "lucide-react";
@@ -36,6 +37,14 @@ const Index = () => {
     reorderTimers
   } = useTimers();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
+  const [showWelcomeGuide, setShowWelcomeGuide] = useState(false);
+
+  // Check if user is new (no timers) and show welcome guide
+  useEffect(() => {
+    if (!loading && timers.length === 0 && user) {
+      setShowWelcomeGuide(true);
+    }
+  }, [loading, timers.length, user]);
 
   const handleAddTimer = async (name: string) => {
     // Check if user can create more timers
@@ -63,6 +72,15 @@ const Index = () => {
     setTimeout(() => {
       setNewTimerId(null);
     }, 5000); // 5 seconds should be enough time for user to name the timer
+  };
+
+  const handleCreateFirstTimer = () => {
+    setShowWelcomeGuide(false);
+    // Focus on create timer form or trigger creation
+    const createForm = document.querySelector('[data-create-timer-form]');
+    if (createForm) {
+      createForm.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleRename = (id: string, newName: string, category?: string) => {
@@ -140,6 +158,14 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <AuthHeader />
+      
+      {/* Welcome Guide */}
+      {showWelcomeGuide && (
+        <WelcomeGuide 
+          onClose={() => setShowWelcomeGuide(false)}
+          onCreateTimer={handleCreateFirstTimer}
+        />
+      )}
       
       <div className="container mx-auto px-4 pb-20 max-w-5xl">
         {/* Welcome message and user status */}
@@ -267,14 +293,24 @@ const Index = () => {
                     onUpdatePriority={handleUpdatePriority}
                     onReorder={handleReorderTimers}
                     newTimerId={newTimerId}
+                    onCreateTimer={handleCreateFirstTimer}
                   />
                 </div>
-                <CreateTimerForm onAddTimer={handleAddTimer} />
+                <div data-create-timer-form>
+                  <CreateTimerForm onAddTimer={handleAddTimer} />
+                </div>
               </TabsContent>
               
               <TabsContent value="stats">
                 <div className="glass-effect rounded-lg p-6">
-                  <TimeCharts timers={timers} />
+                  {timers.length === 0 ? (
+                    <EmptyState 
+                      type="analytics" 
+                      onCreateTimer={handleCreateFirstTimer}
+                    />
+                  ) : (
+                    <TimeCharts timers={timers} />
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
