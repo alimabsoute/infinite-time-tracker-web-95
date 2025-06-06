@@ -40,7 +40,7 @@ const Help = () => {
         {
           id: "start-stop",
           question: "How do I start and stop timers?",
-          answer: "Click the play button to start a timer and the pause button to stop it. You can have multiple timers but only one can be active at a time."
+          answer: "Click the play button to start a timer and the pause button to stop it. You can have multiple timers running simultaneously to track different activities at the same time."
         },
         {
           id: "edit-timer",
@@ -50,7 +50,7 @@ const Help = () => {
         {
           id: "multiple-timers",
           question: "Can I have multiple timers running?",
-          answer: "No, only one timer can be active (running) at a time. When you start a new timer, any currently running timer will automatically pause. However, you can create and manage multiple timers - just switch between them as needed."
+          answer: "Yes! You can have multiple timers running at the same time. This allows you to track different activities simultaneously. Simply start each timer you want to run - they will all continue tracking time independently."
         }
       ]
     },
