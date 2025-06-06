@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -68,10 +67,34 @@ const TermsOfService = () => {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">5. Subscription and Payments</h2>
+            
+            <h3 className="text-lg font-medium mb-3">5.1 Subscription Terms</h3>
             <p className="mb-4">
-              Paid subscriptions are billed in advance and are non-refundable. You may cancel 
+              Paid subscriptions are billed in advance on a recurring basis. You may cancel 
               your subscription at any time, and the cancellation will take effect at the end 
               of the current billing period.
+            </p>
+
+            <h3 className="text-lg font-medium mb-3">5.2 30-Day Satisfaction Guarantee</h3>
+            <p className="mb-4">
+              We offer a 30-day satisfaction guarantee for new Pro subscriptions. If you are 
+              not completely satisfied with PhynxTimer Pro within 30 days of your initial 
+              subscription signup, you may request a full refund.
+            </p>
+            <p className="mb-4">This guarantee includes the following terms:</p>
+            <ul className="list-disc pl-6 mb-4">
+              <li>Available only for first-time Pro subscribers</li>
+              <li>Must be requested within 30 days of initial subscription date</li>
+              <li>Refund requests must be submitted via email to support@phynxtimer.com</li>
+              <li>Refunds will be processed within 5-7 business days</li>
+              <li>Does not apply to subscription renewals or upgrades</li>
+            </ul>
+
+            <h3 className="text-lg font-medium mb-3">5.3 Refund Policy</h3>
+            <p className="mb-4">
+              Outside of the 30-day satisfaction guarantee, subscriptions are generally 
+              non-refundable. However, we may consider refund requests on a case-by-case 
+              basis for exceptional circumstances.
             </p>
           </section>
 
