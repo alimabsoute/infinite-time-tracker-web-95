@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -51,7 +50,7 @@ const Help = () => {
         {
           id: "multiple-timers",
           question: "Can I have multiple timers running?",
-          answer: "Only one timer can be active at a time. When you start a new timer, any currently running timer will automatically pause."
+          answer: "No, only one timer can be active (running) at a time. When you start a new timer, any currently running timer will automatically pause. However, you can create and manage multiple timers - just switch between them as needed."
         }
       ]
     },
@@ -62,11 +61,6 @@ const Help = () => {
           id: "view-analytics",
           question: "How do I view my time tracking analytics?",
           answer: "Go to the Dashboard where you'll see charts showing your daily activity, weekly trends, and productivity patterns. The Calendar view also provides detailed day-by-day breakdowns."
-        },
-        {
-          id: "export-data",
-          question: "Can I export my data?",
-          answer: "Yes! You can export your timer data and analytics. This feature is available to Pro users and includes CSV export options for further analysis."
         }
       ]
     },
