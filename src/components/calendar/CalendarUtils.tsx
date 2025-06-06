@@ -34,17 +34,19 @@ export const getTimersForDate = (date: Date | undefined, timers: Timer[]): Timer
 export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
   if (!date) return [];
   
-  // Set time to midnight for comparison
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-  
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
+  // Create normalized date for comparison (removes time component)
+  const targetDate = new Date(date);
+  targetDate.setHours(0, 0, 0, 0);
   
   return timers.filter(timer => {
     if (!timer.deadline) return false;
+    
+    // Create normalized deadline date for comparison
     const deadlineDate = new Date(timer.deadline);
-    return deadlineDate >= startOfDay && deadlineDate <= endOfDay;
+    deadlineDate.setHours(0, 0, 0, 0);
+    
+    // Compare normalized dates
+    return deadlineDate.getTime() === targetDate.getTime();
   });
 };
 
@@ -61,6 +63,13 @@ export const getAllTimersForDate = (date: Date | undefined, timers: Timer[]): Ti
     if (!allTimers.find(timer => timer.id === deadlineTimer.id)) {
       allTimers.push(deadlineTimer);
     }
+  });
+  
+  console.log(`getAllTimersForDate for ${date.toDateString()}:`, {
+    createdTimers: createdTimers.length,
+    deadlineTimers: deadlineTimers.length,
+    totalTimers: allTimers.length,
+    deadlineDetails: deadlineTimers.map(t => ({ name: t.name, deadline: t.deadline }))
   });
   
   return allTimers;

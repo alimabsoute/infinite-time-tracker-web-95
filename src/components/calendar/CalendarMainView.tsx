@@ -46,6 +46,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
 
   console.log('CalendarMainView - timers:', timers.length);
   console.log('CalendarMainView - selectedDate:', selectedDate);
+  console.log('CalendarMainView - timers with deadlines:', timers.filter(t => t.deadline).map(t => ({ name: t.name, deadline: t.deadline })));
 
   // Ensure calendar opens on current month initially
   useEffect(() => {
@@ -98,7 +99,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
     setCurrentMonth(today);
   };
 
-  // Create enhanced day renderer with timers data
+  // Create enhanced day renderer with timers data - use ALL timers, not just filtered ones
   const enhancedDayRenderer = useMemo(() => {
     return renderDay(
       (date: Date) => getTotalTimeForDate(date, timers),
