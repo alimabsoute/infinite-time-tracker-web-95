@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Timer } from '../../types';
 import { format, isPast, isToday } from 'date-fns';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { getTimersWithDeadlinesForDate } from './CalendarUtils';
 
 interface ExtendedDayContentProps extends DayContentProps {
   selected?: boolean;
@@ -32,11 +33,17 @@ export const renderDay = (
     const timeTracked = getTime(date);
     const hasActivity = timeTracked > 0;
     
-    // Check for deadlines
-    const deadlineTimers = allDayTimers.filter(timer => 
-      timer.deadline && 
-      new Date(timer.deadline).toDateString() === date.toDateString()
-    );
+    // Use the utility function for consistent deadline detection
+    const deadlineTimers = getTimersWithDeadlinesForDate(date, allDayTimers);
+    
+    console.log(`CustomDayRenderer - ${format(date, 'yyyy-MM-dd')}:`, {
+      totalTimers: allDayTimers.length,
+      deadlineTimers: deadlineTimers.length,
+      deadlineDetails: deadlineTimers.map(t => ({ 
+        name: t.name, 
+        deadline: t.deadline ? format(new Date(t.deadline), 'yyyy-MM-dd HH:mm') : 'no deadline'
+      }))
+    });
     
     // Check for overdue deadlines
     const overdueDeadlines = deadlineTimers.filter(timer => 

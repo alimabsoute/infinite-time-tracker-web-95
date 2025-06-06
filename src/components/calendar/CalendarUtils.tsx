@@ -30,7 +30,7 @@ export const getTimersForDate = (date: Date | undefined, timers: Timer[]): Timer
   });
 };
 
-// Calculate timers that have deadlines on a specific date
+// Calculate timers that have deadlines on a specific date - FIXED VERSION
 export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
   if (!date) return [];
   
@@ -38,7 +38,7 @@ export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Ti
   const targetDate = new Date(date);
   targetDate.setHours(0, 0, 0, 0);
   
-  return timers.filter(timer => {
+  const result = timers.filter(timer => {
     if (!timer.deadline) return false;
     
     // Create normalized deadline date for comparison
@@ -46,8 +46,30 @@ export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Ti
     deadlineDate.setHours(0, 0, 0, 0);
     
     // Compare normalized dates
-    return deadlineDate.getTime() === targetDate.getTime();
+    const isMatch = deadlineDate.getTime() === targetDate.getTime();
+    
+    // Debug log for deadline detection
+    if (timer.deadline) {
+      console.log(`Deadline check for ${timer.name}:`, {
+        targetDate: targetDate.toDateString(),
+        deadlineDate: deadlineDate.toDateString(),
+        originalDeadline: new Date(timer.deadline).toISOString(),
+        normalizedDeadline: deadlineDate.toISOString(),
+        isMatch
+      });
+    }
+    
+    return isMatch;
   });
+  
+  console.log(`getTimersWithDeadlinesForDate for ${targetDate.toDateString()}:`, {
+    inputTimers: timers.length,
+    timersWithDeadlines: timers.filter(t => t.deadline).length,
+    matchingDeadlines: result.length,
+    matches: result.map(t => ({ name: t.name, deadline: t.deadline }))
+  });
+  
+  return result;
 };
 
 // Get all timers relevant to a specific date (created on that date OR have deadline on that date)
