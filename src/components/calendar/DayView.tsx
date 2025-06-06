@@ -7,11 +7,11 @@ import DeadlinesList from './DeadlinesList';
 import DayViewSummary from './DayViewSummary';
 import TimersList from './TimersList';
 import DayViewFilters from './DayViewFilters';
-import { getAllTimersForDate, getTimersForDate } from './CalendarUtils';
+import { getAllTimersForDate, getTimersForDate, getTimersWithDeadlinesForDate } from './CalendarUtils';
 
 interface DayViewProps {
   selectedDate: Date | undefined;
-  filteredTimers: Timer[];
+  filteredTimers: Timer[]; // This should actually be all timers, not filtered
   formatTime: (ms: number) => string;
   categoryFilter: string;
   setCategoryFilter: (category: string) => void;
@@ -20,14 +20,14 @@ interface DayViewProps {
 
 const DayView: React.FC<DayViewProps> = ({
   selectedDate,
-  filteredTimers,
+  filteredTimers, // This is actually the full timers array now
   formatTime,
   categoryFilter,
   setCategoryFilter,
   categories
 }) => {
   console.log('DayView - selectedDate:', selectedDate);
-  console.log('DayView - filteredTimers:', filteredTimers);
+  console.log('DayView - filteredTimers (should be all timers):', filteredTimers.length);
 
   if (!selectedDate) {
     return (
@@ -37,23 +37,17 @@ const DayView: React.FC<DayViewProps> = ({
     );
   }
 
-  // Get all timers relevant to the selected date (created or with deadlines) 
-  // Use the full timer list instead of filteredTimers to ensure we get all deadline data
-  const allDayTimers = getAllTimersForDate(selectedDate, filteredTimers);
-  
   // Get only timers created on the selected date for time tracking calculation
   const createdOnDateTimers = getTimersForDate(selectedDate, filteredTimers);
   
-  // Get total time tracked for the selected date (only from timers created on that date)
-  const totalTrackedTime = createdOnDateTimers.reduce((sum, t) => sum + t.elapsedTime, 0);
-
-  // Get deadlines for the selected date
-  const deadlineTimers = allDayTimers.filter(timer => 
-    timer.deadline && 
-    new Date(timer.deadline).toDateString() === selectedDate.toDateString()
-  );
+  // Get deadlines for the selected date using the utility function
+  const deadlineTimers = getTimersWithDeadlinesForDate(selectedDate, filteredTimers);
 
   console.log('DayView - deadlineTimers for date:', deadlineTimers);
+  console.log('DayView - createdOnDateTimers for date:', createdOnDateTimers);
+
+  // Get total time tracked for the selected date (only from timers created on that date)
+  const totalTrackedTime = createdOnDateTimers.reduce((sum, t) => sum + t.elapsedTime, 0);
 
   // Check for overdue deadlines
   const overdueDeadlines = deadlineTimers.filter(timer => 
