@@ -44,6 +44,9 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [calendarView, setCalendarView] = useState<'month' | 'year'>('month');
 
+  console.log('CalendarMainView - timers:', timers.length);
+  console.log('CalendarMainView - selectedDate:', selectedDate);
+
   // Ensure calendar opens on current month initially
   useEffect(() => {
     const today = new Date();
@@ -193,7 +196,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
             <CardContent className="pt-6">
               <DayView
                 selectedDate={selectedDate}
-                filteredTimers={filteredTimers}
+                filteredTimers={timers}
                 formatTime={formatTime}
                 categoryFilter={categoryFilter}
                 setCategoryFilter={setCategoryFilter}

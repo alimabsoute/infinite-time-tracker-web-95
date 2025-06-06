@@ -22,10 +22,10 @@ export const renderDay = (
   getAllTimers: GetAllTimersFunction
 ) => {
   return function DayContent(props: ExtendedDayContentProps) {
-    const { date, ...rest } = props;
+    const { date, selected, modifiers, ...otherProps } = props;
     
     if (!date) {
-      return <div {...rest}>-</div>;
+      return <div>-</div>;
     }
     
     const allDayTimers = getAllTimers(date);
@@ -54,8 +54,7 @@ export const renderDay = (
     const hasOverdueDeadlines = overdueDeadlines.length > 0;
     const hasTodayDeadlines = todayDeadlines.length > 0;
     
-    const isSelected = rest.selected || 
-                       (rest.modifiers && rest.modifiers.selected);
+    const isSelected = selected || (modifiers && modifiers.selected);
     
     // Format time for tooltip
     const formattedTime = (() => {
@@ -171,7 +170,6 @@ export const renderDay = (
           !isSelected && !hasDeadlines && "hover:bg-secondary/50",
           !isSelected && hasDeadlines && "hover:brightness-110"
         )}
-        {...rest}
         whileHover={{ scale: 1.05 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
       >

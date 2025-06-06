@@ -26,20 +26,34 @@ const DayView: React.FC<DayViewProps> = ({
   setCategoryFilter,
   categories
 }) => {
-  // Get all timers relevant to the selected date (created or with deadlines)
-  const allDayTimers = selectedDate ? getAllTimersForDate(selectedDate, filteredTimers) : [];
+  console.log('DayView - selectedDate:', selectedDate);
+  console.log('DayView - filteredTimers:', filteredTimers);
+
+  if (!selectedDate) {
+    return (
+      <div className="text-center py-10 text-muted-foreground">
+        <p>Select a date to view details</p>
+      </div>
+    );
+  }
+
+  // Get all timers relevant to the selected date (created or with deadlines) 
+  // Use the full timer list instead of filteredTimers to ensure we get all deadline data
+  const allDayTimers = getAllTimersForDate(selectedDate, filteredTimers);
   
   // Get only timers created on the selected date for time tracking calculation
-  const createdOnDateTimers = selectedDate ? getTimersForDate(selectedDate, filteredTimers) : [];
+  const createdOnDateTimers = getTimersForDate(selectedDate, filteredTimers);
   
   // Get total time tracked for the selected date (only from timers created on that date)
   const totalTrackedTime = createdOnDateTimers.reduce((sum, t) => sum + t.elapsedTime, 0);
 
   // Get deadlines for the selected date
-  const deadlineTimers = selectedDate ? allDayTimers.filter(timer => 
+  const deadlineTimers = allDayTimers.filter(timer => 
     timer.deadline && 
     new Date(timer.deadline).toDateString() === selectedDate.toDateString()
-  ) : [];
+  );
+
+  console.log('DayView - deadlineTimers for date:', deadlineTimers);
 
   // Check for overdue deadlines
   const overdueDeadlines = deadlineTimers.filter(timer => 
