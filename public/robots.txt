@@ -1,3 +1,8 @@
+
+User-agent: *
+Allow: /
+
+# Specific bot allowances
 User-agent: Googlebot
 Allow: /
 
@@ -10,5 +15,15 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+User-agent: LinkedInBot
 Allow: /
+
+# Disallow admin/private areas (none currently, but good for future)
+# Disallow: /admin/
+# Disallow: /api/
+
+# Sitemap location
+Sitemap: https://phynxtimer.com/sitemap.xml
+
+# Crawl delay (be respectful)
+Crawl-delay: 1
