@@ -4,8 +4,8 @@ import { DayContentProps } from 'react-day-picker';
 import { cn } from "@/lib/utils";
 import { motion } from 'framer-motion';
 import { Timer } from '../../types';
-import { format, isPast, isToday, isTomorrow } from 'date-fns';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { format, isPast, isToday } from 'date-fns';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 interface ExtendedDayContentProps extends DayContentProps {
   selected?: boolean;
@@ -215,19 +215,17 @@ export const renderDay = (
       </motion.div>
     );
 
-    // Wrap with tooltip if there's content to show
+    // Use HoverCard instead of Tooltip to prevent flickering
     if (hasActivity || hasDeadlines) {
       return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              {dayContent}
-            </TooltipTrigger>
-            <TooltipContent side="top" className="z-50">
-              {tooltipContent}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <HoverCard openDelay={300} closeDelay={100}>
+          <HoverCardTrigger asChild>
+            {dayContent}
+          </HoverCardTrigger>
+          <HoverCardContent side="top" className="z-50 w-auto p-3">
+            {tooltipContent}
+          </HoverCardContent>
+        </HoverCard>
       );
     }
 
