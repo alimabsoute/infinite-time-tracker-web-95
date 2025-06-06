@@ -19,12 +19,6 @@ const pricingPlans = [
     price: "9.99",
     features: ["Unlimited timers", "Full history", "Advanced analytics", "Calendar integration", "Priority support"],
     recommended: true
-  },
-  {
-    name: "Team",
-    price: "29.99",
-    features: ["Everything in Pro", "Team sharing", "Admin dashboard", "Usage reports", "API access"],
-    recommended: false
   }
 ];
 
@@ -61,7 +55,7 @@ const PricingSection = () => {
           </p>
         </FadeInWhenVisible>
         
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {pricingPlans.map((plan, index) => (
             <FadeInWhenVisible key={index}>
               <div className={`relative bg-card rounded-xl p-6 shadow-sm border h-full flex flex-col ${
