@@ -30,39 +30,39 @@ export const getTimersForDate = (date: Date | undefined, timers: Timer[]): Timer
   });
 };
 
-// Calculate timers that have deadlines on a specific date - FIXED VERSION
+// Calculate timers that have deadlines on a specific date - TIMEZONE FIXED VERSION
 export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
   if (!date) return [];
   
-  // Create normalized date for comparison (removes time component)
-  const targetDate = new Date(date);
-  targetDate.setHours(0, 0, 0, 0);
+  // Create target date string in YYYY-MM-DD format for comparison
+  const targetDateStr = date.getFullYear() + '-' + 
+    String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+    String(date.getDate()).padStart(2, '0');
   
   const result = timers.filter(timer => {
     if (!timer.deadline) return false;
     
-    // Create normalized deadline date for comparison
+    // Convert deadline to local date string for comparison
     const deadlineDate = new Date(timer.deadline);
-    deadlineDate.setHours(0, 0, 0, 0);
+    const deadlineDateStr = deadlineDate.getFullYear() + '-' + 
+      String(deadlineDate.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(deadlineDate.getDate()).padStart(2, '0');
     
-    // Compare normalized dates
-    const isMatch = deadlineDate.getTime() === targetDate.getTime();
+    const isMatch = deadlineDateStr === targetDateStr;
     
     // Debug log for deadline detection
-    if (timer.deadline) {
-      console.log(`Deadline check for ${timer.name}:`, {
-        targetDate: targetDate.toDateString(),
-        deadlineDate: deadlineDate.toDateString(),
-        originalDeadline: new Date(timer.deadline).toISOString(),
-        normalizedDeadline: deadlineDate.toISOString(),
-        isMatch
-      });
-    }
+    console.log(`Deadline check for ${timer.name}:`, {
+      targetDateStr,
+      deadlineDateStr,
+      originalDeadline: new Date(timer.deadline).toISOString(),
+      localDeadline: deadlineDate.toString(),
+      isMatch
+    });
     
     return isMatch;
   });
   
-  console.log(`getTimersWithDeadlinesForDate for ${targetDate.toDateString()}:`, {
+  console.log(`getTimersWithDeadlinesForDate for ${targetDateStr}:`, {
     inputTimers: timers.length,
     timersWithDeadlines: timers.filter(t => t.deadline).length,
     matchingDeadlines: result.length,
