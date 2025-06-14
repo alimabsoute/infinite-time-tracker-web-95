@@ -207,33 +207,69 @@ export const useTimers = () => {
         id: crypto.randomUUID(),
         name,
         elapsedTime: 0,
-        isRunning: false,
+        isRunning: true, // Start the new timer immediately
         createdAt: new Date(),
         category,
       };
       
-      // Optimistic update
-      setTimers((prev) => [...prev, newTimer]);
+      // Get currently running timers before optimistic update
+      const runningTimers = timers.filter(t => t.isRunning);
       
-      // Save to Supabase
-      const { error } = await supabase
-        .from('timers')
-        .insert({
-          id: newTimer.id,
-          name: newTimer.name,
-          elapsed_time: newTimer.elapsedTime,
-          is_running: newTimer.isRunning,
-          created_at: newTimer.createdAt.toISOString(),
-          category: newTimer.category,
-          user_id: user.id // Important: Set the user_id to satisfy RLS policy
-        });
+      // Optimistic update - add new timer and pause all existing running timers
+      setTimers((prev) => [
+        newTimer,
+        ...prev.map(timer => timer.isRunning ? { ...timer, isRunning: false } : timer)
+      ]);
       
-      if (error) {
+      // Prepare batch updates for Supabase
+      const updates = [];
+      
+      // Add the new timer
+      updates.push(
+        supabase
+          .from('timers')
+          .insert({
+            id: newTimer.id,
+            name: newTimer.name,
+            elapsed_time: newTimer.elapsedTime,
+            is_running: newTimer.isRunning,
+            created_at: newTimer.createdAt.toISOString(),
+            category: newTimer.category,
+            user_id: user.id
+          })
+      );
+      
+      // Pause all currently running timers
+      runningTimers.forEach(timer => {
+        updates.push(
+          supabase
+            .from('timers')
+            .update({ is_running: false })
+            .eq('id', timer.id)
+        );
+      });
+      
+      // Execute all updates
+      const results = await Promise.all(updates);
+      
+      // Check for any errors
+      const hasErrors = results.some(result => result.error);
+      
+      if (hasErrors) {
         // Revert optimistic update if failed
         setTimers((prev) => prev.filter(t => t.id !== newTimer.id));
         toast.error("Failed to create timer");
-        console.error("Error adding timer:", error);
+        console.error("Error adding timer and pausing others");
         return "";
+      }
+      
+      // Show success message
+      if (runningTimers.length > 0) {
+        toast.success("Timer created and started", {
+          description: `${runningTimers.length} other timer${runningTimers.length > 1 ? 's' : ''} paused automatically`
+        });
+      } else {
+        toast.success("Timer created and started");
       }
       
       return newTimer.id;
@@ -242,7 +278,7 @@ export const useTimers = () => {
       toast.error("Failed to create timer");
       return "";
     }
-  }, [user]);
+  }, [user, timers]);
 
   // New function to start a timer and pause all others
   const startTimerAndPauseOthers = useCallback(async (id: string) => {
@@ -320,18 +356,13 @@ export const useTimers = () => {
       const targetTimer = timers.find(t => t.id === id);
       if (!targetTimer) return;
 
-      // If the timer is currently stopped and we're starting it, use the auto-pause function
-      if (!targetTimer.isRunning) {
-        await startTimerAndPauseOthers(id);
-        return;
-      }
+      const newRunningState = !targetTimer.isRunning;
 
-      // If the timer is running and we're stopping it, just stop this timer
-      // Optimistic update
+      // Optimistic update - just toggle this timer without affecting others
       setTimers((prev) =>
         prev.map((timer) =>
           timer.id === id
-            ? { ...timer, isRunning: false }
+            ? { ...timer, isRunning: newRunningState }
             : timer
         )
       );
@@ -340,7 +371,7 @@ export const useTimers = () => {
       const { error } = await supabase
         .from('timers')
         .update({
-          is_running: false
+          is_running: newRunningState
         })
         .eq('id', id);
       
@@ -349,20 +380,20 @@ export const useTimers = () => {
         setTimers((prev) =>
           prev.map((timer) =>
             timer.id === id
-              ? { ...timer, isRunning: true }
+              ? { ...timer, isRunning: !newRunningState }
               : timer
           )
         );
         toast.error("Failed to update timer");
         console.error("Error toggling timer:", error);
       } else {
-        toast.success("Timer paused");
+        toast.success(newRunningState ? "Timer started" : "Timer paused");
       }
     } catch (error) {
       console.error("Error toggling timer:", error);
       toast.error("Failed to update timer");
     }
-  }, [timers, user, startTimerAndPauseOthers]);
+  }, [timers, user]);
 
   const resetTimer = useCallback(async (id: string) => {
     if (!user) return;
