@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import Calendar from "./pages/Calendar";
+import Reports from "./pages/Reports";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -56,6 +57,7 @@ const App = () => (
                 <Route element={<ProtectedRoute />}>
                   <Route path="/dashboard" element={<Index />} />
                   <Route path="/calendar" element={<Calendar />} />
+                  <Route path="/reports" element={<Reports />} />
                   <Route path="/profile" element={<Profile />} />
                 </Route>
                 

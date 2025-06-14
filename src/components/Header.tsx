@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Calendar, Home } from "lucide-react";
+import { Calendar, Home, Table } from "lucide-react";
 import PhynxTimerLogo from "./PhynxTimerLogo";
 
 const Header = () => {
@@ -45,6 +45,16 @@ const Header = () => {
             >
               <Calendar size={18} />
               <span className="hidden sm:inline">Calendar</span>
+            </Button>
+          </Link>
+          
+          <Link to="/reports">
+            <Button 
+              variant={location.pathname === "/reports" ? "secondary" : "ghost"} 
+              className="gap-2"
+            >
+              <Table size={18} />
+              <span className="hidden sm:inline">Reports</span>
             </Button>
           </Link>
         </nav>
