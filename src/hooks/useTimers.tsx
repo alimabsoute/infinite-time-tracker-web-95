@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Timer } from "../types";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from "../contexts/AuthContext";
@@ -9,7 +8,16 @@ export const useTimers = () => {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [loading, setLoading] = useState(true);
   const [confettiTrigger, setConfettiTrigger] = useState<{ x: number; y: number; id: string } | null>(null);
+  const confettiTimeoutRef = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
+
+  // Clear confetti trigger function
+  const clearConfettiTrigger = useCallback(() => {
+    if (confettiTimeoutRef.current) {
+      clearTimeout(confettiTimeoutRef.current);
+    }
+    setConfettiTrigger(null);
+  }, []);
 
   // Save running timers to localStorage when user logs out
   useEffect(() => {
@@ -336,10 +344,18 @@ export const useTimers = () => {
         return "";
       }
       
+      // Clear any existing confetti trigger
+      clearConfettiTrigger();
+      
       // Trigger confetti animation at center of screen
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       setConfettiTrigger({ x: centerX, y: centerY, id: newTimer.id });
+      
+      // Auto-clear confetti after 3 seconds as fallback
+      confettiTimeoutRef.current = setTimeout(() => {
+        setConfettiTrigger(null);
+      }, 3000);
       
       // Show success message
       if (runningTimers.length > 0) {
@@ -356,7 +372,7 @@ export const useTimers = () => {
       toast.error("Failed to create timer");
       return "";
     }
-  }, [user, timers]);
+  }, [user, timers, clearConfettiTrigger]);
 
   // New function to start a timer and pause all others
   const startTimerAndPauseOthers = useCallback(async (id: string) => {
@@ -702,6 +718,6 @@ export const useTimers = () => {
     reorderTimers,
     startTimerAndPauseOthers, // Export the new function for direct use if needed
     confettiTrigger,
-    clearConfettiTrigger: () => setConfettiTrigger(null),
+    clearConfettiTrigger,
   };
 };

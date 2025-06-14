@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ConfettiPiece {
@@ -25,8 +25,18 @@ const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'
 
 const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete }) => {
   const [pieces, setPieces] = useState<ConfettiPiece[]>([]);
+  const animationRef = useRef<number>();
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  const isAnimatingRef = useRef(false);
+  const startTimeRef = useRef<number>();
 
   useEffect(() => {
+    // Prevent multiple animations from starting
+    if (isAnimatingRef.current) return;
+    
+    isAnimatingRef.current = true;
+    startTimeRef.current = Date.now();
+
     // Create confetti pieces
     const newPieces: ConfettiPiece[] = [];
     for (let i = 0; i < 30; i++) {
@@ -45,9 +55,19 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
     }
     setPieces(newPieces);
 
-    // Animate confetti
-    let animationId: number;
+    // Animate confetti with performance optimization
     const animate = () => {
+      if (!isAnimatingRef.current) return;
+      
+      const currentTime = Date.now();
+      const elapsed = currentTime - (startTimeRef.current || 0);
+      
+      // Stop animation after 2.5 seconds
+      if (elapsed > 2500) {
+        cleanup();
+        return;
+      }
+
       setPieces(currentPieces => 
         currentPieces.map(piece => ({
           ...piece,
@@ -57,22 +77,31 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
           rotation: piece.rotation + piece.rotationSpeed,
         }))
       );
-      animationId = requestAnimationFrame(animate);
+      
+      animationRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
-
-    // Clean up after 3 seconds
-    const timeout = setTimeout(() => {
-      cancelAnimationFrame(animationId);
+    const cleanup = () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = undefined;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = undefined;
+      }
+      isAnimatingRef.current = false;
       onComplete();
-    }, 3000);
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      clearTimeout(timeout);
     };
-  }, [x, y, onComplete]);
+
+    // Start animation
+    animationRef.current = requestAnimationFrame(animate);
+
+    // Cleanup after timeout as fallback
+    timeoutRef.current = setTimeout(cleanup, 3000);
+
+    return cleanup;
+  }, []); // Remove x, y, onComplete from dependencies to prevent re-runs
 
   const renderShape = (piece: ConfettiPiece) => {
     const style = {
