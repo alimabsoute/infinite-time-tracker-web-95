@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { format, startOfWeek, addDays, subWeeks, addWeeks, isSameDay } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid, LineChart, Line } from 'recharts';
@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Clock, BarChart as BarChartIcon, LineChart as LineChartIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Timer } from "../../types";
+import { getTimersForDate } from "./CalendarUtils";
 
 interface WeekViewProps {
   weekData: {
@@ -17,9 +19,10 @@ interface WeekViewProps {
   }[];
   formatTime: (ms: number) => string;
   selectedDate: Date;
+  timers: Timer[];
 }
 
-const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate }) => {
+const WeekView: React.FC<WeekViewProps> = ({ formatTime, selectedDate, timers }) => {
   // State for week navigation and chart type
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
     startOfWeek(selectedDate || new Date())
@@ -34,24 +37,21 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
     }
   }, [selectedDate]);
 
-  // Generate week data based on current week start
-  const generateWeekData = (startDate: Date) => {
+  // Generate week data dynamically based on current week start and timers
+  const weekData = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
-      const date = addDays(startDate, i);
-      const dayData = weekData.find(item => 
-        format(item.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-      ) || {
+      const date = addDays(currentWeekStart, i);
+      const dayTimers = getTimersForDate(date, timers);
+      const totalTime = dayTimers.reduce((total, timer) => total + timer.elapsedTime, 0);
+      
+      return {
         date,
         day: format(date, 'EEE'),
-        totalHours: 0,
-        timers: 0
+        totalHours: totalTime / 3600000, // Convert to hours
+        timers: dayTimers.length
       };
-      
-      return dayData;
     });
-  };
-
-  const displayedWeekData = generateWeekData(currentWeekStart);
+  }, [currentWeekStart, timers]);
   
   // Navigate to previous/next week
   const navigateWeek = (direction: 'previous' | 'next') => {
@@ -63,7 +63,7 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
   };
 
   // Calculate average hours per day for reference line
-  const averageHours = displayedWeekData.reduce((sum, day) => sum + day.totalHours, 0) / 7;
+  const averageHours = weekData.reduce((sum, day) => sum + day.totalHours, 0) / 7;
   
   // Handle bar click to update selected date
   const handleBarClick = (data: any) => {
@@ -133,7 +133,7 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
             <ResponsiveContainer width="100%" height="100%">
               {chartType === 'bar' ? (
                 <BarChart 
-                  data={displayedWeekData} 
+                  data={weekData} 
                   margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
                   onClick={(data) => handleBarClick(data?.activePayload?.[0]?.payload)}
                 >
@@ -190,7 +190,7 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
                     onMouseOver={(data) => setHoveredDay(data.date)}
                     onMouseLeave={() => setHoveredDay(null)}
                   >
-                    {displayedWeekData.map((entry, index) => (
+                    {weekData.map((entry, index) => (
                       <motion.rect
                         key={`bar-${index}`}
                         fillOpacity={selectedDate && isSameDay(entry.date, selectedDate) ? 1 : 0.8}
@@ -209,7 +209,7 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
                 </BarChart>
               ) : (
                 <LineChart
-                  data={displayedWeekData}
+                  data={weekData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(var(--foreground), 0.05)" />
@@ -270,7 +270,7 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
           
           {/* Day selection indicators */}
           <div className="flex justify-center mt-2 gap-1">
-            {displayedWeekData.map((day, index) => (
+            {weekData.map((day, index) => (
               <motion.div 
                 key={index}
                 className={`h-1.5 rounded-full cursor-pointer ${
@@ -292,7 +292,7 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
             >
               <p className="text-xs text-muted-foreground">Total Time</p>
               <p className="font-medium">{
-                formatTime(displayedWeekData.reduce((sum, day) => sum + day.totalHours * 3600000, 0))
+                formatTime(weekData.reduce((sum, day) => sum + day.totalHours * 3600000, 0))
               }</p>
             </motion.div>
             <motion.div 
@@ -308,7 +308,7 @@ const WeekView: React.FC<WeekViewProps> = ({ weekData, formatTime, selectedDate 
             >
               <p className="text-xs text-muted-foreground">Active Days</p>
               <p className="font-medium">{
-                displayedWeekData.filter(day => day.totalHours > 0).length
+                weekData.filter(day => day.totalHours > 0).length
               }</p>
             </motion.div>
           </div>
