@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
 import Header from "../components/Header";
@@ -7,6 +8,7 @@ import CreateTimerForm from "../components/CreateTimerForm";
 import TimeCharts from "../components/TimeCharts";
 import WelcomeGuide from "../components/WelcomeGuide";
 import EmptyState from "../components/EmptyState";
+import MockDataButton from "../components/MockDataButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Timer as TimerIcon, TrendingUp, Crown } from "lucide-react";
@@ -170,12 +172,21 @@ const Index = () => {
       <div className="container mx-auto px-4 pb-20 max-w-5xl">
         {/* Welcome message and user status */}
         <div className="my-6">
-          <h1 className="text-2xl font-bold">
-            Welcome, {user?.email ? user.email.split('@')[0] : 'User'}!
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Track your time efficiently and stay productive
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-bold">
+                Welcome, {user?.email ? user.email.split('@')[0] : 'User'}!
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Track your time efficiently and stay productive
+              </p>
+            </div>
+            
+            {/* Mock Data Controls - only show if user has fewer than 50 timers */}
+            {user && timers.length < 50 && (
+              <MockDataButton />
+            )}
+          </div>
           
           {/* Subscription tier indicator */}
           {subscriptionTier === "free" && (

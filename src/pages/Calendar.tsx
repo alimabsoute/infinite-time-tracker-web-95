@@ -6,10 +6,13 @@ import { format, subMonths, addMonths, subWeeks, addWeeks, startOfMonth, endOfMo
 import CalendarLayout from "../components/calendar/CalendarLayout";
 import CalendarPageHeader from "../components/calendar/CalendarPageHeader";
 import CalendarContent from "../components/calendar/CalendarContent";
+import MockDataButton from "../components/MockDataButton";
 import { getTimersForDate, getTotalTimeForDate } from "../components/calendar/CalendarUtils";
+import { useAuth } from "../contexts/AuthContext";
 
 const CalendarPage = () => {
   const { timers } = useTimers();
+  const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("day");
@@ -118,15 +121,22 @@ const CalendarPage = () => {
       transition={{ duration: 0.3 }}
     >
       <CalendarLayout title="Activity Calendar">
-        <CalendarPageHeader
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          categoryFilter={categoryFilter}
-          setCategoryFilter={setCategoryFilter}
-          categories={categories}
-        />
+        <div className="flex justify-between items-center mb-6">
+          <CalendarPageHeader
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            categories={categories}
+          />
+          
+          {/* Mock Data Controls - only show if user has fewer than 50 timers */}
+          {user && timers.length < 50 && (
+            <MockDataButton />
+          )}
+        </div>
         
         <CalendarContent
           currentMonth={currentMonth}
