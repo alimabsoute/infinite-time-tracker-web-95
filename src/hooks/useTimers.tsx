@@ -244,50 +244,125 @@ export const useTimers = () => {
     }
   }, [user]);
 
+  // New function to start a timer and pause all others
+  const startTimerAndPauseOthers = useCallback(async (id: string) => {
+    if (!user) return;
+
+    try {
+      const runningTimers = timers.filter(t => t.isRunning && t.id !== id);
+      
+      // Optimistic update - pause all running timers except the target one
+      setTimers((prev) =>
+        prev.map((timer) => {
+          if (timer.id === id) {
+            return { ...timer, isRunning: true };
+          } else if (timer.isRunning) {
+            return { ...timer, isRunning: false };
+          }
+          return timer;
+        })
+      );
+
+      // Batch update in Supabase - pause all running timers and start the target timer
+      const updates = [];
+      
+      // Add update for target timer
+      updates.push(
+        supabase
+          .from('timers')
+          .update({ is_running: true })
+          .eq('id', id)
+      );
+
+      // Add updates for all currently running timers to pause them
+      runningTimers.forEach(timer => {
+        updates.push(
+          supabase
+            .from('timers')
+            .update({ is_running: false })
+            .eq('id', timer.id)
+        );
+      });
+
+      // Execute all updates
+      const results = await Promise.all(updates);
+      
+      // Check for any errors
+      const hasErrors = results.some(result => result.error);
+      
+      if (hasErrors) {
+        // Revert optimistic update if any failed
+        setTimers((prev) => [...prev]); // Force re-render with original data
+        toast.error("Failed to update timers");
+        console.error("Error in batch timer update");
+        return;
+      }
+
+      // Show success message
+      if (runningTimers.length > 0) {
+        toast.success(`Timer started`, {
+          description: `${runningTimers.length} other timer${runningTimers.length > 1 ? 's' : ''} paused automatically`
+        });
+      } else {
+        toast.success("Timer started");
+      }
+
+    } catch (error) {
+      console.error("Error starting timer and pausing others:", error);
+      toast.error("Failed to update timers");
+    }
+  }, [timers, user]);
+
   const toggleTimer = useCallback(async (id: string) => {
     if (!user) return;
 
     try {
+      const targetTimer = timers.find(t => t.id === id);
+      if (!targetTimer) return;
+
+      // If the timer is currently stopped and we're starting it, use the auto-pause function
+      if (!targetTimer.isRunning) {
+        await startTimerAndPauseOthers(id);
+        return;
+      }
+
+      // If the timer is running and we're stopping it, just stop this timer
       // Optimistic update
       setTimers((prev) =>
         prev.map((timer) =>
           timer.id === id
-            ? { ...timer, isRunning: !timer.isRunning }
+            ? { ...timer, isRunning: false }
             : timer
         )
       );
 
-      // Get updated timer
-      const updatedTimer = timers.find(t => t.id === id);
-      if (updatedTimer) {
-        const newState = !updatedTimer.isRunning;
-        
-        // Update in Supabase
-        const { error } = await supabase
-          .from('timers')
-          .update({
-            is_running: newState
-          })
-          .eq('id', id);
-        
-        if (error) {
-          // Revert optimistic update if failed
-          setTimers((prev) =>
-            prev.map((timer) =>
-              timer.id === id
-                ? { ...timer, isRunning: !newState }
-                : timer
-            )
-          );
-          toast.error("Failed to update timer");
-          console.error("Error toggling timer:", error);
-        }
+      // Update in Supabase
+      const { error } = await supabase
+        .from('timers')
+        .update({
+          is_running: false
+        })
+        .eq('id', id);
+      
+      if (error) {
+        // Revert optimistic update if failed
+        setTimers((prev) =>
+          prev.map((timer) =>
+            timer.id === id
+              ? { ...timer, isRunning: true }
+              : timer
+          )
+        );
+        toast.error("Failed to update timer");
+        console.error("Error toggling timer:", error);
+      } else {
+        toast.success("Timer paused");
       }
     } catch (error) {
       console.error("Error toggling timer:", error);
       toast.error("Failed to update timer");
     }
-  }, [timers, user]);
+  }, [timers, user, startTimerAndPauseOthers]);
 
   const resetTimer = useCallback(async (id: string) => {
     if (!user) return;
@@ -516,5 +591,6 @@ export const useTimers = () => {
     updateDeadline,
     updatePriority,
     reorderTimers,
+    startTimerAndPauseOthers, // Export the new function for direct use if needed
   };
 };
