@@ -101,7 +101,11 @@ const MockDataButton: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClearData} disabled={isClearing} variant="destructive">
+            <AlertDialogAction 
+              onClick={handleClearData} 
+              disabled={isClearing}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               {isClearing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Clear All Data
             </AlertDialogAction>
