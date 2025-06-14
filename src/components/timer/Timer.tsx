@@ -8,6 +8,7 @@ import TimerHeader from './TimerHeader';
 import TimerControls from './TimerControls';
 import TimerMetadata from './TimerMetadata';
 import TimerEditForm from './TimerEditForm';
+import DeletionAnimation from '../animations/DeletionAnimations';
 
 type TimerProps = {
   timer: TimerType;
@@ -39,6 +40,11 @@ const Timer = ({
   const [currentTime, setCurrentTime] = useState(elapsedTime);
   const [date, setDate] = useState<Date | undefined>(deadline ? new Date(deadline) : undefined);
   const [selectedPriority, setSelectedPriority] = useState<string>(priority?.toString() || 'none');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletionAnimationType] = useState<'explode' | 'melt' | 'crumble' | 'vaporize'>(() => {
+    const animations: ('explode' | 'melt' | 'crumble' | 'vaporize')[] = ['explode', 'melt', 'crumble', 'vaporize'];
+    return animations[Math.floor(Math.random() * animations.length)];
+  });
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Get timer color class
@@ -104,10 +110,19 @@ const Timer = ({
     onUpdateDeadline(id, selectedDate);
   };
 
+  // Handle deletion with animation
+  const handleDelete = () => {
+    setIsDeleting(true);
+  };
+
+  const handleDeletionComplete = () => {
+    onDelete(id);
+  };
+
   // Check if deadline is past
   const isOverdue = deadline && new Date(deadline) < new Date();
 
-  return (
+  const timerContent = (
     <div 
       className={`relative ${timerColorClass} mb-3 px-1`}
       style={{
@@ -133,7 +148,7 @@ const Timer = ({
               name={name}
               category={category}
               onEditClick={() => setIsEditing(true)}
-              onDeleteClick={() => onDelete(id)}
+              onDeleteClick={handleDelete}
             />
             
             <div className="grid grid-cols-1 gap-0">
@@ -178,6 +193,19 @@ const Timer = ({
       </div>
     </div>
   );
+
+  if (isDeleting) {
+    return (
+      <DeletionAnimation
+        animationType={deletionAnimationType}
+        onComplete={handleDeletionComplete}
+      >
+        {timerContent}
+      </DeletionAnimation>
+    );
+  }
+
+  return timerContent;
 };
 
 export default Timer;

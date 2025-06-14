@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Timer } from "../types";
 import { supabase } from '@/integrations/supabase/client';
@@ -7,6 +8,7 @@ import { toast } from "sonner";
 export const useTimers = () => {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confettiTrigger, setConfettiTrigger] = useState<{ x: number; y: number; id: string } | null>(null);
   const { user } = useAuth();
 
   // Save running timers to localStorage when user logs out
@@ -333,6 +335,11 @@ export const useTimers = () => {
         console.error("Error adding timer and pausing others");
         return "";
       }
+      
+      // Trigger confetti animation at center of screen
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      setConfettiTrigger({ x: centerX, y: centerY, id: newTimer.id });
       
       // Show success message
       if (runningTimers.length > 0) {
@@ -694,5 +701,7 @@ export const useTimers = () => {
     updatePriority,
     reorderTimers,
     startTimerAndPauseOthers, // Export the new function for direct use if needed
+    confettiTrigger,
+    clearConfettiTrigger: () => setConfettiTrigger(null),
   };
 };
