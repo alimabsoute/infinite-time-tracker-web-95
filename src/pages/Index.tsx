@@ -1,10 +1,12 @@
 
 import React, { useState } from "react";
 import { useTimers } from "../hooks/useTimers";
+import { useSubscription } from "../contexts/SubscriptionContext";
 import Header from "../components/Header";
 import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import ConfettiAnimation from "../components/animations/ConfettiAnimation";
+import { toast } from "sonner";
 
 const Index = () => {
   const {
@@ -22,9 +24,19 @@ const Index = () => {
     clearConfettiTrigger,
   } = useTimers();
   
+  const { canCreateTimer, getTimerLimit, subscribed } = useSubscription();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
   const handleAddTimer = async (name: string) => {
+    // Double-check the limit before creating
+    if (!canCreateTimer(timers.length)) {
+      const limit = getTimerLimit();
+      toast.error("Timer limit reached", {
+        description: `Free plan allows up to ${limit} timers. Upgrade to create unlimited timers.`
+      });
+      return;
+    }
+
     const id = await addTimer(name);
     if (id) {
       setNewTimerId(id);
@@ -49,6 +61,27 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
+        {/* Subscription Status Banner */}
+        {!subscribed && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-medium text-blue-900">Free Plan</h3>
+                <p className="text-sm text-blue-700">
+                  {timers.length}/{getTimerLimit()} timers used. Upgrade for unlimited timers and premium features.
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-blue-300 text-blue-700 hover:bg-blue-100"
+              >
+                Upgrade
+              </Button>
+            </div>
+          </div>
+        )}
+
         <TimerList
           timers={timers}
           onToggle={toggleTimer}
@@ -61,7 +94,10 @@ const Index = () => {
           newTimerId={newTimerId}
           onCreateTimer={() => handleAddTimer("New Timer")}
         />
-        <CreateTimerForm onAddTimer={handleAddTimer} />
+        <CreateTimerForm 
+          onAddTimer={handleAddTimer} 
+          currentTimerCount={timers.length}
+        />
         
         {/* Confetti Animation */}
         {confettiTrigger && (

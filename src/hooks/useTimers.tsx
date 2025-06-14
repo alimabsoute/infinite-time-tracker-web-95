@@ -1,8 +1,8 @@
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Timer } from "../types";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from "../contexts/AuthContext";
+import { useSubscription } from "../contexts/SubscriptionContext";
 import { toast } from "sonner";
 
 export const useTimers = () => {
@@ -11,6 +11,7 @@ export const useTimers = () => {
   const [confettiTrigger, setConfettiTrigger] = useState<{ x: number; y: number; id: string } | null>(null);
   const confettiTimeoutRef = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
+  const { canCreateTimer, getTimerLimit } = useSubscription();
 
   // Clear confetti trigger function
   const clearConfettiTrigger = useCallback(() => {
@@ -290,6 +291,15 @@ export const useTimers = () => {
       return "";
     }
 
+    // Check subscription limits before adding timer
+    if (!canCreateTimer(timers.length)) {
+      const limit = getTimerLimit();
+      toast.error("Timer limit reached", {
+        description: `Free plan allows up to ${limit} timers. Upgrade to create unlimited timers.`
+      });
+      return "";
+    }
+
     try {
       const newTimer: Timer = {
         id: crypto.randomUUID(),
@@ -379,7 +389,7 @@ export const useTimers = () => {
       toast.error("Failed to create timer");
       return "";
     }
-  }, [user, timers, clearConfettiTrigger]);
+  }, [user, timers, clearConfettiTrigger, canCreateTimer, getTimerLimit]);
 
   // New function to start a timer and pause all others
   const startTimerAndPauseOthers = useCallback(async (id: string) => {
