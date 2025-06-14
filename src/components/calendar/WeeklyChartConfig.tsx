@@ -34,24 +34,24 @@ export const getChartConfig = (averageHours: number) => ({
   margin: { top: 10, right: 10, left: 0, bottom: 20 },
   referenceLineProps: {
     y: averageHours,
-    stroke: "rgba(var(--primary), 0.5)",
+    stroke: "hsl(var(--primary))",
     strokeDasharray: "3 3",
     label: { 
       value: 'Avg', 
-      position: 'insideTopRight', 
-      fill: 'rgba(var(--primary), 0.8)',
+      position: 'insideTopRight' as const,
+      fill: 'hsl(var(--primary))',
       fontSize: 10
     }
   },
   xAxisProps: {
     tick: { fontSize: 12 },
     tickLine: false,
-    axisLine: { stroke: 'rgba(var(--foreground), 0.1)' }
+    axisLine: { stroke: 'hsl(var(--border))' }
   },
   yAxisProps: {
     tick: { fontSize: 10 },
     tickLine: false,
-    axisLine: { stroke: 'rgba(var(--foreground), 0.1)' },
+    axisLine: { stroke: 'hsl(var(--border))' },
     tickFormatter: (value: number) => `${value}h`
   }
 });

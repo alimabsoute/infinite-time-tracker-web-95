@@ -41,7 +41,7 @@ const WeekView: React.FC<WeekViewProps> = ({ formatTime, selectedDate, timers })
 
   // Generate week data dynamically based on current week start and timers
   const weekData = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
+    const data = Array.from({ length: 7 }, (_, i) => {
       const date = addDays(currentWeekStart, i);
       const dayTimers = getTimersForDate(date, timers);
       const totalTime = dayTimers.reduce((total, timer) => total + timer.elapsedTime, 0);
@@ -53,6 +53,9 @@ const WeekView: React.FC<WeekViewProps> = ({ formatTime, selectedDate, timers })
         timers: dayTimers.length
       };
     });
+    
+    console.log('WeekView - Generated weekData:', data);
+    return data;
   }, [currentWeekStart, timers]);
   
   // Navigate to previous/next week
@@ -65,12 +68,17 @@ const WeekView: React.FC<WeekViewProps> = ({ formatTime, selectedDate, timers })
   };
 
   // Calculate average hours per day for reference line
-  const averageHours = weekData.reduce((sum, day) => sum + day.totalHours, 0) / 7;
+  const averageHours = useMemo(() => {
+    const totalHours = weekData.reduce((sum, day) => sum + day.totalHours, 0);
+    const avg = totalHours / 7;
+    console.log('WeekView - Average hours:', avg);
+    return avg;
+  }, [weekData]);
   
   // Handle bar/day click to update selected date
   const handleBarClick = (data: any) => {
     if (data && data.date) {
-      console.log("Selected date:", format(data.date, 'yyyy-MM-dd'));
+      console.log("WeekView - Selected date:", format(data.date, 'yyyy-MM-dd'));
     }
   };
   

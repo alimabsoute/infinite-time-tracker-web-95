@@ -35,6 +35,11 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
 }) => {
   const config = getChartConfig(averageHours);
 
+  // Debug logging
+  console.log('WeeklyChart - weekData:', weekData);
+  console.log('WeeklyChart - averageHours:', averageHours);
+  console.log('WeeklyChart - chartType:', chartType);
+
   return (
     <div className="h-[330px]">
       <ResponsiveContainer width="100%" height="100%">
@@ -42,9 +47,12 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
           <BarChart 
             data={weekData} 
             margin={config.margin}
-            onClick={(data) => onBarClick(data?.activePayload?.[0]?.payload)}
+            onClick={(data) => {
+              console.log('Bar clicked:', data);
+              onBarClick(data?.activePayload?.[0]?.payload);
+            }}
           >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(var(--foreground), 0.05)" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
             <XAxis dataKey="day" {...config.xAxisProps} />
             <YAxis {...config.yAxisProps} />
             <ReferenceLine {...config.referenceLineProps} />
@@ -54,33 +62,22 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
             />
             <Bar 
               dataKey="totalHours" 
-              fill="rgba(var(--primary), 0.8)" 
+              fill="hsl(var(--primary))" 
               radius={[4, 4, 0, 0]}
-              animationDuration={800}
               className="hover:opacity-80 transition-opacity cursor-pointer"
-              onMouseOver={(data) => onHoverDay(data.date)}
-              onMouseLeave={() => onHoverDay(null)}
-            >
-              {weekData.map((entry, index) => (
-                <motion.rect
-                  key={`bar-${index}`}
-                  fillOpacity={selectedDate && isSameDay(entry.date, selectedDate) ? 1 : 0.8}
-                  fill={selectedDate && isSameDay(entry.date, selectedDate) ? 
-                        "rgba(var(--accent), 0.9)" : 
-                        hoveredDay && isSameDay(entry.date, hoveredDay) ? 
-                        "rgba(var(--primary), 1)" : 
-                        "rgba(var(--primary), 0.8)"}
-                  animate={{
-                    scale: hoveredDay && isSameDay(entry.date, hoveredDay) ? 1.05 : 1
-                  }}
-                  transition={{ duration: 0.2 }}
-                />
-              ))}
-            </Bar>
+              onMouseEnter={(data) => {
+                console.log('Bar hover enter:', data);
+                onHoverDay(data.date);
+              }}
+              onMouseLeave={() => {
+                console.log('Bar hover leave');
+                onHoverDay(null);
+              }}
+            />
           </BarChart>
         ) : (
           <LineChart data={weekData} margin={config.margin}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(var(--foreground), 0.05)" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
             <XAxis dataKey="day" {...config.xAxisProps} />
             <YAxis {...config.yAxisProps} />
             <Tooltip
@@ -91,9 +88,10 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
             <Line 
               type="monotone"
               dataKey="totalHours"
-              stroke="rgba(var(--primary), 0.8)"
-              dot={{ r: 4, fill: "rgba(var(--primary), 0.8)", stroke: "rgba(var(--background), 1)", strokeWidth: 2 }}
-              activeDot={{ r: 6, fill: "rgba(var(--accent), 0.9)", stroke: "rgba(var(--background), 1)", strokeWidth: 2 }}
+              stroke="hsl(var(--primary))"
+              strokeWidth={2}
+              dot={{ r: 4, fill: "hsl(var(--primary))", stroke: "hsl(var(--background))", strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: "hsl(var(--accent))", stroke: "hsl(var(--background))", strokeWidth: 2 }}
             />
           </LineChart>
         )}
