@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Download, FileSpreadsheet, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface TimerReportData {
   id: string;
@@ -22,13 +22,6 @@ interface TimerReportData {
 
 interface ExportButtonsProps {
   data: TimerReportData[];
-}
-
-// Extend jsPDF type to include autoTable
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
 }
 
 const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
@@ -140,8 +133,8 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
         row.tags
       ]);
 
-      // Add table
-      doc.autoTable({
+      // Add table using autoTable
+      autoTable(doc, {
         head: [['Timer Name', 'Category', 'Total Time', 'Status', 'Created Date', 'Priority', 'Deadline', 'Tags']],
         body: tableData,
         startY: 35,
@@ -151,7 +144,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
         },
         headStyles: {
           fillColor: [99, 102, 241], // Primary color
-          textColor: 255,
+          textColor: [255, 255, 255],
         },
         columnStyles: {
           0: { cellWidth: 25 }, // Timer Name
