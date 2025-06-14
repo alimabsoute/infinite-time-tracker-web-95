@@ -1,10 +1,10 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, CreditCard } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 // Animation variants
 const fadeIn = {
@@ -36,6 +36,23 @@ const benefits = [
 ];
 
 const CTASection = () => {
+  const handleUpgradeClick = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout");
+      
+      if (error) {
+        console.error("Error creating checkout session:", error);
+        return;
+      }
+
+      if (data.success && data.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+    }
+  };
+
   return (
     <section className="py-24 bg-gradient-to-r from-primary/10 to-accent/10">
       <div className="container mx-auto px-4">
@@ -68,6 +85,19 @@ const CTASection = () => {
                   Sign In
                 </Button>
               </Link>
+            </div>
+
+            <div className="text-center mt-8">
+              <p className="text-muted-foreground mb-4">Already have a free account?</p>
+              <Button 
+                onClick={handleUpgradeClick}
+                variant="secondary"
+                size="lg" 
+                className="rounded-full px-8 py-6 text-lg bg-primary/10 hover:bg-primary/20"
+              >
+                <CreditCard className="mr-2 h-5 w-5" />
+                Sign up for Premium now
+              </Button>
             </div>
           </FadeInWhenVisible>
         </div>
