@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTimers } from "../hooks/useTimers";
 import { useSubscription } from "../contexts/SubscriptionContext";
@@ -25,7 +24,7 @@ const Index = () => {
     clearConfettiTrigger,
   } = useTimers();
   
-  const { canCreateTimer, getTimerLimit, subscribed } = useSubscription();
+  const { canCreateTimer, getTimerLimit, subscribed, createCheckoutSession } = useSubscription();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
   const handleAddTimer = async (name: string) => {
@@ -42,6 +41,13 @@ const Index = () => {
     if (id) {
       setNewTimerId(id);
       setTimeout(() => setNewTimerId(null), 3000);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    const url = await createCheckoutSession();
+    if (url) {
+      window.open(url, '_blank');
     }
   };
 
@@ -76,6 +82,7 @@ const Index = () => {
                 variant="outline" 
                 size="sm"
                 className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                onClick={handleUpgrade}
               >
                 Upgrade
               </Button>
