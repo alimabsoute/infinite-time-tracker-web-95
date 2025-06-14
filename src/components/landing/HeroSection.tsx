@@ -1,13 +1,30 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, BarChart3, Calendar, Clock, Play, Pause, Flag, AlertCircle } from "lucide-react";
+import { ArrowRight, BarChart3, Calendar, Clock, Play, Pause, Flag, AlertCircle, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import PhynxTimerLogo from "../PhynxTimerLogo";
+import { supabase } from "@/integrations/supabase/client";
 
 const HeroSection = () => {
+  const handleUpgradeClick = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout");
+      
+      if (error) {
+        console.error("Error creating checkout session:", error);
+        return;
+      }
+
+      if (data.success && data.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+    }
+  };
+
   return (
     <section className="relative overflow-hidden py-24 bg-gradient-to-br from-background via-background to-background">
       <div className="absolute inset-0 z-0 opacity-30">
@@ -71,6 +88,15 @@ const HeroSection = () => {
                   Sign In
                 </Button>
               </Link>
+
+              <Button 
+                onClick={handleUpgradeClick}
+                size="lg" 
+                className="rounded-full text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+              >
+                <Crown className="mr-2 h-5 w-5" />
+                Upgrade to Pro
+              </Button>
             </motion.div>
             
             <motion.div

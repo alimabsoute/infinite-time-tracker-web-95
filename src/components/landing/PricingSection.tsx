@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Crown } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 // Pricing plans
 const pricingPlans = [
@@ -45,6 +46,23 @@ const FadeInWhenVisible = ({ children }: { children: React.ReactNode }) => {
 };
 
 const PricingSection = () => {
+  const handleUpgradeClick = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout");
+      
+      if (error) {
+        console.error("Error creating checkout session:", error);
+        return;
+      }
+
+      if (data.success && data.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+    }
+  };
+
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -82,14 +100,21 @@ const PricingSection = () => {
                   ))}
                 </ul>
                 
-                <Link to="/signup" className="mt-auto">
+                {plan.recommended ? (
                   <Button 
-                    variant={plan.recommended ? "default" : "outline"} 
-                    className="w-full"
+                    onClick={handleUpgradeClick}
+                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                   >
-                    Get Started
+                    <Crown className="mr-2 h-4 w-4" />
+                    Upgrade to Pro
                   </Button>
-                </Link>
+                ) : (
+                  <Link to="/signup" className="mt-auto">
+                    <Button variant="outline" className="w-full">
+                      Get Started
+                    </Button>
+                  </Link>
+                )}
               </div>
             </FadeInWhenVisible>
           ))}
