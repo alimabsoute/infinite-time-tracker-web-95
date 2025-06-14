@@ -9,6 +9,30 @@ export const useTimers = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
+  // Save running timers to localStorage when user logs out
+  useEffect(() => {
+    const saveRunningTimersOnLogout = () => {
+      const runningTimers = timers.filter(t => t.isRunning);
+      if (runningTimers.length > 0) {
+        const timerStates = runningTimers.map(timer => ({
+          id: timer.id,
+          logoutTime: Date.now(),
+          elapsedTimeAtLogout: timer.elapsedTime
+        }));
+        localStorage.setItem('runningTimersState', JSON.stringify(timerStates));
+      }
+    };
+
+    // Listen for auth state changes to detect logout
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' && timers.length > 0) {
+        saveRunningTimersOnLogout();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [timers]);
+
   // Load timers from Supabase on initial render and when user changes
   useEffect(() => {
     // Don't fetch if there's no user
@@ -46,7 +70,54 @@ export const useTimers = () => {
           priority: timer.priority || undefined,
         }));
         
-        setTimers(processedTimers);
+        // Check for saved running timer states from previous session
+        const savedTimerStates = localStorage.getItem('runningTimersState');
+        if (savedTimerStates) {
+          try {
+            const timerStates = JSON.parse(savedTimerStates);
+            const currentTime = Date.now();
+            
+            // Update timers with accumulated time from offline period
+            const updatedTimers = processedTimers.map(timer => {
+              const savedState = timerStates.find((state: any) => state.id === timer.id);
+              if (savedState && timer.isRunning) {
+                const offlineTime = currentTime - savedState.logoutTime;
+                const newElapsedTime = savedState.elapsedTimeAtLogout + offlineTime;
+                
+                // Update the timer in Supabase with the new elapsed time
+                supabase
+                  .from('timers')
+                  .update({ elapsed_time: newElapsedTime })
+                  .eq('id', timer.id)
+                  .then(({ error }) => {
+                    if (error) console.error("Error updating timer after restoration:", error);
+                  });
+                
+                return { ...timer, elapsedTime: newElapsedTime };
+              }
+              return timer;
+            });
+            
+            // Clear the saved state since we've restored the timers
+            localStorage.removeItem('runningTimersState');
+            
+            setTimers(updatedTimers);
+            
+            // Show notification about restored timers
+            const restoredCount = timerStates.length;
+            if (restoredCount > 0) {
+              toast.success(`Welcome back!`, {
+                description: `${restoredCount} timer${restoredCount > 1 ? 's were' : ' was'} running while you were away`
+              });
+            }
+          } catch (parseError) {
+            console.error("Error parsing saved timer states:", parseError);
+            localStorage.removeItem('runningTimersState');
+            setTimers(processedTimers);
+          }
+        } else {
+          setTimers(processedTimers);
+        }
       } catch (error) {
         console.error("Error loading timers:", error);
         toast.error("Failed to load timers");
