@@ -47,7 +47,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
         </TabsTrigger>
         <TabsTrigger value="analytics">
           <Activity className="mr-2 h-4 w-4" />
-          Time Analytics
+          Advanced Analytics
         </TabsTrigger>
       </TabsList>
       
@@ -83,7 +83,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
         >
           <ActivityVisualization
             categoryDistribution={categoryDistribution}
-            filteredTimers={filteredTimers}
+            filteredTimers={timers} // Use all timers for better analytics
             formatTime={formatTime}
           />
         </motion.div>
