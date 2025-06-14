@@ -204,6 +204,8 @@ export type Database = {
           category: string | null
           created_at: string
           deadline: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           elapsed_time: number
           id: string
           is_running: boolean
@@ -216,6 +218,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           deadline?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           elapsed_time?: number
           id: string
           is_running?: boolean
@@ -228,6 +232,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           deadline?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           elapsed_time?: number
           id?: string
           is_running?: boolean

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Timer } from "../types";
 import { supabase } from '@/integrations/supabase/client';
@@ -55,9 +56,11 @@ export const useTimers = () => {
     const loadTimers = async () => {
       try {
         setLoading(true);
+        // Only fetch non-deleted timers for the main timer functionality
         const { data, error } = await supabase
           .from('timers')
           .select('*')
+          .is('deleted_at', null)
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -158,6 +161,7 @@ export const useTimers = () => {
             const { data, error } = await supabase
               .from('timers')
               .select('*')
+              .is('deleted_at', null)
               .order('created_at', { ascending: false });
 
             if (error) {
@@ -193,15 +197,18 @@ export const useTimers = () => {
               });
             });
           } else if (payload.eventType === 'UPDATE') {
-            // For updates, only apply non-time related changes
+            // For updates, only apply non-time related changes and only if not deleted
             const { data, error } = await supabase
               .from('timers')
               .select('*')
               .eq('id', payload.new.id)
               .single();
 
-            if (error || !data) {
-              console.error("Error fetching updated timer:", error);
+            if (error || !data || data.deleted_at) {
+              // If timer was soft deleted, remove it from the active timers list
+              if (data?.deleted_at) {
+                setTimers(prevTimers => prevTimers.filter(timer => timer.id !== data.id));
+              }
               return;
             }
 
@@ -535,13 +542,17 @@ export const useTimers = () => {
       const timerToDelete = timers.find(t => t.id === id);
       if (!timerToDelete) return;
 
-      // Optimistic update
+      // Optimistic update - remove from UI
       setTimers((prev) => prev.filter((timer) => timer.id !== id));
 
-      // Delete from Supabase
+      // Soft delete in Supabase (mark as deleted instead of actually deleting)
       const { error } = await supabase
         .from('timers')
-        .delete()
+        .update({
+          deleted_at: new Date().toISOString(),
+          deleted_by: user.id,
+          is_running: false // Stop the timer when deleting
+        })
         .eq('id', id);
       
       if (error) {
@@ -549,6 +560,10 @@ export const useTimers = () => {
         setTimers((prev) => [...prev, timerToDelete]);
         toast.error("Failed to delete timer");
         console.error("Error deleting timer:", error);
+      } else {
+        toast.success("Timer deleted", {
+          description: "Timer has been moved to history and can be viewed in reports"
+        });
       }
     } catch (error) {
       console.error("Error deleting timer:", error);

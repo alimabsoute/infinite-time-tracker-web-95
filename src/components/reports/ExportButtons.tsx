@@ -6,19 +6,7 @@ import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
-interface TimerReportData {
-  id: string;
-  name: string;
-  category: string;
-  totalTime: string;
-  totalTimeMs: number;
-  status: 'Running' | 'Stopped';
-  createdDate: string;
-  priority: string;
-  deadlineDate: string;
-  tags: string;
-}
+import { TimerReportData } from '../../hooks/useTimerReports';
 
 interface ExportButtonsProps {
   data: TimerReportData[];
@@ -33,6 +21,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
         'Total Time',
         'Status',
         'Created Date',
+        'Deleted Date',
         'Priority',
         'Deadline',
         'Tags'
@@ -44,6 +33,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
         row.totalTime,
         row.status,
         row.createdDate,
+        row.deletedDate || 'N/A',
         row.priority,
         row.deadlineDate,
         row.tags
@@ -79,6 +69,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
           'Total Time': row.totalTime,
           'Status': row.status,
           'Created Date': row.createdDate,
+          'Deleted Date': row.deletedDate || 'N/A',
           'Priority': row.priority,
           'Deadline': row.deadlineDate,
           'Tags': row.tags,
@@ -95,6 +86,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
         { wch: 12 }, // Total Time
         { wch: 10 }, // Status
         { wch: 18 }, // Created Date
+        { wch: 18 }, // Deleted Date
         { wch: 15 }, // Priority
         { wch: 18 }, // Deadline
         { wch: 20 }, // Tags
@@ -128,6 +120,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
         row.totalTime,
         row.status,
         row.createdDate,
+        row.deletedDate || 'N/A',
         row.priority,
         row.deadlineDate,
         row.tags
@@ -135,7 +128,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
 
       // Add table using autoTable
       autoTable(doc, {
-        head: [['Timer Name', 'Category', 'Total Time', 'Status', 'Created Date', 'Priority', 'Deadline', 'Tags']],
+        head: [['Timer Name', 'Category', 'Total Time', 'Status', 'Created Date', 'Deleted Date', 'Priority', 'Deadline', 'Tags']],
         body: tableData,
         startY: 35,
         styles: {
@@ -147,14 +140,15 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
           textColor: [255, 255, 255],
         },
         columnStyles: {
-          0: { cellWidth: 25 }, // Timer Name
-          1: { cellWidth: 20 }, // Category
-          2: { cellWidth: 18 }, // Total Time
-          3: { cellWidth: 15 }, // Status
-          4: { cellWidth: 25 }, // Created Date
-          5: { cellWidth: 20 }, // Priority
-          6: { cellWidth: 25 }, // Deadline
-          7: { cellWidth: 30 }, // Tags
+          0: { cellWidth: 20 }, // Timer Name
+          1: { cellWidth: 15 }, // Category
+          2: { cellWidth: 15 }, // Total Time
+          3: { cellWidth: 12 }, // Status
+          4: { cellWidth: 20 }, // Created Date
+          5: { cellWidth: 20 }, // Deleted Date
+          6: { cellWidth: 15 }, // Priority
+          7: { cellWidth: 20 }, // Deadline
+          8: { cellWidth: 25 }, // Tags
         },
       });
 
