@@ -31,29 +31,35 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
   const startTimeRef = useRef<number>();
 
   useEffect(() => {
+    console.log('🎉 Confetti animation starting at:', { x, y });
+    
     // Prevent multiple animations from starting
-    if (isAnimatingRef.current) return;
+    if (isAnimatingRef.current) {
+      console.log('⚠️ Animation already running, skipping');
+      return;
+    }
     
     isAnimatingRef.current = true;
     startTimeRef.current = Date.now();
 
     // Create confetti pieces
     const newPieces: ConfettiPiece[] = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 40; i++) { // Increased from 30 to 40 for more visibility
       newPieces.push({
         id: i,
         x: x,
         y: y,
-        vx: (Math.random() - 0.5) * 8,
-        vy: Math.random() * -8 - 2,
+        vx: (Math.random() - 0.5) * 12, // Increased spread
+        vy: Math.random() * -12 - 4, // Increased initial velocity
         rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 10,
+        rotationSpeed: (Math.random() - 0.5) * 15,
         color: colors[Math.floor(Math.random() * colors.length)],
         shape: ['circle', 'square', 'triangle'][Math.floor(Math.random() * 3)] as 'circle' | 'square' | 'triangle',
-        size: Math.random() * 8 + 4,
+        size: Math.random() * 10 + 6, // Increased size range
       });
     }
     setPieces(newPieces);
+    console.log('✨ Created', newPieces.length, 'confetti pieces');
 
     // Animate confetti with performance optimization
     const animate = () => {
@@ -62,8 +68,9 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
       const currentTime = Date.now();
       const elapsed = currentTime - (startTimeRef.current || 0);
       
-      // Stop animation after 2.5 seconds
-      if (elapsed > 2500) {
+      // Stop animation after 3 seconds (increased duration)
+      if (elapsed > 3000) {
+        console.log('⏰ Animation timeout reached');
         cleanup();
         return;
       }
@@ -73,7 +80,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
           ...piece,
           x: piece.x + piece.vx,
           y: piece.y + piece.vy,
-          vy: piece.vy + 0.3, // gravity
+          vy: piece.vy + 0.4, // Slightly increased gravity
           rotation: piece.rotation + piece.rotationSpeed,
         }))
       );
@@ -82,6 +89,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
     };
 
     const cleanup = () => {
+      console.log('🧹 Cleaning up confetti animation');
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = undefined;
@@ -91,6 +99,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
         timeoutRef.current = undefined;
       }
       isAnimatingRef.current = false;
+      setPieces([]);
       onComplete();
     };
 
@@ -98,10 +107,10 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
     animationRef.current = requestAnimationFrame(animate);
 
     // Cleanup after timeout as fallback
-    timeoutRef.current = setTimeout(cleanup, 3000);
+    timeoutRef.current = setTimeout(cleanup, 3500);
 
     return cleanup;
-  }, []); // Remove x, y, onComplete from dependencies to prevent re-runs
+  }, [x, y, onComplete]);
 
   const renderShape = (piece: ConfettiPiece) => {
     const style = {
@@ -113,6 +122,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
       backgroundColor: piece.color,
       transform: `rotate(${piece.rotation}deg)`,
       pointerEvents: 'none' as const,
+      zIndex: 10000, // Ensure it's above everything
     };
 
     switch (piece.shape) {
@@ -140,6 +150,10 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
     }
   };
 
+  if (pieces.length === 0) {
+    return null;
+  }
+
   return createPortal(
     <div style={{
       position: 'fixed',
@@ -148,7 +162,8 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
       width: '100vw',
       height: '100vh',
       pointerEvents: 'none',
-      zIndex: 9999,
+      zIndex: 10000, // Very high z-index
+      overflow: 'hidden',
     }}>
       {pieces.map(renderShape)}
     </div>,

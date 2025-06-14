@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Timer } from "../types";
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +16,7 @@ export const useTimers = () => {
 
   // Clear confetti trigger function
   const clearConfettiTrigger = useCallback(() => {
+    console.log('🧹 Clearing confetti trigger');
     if (confettiTimeoutRef.current) {
       clearTimeout(confettiTimeoutRef.current);
     }
@@ -310,6 +312,8 @@ export const useTimers = () => {
         category,
       };
       
+      console.log('➕ Adding new timer:', newTimer.name);
+      
       // Get currently running timers before optimistic update
       const runningTimers = timers.filter(t => t.isRunning);
       
@@ -367,12 +371,14 @@ export const useTimers = () => {
       // Trigger confetti animation at center of screen
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
+      console.log('🎉 Triggering confetti at:', { x: centerX, y: centerY });
       setConfettiTrigger({ x: centerX, y: centerY, id: newTimer.id });
       
-      // Auto-clear confetti after 3 seconds as fallback
+      // Auto-clear confetti after 4 seconds as fallback
       confettiTimeoutRef.current = setTimeout(() => {
+        console.log('⏰ Auto-clearing confetti after timeout');
         setConfettiTrigger(null);
-      }, 3000);
+      }, 4000);
       
       // Show success message
       if (runningTimers.length > 0) {
