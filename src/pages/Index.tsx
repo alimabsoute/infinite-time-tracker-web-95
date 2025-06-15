@@ -10,6 +10,10 @@ import CreateTimerForm from "../components/CreateTimerForm";
 import ConfettiAnimation from "../components/animations/ConfettiAnimation";
 import TimerLimitIndicator from "../components/premium/TimerLimitIndicator";
 import NotificationPrompt from "../components/notifications/NotificationPrompt";
+import PomodoroDashboard from "../components/pomodoro/PomodoroDashboard";
+import PomodoroSettingsComponent from "../components/pomodoro/PomodoroSettings";
+import { DEFAULT_POMODORO_SETTINGS } from "../types/pomodoro";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -32,6 +36,23 @@ const Index = () => {
   const { isNotificationSupported, hasPermission, preferences } = useNotifications();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
+  const [activeTab, setActiveTab] = useState('timers');
+
+  // Pomodoro settings state
+  const [pomodoroSettings, setPomodoroSettings] = useState(DEFAULT_POMODORO_SETTINGS);
+
+  // Load Pomodoro settings from localStorage
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('pomodoro-settings');
+    if (savedSettings) {
+      try {
+        const settings = JSON.parse(savedSettings);
+        setPomodoroSettings(settings);
+      } catch (error) {
+        console.error('Error loading Pomodoro settings:', error);
+      }
+    }
+  }, []);
 
   // Check if we should show the notification prompt
   useEffect(() => {
@@ -51,7 +72,6 @@ const Index = () => {
   };
 
   const handleAddTimer = async (name: string) => {
-    // Double-check the limit before creating
     if (!canCreateTimer(timers.length)) {
       const limit = getTimerLimit();
       toast.error("Timer limit reached", {
@@ -72,6 +92,12 @@ const Index = () => {
     if (url) {
       window.open(url, '_blank');
     }
+  };
+
+  const handlePomodoroSettingsChange = (settings: typeof DEFAULT_POMODORO_SETTINGS) => {
+    setPomodoroSettings(settings);
+    localStorage.setItem('pomodoro-settings', JSON.stringify(settings));
+    toast.success("Pomodoro settings updated");
   };
 
   if (loading) {
@@ -134,25 +160,55 @@ const Index = () => {
         </div>
       )}
 
-      <div className="space-y-8">
-        <CreateTimerForm 
-          onAddTimer={handleAddTimer} 
-          currentTimerCount={timers.length}
-        />
-        
-        <TimerList
-          timers={timers}
-          onToggle={toggleTimer}
-          onReset={resetTimer}
-          onDelete={deleteTimer}
-          onRename={renameTimer}
-          onUpdateDeadline={updateDeadline}
-          onUpdatePriority={updatePriority}
-          onReorder={reorderTimers}
-          newTimerId={newTimerId}
-          onCreateTimer={() => handleAddTimer("New Timer")}
-        />
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsTrigger value="timers">Timers</TabsTrigger>
+          <TabsTrigger value="pomodoro">Pomodoro</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="timers" className="space-y-8">
+          <CreateTimerForm 
+            onAddTimer={handleAddTimer} 
+            currentTimerCount={timers.length}
+          />
+          
+          <TimerList
+            timers={timers}
+            onToggle={toggleTimer}
+            onReset={resetTimer}
+            onDelete={deleteTimer}
+            onRename={renameTimer}
+            onUpdateDeadline={updateDeadline}
+            onUpdatePriority={updatePriority}
+            onReorder={reorderTimers}
+            newTimerId={newTimerId}
+            onCreateTimer={() => handleAddTimer("New Timer")}
+          />
+        </TabsContent>
+
+        <TabsContent value="pomodoro" className="space-y-6">
+          <PomodoroDashboard timers={timers} />
+          
+          {timers.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">
+                Create some timers to start using the Pomodoro technique
+              </p>
+              <Button onClick={() => setActiveTab('timers')}>
+                Go to Timers
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          <PomodoroSettingsComponent
+            settings={pomodoroSettings}
+            onSettingsChange={handlePomodoroSettingsChange}
+          />
+        </TabsContent>
+      </Tabs>
       
       {/* Confetti Animation */}
       {confettiTrigger && (

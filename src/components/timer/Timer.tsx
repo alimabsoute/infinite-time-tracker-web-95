@@ -9,8 +9,11 @@ import TimerControls from './TimerControls';
 import TimerMetadata from './TimerMetadata';
 import TimerEditForm from './TimerEditForm';
 import PomodoroTimer from '../pomodoro/PomodoroTimer';
+import PomodoroStats from '../pomodoro/PomodoroStats';
 import DeletionAnimation from '../animations/DeletionAnimations';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { usePomodoro } from '@/hooks/usePomodoro';
 
 type TimerProps = {
   timer: TimerType;
@@ -35,6 +38,9 @@ const Timer = ({
 }: TimerProps) => {
   const { id, name, elapsedTime, isRunning, category, deadline, priority } = timer;
 
+  // Pomodoro integration
+  const { pomodoroState } = usePomodoro(id);
+
   // State variables
   const [isEditing, setIsEditing] = useState(isNew);
   const [editedName, setEditedName] = useState(name);
@@ -54,17 +60,12 @@ const Timer = ({
   const timerColorClass = getTimerColorClass(id);
   const timerColor = `hsl(var(--timer-color))`;
 
-  // Calculate total sessions (for display purposes)
-  const sessionCount = 1; // Default to 1 if not available
-
-  // Update time while running - FIXED to use a local interval that doesn't reset
+  // Update time while running
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
     
-    // Set current time to match elapsed time from props when timer changes or stops
     setCurrentTime(elapsedTime);
     
-    // Start a local interval for display updates
     if (isRunning) {
       interval = setInterval(() => {
         setCurrentTime(prevTime => prevTime + 1000);
@@ -96,7 +97,6 @@ const Timer = ({
   const handleCategoryChange = (value: string) => {
     setEditedCategory(value);
     if (!isEditing) {
-      // Convert "uncategorized" back to empty string for the data model
       onRename(id, name, value === "uncategorized" ? undefined : value);
     }
   };
@@ -124,6 +124,9 @@ const Timer = ({
 
   // Check if deadline is past
   const isOverdue = deadline && new Date(deadline) < new Date();
+
+  // Determine if Pomodoro is active for this timer
+  const isPomodoroActive = pomodoroState.isActive && pomodoroState.currentSession?.timerId === id;
 
   const timerContent = (
     <div 
@@ -154,10 +157,26 @@ const Timer = ({
               onDeleteClick={handleDelete}
             />
             
+            {/* Pomodoro Status Badge */}
+            {isPomodoroActive && (
+              <div className="mb-2 flex justify-center">
+                <Badge variant="secondary" className="text-xs bg-red-100 text-red-700 border-red-200">
+                  🍅 {pomodoroState.currentPhase?.replace('-', ' ')} session
+                </Badge>
+              </div>
+            )}
+            
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-3">
                 <TabsTrigger value="timer" className="text-xs">Timer</TabsTrigger>
-                <TabsTrigger value="pomodoro" className="text-xs">Pomodoro</TabsTrigger>
+                <TabsTrigger value="pomodoro" className="text-xs">
+                  Pomodoro
+                  {pomodoroState.sessionCount > 0 && (
+                    <Badge variant="outline" className="ml-1 h-4 text-[0.6rem] px-1">
+                      {pomodoroState.sessionCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="timer" className="space-y-0">
@@ -188,6 +207,11 @@ const Timer = ({
                     />
                   </div>
                 </div>
+                
+                {/* Pomodoro Quick Stats */}
+                {pomodoroState.totalSessions > 0 && (
+                  <PomodoroStats timerId={id} compact />
+                )}
               </TabsContent>
               
               <TabsContent value="pomodoro" className="space-y-0">
@@ -200,11 +224,11 @@ const Timer = ({
             </Tabs>
             
             {/* Running indicator pulse */}
-            {isRunning && (
+            {(isRunning || isPomodoroActive) && (
               <div className="absolute top-1 right-1 flex items-center">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: timerColor }}></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: timerColor }}></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: isPomodoroActive ? '#ef4444' : timerColor }}></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: isPomodoroActive ? '#ef4444' : timerColor }}></span>
                 </span>
               </div>
             )}

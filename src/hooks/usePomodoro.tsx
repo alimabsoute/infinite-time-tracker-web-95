@@ -36,6 +36,37 @@ export const usePomodoro = (timerId?: string) => {
     }
   }, []);
 
+  // Load session data from localStorage for the specific timer
+  useEffect(() => {
+    if (!timerId) return;
+
+    const savedSessionData = localStorage.getItem(`pomodoro-session-${timerId}`);
+    if (savedSessionData) {
+      try {
+        const sessionData = JSON.parse(savedSessionData);
+        setPomodoroState(prev => ({
+          ...prev,
+          sessionCount: sessionData.sessionCount || 0,
+          totalSessions: sessionData.totalSessions || 0,
+        }));
+      } catch (error) {
+        console.error('Error loading Pomodoro session data:', error);
+      }
+    }
+  }, [timerId]);
+
+  // Save session data to localStorage
+  const saveSessionData = useCallback((sessionCount: number, totalSessions: number) => {
+    if (!timerId) return;
+    
+    const sessionData = {
+      sessionCount,
+      totalSessions,
+      lastUpdated: new Date().toISOString(),
+    };
+    localStorage.setItem(`pomodoro-session-${timerId}`, JSON.stringify(sessionData));
+  }, [timerId]);
+
   // Save settings to localStorage
   const saveSettings = useCallback((settings: PomodoroSettings) => {
     localStorage.setItem('pomodoro-settings', JSON.stringify(settings));
@@ -66,19 +97,24 @@ export const usePomodoro = (timerId?: string) => {
       sessionNumber: pomodoroState.sessionCount + 1,
     };
 
+    const newSessionCount = type === 'work' ? pomodoroState.sessionCount + 1 : pomodoroState.sessionCount;
+    
     setPomodoroState(prev => ({
       ...prev,
       isActive: true,
       currentSession: newSession,
       currentPhase: type,
-      sessionCount: type === 'work' ? prev.sessionCount + 1 : prev.sessionCount,
+      sessionCount: newSessionCount,
     }));
+
+    // Save session data
+    saveSessionData(newSessionCount, pomodoroState.totalSessions);
 
     toast({
       title: `${type === 'work' ? 'Work' : 'Break'} session started`,
       description: `${Math.floor(duration / 60000)} minutes on the clock`,
     });
-  }, [timerId, pomodoroState.settings, pomodoroState.sessionCount, toast]);
+  }, [timerId, pomodoroState.settings, pomodoroState.sessionCount, pomodoroState.totalSessions, toast, saveSessionData]);
 
   // Complete current session
   const completePomodoroSession = useCallback(() => {
@@ -92,7 +128,6 @@ export const usePomodoro = (timerId?: string) => {
 
     // Play notification sound if enabled
     if (pomodoroState.settings.soundEnabled) {
-      // Create a simple beep sound
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
@@ -132,13 +167,18 @@ export const usePomodoro = (timerId?: string) => {
       });
     }
 
+    const newTotalSessions = pomodoroState.totalSessions + 1;
+
     setPomodoroState(prev => ({
       ...prev,
       isActive: false,
       currentSession: null,
       currentPhase: shouldAutoStart && nextPhase ? nextPhase : 'idle',
-      totalSessions: prev.totalSessions + 1,
+      totalSessions: newTotalSessions,
     }));
+
+    // Save updated session data
+    saveSessionData(pomodoroState.sessionCount, newTotalSessions);
 
     // Auto-start next session if enabled
     if (shouldAutoStart && nextPhase) {
@@ -146,7 +186,7 @@ export const usePomodoro = (timerId?: string) => {
         startPomodoroSession(nextPhase);
       }, 1000);
     }
-  }, [pomodoroState, toast, startPomodoroSession]);
+  }, [pomodoroState, toast, startPomodoroSession, saveSessionData]);
 
   // Stop current session
   const stopPomodoroSession = useCallback(() => {
@@ -174,11 +214,16 @@ export const usePomodoro = (timerId?: string) => {
       currentPhase: 'idle',
     }));
 
+    // Clear saved session data
+    if (timerId) {
+      localStorage.removeItem(`pomodoro-session-${timerId}`);
+    }
+
     toast({
       title: "Pomodoro cycle reset",
       description: "Starting fresh with a new cycle",
     });
-  }, [toast]);
+  }, [toast, timerId]);
 
   return {
     pomodoroState,
