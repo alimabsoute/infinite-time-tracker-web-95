@@ -252,14 +252,14 @@ export const renderDay = (
       </motion.div>
     );
 
-    // Use HoverCard with optimized delay
+    // Use HoverCard with increased delays to prevent blinking
     if (hasActivity || hasDeadlines || hasTimerSessions) {
       return (
-        <HoverCard openDelay={300} closeDelay={150}>
+        <HoverCard openDelay={500} closeDelay={300}>
           <HoverCardTrigger asChild>
             {dayContent}
           </HoverCardTrigger>
-          <HoverCardContent side="top" className="z-50 w-auto p-3">
+          <HoverCardContent side="top" className="z-50 w-auto p-3" avoidCollisions={true}>
             {tooltipContent}
           </HoverCardContent>
         </HoverCard>
