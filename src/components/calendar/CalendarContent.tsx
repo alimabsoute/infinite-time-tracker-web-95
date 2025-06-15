@@ -2,12 +2,15 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, Activity } from "lucide-react";
+import { CalendarIcon, Activity, Crown } from "lucide-react";
 import CalendarMainView from "./CalendarMainView";
 import WeekView from "./WeekView";
 import ActivityVisualization from "./ActivityVisualization";
+import PremiumFeatureGate from "../premium/PremiumFeatureGate";
+import PremiumBadge from "../premium/PremiumBadge";
 import { Timer, TimerSessionWithTimer } from "../../types";
 import { formatTime } from "./CalendarUtils";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 interface CalendarContentProps {
   currentMonth: Date;
@@ -36,6 +39,8 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
   setCategoryFilter,
   categories,
 }) => {
+  const { subscribed } = useSubscription();
+
   return (
     <Tabs defaultValue="calendar" className="w-full mb-6">
       <TabsList className="grid grid-cols-2 w-full mb-4">
@@ -43,9 +48,10 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
           <CalendarIcon className="mr-2 h-4 w-4" />
           Calendar
         </TabsTrigger>
-        <TabsTrigger value="analytics">
+        <TabsTrigger value="analytics" className="relative">
           <Activity className="mr-2 h-4 w-4" />
           Advanced Analytics
+          {!subscribed && <Crown className="ml-1 h-3 w-3" />}
         </TabsTrigger>
       </TabsList>
       
@@ -79,11 +85,24 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          <ActivityVisualization
-            filteredTimers={timers} // This component might need deeper changes
-            sessions={sessions}
-            formatTime={formatTime}
-          />
+          {subscribed ? (
+            <ActivityVisualization
+              filteredTimers={timers} // This component might need deeper changes
+              sessions={sessions}
+              formatTime={formatTime}
+            />
+          ) : (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Advanced Analytics</h3>
+                <PremiumBadge />
+              </div>
+              <PremiumFeatureGate 
+                feature="Advanced Calendar Analytics" 
+                description="Unlock detailed productivity insights, heatmaps, trend analysis, and advanced calendar visualizations."
+              />
+            </div>
+          )}
         </motion.div>
       </TabsContent>
     </Tabs>

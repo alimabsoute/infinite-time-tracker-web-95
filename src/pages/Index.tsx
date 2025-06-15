@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useTimers } from "../hooks/useTimers";
 import { useSubscription } from "../contexts/SubscriptionContext";
@@ -6,6 +7,7 @@ import Header from "../components/Header";
 import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import ConfettiAnimation from "../components/animations/ConfettiAnimation";
+import TimerLimitIndicator from "../components/premium/TimerLimitIndicator";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -68,6 +70,13 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
+        {/* Premium Timer Limit Indicator */}
+        {!subscribed && (
+          <div className="mb-6">
+            <TimerLimitIndicator currentCount={timers.length} />
+          </div>
+        )}
+
         {/* Subscription Status Banner */}
         {!subscribed && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">

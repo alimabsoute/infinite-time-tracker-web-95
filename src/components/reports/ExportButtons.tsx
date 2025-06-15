@@ -1,19 +1,38 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { Download, FileSpreadsheet, FileText, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TimerReportData } from '../../hooks/useTimerReports';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import PremiumBadge from '../premium/PremiumBadge';
 
 interface ExportButtonsProps {
   data: TimerReportData[];
 }
 
 const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
+  const { subscribed, createCheckoutSession } = useSubscription();
+
+  const handlePremiumAction = async () => {
+    if (!subscribed) {
+      const url = await createCheckoutSession();
+      if (url) {
+        window.open(url, '_blank');
+      }
+      return;
+    }
+  };
+
   const exportToCSV = () => {
+    if (!subscribed) {
+      handlePremiumAction();
+      return;
+    }
+
     try {
       const headers = [
         'Timer Name',
@@ -61,6 +80,11 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
   };
 
   const exportToExcel = () => {
+    if (!subscribed) {
+      handlePremiumAction();
+      return;
+    }
+
     try {
       const worksheet = XLSX.utils.json_to_sheet(
         data.map(row => ({
@@ -102,6 +126,11 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
   };
 
   const exportToPDF = () => {
+    if (!subscribed) {
+      handlePremiumAction();
+      return;
+    }
+
     try {
       const doc = new jsPDF();
       
@@ -162,18 +191,59 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data }) => {
 
   return (
     <div className="flex gap-2">
-      <Button onClick={exportToCSV} variant="outline" size="sm" className="gap-2">
-        <Download size={16} />
-        CSV
-      </Button>
-      <Button onClick={exportToExcel} variant="outline" size="sm" className="gap-2">
-        <FileSpreadsheet size={16} />
-        Excel
-      </Button>
-      <Button onClick={exportToPDF} variant="outline" size="sm" className="gap-2">
-        <FileText size={16} />
-        PDF
-      </Button>
+      <div className="relative">
+        <Button 
+          onClick={exportToCSV} 
+          variant="outline" 
+          size="sm" 
+          className={`gap-2 ${!subscribed ? 'opacity-60' : ''}`}
+        >
+          <Download size={16} />
+          CSV
+          {!subscribed && <Crown size={12} />}
+        </Button>
+        {!subscribed && (
+          <div className="absolute -top-1 -right-1">
+            <PremiumBadge />
+          </div>
+        )}
+      </div>
+      
+      <div className="relative">
+        <Button 
+          onClick={exportToExcel} 
+          variant="outline" 
+          size="sm" 
+          className={`gap-2 ${!subscribed ? 'opacity-60' : ''}`}
+        >
+          <FileSpreadsheet size={16} />
+          Excel
+          {!subscribed && <Crown size={12} />}
+        </Button>
+        {!subscribed && (
+          <div className="absolute -top-1 -right-1">
+            <PremiumBadge />
+          </div>
+        )}
+      </div>
+      
+      <div className="relative">
+        <Button 
+          onClick={exportToPDF} 
+          variant="outline" 
+          size="sm" 
+          className={`gap-2 ${!subscribed ? 'opacity-60' : ''}`}
+        >
+          <FileText size={16} />
+          PDF
+          {!subscribed && <Crown size={12} />}
+        </Button>
+        {!subscribed && (
+          <div className="absolute -top-1 -right-1">
+            <PremiumBadge />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

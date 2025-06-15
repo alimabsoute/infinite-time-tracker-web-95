@@ -2,13 +2,18 @@
 import React from 'react';
 import { TimerReportData } from '../../hooks/useTimerReports';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, Play, Pause, Calendar, Trash2 } from 'lucide-react';
+import { Clock, Play, Pause, Calendar, Trash2, Crown } from 'lucide-react';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import PremiumFeatureGate from '../premium/PremiumFeatureGate';
+import PremiumBadge from '../premium/PremiumBadge';
 
 interface ReportsSummaryProps {
   reportData: TimerReportData[];
 }
 
 const ReportsSummary: React.FC<ReportsSummaryProps> = ({ reportData }) => {
+  const { subscribed } = useSubscription();
+
   const formatTime = (ms: number): string => {
     const totalSeconds = Math.floor(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
@@ -38,6 +43,21 @@ const ReportsSummary: React.FC<ReportsSummaryProps> = ({ reportData }) => {
     (max, [category, count]) => count > max.count ? { category, count } : max,
     { category: 'None', count: 0 }
   );
+
+  if (!subscribed) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Reports Summary</h3>
+          <PremiumBadge />
+        </div>
+        <PremiumFeatureGate 
+          feature="Advanced Reports & Analytics" 
+          description="Get detailed insights into your productivity with comprehensive reports, time tracking analytics, and export capabilities."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
