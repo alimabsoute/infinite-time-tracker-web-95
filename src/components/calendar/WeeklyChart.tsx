@@ -35,46 +35,87 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
 }) => {
   const config = getChartConfig(averageHours);
 
-  // Enhanced debug logging
-  console.log('🔍 WeeklyChart - Rendering with data:', {
+  // Enhanced debug logging with data validation
+  console.log('🔍 WeeklyChart - Comprehensive Data Analysis:', {
     weekDataLength: weekData.length,
-    averageHours: averageHours.toFixed(3),
+    averageHours: averageHours.toFixed(4),
     chartType,
     selectedDate: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none',
     weekData: weekData.map(d => ({
       day: d.day,
       date: format(d.date, 'yyyy-MM-dd'),
-      totalHours: d.totalHours.toFixed(3),
+      totalHours: d.totalHours.toFixed(4),
+      totalMinutes: Math.round(d.totalHours * 60),
       timers: d.timers,
-      hasData: d.totalHours > 0
-    }))
+      hasData: d.totalHours > 0,
+      isValidDate: d.date instanceof Date && !isNaN(d.date.getTime())
+    })),
+    dataValidation: {
+      allDatesValid: weekData.every(d => d.date instanceof Date && !isNaN(d.date.getTime())),
+      allHoursNumbers: weekData.every(d => typeof d.totalHours === 'number' && !isNaN(d.totalHours)),
+      hasAnyData: weekData.some(d => d.totalHours > 0),
+      maxHours: Math.max(...weekData.map(d => d.totalHours), 0),
+      totalWeekHours: weekData.reduce((sum, d) => sum + d.totalHours, 0)
+    }
   });
 
-  // Check for data validity
+  // Validate data before rendering
+  const hasValidData = weekData.length > 0 && weekData.every(d => 
+    d.date instanceof Date && 
+    !isNaN(d.date.getTime()) && 
+    typeof d.totalHours === 'number' && 
+    !isNaN(d.totalHours)
+  );
+
+  if (!hasValidData) {
+    console.error('❌ WeeklyChart - Invalid data detected:', {
+      weekDataLength: weekData.length,
+      invalidItems: weekData.filter(d => 
+        !(d.date instanceof Date) || 
+        isNaN(d.date.getTime()) || 
+        typeof d.totalHours !== 'number' || 
+        isNaN(d.totalHours)
+      )
+    });
+    return (
+      <div className="h-[330px] flex items-center justify-center">
+        <p className="text-muted-foreground">Invalid chart data</p>
+      </div>
+    );
+  }
+
   const hasAnyData = weekData.some(d => d.totalHours > 0);
   const maxHours = Math.max(...weekData.map(d => d.totalHours), 0);
   
-  console.log('🔍 WeeklyChart - Data analysis:', {
-    hasAnyData,
-    maxHours: maxHours.toFixed(3),
-    totalWeekHours: weekData.reduce((sum, d) => sum + d.totalHours, 0).toFixed(3)
-  });
-
   if (!hasAnyData) {
-    console.log('⚠️ WeeklyChart - No data to display');
+    console.log('⚠️ WeeklyChart - No data to display for this week');
+    return (
+      <div className="h-[330px] flex items-center justify-center">
+        <p className="text-muted-foreground">No activity data for this week</p>
+      </div>
+    );
   }
 
   const handleChartClick = (data: any) => {
     console.log('🔍 WeeklyChart - Chart clicked:', data);
     if (data?.activePayload?.[0]?.payload) {
       const payload = data.activePayload[0].payload;
-      console.log('🔍 WeeklyChart - Clicking with payload:', payload);
+      console.log('🔍 WeeklyChart - Clicking with payload:', {
+        date: payload.date,
+        day: payload.day,
+        totalHours: payload.totalHours,
+        timers: payload.timers
+      });
       onBarClick(payload);
     }
   };
 
   const handleBarMouseEnter = (data: any) => {
-    console.log('🔍 WeeklyChart - Bar hover enter:', data);
+    console.log('🔍 WeeklyChart - Bar hover enter:', {
+      date: data?.date,
+      day: data?.day,
+      totalHours: data?.totalHours
+    });
     if (data?.date) {
       onHoverDay(data.date);
     }
@@ -84,6 +125,9 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
     console.log('🔍 WeeklyChart - Bar hover leave');
     onHoverDay(null);
   };
+
+  // Calculate appropriate Y-axis domain
+  const yAxisMax = Math.max(maxHours * 1.2, 0.5); // Ensure minimum scale
 
   return (
     <div className="h-[330px]">
@@ -96,7 +140,7 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
             <XAxis dataKey="day" {...config.xAxisProps} />
-            <YAxis {...config.yAxisProps} domain={[0, Math.max(maxHours * 1.1, 0.5)]} />
+            <YAxis {...config.yAxisProps} domain={[0, yAxisMax]} />
             <ReferenceLine {...config.referenceLineProps} />
             <Tooltip 
               content={(props) => <WeeklyChartTooltip {...props} formatTime={formatTime} />}
@@ -115,7 +159,7 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
           <LineChart data={weekData} margin={config.margin} onClick={handleChartClick}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
             <XAxis dataKey="day" {...config.xAxisProps} />
-            <YAxis {...config.yAxisProps} domain={[0, Math.max(maxHours * 1.1, 0.5)]} />
+            <YAxis {...config.yAxisProps} domain={[0, yAxisMax]} />
             <Tooltip
               content={(props) => <WeeklyChartTooltip {...props} formatTime={formatTime} />}
               wrapperStyle={{ outline: 'none' }}

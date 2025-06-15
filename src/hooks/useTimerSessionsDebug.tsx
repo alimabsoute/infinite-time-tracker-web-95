@@ -5,22 +5,33 @@ import { useAuth } from "../contexts/AuthContext";
 import { TimerSessionWithTimer } from "../types";
 import { parseISO, isValid, format } from 'date-fns';
 
+interface ValidationStats {
+  totalSessions: number;
+  validSessions: number;
+  invalidSessions: number;
+  errors: string[];
+  warnings: string[];
+}
+
 export const useTimerSessionsDebug = () => {
   const [sessions, setSessions] = useState<TimerSessionWithTimer[]>([]);
   const [loading, setLoading] = useState(true);
   const [debugInfo, setDebugInfo] = useState<any>({});
+  const [validationStats, setValidationStats] = useState<ValidationStats | null>(null);
   const { user } = useAuth();
 
   useEffect(() => {
     if (!user) {
       setSessions([]);
       setLoading(false);
+      setDebugInfo({ error: 'No authenticated user' });
       return;
     }
 
-    const loadAndDebugSessions = async () => {
+    const loadAndValidateSessions = async () => {
       try {
         setLoading(true);
+        console.log('🔍 Loading sessions for user:', user.id);
         
         const { data, error } = await supabase
           .from('timer_sessions')
@@ -36,103 +47,119 @@ export const useTimerSessionsDebug = () => {
           .order('start_time', { ascending: false });
 
         if (error) {
-          console.error("Error loading timer sessions:", error);
+          console.error("❌ Error loading timer sessions:", error);
           setSessions([]);
-          setDebugInfo({ error: error.message });
+          setDebugInfo({ error: error.message, code: error.code });
           return;
         }
 
         const rawSessions = data || [];
-        console.log('🔍 Raw sessions from database:', rawSessions.length);
+        console.log('✅ Successfully loaded', rawSessions.length, 'raw sessions');
 
-        // Debug session data structure
-        const debugData = {
+        // Comprehensive validation and processing
+        const validationStats: ValidationStats = {
           totalSessions: rawSessions.length,
           validSessions: 0,
           invalidSessions: 0,
-          sessionsWithDuration: 0,
-          sessionsByDate: {} as Record<string, number>,
-          dateParsingErrors: [] as string[],
-          sampleSessions: [] as any[]
+          errors: [],
+          warnings: []
         };
 
         const processedSessions: TimerSessionWithTimer[] = [];
+        const sessionsByDate: Record<string, number> = {};
+        const sampleSessions: any[] = [];
 
-        rawSessions.forEach((session, index) => {
-          console.log(`🔍 Processing session ${index + 1}/${rawSessions.length}:`, {
-            id: session.id,
-            start_time: session.start_time,
-            duration_ms: session.duration_ms,
-            timer_name: session.timers?.name
-          });
-
-          // Validate start_time
-          if (!session.start_time) {
-            debugData.invalidSessions++;
-            debugData.dateParsingErrors.push(`Session ${session.id}: missing start_time`);
-            return;
-          }
-
+        for (const [index, session] of rawSessions.entries()) {
+          const sessionId = session.id || `session-${index}`;
+          
           try {
+            // Validate start_time
+            if (!session.start_time) {
+              validationStats.errors.push(`Session ${sessionId}: Missing start_time`);
+              validationStats.invalidSessions++;
+              continue;
+            }
+
             const startDate = parseISO(session.start_time);
             if (!isValid(startDate)) {
-              debugData.invalidSessions++;
-              debugData.dateParsingErrors.push(`Session ${session.id}: invalid start_time ${session.start_time}`);
-              return;
+              validationStats.errors.push(`Session ${sessionId}: Invalid start_time ${session.start_time}`);
+              validationStats.invalidSessions++;
+              continue;
             }
 
             // Track by date
             const dateKey = format(startDate, 'yyyy-MM-dd');
-            debugData.sessionsByDate[dateKey] = (debugData.sessionsByDate[dateKey] || 0) + 1;
+            sessionsByDate[dateKey] = (sessionsByDate[dateKey] || 0) + 1;
 
-            // Check duration
-            if (session.duration_ms && session.duration_ms > 0) {
-              debugData.sessionsWithDuration++;
+            // Validate duration
+            if (session.duration_ms !== null && session.duration_ms !== undefined) {
+              if (typeof session.duration_ms !== 'number' || session.duration_ms < 0) {
+                validationStats.warnings.push(`Session ${sessionId}: Invalid duration ${session.duration_ms}`);
+              }
             }
 
-            debugData.validSessions++;
+            // Add to valid sessions
             processedSessions.push(session);
+            validationStats.validSessions++;
 
-            // Sample data for debugging
-            if (debugData.sampleSessions.length < 5) {
-              debugData.sampleSessions.push({
+            // Collect sample data
+            if (sampleSessions.length < 5) {
+              sampleSessions.push({
                 id: session.id,
                 start_time: session.start_time,
                 parsed_date: format(startDate, 'yyyy-MM-dd HH:mm:ss'),
                 duration_ms: session.duration_ms,
-                duration_minutes: session.duration_ms ? Math.round(session.duration_ms / 60000) : 0,
-                timer_name: session.timers?.name || 'Unknown'
+                duration_hours: session.duration_ms ? (session.duration_ms / 3600000).toFixed(3) : 0,
+                timer_name: session.timers?.name || 'Unknown',
+                timer_category: session.timers?.category || 'Uncategorized'
               });
             }
 
           } catch (error) {
-            debugData.invalidSessions++;
-            debugData.dateParsingErrors.push(`Session ${session.id}: parsing error ${error}`);
+            validationStats.errors.push(`Session ${sessionId}: Processing error ${error}`);
+            validationStats.invalidSessions++;
           }
-        });
+        }
 
-        console.log('🔍 Session processing complete:', debugData);
-        console.log('🔍 Sessions by date:', debugData.sessionsByDate);
-        console.log('🔍 Sample sessions:', debugData.sampleSessions);
+        const finalDebugInfo = {
+          totalRawSessions: rawSessions.length,
+          validSessions: validationStats.validSessions,
+          invalidSessions: validationStats.invalidSessions,
+          validationRate: `${((validationStats.validSessions / rawSessions.length) * 100).toFixed(1)}%`,
+          sessionsByDate,
+          sampleSessions,
+          errors: validationStats.errors,
+          warnings: validationStats.warnings,
+          totalHoursTracked: processedSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0) / 3600000,
+          dateRange: processedSessions.length > 0 ? {
+            earliest: format(parseISO(processedSessions[processedSessions.length - 1].start_time), 'yyyy-MM-dd'),
+            latest: format(parseISO(processedSessions[0].start_time), 'yyyy-MM-dd')
+          } : null
+        };
+
+        console.log('🔍 Complete session validation result:', finalDebugInfo);
 
         setSessions(processedSessions);
-        setDebugInfo(debugData);
+        setDebugInfo(finalDebugInfo);
+        setValidationStats(validationStats);
         
       } catch (error) {
-        console.error("Exception loading timer sessions:", error);
+        console.error("❌ Exception during session loading:", error);
         setSessions([]);
         setDebugInfo({ exception: String(error) });
+        setValidationStats(null);
       } finally {
         setLoading(false);
       }
     };
 
-    loadAndDebugSessions();
+    loadAndValidateSessions();
   }, [user]);
 
   return {
     sessions,
     loading,
-    debugInfo
+    debugInfo,
+    validationStats
   };
 };

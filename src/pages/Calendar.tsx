@@ -13,10 +13,28 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());
   const [categoryFilter, setCategoryFilter] = React.useState('all');
 
-  // Log debug info for troubleshooting
+  // Enhanced debug logging
   React.useEffect(() => {
-    console.log('📊 Calendar Debug Info:', debugInfo);
-  }, [debugInfo]);
+    console.log('📊 Calendar Component - Full Debug State:', {
+      timersCount: timers.length,
+      sessionsCount: sessions.length,
+      sessionsLoading,
+      debugInfo,
+      currentMonth: currentMonth.toISOString(),
+      selectedDate: selectedDate?.toISOString(),
+      categoryFilter
+    });
+
+    // Log sample sessions for verification
+    if (sessions.length > 0) {
+      console.log('📊 Calendar - Sample Sessions Data:', sessions.slice(0, 3).map(s => ({
+        id: s.id,
+        start_time: s.start_time,
+        duration_ms: s.duration_ms,
+        timer_name: s.timers?.name
+      })));
+    }
+  }, [timers, sessions, sessionsLoading, debugInfo, currentMonth, selectedDate, categoryFilter]);
 
   const handleMonthChange = (direction: 'prev' | 'next') => {
     const newMonth = new Date(currentMonth);
@@ -26,6 +44,7 @@ const Calendar = () => {
       newMonth.setMonth(currentMonth.getMonth() + 1);
     }
     setCurrentMonth(newMonth);
+    console.log('📅 Month changed to:', newMonth.toISOString());
   };
 
   // Get unique categories from timers
