@@ -99,12 +99,6 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
                         {format(new Date(timer.createdAt), 'HH:mm')}
                       </div>
                     </div>
-                    
-                    {timer.description && (
-                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                        {timer.description}
-                      </p>
-                    )}
                   </div>
                 </div>
               </CardContent>
