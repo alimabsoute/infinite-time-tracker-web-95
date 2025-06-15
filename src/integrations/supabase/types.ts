@@ -9,6 +9,157 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      goal_milestones: {
+        Row: {
+          achieved_at: string | null
+          created_at: string
+          description: string | null
+          goal_id: string
+          id: string
+          target_percentage: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          created_at?: string
+          description?: string | null
+          goal_id: string
+          id?: string
+          target_percentage: number
+          title: string
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string | null
+          created_at?: string
+          description?: string | null
+          goal_id?: string
+          id?: string
+          target_percentage?: number
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_milestones_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_progress: {
+        Row: {
+          created_at: string
+          date: string
+          goal_id: string
+          id: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          goal_id: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          goal_id?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_progress_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          category: string | null
+          completed_at: string | null
+          created_at: string
+          current_value: number
+          deadline: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          is_template: boolean | null
+          priority: number | null
+          start_date: string
+          status: string
+          target_value: number
+          template_name: string | null
+          timer_ids: string[] | null
+          title: string
+          type: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          deadline?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_template?: boolean | null
+          priority?: number | null
+          start_date?: string
+          status?: string
+          target_value: number
+          template_name?: string | null
+          timer_ids?: string[] | null
+          title: string
+          type: string
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          deadline?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_template?: boolean | null
+          priority?: number | null
+          start_date?: string
+          status?: string
+          target_value?: number
+          template_name?: string | null
+          timer_ids?: string[] | null
+          title?: string
+          type?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string

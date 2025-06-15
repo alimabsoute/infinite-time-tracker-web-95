@@ -11,6 +11,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
+import Goals from "./pages/Goals";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -58,6 +59,7 @@ const App = () => (
                   <Route path="/dashboard" element={<Index />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/reports" element={<Reports />} />
+                  <Route path="/goals" element={<Goals />} />
                   <Route path="/profile" element={<Profile />} />
                 </Route>
                 
