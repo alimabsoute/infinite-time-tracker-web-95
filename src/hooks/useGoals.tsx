@@ -23,7 +23,7 @@ export const useGoals = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setGoals(data || []);
+      setGoals((data || []) as Goal[]);
     } catch (error) {
       console.error('Error fetching goals:', error);
       toast({
@@ -36,7 +36,7 @@ export const useGoals = () => {
     }
   };
 
-  const createGoal = async (goalData: CreateGoalInput) => {
+  const createGoal = async (goalData: CreateGoalInput): Promise<Goal | null> => {
     if (!user) return null;
 
     try {
@@ -52,12 +52,13 @@ export const useGoals = () => {
 
       if (error) throw error;
 
-      setGoals(prev => [data, ...prev]);
+      const newGoal = data as Goal;
+      setGoals(prev => [newGoal, ...prev]);
       toast({
         title: "Success",
         description: "Goal created successfully!",
       });
-      return data;
+      return newGoal;
     } catch (error) {
       console.error('Error creating goal:', error);
       toast({
@@ -69,7 +70,7 @@ export const useGoals = () => {
     }
   };
 
-  const updateGoal = async (id: string, updates: Partial<Goal>) => {
+  const updateGoal = async (id: string, updates: Partial<Goal>): Promise<Goal | null> => {
     try {
       const { data, error } = await supabase
         .from('goals')
@@ -80,12 +81,13 @@ export const useGoals = () => {
 
       if (error) throw error;
 
-      setGoals(prev => prev.map(goal => goal.id === id ? data : goal));
+      const updatedGoal = data as Goal;
+      setGoals(prev => prev.map(goal => goal.id === id ? updatedGoal : goal));
       toast({
         title: "Success",
         description: "Goal updated successfully!",
       });
-      return data;
+      return updatedGoal;
     } catch (error) {
       console.error('Error updating goal:', error);
       toast({
