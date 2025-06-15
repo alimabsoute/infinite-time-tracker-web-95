@@ -1,10 +1,12 @@
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Timer } from "../types";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from "../contexts/AuthContext";
 import { useSubscription } from "../contexts/SubscriptionContext";
 import { toast } from "sonner";
+import { useBrowserEvents } from "./useBrowserEvents";
+import { useTimerPersistence } from "./useTimerPersistence";
+import { useTimerSync } from "./useTimerSync";
 
 export const useTimers = () => {
   const [timers, setTimers] = useState<Timer[]>([]);
@@ -13,6 +15,20 @@ export const useTimers = () => {
   const confettiTimeoutRef = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
   const { canCreateTimer, getTimerLimit } = useSubscription();
+  
+  // Persistence and sync hooks
+  const { saveTimerState, loadTimerState, clearTimerState, restoreTimerElapsedTime } = useTimerPersistence();
+  const { batchSyncTimers } = useTimerSync();
+  
+  // Refs for tracking state
+  const isPageVisibleRef = useRef(true);
+  const timersRef = useRef<Timer[]>([]);
+  const lastAutoSaveRef = useRef(0);
+
+  // Update timers ref when timers change
+  useEffect(() => {
+    timersRef.current = timers;
+  }, [timers]);
 
   // Clear confetti trigger function
   const clearConfettiTrigger = useCallback(() => {
@@ -23,29 +39,104 @@ export const useTimers = () => {
     setConfettiTrigger(null);
   }, []);
 
-  // Save running timers to localStorage when user logs out
-  useEffect(() => {
-    const saveRunningTimersOnLogout = () => {
-      const runningTimers = timers.filter(t => t.isRunning);
+  // Browser event handlers
+  const browserEventHandlers = {
+    onVisibilityChange: useCallback((isVisible: boolean) => {
+      isPageVisibleRef.current = isVisible;
+      
+      if (!isVisible) {
+        // Page hidden - save state and sync to database
+        saveTimerState(timersRef.current, 'visibility');
+        batchSyncTimers(timersRef.current, true);
+      } else {
+        // Page visible - restore any missed time
+        const persistenceData = loadTimerState();
+        if (persistenceData) {
+          setTimers(prevTimers => {
+            const restoredTimers = restoreTimerElapsedTime(prevTimers, persistenceData);
+            // Sync restored timers to database
+            batchSyncTimers(restoredTimers, true);
+            return restoredTimers;
+          });
+        }
+      }
+    }, [saveTimerState, batchSyncTimers, loadTimerState, restoreTimerElapsedTime]),
+
+    onBeforeUnload: useCallback(() => {
+      // Critical save before page unload
+      saveTimerState(timersRef.current, 'beforeunload');
+      // Force immediate sync to database
+      const runningTimers = timersRef.current.filter(t => t.isRunning);
       if (runningTimers.length > 0) {
-        const timerStates = runningTimers.map(timer => ({
+        // Use navigator.sendBeacon for reliable data sending during unload
+        const syncData = runningTimers.map(timer => ({
           id: timer.id,
-          logoutTime: Date.now(),
-          elapsedTimeAtLogout: timer.elapsedTime
+          elapsed_time: timer.elapsedTime,
+          is_running: timer.isRunning
         }));
-        localStorage.setItem('runningTimersState', JSON.stringify(timerStates));
+        
+        try {
+          // Attempt synchronous update for critical case
+          navigator.sendBeacon('/api/sync-timers', JSON.stringify(syncData));
+        } catch (error) {
+          console.error('Failed to send beacon:', error);
+        }
       }
-    };
+    }, [saveTimerState]),
 
-    // Listen for auth state changes to detect logout
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' && timers.length > 0) {
-        saveRunningTimersOnLogout();
+    onPageHide: useCallback(() => {
+      // More reliable than beforeunload on mobile
+      saveTimerState(timersRef.current, 'pagehide');
+      batchSyncTimers(timersRef.current, true);
+    }, [saveTimerState, batchSyncTimers]),
+
+    onPageShow: useCallback(() => {
+      // Restore state when page becomes visible again
+      const persistenceData = loadTimerState();
+      if (persistenceData) {
+        setTimers(prevTimers => {
+          const restoredTimers = restoreTimerElapsedTime(prevTimers, persistenceData);
+          batchSyncTimers(restoredTimers, true);
+          return restoredTimers;
+        });
       }
-    });
+    }, [loadTimerState, restoreTimerElapsedTime, batchSyncTimers]),
 
-    return () => subscription.unsubscribe();
-  }, [timers]);
+    onFocus: useCallback(() => {
+      // Window focused - check for timer restoration
+      const persistenceData = loadTimerState();
+      if (persistenceData) {
+        setTimers(prevTimers => restoreTimerElapsedTime(prevTimers, persistenceData));
+      }
+    }, [loadTimerState, restoreTimerElapsedTime]),
+
+    onBlur: useCallback(() => {
+      // Window lost focus - save current state
+      saveTimerState(timersRef.current, 'blur');
+    }, [saveTimerState])
+  };
+
+  // Register browser event handlers
+  useBrowserEvents(browserEventHandlers);
+
+  // Auto-save timer state periodically
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      const now = Date.now();
+      const timeSinceLastSave = now - lastAutoSaveRef.current;
+      
+      // Auto-save every 30 seconds if there are running timers
+      if (timeSinceLastSave > 30000) {
+        const runningTimers = timersRef.current.filter(t => t.isRunning);
+        if (runningTimers.length > 0) {
+          saveTimerState(timersRef.current, 'manual');
+          lastAutoSaveRef.current = now;
+        }
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(autoSaveInterval);
+  }, [saveTimerState]);
 
   // Load timers from Supabase on initial render and when user changes
   useEffect(() => {
@@ -53,6 +144,7 @@ export const useTimers = () => {
     if (!user) {
       setTimers([]);
       setLoading(false);
+      clearTimerState();
       return;
     }
 
@@ -87,49 +179,24 @@ export const useTimers = () => {
         }));
         
         // Check for saved running timer states from previous session
-        const savedTimerStates = localStorage.getItem('runningTimersState');
-        if (savedTimerStates) {
-          try {
-            const timerStates = JSON.parse(savedTimerStates);
-            const currentTime = Date.now();
-            
-            // Update timers with accumulated time from offline period
-            const updatedTimers = processedTimers.map(timer => {
-              const savedState = timerStates.find((state: any) => state.id === timer.id);
-              if (savedState && timer.isRunning) {
-                const offlineTime = currentTime - savedState.logoutTime;
-                const newElapsedTime = savedState.elapsedTimeAtLogout + offlineTime;
-                
-                // Update the timer in Supabase with the new elapsed time
-                supabase
-                  .from('timers')
-                  .update({ elapsed_time: newElapsedTime })
-                  .eq('id', timer.id)
-                  .then(({ error }) => {
-                    if (error) console.error("Error updating timer after restoration:", error);
-                  });
-                
-                return { ...timer, elapsedTime: newElapsedTime };
-              }
-              return timer;
+        const persistenceData = loadTimerState();
+        if (persistenceData) {
+          const restoredTimers = restoreTimerElapsedTime(processedTimers, persistenceData);
+          
+          // Clear persistence data since we've restored
+          clearTimerState();
+          
+          // Sync restored timers to database
+          batchSyncTimers(restoredTimers, true);
+          
+          setTimers(restoredTimers);
+          
+          // Show notification about restored timers
+          const restoredCount = persistenceData.timers.length;
+          if (restoredCount > 0) {
+            toast.success(`Welcome back!`, {
+              description: `${restoredCount} timer${restoredCount > 1 ? 's were' : ' was'} running while you were away`
             });
-            
-            // Clear the saved state since we've restored the timers
-            localStorage.removeItem('runningTimersState');
-            
-            setTimers(updatedTimers);
-            
-            // Show notification about restored timers
-            const restoredCount = timerStates.length;
-            if (restoredCount > 0) {
-              toast.success(`Welcome back!`, {
-                description: `${restoredCount} timer${restoredCount > 1 ? 's were' : ' was'} running while you were away`
-              });
-            }
-          } catch (parseError) {
-            console.error("Error parsing saved timer states:", parseError);
-            localStorage.removeItem('runningTimersState');
-            setTimers(processedTimers);
           }
         } else {
           setTimers(processedTimers);
@@ -143,7 +210,7 @@ export const useTimers = () => {
     };
 
     loadTimers();
-  }, [user]);
+  }, [user, loadTimerState, restoreTimerElapsedTime, clearTimerState, batchSyncTimers]);
 
   // Subscribe to real-time updates from Supabase
   useEffect(() => {
@@ -262,22 +329,20 @@ export const useTimers = () => {
           return timer;
         });
 
-        // If any timers were updated, sync with Supabase less frequently to reduce interruptions
-        // We'll do this every 5 seconds instead of every second
+        // Save state periodically while timers are running
         const runningTimers = updatedTimers.filter(t => t.isRunning);
-        if (runningTimers.length > 0 && Date.now() % 5000 < 1000) {
-          runningTimers.forEach(timer => {
-            supabase
-              .from('timers')
-              .update({
-                elapsed_time: timer.elapsedTime,
-                is_running: timer.isRunning
-              })
-              .eq('id', timer.id)
-              .then(({ error }) => {
-                if (error) console.error("Error updating timer:", error);
-              });
-          });
+        if (runningTimers.length > 0) {
+          // Save to localStorage every 10 seconds
+          const now = Date.now();
+          if (now - lastAutoSaveRef.current > 10000) {
+            saveTimerState(updatedTimers, 'manual');
+            lastAutoSaveRef.current = now;
+          }
+          
+          // Sync to database every 5 seconds for running timers only if page is visible
+          if (isPageVisibleRef.current && now % 5000 < 1000) {
+            batchSyncTimers(updatedTimers);
+          }
         }
 
         return updatedTimers;
@@ -285,7 +350,7 @@ export const useTimers = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, saveTimerState, batchSyncTimers]);
 
   const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
     if (!user) {
