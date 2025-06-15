@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -41,6 +42,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (event === 'SIGNED_IN') {
           toast.success('Signed in successfully');
+          // Redirect to dashboard after successful login
+          if (window.location.pathname === '/login' || window.location.pathname === '/signup' || window.location.pathname === '/') {
+            window.location.href = '/dashboard';
+          }
         } else if (event === 'SIGNED_OUT') {
           toast.info('Signed out');
         }
@@ -70,13 +75,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`
+        }
+      });
       if (error) throw error;
       toast.success('Sign up successful!', {
         description: 'Please check your email for verification.',
       });
     } catch (error: any) {
       toast.error('Error signing up', {
+        description: error.message,
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error('Error signing in with Google', {
         description: error.message,
       });
       throw error;
@@ -106,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         signIn,
         signUp,
+        signInWithGoogle,
         signOut: signOutUser,
       }}
     >
