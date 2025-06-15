@@ -2,51 +2,78 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HeatMapGrid } from "@/components/ui/heat-map";
-import { Timer } from "../../types";
-import { format, startOfWeek, addDays } from 'date-fns';
+import { TimerSessionWithTimer } from "../../types";
+import { format, startOfWeek, addDays, parseISO } from 'date-fns';
 
 interface TimeHeatmapProps {
-  timers: Timer[];
+  sessions: TimerSessionWithTimer[];
   formatTime: (ms: number) => string;
 }
 
-const TimeHeatmap: React.FC<TimeHeatmapProps> = ({ timers, formatTime }) => {
-  // Generate heatmap data for the last 7 days and 24 hours
-  const generateHeatmapData = () => {
-    const now = new Date();
-    const weekStart = startOfWeek(now);
-    
-    const data: { day: number; hour: number; value: number }[] = [];
-    
-    for (let day = 0; day < 7; day++) {
-      for (let hour = 0; hour < 24; hour++) {
-        const currentDate = addDays(weekStart, day);
-        const startTime = new Date(currentDate);
-        startTime.setHours(hour, 0, 0, 0);
-        const endTime = new Date(currentDate);
-        endTime.setHours(hour, 59, 59, 999);
-        
-        // Find timers in this hour slot
-        const hourTimers = timers.filter(timer => {
-          const timerDate = new Date(timer.createdAt);
-          return timerDate >= startTime && timerDate <= endTime;
-        });
-        
-        const totalTime = hourTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
-        data.push({ day, hour, value: totalTime });
-      }
-    }
-    
-    return data;
-  };
+const TimeHeatmap: React.FC<TimeHeatmapProps> = ({ sessions, formatTime }) => {
+  const basisDate = React.useMemo(() => {
+    if (sessions.length === 0) return new Date();
+    const lastSessionDate = Math.max(...sessions.map(s => parseISO(s.start_time).getTime()));
+    return new Date(lastSessionDate);
+  }, [sessions]);
 
-  const heatmapData = generateHeatmapData();
-  const maxValue = Math.max(...heatmapData.map(d => d.value), 1);
+  const weekStart = React.useMemo(() => startOfWeek(basisDate), [basisDate]);
+
+  const heatmapData = React.useMemo(() => {
+    const data = Array.from({ length: 7 * 24 }, (_, i) => ({
+      day: Math.floor(i / 24),
+      hour: i % 24,
+      value: 0
+    }));
+
+    sessions.forEach(session => {
+      if (!session.duration_ms) return;
+
+      let sessionStart = parseISO(session.start_time);
+      let remainingDuration = session.duration_ms;
+
+      if (sessionStart >= addDays(weekStart, 7) || addDays(sessionStart, session.duration_ms / 1000 / 60 / 60) < weekStart) {
+        return;
+      }
+
+      while (remainingDuration > 0 && sessionStart < addDays(weekStart, 7)) {
+        if(sessionStart < weekStart) {
+            remainingDuration -= (weekStart.getTime() - sessionStart.getTime());
+            sessionStart = new Date(weekStart);
+            if(remainingDuration <= 0) continue;
+        }
+
+        const dayIndex = (sessionStart.getDay() - weekStart.getDay() + 7) % 7;
+        const hourIndex = sessionStart.getHours();
+        
+        const dataIndex = dayIndex * 24 + hourIndex;
+
+        const startOfNextHour = new Date(sessionStart);
+        startOfNextHour.setMinutes(0, 0, 0);
+        startOfNextHour.setHours(startOfNextHour.getHours() + 1);
+
+        const timeInHour = Math.min(
+          remainingDuration,
+          startOfNextHour.getTime() - sessionStart.getTime()
+        );
+        
+        if (data[dataIndex]) {
+          data[dataIndex].value += timeInHour;
+        }
+
+        remainingDuration -= timeInHour;
+        sessionStart = new Date(sessionStart.getTime() + timeInHour);
+      }
+    });
+
+    return data;
+  }, [sessions, weekStart]);
+
+  const maxValue = React.useMemo(() => Math.max(...heatmapData.map(d => d.value), 1), [heatmapData]);
   
-  // Generate labels
-  const dayLabels = Array.from({ length: 7 }, (_, i) => 
-    format(addDays(startOfWeek(new Date()), i), 'EEE')
-  );
+  const dayLabels = React.useMemo(() => Array.from({ length: 7 }, (_, i) => 
+    format(addDays(weekStart, i), 'EEE')
+  ), [weekStart]);
   
   const hourLabels = Array.from({ length: 24 }, (_, i) => 
     i % 2 === 0 ? `${i}:00` : ''
@@ -66,7 +93,7 @@ const TimeHeatmap: React.FC<TimeHeatmapProps> = ({ timers, formatTime }) => {
   };
 
   const cellRender = (hour: number, day: number, value: number) => {
-    if (value === 0) return '';
+    if (value === 0) return null;
     return (
       <div 
         className="w-full h-full flex items-center justify-center text-[8px] font-mono text-white"

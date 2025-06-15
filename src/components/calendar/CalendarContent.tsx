@@ -81,6 +81,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
         >
           <ActivityVisualization
             filteredTimers={timers} // This component might need deeper changes
+            sessions={sessions}
             formatTime={formatTime}
           />
         </motion.div>

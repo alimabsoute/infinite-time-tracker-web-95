@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Timer } from "../../types";
+import { Timer, TimerSessionWithTimer } from "../../types";
 import ProductivityInsights from './ProductivityInsights';
 import TimeHeatmap from './TimeHeatmap';
 import CategoryPerformance from './CategoryPerformance';
@@ -13,11 +13,13 @@ import { BarChart3, TrendingUp, PieChart, Zap, Target, Calendar } from 'lucide-r
 
 interface ActivityVisualizationProps {
   filteredTimers: Timer[];
+  sessions: TimerSessionWithTimer[];
   formatTime: (ms: number) => string;
 }
 
 const ActivityVisualization: React.FC<ActivityVisualizationProps> = ({
   filteredTimers,
+  sessions,
   formatTime
 }) => {
   return (
@@ -63,7 +65,7 @@ const ActivityVisualization: React.FC<ActivityVisualizationProps> = ({
         </TabsContent>
 
         <TabsContent value="patterns" className="mt-6">
-          <TimeHeatmap timers={filteredTimers} formatTime={formatTime} />
+          <TimeHeatmap sessions={sessions} formatTime={formatTime} />
         </TabsContent>
 
         <TabsContent value="focus" className="mt-6">
