@@ -110,7 +110,7 @@ export const usePomodoro = (timerId?: string) => {
     }
 
     // Determine next phase
-    let nextPhase: 'work' | 'short-break' | 'long-break' | 'idle' = 'idle';
+    let nextPhase: 'work' | 'short-break' | 'long-break' | null = null;
     let shouldAutoStart = false;
 
     if (completedSession.type === 'work') {
@@ -136,14 +136,14 @@ export const usePomodoro = (timerId?: string) => {
       ...prev,
       isActive: false,
       currentSession: null,
-      currentPhase: shouldAutoStart ? nextPhase : 'idle',
+      currentPhase: shouldAutoStart && nextPhase ? nextPhase : 'idle',
       totalSessions: prev.totalSessions + 1,
     }));
 
     // Auto-start next session if enabled
-    if (shouldAutoStart && nextPhase !== 'idle') {
+    if (shouldAutoStart && nextPhase) {
       setTimeout(() => {
-        startPomodoroSession(nextPhase as 'work' | 'short-break' | 'long-break');
+        startPomodoroSession(nextPhase);
       }, 1000);
     }
   }, [pomodoroState, toast, startPomodoroSession]);
