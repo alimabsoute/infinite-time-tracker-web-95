@@ -1,13 +1,15 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
 import { useSubscription } from "../contexts/SubscriptionContext";
+import { useNotifications } from "../hooks/useNotifications";
 import { Button } from "@/components/ui/button";
 import Header from "../components/Header";
 import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import ConfettiAnimation from "../components/animations/ConfettiAnimation";
 import TimerLimitIndicator from "../components/premium/TimerLimitIndicator";
+import NotificationPrompt from "../components/notifications/NotificationPrompt";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -27,7 +29,26 @@ const Index = () => {
   } = useTimers();
   
   const { canCreateTimer, getTimerLimit, subscribed, createCheckoutSession } = useSubscription();
+  const { isNotificationSupported, hasPermission, preferences } = useNotifications();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
+
+  // Check if we should show the notification prompt
+  useEffect(() => {
+    const hasTimers = timers.length > 0;
+    const shouldPrompt = isNotificationSupported && 
+                        !hasPermission && 
+                        preferences.enabled && 
+                        hasTimers &&
+                        !localStorage.getItem('notification-prompt-dismissed');
+    
+    setShowNotificationPrompt(shouldPrompt);
+  }, [isNotificationSupported, hasPermission, preferences.enabled, timers.length]);
+
+  const handleDismissNotificationPrompt = () => {
+    setShowNotificationPrompt(false);
+    localStorage.setItem('notification-prompt-dismissed', 'true');
+  };
 
   const handleAddTimer = async (name: string) => {
     // Double-check the limit before creating
@@ -70,6 +91,13 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
+        {/* Notification Prompt */}
+        {showNotificationPrompt && (
+          <div className="mb-6">
+            <NotificationPrompt onDismiss={handleDismissNotificationPrompt} />
+          </div>
+        )}
+
         {/* Premium Timer Limit Indicator */}
         {!subscribed && (
           <div className="mb-6">

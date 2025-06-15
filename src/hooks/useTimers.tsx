@@ -3,6 +3,7 @@ import { Timer, TimerSession } from "../types";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from "../contexts/AuthContext";
 import { useSubscription } from "../contexts/SubscriptionContext";
+import { useNotifications } from "./useNotifications";
 import { toast } from "sonner";
 import { useBrowserEvents } from "./useBrowserEvents";
 import { useTimerPersistence } from "./useTimerPersistence";
@@ -15,6 +16,7 @@ export const useTimers = () => {
   const confettiTimeoutRef = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
   const { canCreateTimer, getTimerLimit } = useSubscription();
+  const { notifyTimerCompletion, updateTimerData } = useNotifications();
   
   // Persistence and sync hooks
   const { saveTimerState, loadTimerState, clearTimerState, restoreTimerElapsedTime } = useTimerPersistence();
@@ -29,6 +31,13 @@ export const useTimers = () => {
   useEffect(() => {
     timersRef.current = timers;
   }, [timers]);
+
+  // Update notification data for running timers
+  useEffect(() => {
+    timers.forEach(timer => {
+      updateTimerData(timer.id, timer.name, timer.elapsedTime, timer.isRunning);
+    });
+  }, [timers, updateTimerData]);
 
   // Clear confetti trigger function
   const clearConfettiTrigger = useCallback(() => {
@@ -642,6 +651,9 @@ export const useTimers = () => {
         const duration = now.getTime() - targetTimer.sessionStartTime.getTime();
         const newElapsedTime = targetTimer.elapsedTime + duration;
 
+        // Send completion notification
+        notifyTimerCompletion(targetTimer.name, newElapsedTime);
+
         // Optimistic update
         setTimers((prev) =>
           prev.map((timer) =>
@@ -669,13 +681,18 @@ export const useTimers = () => {
       console.error("Error toggling timer:", error);
       toast.error("Failed to update timer");
     }
-  }, [timers, user]);
+  }, [timers, user, notifyTimerCompletion]);
 
   const resetTimer = useCallback(async (id: string) => {
     if (!user) return;
 
     try {
       const timerToReset = timers.find(t => t.id === id);
+
+      // Send completion notification if timer was running
+      if (timerToReset?.isRunning && timerToReset.elapsedTime > 0) {
+        notifyTimerCompletion(timerToReset.name, timerToReset.elapsedTime);
+      }
 
       // Optimistic update
       setTimers((prev) =>
@@ -715,7 +732,7 @@ export const useTimers = () => {
       console.error("Error resetting timer:", error);
       toast.error("Failed to reset timer");
     }
-  }, [timers, user]);
+  }, [timers, user, notifyTimerCompletion]);
 
   const deleteTimerById = useCallback(async (id: string) => {
     if (!user) return;
