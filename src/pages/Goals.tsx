@@ -2,8 +2,10 @@
 import React, { useState } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import { useGoals } from '@/hooks/useGoals';
+import { useGoalProgressAutomation } from '@/hooks/useGoalProgressAutomation';
+import { useTimers } from '@/hooks/useTimers';
 import { Button } from '@/components/ui/button';
-import { Plus, Target, Trophy, Clock, Calendar } from 'lucide-react';
+import { Plus, Target, Trophy, Clock, Calendar, Zap } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -11,10 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CreateGoalDialog from '@/components/goals/CreateGoalDialog';
 import GoalCard from '@/components/goals/GoalCard';
 import GoalTemplates from '@/components/goals/GoalTemplates';
+import GoalTimerAssociation from '@/components/goals/GoalTimerAssociation';
 import { Goal } from '@/types/goals';
 
 const Goals = () => {
   const { goals, loading, createGoal, updateGoal, deleteGoal } = useGoals();
+  const { timers } = useTimers();
+  const { updateAllGoalProgress } = useGoalProgressAutomation();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
 
@@ -27,6 +32,12 @@ const Goals = () => {
     .filter(goal => goal.deadline)
     .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
     .slice(0, 3);
+
+  const automatedGoals = activeGoals.filter(goal => goal.timer_ids && goal.timer_ids.length > 0);
+
+  const handleManualRefresh = async () => {
+    await updateAllGoalProgress();
+  };
 
   if (loading) {
     return (
@@ -78,14 +89,59 @@ const Goals = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-              <div className="h-4 w-4 rounded-full bg-primary/20" />
+              <CardTitle className="text-sm font-medium">Automated</CardTitle>
+              <Zap className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{completionRate.toFixed(0)}%</div>
+              <div className="text-2xl font-bold">{automatedGoals.length}</div>
+              <p className="text-xs text-muted-foreground">Auto-tracking</p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Automation Status */}
+        {automatedGoals.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-primary" />
+                    Automated Goal Tracking
+                  </CardTitle>
+                  <CardDescription>
+                    Goals automatically updating based on timer sessions
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleManualRefresh}>
+                  Refresh Progress
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {automatedGoals.map(goal => (
+                  <div key={goal.id} className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-sm">{goal.title}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {goal.timer_ids?.length} timer{goal.timer_ids?.length !== 1 ? 's' : ''}
+                      </Badge>
+                    </div>
+                    <Progress 
+                      value={(goal.current_value / goal.target_value) * 100} 
+                      className="h-2"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>{goal.current_value} / {goal.target_value} {goal.unit}</span>
+                      <span>{Math.round((goal.current_value / goal.target_value) * 100)}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Upcoming Deadlines */}
         {upcomingDeadlines.length > 0 && (
@@ -133,6 +189,7 @@ const Goals = () => {
           <TabsList>
             <TabsTrigger value="active">Active ({activeGoals.length})</TabsTrigger>
             <TabsTrigger value="completed">Completed ({completedGoals.length})</TabsTrigger>
+            <TabsTrigger value="automation">Timer Links</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
           </TabsList>
 
@@ -190,6 +247,33 @@ const Goals = () => {
                     onUpdate={updateGoal}
                     onDelete={deleteGoal}
                     onClick={() => setSelectedGoal(goal)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="automation" className="space-y-4">
+            {activeGoals.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <Zap className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <h3 className="mt-2 text-lg font-medium">No active goals</h3>
+                    <p className="mt-1 text-muted-foreground">
+                      Create goals to link them with timers for automatic progress tracking
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {activeGoals.map(goal => (
+                  <GoalTimerAssociation
+                    key={goal.id}
+                    goal={goal}
+                    timers={timers}
+                    onUpdateGoal={updateGoal}
                   />
                 ))}
               </div>
