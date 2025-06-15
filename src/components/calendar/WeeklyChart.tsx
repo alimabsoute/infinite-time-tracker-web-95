@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { isSameDay } from 'date-fns';
+import { isSameDay, format } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid, LineChart, Line } from 'recharts';
 import { motion } from 'framer-motion';
 import { WeeklyChartTooltip, getChartConfig } from './WeeklyChartConfig';
@@ -35,10 +35,55 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
 }) => {
   const config = getChartConfig(averageHours);
 
-  // Debug logging
-  console.log('WeeklyChart - weekData:', weekData);
-  console.log('WeeklyChart - averageHours:', averageHours);
-  console.log('WeeklyChart - chartType:', chartType);
+  // Enhanced debug logging
+  console.log('🔍 WeeklyChart - Rendering with data:', {
+    weekDataLength: weekData.length,
+    averageHours: averageHours.toFixed(3),
+    chartType,
+    selectedDate: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none',
+    weekData: weekData.map(d => ({
+      day: d.day,
+      date: format(d.date, 'yyyy-MM-dd'),
+      totalHours: d.totalHours.toFixed(3),
+      timers: d.timers,
+      hasData: d.totalHours > 0
+    }))
+  });
+
+  // Check for data validity
+  const hasAnyData = weekData.some(d => d.totalHours > 0);
+  const maxHours = Math.max(...weekData.map(d => d.totalHours), 0);
+  
+  console.log('🔍 WeeklyChart - Data analysis:', {
+    hasAnyData,
+    maxHours: maxHours.toFixed(3),
+    totalWeekHours: weekData.reduce((sum, d) => sum + d.totalHours, 0).toFixed(3)
+  });
+
+  if (!hasAnyData) {
+    console.log('⚠️ WeeklyChart - No data to display');
+  }
+
+  const handleChartClick = (data: any) => {
+    console.log('🔍 WeeklyChart - Chart clicked:', data);
+    if (data?.activePayload?.[0]?.payload) {
+      const payload = data.activePayload[0].payload;
+      console.log('🔍 WeeklyChart - Clicking with payload:', payload);
+      onBarClick(payload);
+    }
+  };
+
+  const handleBarMouseEnter = (data: any) => {
+    console.log('🔍 WeeklyChart - Bar hover enter:', data);
+    if (data?.date) {
+      onHoverDay(data.date);
+    }
+  };
+
+  const handleBarMouseLeave = () => {
+    console.log('🔍 WeeklyChart - Bar hover leave');
+    onHoverDay(null);
+  };
 
   return (
     <div className="h-[330px]">
@@ -47,14 +92,11 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
           <BarChart 
             data={weekData} 
             margin={config.margin}
-            onClick={(data) => {
-              console.log('Bar clicked:', data);
-              onBarClick(data?.activePayload?.[0]?.payload);
-            }}
+            onClick={handleChartClick}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
             <XAxis dataKey="day" {...config.xAxisProps} />
-            <YAxis {...config.yAxisProps} />
+            <YAxis {...config.yAxisProps} domain={[0, Math.max(maxHours * 1.1, 0.5)]} />
             <ReferenceLine {...config.referenceLineProps} />
             <Tooltip 
               content={(props) => <WeeklyChartTooltip {...props} formatTime={formatTime} />}
@@ -65,21 +107,15 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
               fill="hsl(var(--primary))" 
               radius={[4, 4, 0, 0]}
               className="hover:opacity-80 transition-opacity cursor-pointer"
-              onMouseEnter={(data) => {
-                console.log('Bar hover enter:', data);
-                onHoverDay(data.date);
-              }}
-              onMouseLeave={() => {
-                console.log('Bar hover leave');
-                onHoverDay(null);
-              }}
+              onMouseEnter={handleBarMouseEnter}
+              onMouseLeave={handleBarMouseLeave}
             />
           </BarChart>
         ) : (
-          <LineChart data={weekData} margin={config.margin}>
+          <LineChart data={weekData} margin={config.margin} onClick={handleChartClick}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
             <XAxis dataKey="day" {...config.xAxisProps} />
-            <YAxis {...config.yAxisProps} />
+            <YAxis {...config.yAxisProps} domain={[0, Math.max(maxHours * 1.1, 0.5)]} />
             <Tooltip
               content={(props) => <WeeklyChartTooltip {...props} formatTime={formatTime} />}
               wrapperStyle={{ outline: 'none' }}

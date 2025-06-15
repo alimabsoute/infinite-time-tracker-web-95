@@ -1,6 +1,6 @@
 
 import { Timer, TimerSession, TimerSessionWithTimer } from "../../types";
-import { isSameDay, parseISO } from "date-fns";
+import { isSameDay, parseISO, isValid, format } from "date-fns";
 
 // Format time for display
 export const formatTime = (milliseconds: number): string => {
@@ -14,18 +14,79 @@ export const formatTime = (milliseconds: number): string => {
   return `${minutes}m`;
 };
 
-// --- NEW SESSION-BASED FUNCTIONS ---
+// --- ENHANCED SESSION-BASED FUNCTIONS WITH DEBUGGING ---
 
-// Get all sessions that occurred on a specific date
+// Get all sessions that occurred on a specific date with enhanced debugging
 export const getSessionsForDate = (date: Date, sessions: TimerSessionWithTimer[]): TimerSessionWithTimer[] => {
-  if (!date || !sessions) return [];
-  return sessions.filter(session => isSameDay(parseISO(session.start_time), date));
+  if (!date || !sessions) {
+    console.log('⚠️ getSessionsForDate: Missing date or sessions', { date, sessionsCount: sessions?.length || 0 });
+    return [];
+  }
+
+  const targetDateStr = format(date, 'yyyy-MM-dd');
+  console.log(`🔍 getSessionsForDate: Looking for sessions on ${targetDateStr}`);
+
+  const filteredSessions = sessions.filter(session => {
+    if (!session.start_time) {
+      console.log('⚠️ Session missing start_time:', session.id);
+      return false;
+    }
+
+    try {
+      const sessionDate = parseISO(session.start_time);
+      
+      if (!isValid(sessionDate)) {
+        console.log('⚠️ Invalid session date:', session.start_time, 'for session:', session.id);
+        return false;
+      }
+
+      const sessionDateStr = format(sessionDate, 'yyyy-MM-dd');
+      const matches = sessionDateStr === targetDateStr;
+      
+      if (matches) {
+        console.log(`✅ Found matching session:`, {
+          id: session.id,
+          start_time: session.start_time,
+          sessionDateStr,
+          targetDateStr,
+          duration_ms: session.duration_ms,
+          timer_name: session.timers?.name
+        });
+      }
+      
+      return matches;
+    } catch (error) {
+      console.log('❌ Error parsing session date:', session.start_time, error);
+      return false;
+    }
+  });
+
+  console.log(`🔍 getSessionsForDate result for ${targetDateStr}:`, {
+    totalSessions: sessions.length,
+    filteredSessions: filteredSessions.length,
+    sessions: filteredSessions.map(s => ({
+      id: s.id,
+      start_time: s.start_time,
+      duration_ms: s.duration_ms,
+      timer_name: s.timers?.name
+    }))
+  });
+
+  return filteredSessions;
 };
 
 // Calculate total time tracked for a specific date from sessions
 export const getTotalTimeForDate = (date: Date, sessions: TimerSessionWithTimer[]): number => {
   const daySessions = getSessionsForDate(date, sessions);
-  return daySessions.reduce((total, session) => total + (session.duration_ms || 0), 0);
+  const totalTime = daySessions.reduce((total, session) => total + (session.duration_ms || 0), 0);
+  
+  console.log(`🔍 getTotalTimeForDate for ${format(date, 'yyyy-MM-dd')}:`, {
+    sessionsCount: daySessions.length,
+    totalTimeMs: totalTime,
+    totalTimeHours: totalTime / 3600000
+  });
+  
+  return totalTime;
 };
 
 // Generate color intensity based on activity level from sessions

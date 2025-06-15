@@ -3,15 +3,20 @@ import React from 'react';
 import PageLayout from '../components/layout/PageLayout';
 import CalendarContent from '../components/calendar/CalendarContent';
 import { useTimers } from '../hooks/useTimers';
-import { useTimerSessionsData } from '../hooks/useTimerSessions';
+import { useTimerSessionsDebug } from '../hooks/useTimerSessionsDebug';
 
 const Calendar = () => {
   const { timers } = useTimers();
-  const { sessions, loading: sessionsLoading } = useTimerSessionsData();
+  const { sessions, loading: sessionsLoading, debugInfo } = useTimerSessionsDebug();
   
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());
   const [categoryFilter, setCategoryFilter] = React.useState('all');
+
+  // Log debug info for troubleshooting
+  React.useEffect(() => {
+    console.log('📊 Calendar Debug Info:', debugInfo);
+  }, [debugInfo]);
 
   const handleMonthChange = (direction: 'prev' | 'next') => {
     const newMonth = new Date(currentMonth);
