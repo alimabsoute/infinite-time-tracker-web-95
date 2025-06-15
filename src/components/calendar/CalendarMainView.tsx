@@ -110,16 +110,21 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   
   return (
     <motion.div 
-      className="space-y-6"
+      className={`grid grid-cols-1 ${isExpanded ? 'md:grid-cols-1' : 'md:grid-cols-3'} gap-6`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
       {/* Upcoming Deadlines Section */}
-      <UpcomingDeadlines timers={timers} />
+      <div className="col-span-full">
+        <UpcomingDeadlines timers={timers} />
+      </div>
 
-      {/* Calendar Section */}
-      <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
+      {/* Calendar view */}
+      <Card className={cn(
+        `${isExpanded ? 'md:col-span-1' : 'md:col-span-2'} glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300`,
+        isExpanded && "col-span-1"
+      )}>
         <CalendarHeader 
           currentMonth={currentMonth} 
           onMonthChange={handleMonthChange} 
@@ -138,7 +143,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
           <motion.div
             layout
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="flex justify-center"
+            className={isExpanded ? "flex justify-center" : ""}
           >
             {calendarView === 'month' ? (
               <Calendar
@@ -147,12 +152,15 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
                 onSelect={setSelectedDate}
                 month={currentMonth}
                 onMonthChange={setCurrentMonth}
-                className="rounded-md border border-border/40 p-3 pointer-events-auto w-full max-w-[600px]"
+                className={cn(
+                  "rounded-md border border-border/40 p-3 pointer-events-auto",
+                  isExpanded ? "w-full max-w-[800px]" : "w-full"
+                )}
                 components={{
                   Day: enhancedDayRenderer
                 }}
                 showOutsideDays={true}
-                numberOfMonths={1}
+                numberOfMonths={isExpanded ? 1 : 1}
               />
             ) : (
               <YearView
@@ -176,27 +184,29 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
         </CardContent>
       </Card>
       
-      {/* Daily details */}
-      <motion.div
-        key={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "no-date"}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
-          <CardContent className="pt-6">
-            <DayView
-              selectedDate={selectedDate}
-              filteredTimers={timers}
-              formatTime={formatTime}
-              categoryFilter={categoryFilter}
-              setCategoryFilter={setCategoryFilter}
-              categories={categories}
-            />
-          </CardContent>
-        </Card>
-      </motion.div>
+      {/* Daily details - always show when not expanded */}
+      {!isExpanded && (
+        <motion.div
+          key={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "no-date"}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardContent className="pt-6">
+              <DayView
+                selectedDate={selectedDate}
+                filteredTimers={timers}
+                formatTime={formatTime}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+                categories={categories}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
     </motion.div>
   );
 };
