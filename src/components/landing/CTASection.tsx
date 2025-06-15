@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2, Crown } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 // Animation variants
 const fadeIn = {
@@ -37,20 +38,19 @@ const benefits = [
 ];
 
 const CTASection = () => {
-  const handleUpgradeClick = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke("create-checkout");
-      
-      if (error) {
-        console.error("Error creating checkout session:", error);
-        return;
-      }
+  const { user } = useAuth();
+  const { createCheckoutSession } = useSubscription();
 
-      if (data.success && data.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
+  const handleUpgradeClick = async () => {
+    if (!user) {
+      // Redirect to login if not authenticated
+      window.location.href = "/login";
+      return;
+    }
+
+    const url = await createCheckoutSession();
+    if (url) {
+      window.open(url, '_blank');
     }
   };
 

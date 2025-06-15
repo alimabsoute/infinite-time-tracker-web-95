@@ -8,12 +8,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper logging function for enhanced debugging
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
-};
-
 serve(async (req) => {
   // Handle CORS preflight request
   if (req.method === "OPTIONS") {
@@ -21,11 +15,11 @@ serve(async (req) => {
   }
 
   try {
-    logStep("Function started");
+    console.log("[CHECK-SUBSCRIPTION] Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
-      logStep("STRIPE_SECRET_KEY not configured, returning mock data");
+      console.log("[CHECK-SUBSCRIPTION] STRIPE_SECRET_KEY not configured, returning mock data");
       // Return mock data if Stripe is not configured
       return new Response(JSON.stringify({
         success: true,
@@ -37,7 +31,6 @@ serve(async (req) => {
         status: 200,
       });
     }
-    logStep("Stripe key verified");
 
     // Set up Supabase client with service role key for database writes
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -69,7 +62,7 @@ serve(async (req) => {
       throw new Error("User email not available");
     }
 
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    console.log("[CHECK-SUBSCRIPTION] User authenticated:", { userId: user.id, email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     
@@ -77,7 +70,7 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      logStep("No Stripe customer found, updating unsubscribed state");
+      console.log("[CHECK-SUBSCRIPTION] No Stripe customer found, updating unsubscribed state");
       // Update database with unsubscribed state
       await supabaseClient.from("subscribers").upsert({
         email: user.email,
@@ -101,7 +94,7 @@ serve(async (req) => {
     }
 
     const customerId = customers.data[0].id;
-    logStep("Found Stripe customer", { customerId });
+    console.log("[CHECK-SUBSCRIPTION] Found Stripe customer:", customerId);
 
     // Check for active subscriptions
     const subscriptions = await stripe.subscriptions.list({
@@ -117,7 +110,7 @@ serve(async (req) => {
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
+      console.log("[CHECK-SUBSCRIPTION] Active subscription found:", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
       // Determine subscription tier from price
       const priceId = subscription.items.data[0].price.id;
@@ -131,9 +124,9 @@ serve(async (req) => {
       } else {
         subscriptionTier = "team";
       }
-      logStep("Determined subscription tier", { priceId, amount, subscriptionTier });
+      console.log("[CHECK-SUBSCRIPTION] Determined subscription tier:", { priceId, amount, subscriptionTier });
     } else {
-      logStep("No active subscription found");
+      console.log("[CHECK-SUBSCRIPTION] No active subscription found");
     }
 
     // Update database with current subscription status
@@ -147,7 +140,7 @@ serve(async (req) => {
       updated_at: new Date().toISOString(),
     }, { onConflict: 'email' });
 
-    logStep("Updated database with subscription info", { subscribed: hasActiveSub, subscriptionTier });
+    console.log("[CHECK-SUBSCRIPTION] Updated database with subscription info:", { subscribed: hasActiveSub, subscriptionTier });
 
     return new Response(JSON.stringify({
       success: true,
@@ -160,7 +153,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in check-subscription", { message: errorMessage });
+    console.error("[CHECK-SUBSCRIPTION] ERROR:", errorMessage);
     
     return new Response(JSON.stringify({ 
       success: false, 
