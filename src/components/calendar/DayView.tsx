@@ -40,11 +40,26 @@ const DayView: React.FC<DayViewProps> = ({
   // Get only timers created on the selected date for time tracking calculation
   const createdOnDateTimers = getTimersForDate(selectedDate, filteredTimers);
   
+  // Apply category filter to created timers if needed
+  const displayTimers = React.useMemo(() => {
+    if (categoryFilter === "all") {
+      return createdOnDateTimers;
+    }
+    
+    return createdOnDateTimers.filter(timer => {
+      if (categoryFilter === "Uncategorized") {
+        return !timer.category;
+      }
+      return timer.category === categoryFilter;
+    });
+  }, [createdOnDateTimers, categoryFilter]);
+  
   // Get deadlines for the selected date using the utility function
   const deadlineTimers = getTimersWithDeadlinesForDate(selectedDate, filteredTimers);
 
   console.log('DayView - deadlineTimers for date:', deadlineTimers);
   console.log('DayView - createdOnDateTimers for date:', createdOnDateTimers);
+  console.log('DayView - displayTimers after filter:', displayTimers);
 
   // Get total time tracked for the selected date (only from timers created on that date)
   const totalTrackedTime = createdOnDateTimers.reduce((sum, t) => sum + t.elapsedTime, 0);
@@ -86,7 +101,7 @@ const DayView: React.FC<DayViewProps> = ({
       />
       
       <HorizontalTimerDisplay
-        timers={createdOnDateTimers}
+        timers={displayTimers}
         formatTime={formatTime}
       />
     </div>
