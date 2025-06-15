@@ -143,25 +143,27 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
           <motion.div
             layout
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className={isExpanded ? "flex justify-center" : ""}
+            className="flex justify-center mt-4"
           >
             {calendarView === 'month' ? (
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                month={currentMonth}
-                onMonthChange={setCurrentMonth}
-                className={cn(
-                  "rounded-md border border-border/40 p-3 pointer-events-auto",
-                  isExpanded ? "w-full max-w-[800px]" : "w-full"
-                )}
-                components={{
-                  Day: enhancedDayRenderer
-                }}
-                showOutsideDays={true}
-                numberOfMonths={isExpanded ? 1 : 1}
-              />
+              <div className="flex justify-center w-full">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  month={currentMonth}
+                  onMonthChange={setCurrentMonth}
+                  className={cn(
+                    "rounded-md border border-border/40 p-4 pointer-events-auto transform scale-110",
+                    "w-full max-w-[500px]"
+                  )}
+                  components={{
+                    Day: enhancedDayRenderer
+                  }}
+                  showOutsideDays={true}
+                  numberOfMonths={1}
+                />
+              </div>
             ) : (
               <YearView
                 currentMonth={currentMonth}
