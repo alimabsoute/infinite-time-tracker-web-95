@@ -3,9 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Calendar, Home, Table, Crown } from "lucide-react";
 import PhynxTimerLogo from "./PhynxTimerLogo";
+import AuthHeader from "./AuthHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const location = useLocation();
@@ -48,47 +48,52 @@ const Header = () => {
           )}
         </div>
         
-        <nav className="flex items-center gap-4">
-          <Link to="/">
-            <Button 
-              variant={location.pathname === "/" ? "secondary" : "ghost"} 
-              className="gap-2"
-            >
-              <Home size={18} />
-              <span className="hidden sm:inline">Home</span>
-            </Button>
-          </Link>
+        <div className="flex items-center gap-4">
+          <nav className="flex items-center gap-4">
+            <Link to="/">
+              <Button 
+                variant={location.pathname === "/" ? "secondary" : "ghost"} 
+                className="gap-2"
+              >
+                <Home size={18} />
+                <span className="hidden sm:inline">Home</span>
+              </Button>
+            </Link>
+            
+            <Link to="/dashboard">
+              <Button 
+                variant={location.pathname === "/dashboard" ? "secondary" : "ghost"} 
+                className="gap-2"
+              >
+                <PhynxTimerLogo width={16} height={16} className="text-current opacity-70" />
+                <span className="hidden sm:inline">Timers</span>
+              </Button>
+            </Link>
+            
+            <Link to="/calendar">
+              <Button 
+                variant={location.pathname === "/calendar" ? "secondary" : "ghost"} 
+                className="gap-2"
+              >
+                <Calendar size={18} />
+                <span className="hidden sm:inline">Calendar</span>
+              </Button>
+            </Link>
+            
+            <Link to="/reports">
+              <Button 
+                variant={location.pathname === "/reports" ? "secondary" : "ghost"} 
+                className="gap-2"
+              >
+                <Table size={18} />
+                <span className="hidden sm:inline">Reports</span>
+              </Button>
+            </Link>
+          </nav>
           
-          <Link to="/dashboard">
-            <Button 
-              variant={location.pathname === "/dashboard" ? "secondary" : "ghost"} 
-              className="gap-2"
-            >
-              <PhynxTimerLogo width={16} height={16} className="text-current opacity-70" />
-              <span className="hidden sm:inline">Timers</span>
-            </Button>
-          </Link>
-          
-          <Link to="/calendar">
-            <Button 
-              variant={location.pathname === "/calendar" ? "secondary" : "ghost"} 
-              className="gap-2"
-            >
-              <Calendar size={18} />
-              <span className="hidden sm:inline">Calendar</span>
-            </Button>
-          </Link>
-          
-          <Link to="/reports">
-            <Button 
-              variant={location.pathname === "/reports" ? "secondary" : "ghost"} 
-              className="gap-2"
-            >
-              <Table size={18} />
-              <span className="hidden sm:inline">Reports</span>
-            </Button>
-          </Link>
-        </nav>
+          {/* Auth Header with logout functionality */}
+          <AuthHeader />
+        </div>
       </div>
     </header>
   );
