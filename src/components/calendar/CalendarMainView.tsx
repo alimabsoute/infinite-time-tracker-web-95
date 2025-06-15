@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
 import { motion } from "framer-motion";
@@ -143,7 +142,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
           <motion.div
             layout
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="flex justify-end mt-4 pr-8"
+            className="flex justify-start mt-4 pl-8"
           >
             {calendarView === 'month' ? (
               <div className="flex justify-center">
