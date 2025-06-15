@@ -1,11 +1,10 @@
-
 import { useCallback } from 'react';
 import { Timer } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useNotifications } from './useNotifications';
-import { useTimerSessions } from './useTimerSessions';
+import { useSessionManager } from './useSessionManager';
 import { toast } from 'sonner';
 
 interface UseTimerActionsProps {
@@ -24,7 +23,7 @@ export const useTimerActions = ({
   const { user } = useAuth();
   const { canCreateTimer, getTimerLimit } = useSubscription();
   const { notifyTimerCompletion } = useNotifications();
-  const { createSession, endSession, endMultipleSessions } = useTimerSessions();
+  const { createSession, endSession, hasActiveSession } = useSessionManager();
 
   const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
     if (!user) {
@@ -54,49 +53,59 @@ export const useTimerActions = ({
       console.log('➕ Adding new timer:', newTimer.name);
       
       const runningTimers = timers.filter(t => t.isRunning);
+      const now = new Date();
       
-      // Optimistic Update
-      const newSessionId = crypto.randomUUID();
-      newTimer.currentSessionId = newSessionId;
+      // End all running sessions first
+      const endPromises = runningTimers
+        .filter(t => t.currentSessionId && t.sessionStartTime)
+        .map(async (timer) => {
+          const duration = now.getTime() - timer.sessionStartTime!.getTime();
+          await endSession(timer.id, timer.currentSessionId!, now, duration);
+          return supabase.from('timers').update({
+            is_running: false,
+            elapsed_time: timer.elapsedTime + duration,
+          }).eq('id', timer.id);
+        });
+      
+      await Promise.all(endPromises);
+      
+      // Create new session for new timer
+      const sessionId = await createSession(newTimer.id, newTimer.sessionStartTime!);
+      if (!sessionId) {
+        toast.error("Failed to create timer session");
+        return "";
+      }
+      
+      newTimer.currentSessionId = sessionId;
 
+      // Optimistic update
       setTimers((prev) => [
         newTimer,
-        ...prev.map(timer => timer.isRunning ? { ...timer, isRunning: false, currentSessionId: undefined, sessionStartTime: undefined } : timer)
+        ...prev.map(timer => ({ 
+          ...timer, 
+          isRunning: false, 
+          currentSessionId: undefined, 
+          sessionStartTime: undefined 
+        }))
       ]);
       
-      // Database Operations
-      const now = new Date();
-      const updates = [];
+      // Insert the new timer into database
+      const { error } = await supabase
+        .from('timers')
+        .insert({
+          id: newTimer.id,
+          name: newTimer.name,
+          elapsed_time: newTimer.elapsedTime,
+          is_running: newTimer.isRunning,
+          created_at: newTimer.createdAt.toISOString(),
+          category: newTimer.category,
+          user_id: user.id
+        });
       
-      // End sessions for all currently running timers
-      await endMultipleSessions(runningTimers, now);
-      
-      // Insert the new timer
-      updates.push(
-        supabase
-          .from('timers')
-          .insert({
-            id: newTimer.id,
-            name: newTimer.name,
-            elapsed_time: newTimer.elapsedTime,
-            is_running: newTimer.isRunning,
-            created_at: newTimer.createdAt.toISOString(),
-            category: newTimer.category,
-            user_id: user.id
-          })
-      );
-
-      // Insert the new session
-      const sessionResult = await createSession(newTimer.id, newTimer.sessionStartTime!, newSessionId);
-      
-      const results = await Promise.all(updates);
-      
-      const hasErrors = results.some(result => result.error) || !sessionResult;
-      
-      if (hasErrors) {
+      if (error) {
         setTimers((prev) => prev.filter(t => t.id !== newTimer.id));
         toast.error("Failed to create timer");
-        console.error("Error adding timer and pausing others");
+        console.error("❌ Error creating timer:", error);
         return "";
       }
       
@@ -104,7 +113,6 @@ export const useTimerActions = ({
       
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
-      console.log('🎉 Triggering confetti at:', { x: centerX, y: centerY });
       setConfettiTrigger({ x: centerX, y: centerY, id: newTimer.id });
       
       if (runningTimers.length > 0) {
@@ -117,11 +125,11 @@ export const useTimerActions = ({
       
       return newTimer.id;
     } catch (error) {
-      console.error("Error adding timer:", error);
+      console.error("❌ Error adding timer:", error);
       toast.error("Failed to create timer");
       return "";
     }
-  }, [user, timers, clearConfettiTrigger, canCreateTimer, getTimerLimit, setTimers, setConfettiTrigger, createSession, endMultipleSessions]);
+  }, [user, timers, clearConfettiTrigger, canCreateTimer, getTimerLimit, setTimers, setConfettiTrigger, createSession, endSession]);
 
   const toggleTimer = useCallback(async (id: string) => {
     if (!user) return;
@@ -131,36 +139,46 @@ export const useTimerActions = ({
       if (!targetTimer) return;
 
       const newRunningState = !targetTimer.isRunning;
+      const now = new Date();
 
       if (newRunningState) {
-        const now = new Date();
-        const newSessionId = crypto.randomUUID();
+        // Starting timer
+        const sessionId = await createSession(id, now);
+        if (!sessionId) {
+          toast.error("Failed to start timer session");
+          return;
+        }
 
         setTimers((prev) =>
           prev.map((timer) =>
             timer.id === id
-              ? { ...timer, isRunning: true, currentSessionId: newSessionId, sessionStartTime: now }
+              ? { ...timer, isRunning: true, currentSessionId: sessionId, sessionStartTime: now }
               : timer
           )
         );
         
-        await createSession(id, now, newSessionId);
         await supabase.from('timers').update({ is_running: true }).eq('id', id);
-        
         toast.success("Timer started");
 
       } else {
+        // Stopping timer
         if (!targetTimer.currentSessionId || !targetTimer.sessionStartTime) {
-          console.warn("Attempted to stop a timer with no active session.");
+          console.warn("⚠️ Stopping timer with no active session");
           setTimers(prev => prev.map(t => t.id === id ? { ...t, isRunning: false } : t));
           await supabase.from('timers').update({ is_running: false }).eq('id', id);
           toast.success("Timer paused");
           return;
         }
 
-        const now = new Date();
         const duration = now.getTime() - targetTimer.sessionStartTime.getTime();
         const newElapsedTime = targetTimer.elapsedTime + duration;
+
+        // End session
+        const sessionEnded = await endSession(id, targetTimer.currentSessionId, now, duration);
+        if (!sessionEnded) {
+          toast.error("Failed to end timer session");
+          return;
+        }
 
         notifyTimerCompletion(targetTimer.name, newElapsedTime);
 
@@ -172,7 +190,6 @@ export const useTimerActions = ({
           )
         );
 
-        await endSession(targetTimer.currentSessionId, now, duration);
         await supabase.from('timers').update({
           is_running: false,
           elapsed_time: newElapsedTime
@@ -182,7 +199,7 @@ export const useTimerActions = ({
       }
 
     } catch (error) {
-      console.error("Error toggling timer:", error);
+      console.error("❌ Error toggling timer:", error);
       toast.error("Failed to update timer");
     }
   }, [timers, user, notifyTimerCompletion, setTimers, createSession, endSession]);
@@ -197,6 +214,13 @@ export const useTimerActions = ({
         notifyTimerCompletion(timerToReset.name, timerToReset.elapsedTime);
       }
 
+      // End active session if running
+      if (timerToReset?.isRunning && timerToReset.currentSessionId && timerToReset.sessionStartTime) {
+        const now = new Date();
+        const duration = now.getTime() - timerToReset.sessionStartTime.getTime();
+        await endSession(timerToReset.id, timerToReset.currentSessionId, now, duration);
+      }
+
       setTimers((prev) =>
         prev.map((timer) =>
           timer.id === id
@@ -204,12 +228,6 @@ export const useTimerActions = ({
             : timer
         )
       );
-
-      if (timerToReset?.isRunning && timerToReset.currentSessionId && timerToReset.sessionStartTime) {
-        const now = new Date();
-        const duration = now.getTime() - timerToReset.sessionStartTime.getTime();
-        await endSession(timerToReset.currentSessionId, now, duration);
-      }
 
       const { error } = await supabase
         .from('timers')
@@ -222,10 +240,10 @@ export const useTimerActions = ({
       if (error) {
         setTimers((prev) => [...prev]);
         toast.error("Failed to reset timer");
-        console.error("Error resetting timer:", error);
+        console.error("❌ Error resetting timer:", error);
       }
     } catch (error) {
-      console.error("Error resetting timer:", error);
+      console.error("❌ Error resetting timer:", error);
       toast.error("Failed to reset timer");
     }
   }, [timers, user, notifyTimerCompletion, setTimers, endSession]);
@@ -237,10 +255,11 @@ export const useTimerActions = ({
       const timerToDelete = timers.find(t => t.id === id);
       if (!timerToDelete) return;
 
+      // End active session if running
       if (timerToDelete.isRunning && timerToDelete.currentSessionId && timerToDelete.sessionStartTime) {
         const now = new Date();
         const duration = now.getTime() - timerToDelete.sessionStartTime.getTime();
-        await endSession(timerToDelete.currentSessionId, now, duration);
+        await endSession(timerToDelete.id, timerToDelete.currentSessionId, now, duration);
         await supabase.from('timers').update({
           elapsed_time: timerToDelete.elapsedTime + duration
         }).eq('id', id);
@@ -259,12 +278,12 @@ export const useTimerActions = ({
       if (error) {
         setTimers((prev) => [...prev]);
         toast.error("Failed to delete timer");
-        console.error("Error deleting timer:", error);
+        console.error("❌ Error deleting timer:", error);
       } else {
         toast.success("Timer deleted");
       }
     } catch (error) {
-      console.error("Error deleting timer:", error);
+      console.error("❌ Error deleting timer:", error);
       toast.error("Failed to delete timer");
     }
   }, [timers, user, setTimers, endSession]);
@@ -303,10 +322,10 @@ export const useTimerActions = ({
       if (error) {
         setTimers((prev) => [...prev]);
         toast.error("Failed to rename timer");
-        console.error("Error renaming timer:", error);
+        console.error("❌ Error renaming timer:", error);
       }
     } catch (error) {
-      console.error("Error renaming timer:", error);
+      console.error("❌ Error renaming timer:", error);
       toast.error("Failed to rename timer");
     }
   }, [timers, user, setTimers]);
@@ -333,14 +352,14 @@ export const useTimerActions = ({
       if (error) {
         setTimers((prev) => [...prev]);
         toast.error("Failed to update deadline");
-        console.error("Error updating deadline:", error);
+        console.error("❌ Error updating deadline:", error);
       } else if (deadline) {
         toast.success("Deadline updated", { 
           description: `Deadline set for ${deadline.toLocaleDateString()} at ${deadline.toLocaleTimeString()}` 
         });
       }
     } catch (error) {
-      console.error("Error updating deadline:", error);
+      console.error("❌ Error updating deadline:", error);
       toast.error("Failed to update deadline");
     }
   }, [user, setTimers]);
@@ -367,14 +386,14 @@ export const useTimerActions = ({
       if (error) {
         setTimers((prev) => [...prev]);
         toast.error("Failed to update priority");
-        console.error("Error updating priority:", error);
+        console.error("❌ Error updating priority:", error);
       } else if (priority !== undefined) {
         toast.success(`Priority set to ${priority}`, {
           description: priority === 1 ? "Highest priority" : priority === 5 ? "Lowest priority" : "",
         });
       }
     } catch (error) {
-      console.error("Error updating priority:", error);
+      console.error("❌ Error updating priority:", error);
       toast.error("Failed to update priority");
     }
   }, [user, setTimers]);
@@ -389,7 +408,7 @@ export const useTimerActions = ({
       
       setTimers([...reorderedTimers, ...otherTimers]);
     } catch (error) {
-      console.error("Error reordering timers:", error);
+      console.error("❌ Error reordering timers:", error);
       toast.error("Failed to reorder timers");
     }
   }, [timers, user, setTimers]);

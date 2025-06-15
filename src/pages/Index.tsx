@@ -4,7 +4,7 @@ import { useTimers } from "../hooks/useTimers";
 import { useSubscription } from "../contexts/SubscriptionContext";
 import { useNotifications } from "../hooks/useNotifications";
 import { Button } from "@/components/ui/button";
-import Header from "../components/Header";
+import PageLayout from "../components/layout/PageLayout";
 import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import ConfettiAnimation from "../components/animations/ConfettiAnimation";
@@ -76,57 +76,70 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </main>
-      </div>
+      <PageLayout>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </PageLayout>
     );
   }
 
+  const runningTimersCount = timers.filter(timer => timer.isRunning).length;
+  const totalTimeToday = timers.reduce((total, timer) => total + timer.elapsedTime, 0);
+  const formatTime = (ms: number) => {
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="container mx-auto px-4 py-8">
-        {/* Notification Prompt */}
-        {showNotificationPrompt && (
-          <div className="mb-6">
-            <NotificationPrompt onDismiss={handleDismissNotificationPrompt} />
-          </div>
-        )}
+    <PageLayout 
+      title="Timer Dashboard"
+      description={`${runningTimersCount} timer${runningTimersCount !== 1 ? 's' : ''} running • Total time today: ${formatTime(totalTimeToday)}`}
+    >
+      {/* Notification Prompt */}
+      {showNotificationPrompt && (
+        <div className="mb-6">
+          <NotificationPrompt onDismiss={handleDismissNotificationPrompt} />
+        </div>
+      )}
 
-        {/* Premium Timer Limit Indicator */}
-        {!subscribed && (
-          <div className="mb-6">
-            <TimerLimitIndicator currentCount={timers.length} />
-          </div>
-        )}
+      {/* Premium Timer Limit Indicator */}
+      {!subscribed && (
+        <div className="mb-6">
+          <TimerLimitIndicator currentCount={timers.length} />
+        </div>
+      )}
 
-        {/* Subscription Status Banner */}
-        {!subscribed && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-medium text-blue-900">Free Plan</h3>
-                <p className="text-sm text-blue-700">
-                  {timers.length}/{getTimerLimit()} timers used. Upgrade for unlimited timers and premium features.
-                </p>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="border-blue-300 text-blue-700 hover:bg-blue-100"
-                onClick={handleUpgrade}
-              >
-                Upgrade
-              </Button>
+      {/* Subscription Status Banner */}
+      {!subscribed && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-medium text-blue-900">Free Plan</h3>
+              <p className="text-sm text-blue-700">
+                {timers.length}/{getTimerLimit()} timers used. Upgrade for unlimited timers and premium features.
+              </p>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="border-blue-300 text-blue-700 hover:bg-blue-100"
+              onClick={handleUpgrade}
+            >
+              Upgrade
+            </Button>
           </div>
-        )}
+        </div>
+      )}
 
+      <div className="space-y-8">
+        <CreateTimerForm 
+          onAddTimer={handleAddTimer} 
+          currentTimerCount={timers.length}
+        />
+        
         <TimerList
           timers={timers}
           onToggle={toggleTimer}
@@ -139,21 +152,17 @@ const Index = () => {
           newTimerId={newTimerId}
           onCreateTimer={() => handleAddTimer("New Timer")}
         />
-        <CreateTimerForm 
-          onAddTimer={handleAddTimer} 
-          currentTimerCount={timers.length}
+      </div>
+      
+      {/* Confetti Animation */}
+      {confettiTrigger && (
+        <ConfettiAnimation
+          x={confettiTrigger.x}
+          y={confettiTrigger.y}
+          onComplete={clearConfettiTrigger}
         />
-        
-        {/* Confetti Animation */}
-        {confettiTrigger && (
-          <ConfettiAnimation
-            x={confettiTrigger.x}
-            y={confettiTrigger.y}
-            onComplete={clearConfettiTrigger}
-          />
-        )}
-      </main>
-    </div>
+      )}
+    </PageLayout>
   );
 };
 

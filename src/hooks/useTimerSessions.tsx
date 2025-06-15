@@ -3,76 +3,56 @@ import { useCallback } from 'react';
 import { Timer, TimerSession } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
-import { toast } from 'sonner';
+import { useSessionManager } from './useSessionManager';
 
 export const useTimerSessions = () => {
   const { user } = useAuth();
+  const { createSession: createSessionRecord, endSession: endSessionRecord } = useSessionManager();
 
   const createSession = useCallback(async (timerId: string, startTime: Date, sessionId?: string): Promise<string | null> => {
     if (!user) return null;
+    return createSessionRecord(timerId, startTime);
+  }, [user, createSessionRecord]);
 
-    try {
-      const newSessionId = sessionId || crypto.randomUUID();
-      const newSession: Omit<TimerSession, 'id'> & { id: string } = {
-        id: newSessionId,
-        timer_id: timerId,
-        start_time: startTime.toISOString(),
-        user_id: user.id
-      };
-
-      const { error } = await (supabase.from('timer_sessions') as any).insert(newSession);
-      
-      if (error) {
-        console.error("Error creating session:", error);
-        return null;
-      }
-
-      return newSessionId;
-    } catch (error) {
-      console.error("Error creating session:", error);
-      return null;
-    }
-  }, [user]);
-
-  const endSession = useCallback(async (sessionId: string, endTime: Date, duration: number): Promise<boolean> => {
-    try {
-      const { error } = await (supabase.from('timer_sessions') as any).update({
-        end_time: endTime.toISOString(),
-        duration_ms: duration,
-      }).eq('id', sessionId);
-
-      if (error) {
-        console.error("Error ending session:", error);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Error ending session:", error);
+  const endSession = useCallback(async (sessionId: string, endTime: Date, duration: number, timerId?: string): Promise<boolean> => {
+    if (!timerId) {
+      console.error("❌ Timer ID required to end session");
       return false;
     }
-  }, []);
+    return endSessionRecord(timerId, sessionId, endTime, duration);
+  }, [endSessionRecord]);
 
   const endMultipleSessions = useCallback(async (timers: Timer[], endTime: Date): Promise<void> => {
-    const updates = timers
+    const sessionPromises = timers
       .filter(timer => timer.currentSessionId && timer.sessionStartTime)
-      .map(timer => {
+      .map(async (timer) => {
         const duration = endTime.getTime() - timer.sessionStartTime!.getTime();
-        return Promise.all([
-          endSession(timer.currentSessionId!, endTime, duration),
-          supabase.from('timers').update({
+        
+        // End the session
+        const sessionEnded = await endSessionRecord(timer.id, timer.currentSessionId!, endTime, duration);
+        
+        // Update timer in database
+        if (sessionEnded) {
+          await supabase.from('timers').update({
             is_running: false,
             elapsed_time: timer.elapsedTime + duration,
-          }).eq('id', timer.id)
-        ]);
+          }).eq('id', timer.id);
+        }
+        
+        return sessionEnded;
       });
 
     try {
-      await Promise.all(updates);
+      const results = await Promise.allSettled(sessionPromises);
+      const successful = results.filter(result => 
+        result.status === 'fulfilled' && result.value === true
+      ).length;
+      
+      console.log(`✅ Ended ${successful}/${timers.length} sessions successfully`);
     } catch (error) {
-      console.error("Error ending multiple sessions:", error);
+      console.error("❌ Error ending multiple sessions:", error);
     }
-  }, [endSession]);
+  }, [endSessionRecord]);
 
   return {
     createSession,
