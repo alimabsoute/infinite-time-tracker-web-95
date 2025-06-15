@@ -14,6 +14,7 @@ import CalendarStats from "./CalendarStats";
 import ColorLegend from "./ColorLegend";
 import { renderDay } from "./CustomDayRenderer";
 import UpcomingDeadlines from "./UpcomingDeadlines";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface CalendarMainViewProps {
   currentMonth: Date;
@@ -145,24 +146,26 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
             className="flex justify-start mt-4 pl-8"
           >
             {calendarView === 'month' ? (
-              <div className="flex justify-center">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  month={currentMonth}
-                  onMonthChange={setCurrentMonth}
-                  className={cn(
-                    "rounded-md border border-border/40 p-4 pointer-events-auto transform scale-125",
-                    "w-full max-w-[600px]"
-                  )}
-                  components={{
-                    Day: enhancedDayRenderer
-                  }}
-                  showOutsideDays={true}
-                  numberOfMonths={1}
-                />
-              </div>
+              <TooltipProvider delayDuration={500} skipDelayDuration={200}>
+                <div className="flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    month={currentMonth}
+                    onMonthChange={setCurrentMonth}
+                    className={cn(
+                      "rounded-md border border-border/40 p-4 pointer-events-auto transform scale-125",
+                      "w-full max-w-[600px]"
+                    )}
+                    components={{
+                      Day: enhancedDayRenderer
+                    }}
+                    showOutsideDays={true}
+                    numberOfMonths={1}
+                  />
+                </div>
+              </TooltipProvider>
             ) : (
               <YearView
                 currentMonth={currentMonth}

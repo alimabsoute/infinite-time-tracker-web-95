@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { DayProps } from 'react-day-picker';
 import { cn } from "@/lib/utils";
 import { motion } from 'framer-motion';
 import { Timer } from '../../types';
 import { format, isPast, isToday } from 'date-fns';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getTimersWithDeadlinesForDate, getTimersForDate } from './CalendarUtils';
 
 type GetTimeFunction = (date: Date) => number;
@@ -255,16 +254,14 @@ export const renderDay = (
     // Simplified tooltip implementation
     if (hasActivity || hasDeadlines || hasTimerSessions) {
       return (
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              {dayContent}
-            </TooltipTrigger>
-            <TooltipContent side="top" className="z-50 max-w-sm p-3" sideOffset={5}>
-              {tooltipContent}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {dayContent}
+          </TooltipTrigger>
+          <TooltipContent side="top" className="z-50 max-w-sm p-3" sideOffset={5}>
+            {tooltipContent}
+          </TooltipContent>
+        </Tooltip>
       );
     }
 
