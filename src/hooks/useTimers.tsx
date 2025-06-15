@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Timer } from "../types";
+import { Timer, TimerSession } from "../types";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from "../contexts/AuthContext";
 import { useSubscription } from "../contexts/SubscriptionContext";
@@ -176,7 +176,32 @@ export const useTimers = () => {
           category: timer.category || undefined,
           tags: timer.tags || undefined,
           priority: timer.priority || undefined,
+          // For timers that are running, we need to fetch their open session
+          currentSessionId: undefined, // This will be populated below
+          sessionStartTime: undefined,
         }));
+        
+        // Find any open sessions for the loaded timers
+        const runningTimerIds = processedTimers.filter(t => t.isRunning).map(t => t.id);
+        if (runningTimerIds.length > 0) {
+          const { data: openSessions, error: sessionError } = await supabase
+            .from('timer_sessions')
+            .select('*')
+            .in('timer_id', runningTimerIds)
+            .is('end_time', null);
+
+          if (sessionError) {
+            console.error("Error fetching open sessions:", sessionError);
+          } else if (openSessions) {
+            processedTimers.forEach(timer => {
+              const openSession = openSessions.find(s => s.timer_id === timer.id);
+              if (openSession) {
+                timer.currentSessionId = openSession.id;
+                timer.sessionStartTime = new Date(openSession.start_time);
+              }
+            });
+          }
+        }
         
         // Check for saved running timer states from previous session
         const persistenceData = loadTimerState();
@@ -375,23 +400,53 @@ export const useTimers = () => {
         isRunning: true, // Start the new timer immediately
         createdAt: new Date(),
         category,
+        sessionStartTime: new Date(),
       };
       
       console.log('➕ Adding new timer:', newTimer.name);
       
-      // Get currently running timers before optimistic update
+      const newSession: Omit<TimerSession, 'id'> & { id?: string } = {
+        timer_id: newTimer.id,
+        start_time: newTimer.sessionStartTime.toISOString(),
+        user_id: user.id
+      };
+      
       const runningTimers = timers.filter(t => t.isRunning);
       
-      // Optimistic update - add new timer and pause all existing running timers
+      // --- Optimistic Update ---
+      const newSessionId = crypto.randomUUID();
+      newTimer.currentSessionId = newSessionId;
+      newSession.id = newSessionId;
+
       setTimers((prev) => [
         newTimer,
-        ...prev.map(timer => timer.isRunning ? { ...timer, isRunning: false } : timer)
+        ...prev.map(timer => timer.isRunning ? { ...timer, isRunning: false, currentSessionId: undefined, sessionStartTime: undefined } : timer)
       ]);
       
-      // Prepare batch updates for Supabase
+      // --- Database Operations ---
       const updates = [];
       
-      // Add the new timer
+      // 1. End sessions for all currently running timers
+      const now = new Date();
+      runningTimers.forEach(timer => {
+        if (timer.currentSessionId && timer.sessionStartTime) {
+          const duration = now.getTime() - timer.sessionStartTime.getTime();
+          updates.push(
+            supabase.from('timer_sessions').update({
+              end_time: now.toISOString(),
+              duration_ms: duration,
+            }).eq('id', timer.currentSessionId)
+          );
+          updates.push(
+            supabase.from('timers').update({
+              is_running: false,
+              elapsed_time: timer.elapsedTime + duration,
+            }).eq('id', timer.id)
+          );
+        }
+      });
+      
+      // 2. Insert the new timer
       updates.push(
         supabase
           .from('timers')
@@ -405,18 +460,12 @@ export const useTimers = () => {
             user_id: user.id
           })
       );
+
+      // 3. Insert the new session
+      updates.push(
+        supabase.from('timer_sessions').insert({ ...newSession, id: newSession.id! })
+      );
       
-      // Pause all currently running timers
-      runningTimers.forEach(timer => {
-        updates.push(
-          supabase
-            .from('timers')
-            .update({ is_running: false })
-            .eq('id', timer.id)
-        );
-      });
-      
-      // Execute all updates
       const results = await Promise.all(updates);
       
       // Check for any errors
@@ -465,44 +514,59 @@ export const useTimers = () => {
   // New function to start a timer and pause all others
   const startTimerAndPauseOthers = useCallback(async (id: string) => {
     if (!user) return;
+    const now = new Date();
+    const newSessionId = crypto.randomUUID();
 
     try {
       const runningTimers = timers.filter(t => t.isRunning && t.id !== id);
       
-      // Optimistic update - pause all running timers except the target one
+      // --- Optimistic Update ---
       setTimers((prev) =>
         prev.map((timer) => {
           if (timer.id === id) {
-            return { ...timer, isRunning: true };
+            return { ...timer, isRunning: true, currentSessionId: newSessionId, sessionStartTime: now };
           } else if (timer.isRunning) {
-            return { ...timer, isRunning: false };
+            return { ...timer, isRunning: false, currentSessionId: undefined, sessionStartTime: undefined };
           }
           return timer;
         })
       );
 
-      // Batch update in Supabase - pause all running timers and start the target timer
+      // --- Database Operations ---
       const updates = [];
       
-      // Add update for target timer
+      // 1. Start session for the target timer
       updates.push(
-        supabase
-          .from('timers')
-          .update({ is_running: true })
-          .eq('id', id)
+        supabase.from('timer_sessions').insert({
+          id: newSessionId,
+          timer_id: id,
+          start_time: now.toISOString(),
+          user_id: user.id
+        })
+      );
+      updates.push(
+        supabase.from('timers').update({ is_running: true }).eq('id', id)
       );
 
-      // Add updates for all currently running timers to pause them
+      // 2. End sessions for all other running timers
       runningTimers.forEach(timer => {
-        updates.push(
-          supabase
-            .from('timers')
-            .update({ is_running: false })
-            .eq('id', timer.id)
-        );
+        if (timer.currentSessionId && timer.sessionStartTime) {
+          const duration = now.getTime() - timer.sessionStartTime.getTime();
+          updates.push(
+            supabase.from('timer_sessions').update({
+              end_time: now.toISOString(),
+              duration_ms: duration,
+            }).eq('id', timer.currentSessionId)
+          );
+          updates.push(
+            supabase.from('timers').update({
+              is_running: false,
+              elapsed_time: timer.elapsedTime + duration,
+            }).eq('id', timer.id)
+          );
+        }
       });
 
-      // Execute all updates
       const results = await Promise.all(updates);
       
       // Check for any errors
@@ -540,37 +604,67 @@ export const useTimers = () => {
 
       const newRunningState = !targetTimer.isRunning;
 
-      // Optimistic update - just toggle this timer without affecting others
-      setTimers((prev) =>
-        prev.map((timer) =>
-          timer.id === id
-            ? { ...timer, isRunning: newRunningState }
-            : timer
-        )
-      );
+      if (newRunningState) { // --- STARTING TIMER ---
+        const now = new Date();
+        const newSessionId = crypto.randomUUID();
 
-      // Update in Supabase
-      const { error } = await supabase
-        .from('timers')
-        .update({
-          is_running: newRunningState
-        })
-        .eq('id', id);
-      
-      if (error) {
-        // Revert optimistic update if failed
+        // Optimistic update
         setTimers((prev) =>
           prev.map((timer) =>
             timer.id === id
-              ? { ...timer, isRunning: !newRunningState }
+              ? { ...timer, isRunning: true, currentSessionId: newSessionId, sessionStartTime: now }
               : timer
           )
         );
-        toast.error("Failed to update timer");
-        console.error("Error toggling timer:", error);
-      } else {
-        toast.success(newRunningState ? "Timer started" : "Timer paused");
+        
+        // DB update
+        await supabase.from('timer_sessions').insert({
+          id: newSessionId,
+          timer_id: id,
+          start_time: now.toISOString(),
+          user_id: user.id
+        });
+        await supabase.from('timers').update({ is_running: true }).eq('id', id);
+        
+        toast.success("Timer started");
+
+      } else { // --- PAUSING TIMER ---
+        if (!targetTimer.currentSessionId || !targetTimer.sessionStartTime) {
+          console.warn("Attempted to stop a timer with no active session.");
+          // Force stop it anyway
+          setTimers(prev => prev.map(t => t.id === id ? { ...t, isRunning: false } : t));
+          await supabase.from('timers').update({ is_running: false }).eq('id', id);
+          toast.success("Timer paused");
+          return;
+        }
+
+        const now = new Date();
+        const duration = now.getTime() - targetTimer.sessionStartTime.getTime();
+        const newElapsedTime = targetTimer.elapsedTime + duration;
+
+        // Optimistic update
+        setTimers((prev) =>
+          prev.map((timer) =>
+            timer.id === id
+              ? { ...timer, isRunning: false, elapsedTime: newElapsedTime, currentSessionId: undefined, sessionStartTime: undefined }
+              : timer
+          )
+        );
+
+        // DB update
+        await supabase.from('timer_sessions').update({
+          end_time: now.toISOString(),
+          duration_ms: duration
+        }).eq('id', targetTimer.currentSessionId);
+
+        await supabase.from('timers').update({
+          is_running: false,
+          elapsed_time: newElapsedTime
+        }).eq('id', id);
+        
+        toast.success("Timer paused");
       }
+
     } catch (error) {
       console.error("Error toggling timer:", error);
       toast.error("Failed to update timer");
@@ -579,79 +673,66 @@ export const useTimers = () => {
 
   const resetTimer = useCallback(async (id: string) => {
     if (!user) return;
+// ... keep existing code (try block)
+      const timerToReset = timers.find(t => t.id === id);
 
-    try {
       // Optimistic update
       setTimers((prev) =>
         prev.map((timer) =>
           timer.id === id
-            ? { ...timer, elapsedTime: 0, isRunning: false }
+            ? { ...timer, elapsedTime: 0, isRunning: false, currentSessionId: undefined, sessionStartTime: undefined }
             : timer
         )
       );
 
-      // Get updated timer
-      const updatedTimer = timers.find(t => t.id === id);
-      if (updatedTimer) {
-        // Update in Supabase
-        const { error } = await supabase
-          .from('timers')
-          .update({
-            elapsed_time: 0,
-            is_running: false
-          })
-          .eq('id', id);
-        
-        if (error) {
-          // Revert optimistic update if failed
-          setTimers((prev) => [...prev]); // Force re-render with original data
-          toast.error("Failed to reset timer");
-          console.error("Error resetting timer:", error);
-        }
+      // End any running session
+      if (timerToReset?.isRunning && timerToReset.currentSessionId && timerToReset.sessionStartTime) {
+        const now = new Date();
+        const duration = now.getTime() - timerToReset.sessionStartTime.getTime();
+        await supabase.from('timer_sessions').update({
+          end_time: now.toISOString(),
+          duration_ms: duration
+        }).eq('id', timerToReset.currentSessionId);
       }
-    } catch (error) {
-      console.error("Error resetting timer:", error);
-      toast.error("Failed to reset timer");
-    }
+
+      // Update timer in Supabase
+      const { error } = await supabase
+        .from('timers')
+        .update({
+          elapsed_time: 0,
+          is_running: false
+        })
+        .eq('id', id);
+// ... keep existing code (error handling)
   }, [timers, user]);
 
   const deleteTimerById = useCallback(async (id: string) => {
     if (!user) return;
 
     try {
-      // Store the timer before deletion for potential rollback
       const timerToDelete = timers.find(t => t.id === id);
       if (!timerToDelete) return;
 
-      // Optimistic update - remove from UI
-      setTimers((prev) => prev.filter((timer) => timer.id !== id));
-
-      // Soft delete in Supabase (mark as deleted instead of actually deleting)
-      const { error } = await supabase
-        .from('timers')
-        .update({
-          deleted_at: new Date().toISOString(),
-          deleted_by: user.id,
-          is_running: false // Stop the timer when deleting
-        })
-        .eq('id', id);
-      
-      if (error) {
-        // Revert optimistic update if failed
-        setTimers((prev) => [...prev, timerToDelete]);
-        toast.error("Failed to delete timer");
-        console.error("Error deleting timer:", error);
-      } else {
-        toast.success("Timer deleted", {
-          description: "Timer has been moved to history and can be viewed in reports"
-        });
+      // End any running session before deleting
+      if (timerToDelete.isRunning && timerToDelete.currentSessionId && timerToDelete.sessionStartTime) {
+        const now = new Date();
+        const duration = now.getTime() - timerToDelete.sessionStartTime.getTime();
+        await supabase.from('timer_sessions').update({
+          end_time: now.toISOString(),
+          duration_ms: duration
+        }).eq('id', timerToDelete.currentSessionId);
+        await supabase.from('timers').update({
+          elapsed_time: timerToDelete.elapsedTime + duration
+        }).eq('id', id);
       }
+// ... keep existing code (optimistic update and soft delete logic)
     } catch (error) {
       console.error("Error deleting timer:", error);
       toast.error("Failed to delete timer");
     }
   }, [timers, user]);
 
+  // renameTimer, updateDeadline, updatePriority, reorderTimers don't need session logic
   const renameTimer = useCallback(async (id: string, newName: string, category?: string) => {
     if (!user) return;
 

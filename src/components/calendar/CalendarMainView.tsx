@@ -5,8 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import CalendarHeader from "./CalendarHeader";
 import DayView from "./DayView";
-import { Timer } from "../../types";
-import { getTotalTimeForDate, getAllTimersForDate, getHeatMapColor, formatTime } from "./CalendarUtils";
+import { Timer, TimerSessionWithTimer } from "../../types";
+import { getTotalTimeForDate, getAllTimersForDate, getHeatMapColor, formatTime, getSessionsForDate } from "./CalendarUtils";
 import { cn } from "@/lib/utils";
 import CalendarControls from "./CalendarControls";
 import YearView from "./YearView";
@@ -23,6 +23,7 @@ interface CalendarMainViewProps {
   setSelectedDate: (date: Date | undefined) => void;
   setCurrentMonth: (date: Date) => void;
   timers: Timer[];
+  sessions: TimerSessionWithTimer[];
   filteredTimers: Timer[];
   categoryFilter: string;
   setCategoryFilter: (category: string) => void;
@@ -36,7 +37,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   setSelectedDate,
   setCurrentMonth,
   timers,
-  filteredTimers,
+  sessions,
   categoryFilter,
   setCategoryFilter,
   categories
@@ -45,10 +46,8 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   const [calendarView, setCalendarView] = useState<'month' | 'year'>('month');
 
   console.log('CalendarMainView - timers:', timers.length);
-  console.log('CalendarMainView - selectedDate:', selectedDate);
-  console.log('CalendarMainView - timers with deadlines:', timers.filter(t => t.deadline).map(t => ({ name: t.name, deadline: t.deadline })));
+  console.log('CalendarMainView - sessions:', sessions.length);
 
-  // Ensure calendar opens on current month initially
   useEffect(() => {
     const today = new Date();
     if (!selectedDate) {
@@ -60,20 +59,20 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
     }
   }, []);
 
-  // Generate days with data for the current month
+  // Generate days with data for the current month using SESSIONS
   const daysWithData = useMemo(() => {
-    if (!currentMonth) return [];
+    if (!currentMonth || !sessions) return [];
     
     const start = startOfMonth(currentMonth);
     const end = endOfMonth(currentMonth);
     
     return eachDayOfInterval({ start, end }).map(date => ({
       date,
-      totalTime: getTotalTimeForDate(date, timers),
-      timers: getAllTimersForDate(date, timers).length,
+      totalTime: getTotalTimeForDate(date, sessions),
+      timers: getSessionsForDate(date, sessions).length, // Represents sessions now, not timers
       inCurrentMonth: isSameMonth(date, currentMonth)
     }));
-  }, [currentMonth, timers]);
+  }, [currentMonth, sessions]);
 
   // Get most active day
   const mostActiveDay = useMemo(() => {
@@ -99,14 +98,15 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
     setCurrentMonth(today);
   };
 
-  // Create enhanced day renderer with timers data - use ALL timers, not just filtered ones
+  // Create enhanced day renderer with timers and sessions data
   const enhancedDayRenderer = useMemo(() => {
+    // The functions passed to renderDay now use sessions for activity and timers for deadlines
     return renderDay(
-      (date: Date) => getTotalTimeForDate(date, timers),
-      (date: Date) => getHeatMapColor(date, timers),
-      (date: Date) => getAllTimersForDate(date, timers)
+      (date: Date) => getTotalTimeForDate(date, sessions),
+      (date: Date) => getAllTimersForDate(date, timers), // for deadlines
+      (date: Date) => getSessionsForDate(date, sessions) // for activity
     );
-  }, [timers]);
+  }, [sessions, timers]);
   
   return (
     <motion.div 
@@ -201,7 +201,8 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
             <CardContent className="pt-6">
               <DayView
                 selectedDate={selectedDate}
-                filteredTimers={timers}
+                timers={timers} // Pass all timers for deadline info
+                sessions={sessions} // Pass all sessions for activity info
                 formatTime={formatTime}
                 categoryFilter={categoryFilter}
                 setCategoryFilter={setCategoryFilter}

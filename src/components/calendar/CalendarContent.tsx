@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,7 +5,7 @@ import { CalendarIcon, Activity } from "lucide-react";
 import CalendarMainView from "./CalendarMainView";
 import WeekView from "./WeekView";
 import ActivityVisualization from "./ActivityVisualization";
-import { Timer } from "../../types";
+import { Timer, TimerSessionWithTimer } from "../../types";
 import { formatTime } from "./CalendarUtils";
 
 interface CalendarContentProps {
@@ -16,12 +15,11 @@ interface CalendarContentProps {
   setSelectedDate: (date: Date | undefined) => void;
   setCurrentMonth: (date: Date) => void;
   timers: Timer[];
-  filteredTimers: Timer[];
+  sessions: TimerSessionWithTimer[];
+  sessionsLoading: boolean;
   categoryFilter: string;
   setCategoryFilter: (category: string) => void;
   categories: string[];
-  weekData: any[];
-  categoryDistribution: any[];
 }
 
 const CalendarContent: React.FC<CalendarContentProps> = ({
@@ -31,12 +29,11 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
   setSelectedDate,
   setCurrentMonth,
   timers,
-  filteredTimers,
+  sessions,
+  sessionsLoading,
   categoryFilter,
   setCategoryFilter,
   categories,
-  weekData,
-  categoryDistribution
 }) => {
   return (
     <Tabs defaultValue="calendar" className="w-full mb-6">
@@ -59,7 +56,8 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
           setSelectedDate={setSelectedDate}
           setCurrentMonth={setCurrentMonth}
           timers={timers}
-          filteredTimers={filteredTimers}
+          sessions={sessions}
+          filteredTimers={[]} // This is deprecated now
           categoryFilter={categoryFilter}
           setCategoryFilter={setCategoryFilter}
           categories={categories}
@@ -67,9 +65,8 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
         
         {selectedDate && (
           <WeekView 
-            weekData={weekData} 
-            formatTime={formatTime} 
             selectedDate={selectedDate}
+            sessions={sessions}
             timers={timers}
           />
         )}
@@ -82,7 +79,8 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
           transition={{ duration: 0.3 }}
         >
           <ActivityVisualization
-            filteredTimers={timers} // Pass full timer dataset for comprehensive analytics
+            filteredTimers={timers} // This component might need deeper changes
+            sessions={sessions}
             formatTime={formatTime}
           />
         </motion.div>

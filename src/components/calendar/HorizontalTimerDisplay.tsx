@@ -1,26 +1,23 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Timer } from "../../types";
+import { Timer, TimerSessionWithTimer } from "../../types";
 import { Clock, PlayCircle, Calendar, TimerIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { cn } from "@/lib/utils";
 
 interface HorizontalTimerDisplayProps {
-  timers: Timer[];
+  sessions: TimerSessionWithTimer[];
   formatTime: (ms: number) => string;
 }
 
 const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
-  timers,
+  sessions,
   formatTime
 }) => {
   console.log('=== HorizontalTimerDisplay Debug ===');
-  console.log('HorizontalTimerDisplay - Received timers count:', timers?.length || 0);
-  console.log('HorizontalTimerDisplay - Received timers:', timers);
-  console.log('HorizontalTimerDisplay - Is timers array?', Array.isArray(timers));
+  console.log('HorizontalTimerDisplay - Received sessions count:', sessions?.length || 0);
 
   const getCategoryColor = (category?: string) => {
     switch (category) {
@@ -35,42 +32,8 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
     }
   };
 
-  // Validate and filter timers data
-  const validTimers = React.useMemo(() => {
-    if (!Array.isArray(timers)) {
-      console.warn('HorizontalTimerDisplay - Invalid timers data (not array):', timers);
-      return [];
-    }
-    
-    const filtered = timers.filter(timer => {
-      const isValid = timer && 
-        typeof timer === 'object' && 
-        timer.id && 
-        timer.name &&
-        typeof timer.elapsedTime === 'number';
-      
-      if (!isValid) {
-        console.warn('HorizontalTimerDisplay - Invalid timer object:', timer);
-      }
-      
-      return isValid;
-    });
-    
-    console.log('HorizontalTimerDisplay - Valid timers after filtering:', filtered.length);
-    console.log('HorizontalTimerDisplay - Valid timer details:', filtered.map(t => ({
-      id: t.id,
-      name: t.name,
-      elapsedTime: t.elapsedTime,
-      category: t.category,
-      createdAt: t.createdAt,
-      deadline: t.deadline
-    })));
-    
-    return filtered;
-  }, [timers]);
-
-  if (validTimers.length === 0) {
-    console.log('HorizontalTimerDisplay - No valid timers to display');
+  if (!sessions || sessions.length === 0) {
+    console.log('HorizontalTimerDisplay - No sessions to display');
     return (
       <div className="text-center py-8 text-muted-foreground">
         <div className="flex flex-col items-center gap-3">
@@ -87,26 +50,19 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
     );
   }
 
-  // Sort timers by creation time (most recent first)
-  const sortedTimers = React.useMemo(() => {
-    const sorted = [...validTimers].sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
+  // Sort sessions by start time (most recent first)
+  const sortedSessions = React.useMemo(() => {
+    return [...sessions].sort((a, b) => {
+      const dateA = parseISO(a.start_time).getTime();
+      const dateB = parseISO(b.start_time).getTime();
       return dateB - dateA;
     });
-    
-    console.log('HorizontalTimerDisplay - Sorted timers:', sorted.length);
-    return sorted;
-  }, [validTimers]);
+  }, [sessions]);
 
   // Calculate total time for the day
   const totalTime = React.useMemo(() => {
-    const total = sortedTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
-    console.log('HorizontalTimerDisplay - Total time calculated:', total);
-    return total;
-  }, [sortedTimers]);
-
-  console.log('HorizontalTimerDisplay - Rendering with', sortedTimers.length, 'timers');
+    return sortedSessions.reduce((sum, session) => sum + (session.duration_ms || 0), 0);
+  }, [sortedSessions]);
 
   return (
     <div className="space-y-4">
@@ -117,7 +73,7 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="text-xs">
-            {sortedTimers.length} session{sortedTimers.length !== 1 ? 's' : ''}
+            {sortedSessions.length} session{sortedSessions.length !== 1 ? 's' : ''}
           </Badge>
           <Badge variant="outline" className="text-xs font-mono">
             Total: {formatTime(totalTime)}
@@ -126,9 +82,9 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
       </div>
       
       <div className="space-y-3 max-h-[400px] overflow-y-auto">
-        {sortedTimers.map((timer, index) => (
+        {sortedSessions.map((session, index) => (
           <motion.div
-            key={`${timer.id}-${index}`}
+            key={`${session.id}-${index}`}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -140,52 +96,36 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
                   <div 
                     className={cn(
                       "w-1.5 h-14 rounded-full flex-shrink-0 shadow-sm",
-                      getCategoryColor(timer.category)
+                      getCategoryColor(session.timers?.category || undefined)
                     )}
                   />
                   
-                  {/* Timer content */}
+                  {/* Session content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <h4 className="font-medium text-sm truncate group-hover:text-primary transition-colors">
-                          {timer.name}
+                          {session.timers?.name || 'Untitled Timer'}
                         </h4>
-                        {timer.isRunning && (
-                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400">
-                            Running
-                          </Badge>
-                        )}
                       </div>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
                         <Clock className="h-3 w-3" />
-                        <span className="font-mono font-medium">{formatTime(timer.elapsedTime)}</span>
+                        <span className="font-mono font-medium">{formatTime(session.duration_ms || 0)}</span>
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        {timer.category && (
+                        {session.timers?.category && (
                           <Badge variant="outline" className="text-xs">
-                            {timer.category}
-                          </Badge>
-                        )}
-                        
-                        {timer.deadline && (
-                          <Badge variant="secondary" className="text-xs">
-                            Due: {format(new Date(timer.deadline), 'MMM d, HH:mm')}
-                          </Badge>
-                        )}
-                        
-                        {timer.priority && timer.priority <= 2 && (
-                          <Badge variant="destructive" className="text-xs">
-                            High Priority
+                            {session.timers.category}
                           </Badge>
                         )}
                       </div>
                       
                       <div className="text-xs text-muted-foreground flex-shrink-0">
-                        {format(new Date(timer.createdAt), 'HH:mm')}
+                        {format(parseISO(session.start_time), 'HH:mm')}
+                        {session.end_time && ` - ${format(parseISO(session.end_time), 'HH:mm')}`}
                       </div>
                     </div>
                   </div>
@@ -197,10 +137,10 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
       </div>
       
       {/* Summary footer */}
-      {sortedTimers.length > 3 && (
+      {sortedSessions.length > 3 && (
         <div className="text-center pt-2 border-t border-border/30">
           <p className="text-xs text-muted-foreground">
-            Showing {sortedTimers.length} timer sessions • Total time: {formatTime(totalTime)}
+            Showing {sortedSessions.length} timer sessions • Total time: {formatTime(totalTime)}
           </p>
         </div>
       )}

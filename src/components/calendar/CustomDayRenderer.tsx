@@ -2,19 +2,18 @@ import React from 'react';
 import { DayProps } from 'react-day-picker';
 import { cn } from "@/lib/utils";
 import { motion } from 'framer-motion';
-import { Timer } from '../../types';
+import { Timer, TimerSession } from '../../types';
 import { format, isPast, isToday } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { getTimersWithDeadlinesForDate, getTimersForDate } from './CalendarUtils';
 
 type GetTimeFunction = (date: Date) => number;
-type GetColorFunction = (date: Date) => string;
-type GetAllTimersFunction = (date: Date) => Timer[];
+type GetDeadlineTimersFunction = (date: Date) => Timer[];
+type GetDaySessionsFunction = (date: Date) => TimerSession[];
 
 export const renderDay = (
   getTime: GetTimeFunction,
-  getColor: GetColorFunction,
-  getAllTimers: GetAllTimersFunction
+  getDeadlineTimers: GetDeadlineTimersFunction,
+  getDaySessions: GetDaySessionsFunction
 ) => {
   return function DayContent(props: DayProps): React.ReactElement {
     const { date, displayMonth, ...dayProps } = props;
@@ -25,21 +24,19 @@ export const renderDay = (
     
     // Memoize data calculations to prevent unnecessary re-renders
     const dayData = React.useMemo(() => {
-      const allDayTimers = getAllTimers(date);
       const timeTracked = getTime(date);
-      const createdTimers = getTimersForDate(date, allDayTimers);
-      const deadlineTimers = getTimersWithDeadlinesForDate(date, allDayTimers);
+      const deadlineTimers = getDeadlineTimers(date);
+      const daySessions = getDaySessions(date);
       
       return {
-        allDayTimers,
         timeTracked,
-        createdTimers,
         deadlineTimers,
+        daySessions,
         hasActivity: timeTracked > 0
       };
-    }, [date, getAllTimers, getTime]);
+    }, [date, getTime, getDeadlineTimers, getDaySessions]);
 
-    const { allDayTimers, timeTracked, createdTimers, deadlineTimers, hasActivity } = dayData;
+    const { timeTracked, deadlineTimers, daySessions, hasActivity } = dayData;
     
     // Check for overdue deadlines
     const deadlineAnalysis = React.useMemo(() => {
@@ -64,7 +61,7 @@ export const renderDay = (
     }, [deadlineTimers]);
 
     const { overdueDeadlines, todayDeadlines, hasDeadlines, hasOverdueDeadlines, hasTodayDeadlines } = deadlineAnalysis;
-    const hasTimerSessions = createdTimers.length > 0;
+    const hasTimerSessions = daySessions.length > 0;
     
     // Check if this day is selected
     const isSelected = (dayProps as any)['aria-selected'] === true;
@@ -173,7 +170,7 @@ export const renderDay = (
             <div className="font-medium text-blue-700 dark:text-blue-300 text-xs">Timer Sessions</div>
             <div className="text-blue-600 dark:text-blue-400 text-xs">{formattedTime} tracked</div>
             <div className="text-xs text-blue-500 dark:text-blue-500 mt-1">
-              {createdTimers.length} session{createdTimers.length !== 1 ? 's' : ''} created
+              {daySessions.length} session{daySessions.length !== 1 ? 's' : ''} recorded
             </div>
           </div>
         )}
@@ -182,7 +179,7 @@ export const renderDay = (
           <div className="text-xs text-muted-foreground">No activity or deadlines</div>
         )}
       </div>
-    ), [date, hasDeadlines, hasTimerSessions, hasActivity, hasOverdueDeadlines, hasTodayDeadlines, deadlineTimers, createdTimers, formattedTime]);
+    ), [date, hasDeadlines, hasTimerSessions, hasActivity, hasOverdueDeadlines, hasTodayDeadlines, deadlineTimers, daySessions, formattedTime]);
 
     const dayContent = (
       <motion.div 
