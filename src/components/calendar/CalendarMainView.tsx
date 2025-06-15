@@ -143,10 +143,10 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
           <motion.div
             layout
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="flex justify-center mt-4"
+            className="flex justify-end mt-4 pr-8"
           >
             {calendarView === 'month' ? (
-              <div className="flex justify-center w-full">
+              <div className="flex justify-center">
                 <Calendar
                   mode="single"
                   selected={selectedDate}
@@ -154,8 +154,8 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
                   month={currentMonth}
                   onMonthChange={setCurrentMonth}
                   className={cn(
-                    "rounded-md border border-border/40 p-4 pointer-events-auto transform scale-110",
-                    "w-full max-w-[500px]"
+                    "rounded-md border border-border/40 p-4 pointer-events-auto transform scale-125",
+                    "w-full max-w-[600px]"
                   )}
                   components={{
                     Day: enhancedDayRenderer
