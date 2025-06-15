@@ -39,7 +39,7 @@ const Header = () => {
             <Button
               onClick={handleUpgradeClick}
               size="sm"
-              className="ml-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+              className="ml-2 upgrade-btn-animated"
             >
               <Crown className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Upgrade to Pro</span>

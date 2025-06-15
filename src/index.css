@@ -90,6 +90,59 @@
   }
 }
 
+/* Animated Border for Upgrade Buttons */
+@keyframes rotate-border {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.upgrade-btn-animated {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.upgrade-btn-animated::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: conic-gradient(from 0deg, #f59e0b, #f97316, #dc2626, #f59e0b);
+  border-radius: inherit;
+  z-index: -1;
+  animation: rotate-border 3s linear infinite;
+}
+
+.upgrade-btn-animated::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  border-radius: calc(var(--radius) - 2px);
+  z-index: -1;
+}
+
+.upgrade-btn-animated:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+}
+
+.upgrade-btn-animated:hover::before {
+  animation-duration: 1.5s;
+}
+
 .timer-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

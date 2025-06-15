@@ -103,7 +103,7 @@ const PricingSection = () => {
                 {plan.recommended ? (
                   <Button 
                     onClick={handleUpgradeClick}
-                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                    className="w-full upgrade-btn-animated"
                   >
                     <Crown className="mr-2 h-4 w-4" />
                     Upgrade to Pro

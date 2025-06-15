@@ -1,9 +1,10 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2, CreditCard } from "lucide-react";
+import { ArrowRight, CheckCircle2, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 // Animation variants
@@ -91,11 +92,10 @@ const CTASection = () => {
               <p className="text-muted-foreground mb-4">Already have a free account?</p>
               <Button 
                 onClick={handleUpgradeClick}
-                variant="secondary"
                 size="lg" 
-                className="rounded-full px-8 py-6 text-lg bg-primary/10 hover:bg-primary/20"
+                className="rounded-full px-8 py-6 text-lg upgrade-btn-animated"
               >
-                <CreditCard className="mr-2 h-5 w-5" />
+                <Crown className="mr-2 h-5 w-5" />
                 Sign up for Premium now
               </Button>
             </div>

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -144,7 +143,7 @@ const HeroSection = () => {
               <Button 
                 onClick={handleUpgradeClick}
                 size="lg" 
-                className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                className="w-full sm:w-auto rounded-full text-lg px-8 py-6 upgrade-btn-animated"
               >
                 <Crown className="mr-2 h-5 w-5" />
                 Upgrade to Pro
