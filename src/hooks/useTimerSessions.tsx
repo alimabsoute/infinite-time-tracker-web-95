@@ -1,62 +1,61 @@
 
-import { useCallback } from 'react';
-import { Timer, TimerSession } from '../types';
+import { useState, useEffect } from "react";
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '../contexts/AuthContext';
-import { useSessionManager } from './useSessionManager';
+import { useAuth } from "../contexts/AuthContext";
+import { TimerSessionWithTimer } from "../types";
+import { toast } from "sonner";
 
-export const useTimerSessions = () => {
+export const useTimerSessionsData = () => {
+  const [sessions, setSessions] = useState<TimerSessionWithTimer[]>([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const { createSession: createSessionRecord, endSession: endSessionRecord } = useSessionManager();
 
-  const createSession = useCallback(async (timerId: string, startTime: Date, sessionId?: string): Promise<string | null> => {
-    if (!user) return null;
-    return createSessionRecord(timerId, startTime);
-  }, [user, createSessionRecord]);
-
-  const endSession = useCallback(async (sessionId: string, endTime: Date, duration: number, timerId?: string): Promise<boolean> => {
-    if (!timerId) {
-      console.error("❌ Timer ID required to end session");
-      return false;
+  useEffect(() => {
+    if (!user) {
+      setSessions([]);
+      setLoading(false);
+      return;
     }
-    return endSessionRecord(timerId, sessionId, endTime, duration);
-  }, [endSessionRecord]);
 
-  const endMultipleSessions = useCallback(async (timers: Timer[], endTime: Date): Promise<void> => {
-    const sessionPromises = timers
-      .filter(timer => timer.currentSessionId && timer.sessionStartTime)
-      .map(async (timer) => {
-        const duration = endTime.getTime() - timer.sessionStartTime!.getTime();
+    const loadSessions = async () => {
+      try {
+        setLoading(true);
         
-        // End the session
-        const sessionEnded = await endSessionRecord(timer.id, timer.currentSessionId!, endTime, duration);
-        
-        // Update timer in database
-        if (sessionEnded) {
-          await supabase.from('timers').update({
-            is_running: false,
-            elapsed_time: timer.elapsedTime + duration,
-          }).eq('id', timer.id);
+        const { data, error } = await supabase
+          .from('timer_sessions')
+          .select(`
+            *,
+            timers (
+              id,
+              name,
+              category
+            )
+          `)
+          .eq('user_id', user.id)
+          .order('start_time', { ascending: false });
+
+        if (error) {
+          console.error("Error loading timer sessions:", error);
+          toast.error("Failed to load timer sessions");
+          setSessions([]);
+          return;
         }
-        
-        return sessionEnded;
-      });
 
-    try {
-      const results = await Promise.allSettled(sessionPromises);
-      const successful = results.filter(result => 
-        result.status === 'fulfilled' && result.value === true
-      ).length;
-      
-      console.log(`✅ Ended ${successful}/${timers.length} sessions successfully`);
-    } catch (error) {
-      console.error("❌ Error ending multiple sessions:", error);
-    }
-  }, [endSessionRecord]);
+        setSessions(data || []);
+      } catch (error) {
+        console.error("Error loading timer sessions:", error);
+        toast.error("Failed to load timer sessions");
+        setSessions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSessions();
+  }, [user]);
 
   return {
-    createSession,
-    endSession,
-    endMultipleSessions
+    sessions,
+    loading,
   };
 };
