@@ -184,8 +184,8 @@ export const useTimers = () => {
         // Find any open sessions for the loaded timers
         const runningTimerIds = processedTimers.filter(t => t.isRunning).map(t => t.id);
         if (runningTimerIds.length > 0) {
-          const { data: openSessions, error: sessionError } = await supabase
-            .from('timer_sessions')
+          const { data: openSessions, error: sessionError } = await (supabase
+            .from('timer_sessions') as any)
             .select('*')
             .in('timer_id', runningTimerIds)
             .is('end_time', null);
@@ -194,7 +194,7 @@ export const useTimers = () => {
             console.error("Error fetching open sessions:", sessionError);
           } else if (openSessions) {
             processedTimers.forEach(timer => {
-              const openSession = openSessions.find(s => s.timer_id === timer.id);
+              const openSession = openSessions.find((s: any) => s.timer_id === timer.id);
               if (openSession) {
                 timer.currentSessionId = openSession.id;
                 timer.sessionStartTime = new Date(openSession.start_time);
@@ -408,7 +408,7 @@ export const useTimers = () => {
       const newSession: Omit<TimerSession, 'id'> & { id?: string } = {
         timer_id: newTimer.id,
         start_time: newTimer.sessionStartTime.toISOString(),
-        user_id: user.id
+        user_id: user!.id
       };
       
       const runningTimers = timers.filter(t => t.isRunning);
@@ -432,7 +432,7 @@ export const useTimers = () => {
         if (timer.currentSessionId && timer.sessionStartTime) {
           const duration = now.getTime() - timer.sessionStartTime.getTime();
           updates.push(
-            supabase.from('timer_sessions').update({
+            (supabase.from('timer_sessions') as any).update({
               end_time: now.toISOString(),
               duration_ms: duration,
             }).eq('id', timer.currentSessionId)
@@ -463,7 +463,7 @@ export const useTimers = () => {
 
       // 3. Insert the new session
       updates.push(
-        supabase.from('timer_sessions').insert({ ...newSession, id: newSession.id! })
+        (supabase.from('timer_sessions') as any).insert({ ...newSession, id: newSession.id! })
       );
       
       const results = await Promise.all(updates);
@@ -537,7 +537,7 @@ export const useTimers = () => {
       
       // 1. Start session for the target timer
       updates.push(
-        supabase.from('timer_sessions').insert({
+        (supabase.from('timer_sessions') as any).insert({
           id: newSessionId,
           timer_id: id,
           start_time: now.toISOString(),
@@ -553,7 +553,7 @@ export const useTimers = () => {
         if (timer.currentSessionId && timer.sessionStartTime) {
           const duration = now.getTime() - timer.sessionStartTime.getTime();
           updates.push(
-            supabase.from('timer_sessions').update({
+            (supabase.from('timer_sessions') as any).update({
               end_time: now.toISOString(),
               duration_ms: duration,
             }).eq('id', timer.currentSessionId)
@@ -618,7 +618,7 @@ export const useTimers = () => {
         );
         
         // DB update
-        await supabase.from('timer_sessions').insert({
+        await (supabase.from('timer_sessions') as any).insert({
           id: newSessionId,
           timer_id: id,
           start_time: now.toISOString(),
@@ -652,7 +652,7 @@ export const useTimers = () => {
         );
 
         // DB update
-        await supabase.from('timer_sessions').update({
+        await (supabase.from('timer_sessions') as any).update({
           end_time: now.toISOString(),
           duration_ms: duration
         }).eq('id', targetTimer.currentSessionId);
@@ -673,7 +673,8 @@ export const useTimers = () => {
 
   const resetTimer = useCallback(async (id: string) => {
     if (!user) return;
-// ... keep existing code (try block)
+
+    try {
       const timerToReset = timers.find(t => t.id === id);
 
       // Optimistic update
@@ -689,7 +690,7 @@ export const useTimers = () => {
       if (timerToReset?.isRunning && timerToReset.currentSessionId && timerToReset.sessionStartTime) {
         const now = new Date();
         const duration = now.getTime() - timerToReset.sessionStartTime.getTime();
-        await supabase.from('timer_sessions').update({
+        await (supabase.from('timer_sessions') as any).update({
           end_time: now.toISOString(),
           duration_ms: duration
         }).eq('id', timerToReset.currentSessionId);
@@ -703,7 +704,17 @@ export const useTimers = () => {
           is_running: false
         })
         .eq('id', id);
-// ... keep existing code (error handling)
+      
+      if (error) {
+        // Revert optimistic update if failed
+        setTimers((prev) => [...prev]); // Force re-render with original data
+        toast.error("Failed to reset timer");
+        console.error("Error resetting timer:", error);
+      }
+    } catch (error) {
+      console.error("Error resetting timer:", error);
+      toast.error("Failed to reset timer");
+    }
   }, [timers, user]);
 
   const deleteTimerById = useCallback(async (id: string) => {
@@ -717,7 +728,7 @@ export const useTimers = () => {
       if (timerToDelete.isRunning && timerToDelete.currentSessionId && timerToDelete.sessionStartTime) {
         const now = new Date();
         const duration = now.getTime() - timerToDelete.sessionStartTime.getTime();
-        await supabase.from('timer_sessions').update({
+        await (supabase.from('timer_sessions') as any).update({
           end_time: now.toISOString(),
           duration_ms: duration
         }).eq('id', timerToDelete.currentSessionId);
@@ -725,7 +736,27 @@ export const useTimers = () => {
           elapsed_time: timerToDelete.elapsedTime + duration
         }).eq('id', id);
       }
-// ... keep existing code (optimistic update and soft delete logic)
+
+      // Optimistic update
+      setTimers((prev) => prev.filter(timer => timer.id !== id));
+
+      // Soft delete in Supabase
+      const { error } = await supabase
+        .from('timers')
+        .update({
+          deleted_at: new Date().toISOString(),
+          deleted_by: user.id
+        })
+        .eq('id', id);
+      
+      if (error) {
+        // Revert optimistic update if failed
+        setTimers((prev) => [...prev]); // Force re-render with original data
+        toast.error("Failed to delete timer");
+        console.error("Error deleting timer:", error);
+      } else {
+        toast.success("Timer deleted");
+      }
     } catch (error) {
       console.error("Error deleting timer:", error);
       toast.error("Failed to delete timer");

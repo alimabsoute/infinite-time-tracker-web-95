@@ -4,8 +4,8 @@ import { format, startOfWeek, addDays, subWeeks, addWeeks } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Timer } from "../../types";
-import { getTimersForDate } from "./CalendarUtils";
+import { TimerSessionWithTimer } from "../../types";
+import { getSessionsForDate, formatTime } from "./CalendarUtils";
 import WeeklyNavigation from './WeeklyNavigation';
 import WeeklyChart from './WeeklyChart';
 import WeeklyStats from './WeeklyStats';
@@ -14,17 +14,16 @@ interface WeekData {
   date: Date;
   day: string;
   totalHours: number;
-  timers: number;
+  timers: number; // Note: this now represents session count
 }
 
 interface WeekViewProps {
-  weekData: WeekData[];
-  formatTime: (ms: number) => string;
   selectedDate: Date;
-  timers: Timer[];
+  sessions: TimerSessionWithTimer[];
+  setSelectedDate: (date: Date) => void;
 }
 
-const WeekView: React.FC<WeekViewProps> = ({ formatTime, selectedDate, timers }) => {
+const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelectedDate }) => {
   // State for week navigation and chart type
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
     startOfWeek(selectedDate || new Date())
@@ -39,24 +38,24 @@ const WeekView: React.FC<WeekViewProps> = ({ formatTime, selectedDate, timers })
     }
   }, [selectedDate]);
 
-  // Generate week data dynamically based on current week start and timers
+  // Generate week data dynamically based on current week start and sessions
   const weekData = useMemo(() => {
     const data = Array.from({ length: 7 }, (_, i) => {
       const date = addDays(currentWeekStart, i);
-      const dayTimers = getTimersForDate(date, timers);
-      const totalTime = dayTimers.reduce((total, timer) => total + timer.elapsedTime, 0);
+      const daySessions = getSessionsForDate(date, sessions);
+      const totalTime = daySessions.reduce((total, session) => total + (session.duration_ms || 0), 0);
       
       return {
         date,
         day: format(date, 'EEE'),
         totalHours: totalTime / 3600000, // Convert to hours
-        timers: dayTimers.length
+        timers: daySessions.length // Represents session count
       };
     });
     
-    console.log('WeekView - Generated weekData:', data);
+    console.log('WeekView - Generated weekData from sessions:', data);
     return data;
-  }, [currentWeekStart, timers]);
+  }, [currentWeekStart, sessions]);
   
   // Navigate to previous/next week
   const navigateWeek = (direction: 'previous' | 'next') => {
@@ -70,7 +69,7 @@ const WeekView: React.FC<WeekViewProps> = ({ formatTime, selectedDate, timers })
   // Calculate average hours per day for reference line
   const averageHours = useMemo(() => {
     const totalHours = weekData.reduce((sum, day) => sum + day.totalHours, 0);
-    const avg = totalHours / 7;
+    const avg = totalHours > 0 ? totalHours / 7 : 0;
     console.log('WeekView - Average hours:', avg);
     return avg;
   }, [weekData]);
@@ -78,6 +77,7 @@ const WeekView: React.FC<WeekViewProps> = ({ formatTime, selectedDate, timers })
   // Handle bar/day click to update selected date
   const handleBarClick = (data: any) => {
     if (data && data.date) {
+      setSelectedDate(data.date);
       console.log("WeekView - Selected date:", format(data.date, 'yyyy-MM-dd'));
     }
   };
@@ -117,7 +117,7 @@ const WeekView: React.FC<WeekViewProps> = ({ formatTime, selectedDate, timers })
             weekData={weekData}
             selectedDate={selectedDate}
             formatTime={formatTime}
-            onDayClick={handleBarClick}
+            onDayClick={(day) => handleBarClick(day)}
           />
         </CardContent>
       </Card>

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -67,7 +68,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
           <WeekView 
             selectedDate={selectedDate}
             sessions={sessions}
-            timers={timers}
+            setSelectedDate={setSelectedDate}
           />
         )}
       </TabsContent>
@@ -80,7 +81,6 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
         >
           <ActivityVisualization
             filteredTimers={timers} // This component might need deeper changes
-            sessions={sessions}
             formatTime={formatTime}
           />
         </motion.div>
