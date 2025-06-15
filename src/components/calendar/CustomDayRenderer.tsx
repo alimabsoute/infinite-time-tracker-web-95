@@ -17,8 +17,8 @@ export const renderDay = (
   getColor: GetColorFunction,
   getAllTimers: GetAllTimersFunction
 ) => {
-  return React.memo(function DayContent(props: DayProps) {
-    const { date, ...otherProps } = props;
+  return function DayContent(props: DayProps): React.ReactElement {
+    const { date, modifiers } = props;
     
     if (!date) {
       return <div>-</div>;
@@ -59,8 +59,8 @@ export const renderDay = (
     const hasTodayDeadlines = todayDeadlines.length > 0;
     const hasTimerSessions = createdTimers.length > 0;
     
-    // Access selected state from props
-    const isSelected = props.selected;
+    // Access selected state from modifiers
+    const isSelected = modifiers?.selected || false;
     
     // Format time for tooltip
     const formattedTime = React.useMemo(() => {
@@ -267,5 +267,5 @@ export const renderDay = (
     }
 
     return dayContent;
-  });
+  };
 };
