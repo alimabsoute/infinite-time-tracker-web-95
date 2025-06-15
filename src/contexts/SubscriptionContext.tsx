@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -125,22 +124,31 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     try {
+      console.log("Attempting to create checkout session for user:", user.id);
       const { data, error } = await supabase.functions.invoke("create-checkout");
       
       if (error) {
-        console.error("Error creating checkout session:", error);
-        toast.error("Failed to create checkout session");
+        console.error("Error invoking create-checkout function:", error);
+        toast.error(`Checkout failed: ${error.message}. Check console for details.`);
         return null;
       }
+      
+      console.log("Response from create-checkout function:", data);
 
       if (data.success && data.url) {
         return data.url;
       }
       
+      // Handle cases where the function executed but returned an error
+      if (data.success === false) { // Explicitly check for false
+        console.error("Server-side error during checkout creation:", data.error);
+        toast.error(data.error || "An unknown error occurred on the server.");
+      }
+
       return null;
     } catch (error) {
-      console.error("Error creating checkout session:", error);
-      toast.error("Failed to create checkout session");
+      console.error("Caught exception in createCheckoutSession:", error);
+      toast.error("An unexpected error occurred while creating checkout session.");
       return null;
     }
   };
