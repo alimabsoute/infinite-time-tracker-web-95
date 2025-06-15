@@ -74,9 +74,9 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       
       // First try to get subscription info from our database
       const { data: dbSubscription, error: dbError } = await supabase
-        .from('subscribers')
+        .from('profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (dbError) {
@@ -90,7 +90,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         console.error("Error checking subscription:", error);
         // Fall back to database data if edge function fails
         if (dbSubscription) {
-          setSubscribed(dbSubscription.subscribed);
+          setSubscribed(dbSubscription.subscribed ?? false);
           setSubscriptionTier(normalizeSubscriptionTier(dbSubscription.subscription_tier));
           setSubscriptionEnd(dbSubscription.subscription_end ? new Date(dbSubscription.subscription_end) : null);
         } else {
