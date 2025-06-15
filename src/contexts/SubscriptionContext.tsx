@@ -80,8 +80,9 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       if (error) {
         console.error("Error checking subscription via function:", error);
         // Fallback to reading directly from the database if the function fails
-        const { data: dbData, error: dbError } = await supabase
-          .from('subscribers')
+        // NOTE: We cast to `any` because the auto-generated Supabase types might be
+        // stale after a migration, causing build errors. This is a temporary workaround.
+        const { data: dbData, error: dbError } = await (supabase.from('subscribers') as any)
           .select('subscribed, subscription_tier, subscription_end')
           .eq('user_id', user.id)
           .single();
