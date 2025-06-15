@@ -8,7 +8,9 @@ import TimerHeader from './TimerHeader';
 import TimerControls from './TimerControls';
 import TimerMetadata from './TimerMetadata';
 import TimerEditForm from './TimerEditForm';
+import PomodoroTimer from '../pomodoro/PomodoroTimer';
 import DeletionAnimation from '../animations/DeletionAnimations';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type TimerProps = {
   timer: TimerType;
@@ -41,6 +43,7 @@ const Timer = ({
   const [date, setDate] = useState<Date | undefined>(deadline ? new Date(deadline) : undefined);
   const [selectedPriority, setSelectedPriority] = useState<string>(priority?.toString() || 'none');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState('timer');
   const [deletionAnimationType] = useState<'explode' | 'melt' | 'crumble' | 'vaporize'>(() => {
     const animations: ('explode' | 'melt' | 'crumble' | 'vaporize')[] = ['explode', 'melt', 'crumble', 'vaporize'];
     return animations[Math.floor(Math.random() * animations.length)];
@@ -151,33 +154,50 @@ const Timer = ({
               onDeleteClick={handleDelete}
             />
             
-            <div className="grid grid-cols-1 gap-0">
-              <div className="flex items-center justify-center">
-                <TimerDisplay
-                  currentTime={currentTime}
-                  isRunning={isRunning}
-                  category={category}
-                  timerColor={timerColor}
-                />
-              </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-3">
+                <TabsTrigger value="timer" className="text-xs">Timer</TabsTrigger>
+                <TabsTrigger value="pomodoro" className="text-xs">Pomodoro</TabsTrigger>
+              </TabsList>
               
-              <div className="space-y-1">
-                <TimerControls
-                  isRunning={isRunning}
-                  onToggle={() => onToggle(id)}
-                  onReset={() => onReset(id)}
-                  timerColor={timerColor}
+              <TabsContent value="timer" className="space-y-0">
+                <div className="grid grid-cols-1 gap-0">
+                  <div className="flex items-center justify-center">
+                    <TimerDisplay
+                      currentTime={currentTime}
+                      isRunning={isRunning}
+                      category={category}
+                      timerColor={timerColor}
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <TimerControls
+                      isRunning={isRunning}
+                      onToggle={() => onToggle(id)}
+                      onReset={() => onReset(id)}
+                      timerColor={timerColor}
+                    />
+                    
+                    <TimerMetadata
+                      selectedPriority={selectedPriority}
+                      date={date}
+                      isOverdue={!!isOverdue}
+                      onPriorityChange={handlePriorityChange}
+                      onDateSelect={handleDateSelect}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="pomodoro" className="space-y-0">
+                <PomodoroTimer
+                  timerId={id}
+                  isTimerRunning={isRunning}
+                  onTimerToggle={() => onToggle(id)}
                 />
-                
-                <TimerMetadata
-                  selectedPriority={selectedPriority}
-                  date={date}
-                  isOverdue={!!isOverdue}
-                  onPriorityChange={handlePriorityChange}
-                  onDateSelect={handleDateSelect}
-                />
-              </div>
-            </div>
+              </TabsContent>
+            </Tabs>
             
             {/* Running indicator pulse */}
             {isRunning && (

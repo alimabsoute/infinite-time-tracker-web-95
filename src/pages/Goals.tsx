@@ -5,7 +5,7 @@ import { useGoals } from '@/hooks/useGoals';
 import { useGoalProgressAutomation } from '@/hooks/useGoalProgressAutomation';
 import { useTimers } from '@/hooks/useTimers';
 import { Button } from '@/components/ui/button';
-import { Plus, Target, Trophy, Clock, Calendar, Zap } from 'lucide-react';
+import { Plus, Target, Trophy, Clock, Calendar, Zap, Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -14,12 +14,15 @@ import CreateGoalDialog from '@/components/goals/CreateGoalDialog';
 import GoalCard from '@/components/goals/GoalCard';
 import GoalTemplates from '@/components/goals/GoalTemplates';
 import GoalTimerAssociation from '@/components/goals/GoalTimerAssociation';
+import PomodoroSettingsComponent from '@/components/pomodoro/PomodoroSettings';
+import { usePomodoro } from '@/hooks/usePomodoro';
 import { Goal } from '@/types/goals';
 
 const Goals = () => {
   const { goals, loading, createGoal, updateGoal, deleteGoal } = useGoals();
   const { timers } = useTimers();
   const { updateAllGoalProgress } = useGoalProgressAutomation();
+  const { pomodoroState, saveSettings } = usePomodoro();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
 
@@ -190,6 +193,7 @@ const Goals = () => {
             <TabsTrigger value="active">Active ({activeGoals.length})</TabsTrigger>
             <TabsTrigger value="completed">Completed ({completedGoals.length})</TabsTrigger>
             <TabsTrigger value="automation">Timer Links</TabsTrigger>
+            <TabsTrigger value="pomodoro">Pomodoro</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
           </TabsList>
 
@@ -278,6 +282,13 @@ const Goals = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="pomodoro" className="space-y-4">
+            <PomodoroSettingsComponent
+              settings={pomodoroState.settings}
+              onSettingsChange={saveSettings}
+            />
           </TabsContent>
 
           <TabsContent value="templates">
