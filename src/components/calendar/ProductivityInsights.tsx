@@ -5,16 +5,21 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Clock, Target, Calendar, Zap } from 'lucide-react';
 import { useProductivityInsights } from '../../hooks/useProductivityInsights';
-import { Timer } from "../../types";
+import { Timer, TimerSessionWithTimer } from "../../types";
 import { format } from 'date-fns';
 
 interface ProductivityInsightsProps {
   timers: Timer[];
+  sessions: TimerSessionWithTimer[];
   formatTime: (ms: number) => string;
 }
 
-const ProductivityInsights: React.FC<ProductivityInsightsProps> = ({ timers, formatTime }) => {
-  const insights = useProductivityInsights(timers);
+const ProductivityInsights: React.FC<ProductivityInsightsProps> = ({ 
+  timers, 
+  sessions, 
+  formatTime 
+}) => {
+  const insights = useProductivityInsights(timers, sessions);
 
   const insights_cards = [
     {
@@ -37,7 +42,7 @@ const ProductivityInsights: React.FC<ProductivityInsightsProps> = ({ timers, for
       value: formatTime(insights.averageSessionTime),
       icon: Clock,
       color: 'text-blue-500',
-      description: `Across ${timers.length} sessions`
+      description: `Across ${sessions.length} sessions`
     },
     {
       title: "Completion Rate",
@@ -45,7 +50,7 @@ const ProductivityInsights: React.FC<ProductivityInsightsProps> = ({ timers, for
       icon: Target,
       color: insights.completionRate >= 70 ? 'text-green-500' : 
              insights.completionRate >= 40 ? 'text-yellow-500' : 'text-red-500',
-      description: "Tasks with meaningful time"
+      description: "Sessions with meaningful time"
     }
   ];
 

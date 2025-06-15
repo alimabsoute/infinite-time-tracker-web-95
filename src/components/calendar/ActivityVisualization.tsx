@@ -22,6 +22,11 @@ const ActivityVisualization: React.FC<ActivityVisualizationProps> = ({
   sessions,
   formatTime
 }) => {
+  console.log('ActivityVisualization - Rendering with:', {
+    timersCount: filteredTimers.length,
+    sessionsCount: sessions.length
+  });
+
   return (
     <div className="space-y-6">
       <Tabs defaultValue="insights" className="w-full">
@@ -53,7 +58,11 @@ const ActivityVisualization: React.FC<ActivityVisualizationProps> = ({
         </TabsList>
 
         <TabsContent value="insights" className="mt-6">
-          <ProductivityInsights timers={filteredTimers} formatTime={formatTime} />
+          <ProductivityInsights 
+            timers={filteredTimers} 
+            sessions={sessions}
+            formatTime={formatTime} 
+          />
         </TabsContent>
 
         <TabsContent value="categories" className="mt-6">

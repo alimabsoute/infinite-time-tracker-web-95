@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { format, startOfWeek, addDays, subWeeks, addWeeks } from 'date-fns';
+import { format, startOfWeek, addDays, subWeeks, addWeeks, isSameDay } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -14,7 +14,7 @@ interface WeekData {
   date: Date;
   day: string;
   totalHours: number;
-  timers: number; // Note: this now represents session count
+  timers: number; // Session count
 }
 
 interface WeekViewProps {
@@ -24,61 +24,85 @@ interface WeekViewProps {
 }
 
 const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelectedDate }) => {
-  // State for week navigation and chart type
-  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
+  // Initialize with the week containing the selected date
+  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => 
     startOfWeek(selectedDate || new Date())
   );
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
   
-  // Update currentWeekStart when selectedDate changes
+  console.log('WeekView - Initializing with selectedDate:', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none');
+  console.log('WeekView - Initial currentWeekStart:', format(currentWeekStart, 'yyyy-MM-dd'));
+  console.log('WeekView - Total sessions available:', sessions.length);
+  
+  // Update currentWeekStart when selectedDate changes significantly
   useEffect(() => {
     if (selectedDate) {
-      setCurrentWeekStart(startOfWeek(selectedDate));
+      const selectedWeekStart = startOfWeek(selectedDate);
+      // Only update if we're viewing a different week
+      if (!isSameDay(selectedWeekStart, currentWeekStart)) {
+        console.log('WeekView - Updating week start from', format(currentWeekStart, 'yyyy-MM-dd'), 'to', format(selectedWeekStart, 'yyyy-MM-dd'));
+        setCurrentWeekStart(selectedWeekStart);
+      }
     }
-  }, [selectedDate]);
+  }, [selectedDate, currentWeekStart]);
 
-  // Generate week data dynamically based on current week start and sessions
+  // Generate week data based on current week start and sessions
   const weekData = useMemo(() => {
+    console.log('WeekView - Generating week data for week starting:', format(currentWeekStart, 'yyyy-MM-dd'));
+    
     const data = Array.from({ length: 7 }, (_, i) => {
       const date = addDays(currentWeekStart, i);
       const daySessions = getSessionsForDate(date, sessions);
       const totalTime = daySessions.reduce((total, session) => total + (session.duration_ms || 0), 0);
       
+      console.log(`WeekView - ${format(date, 'yyyy-MM-dd')}:`, {
+        sessionsCount: daySessions.length,
+        totalTimeMs: totalTime,
+        totalHours: totalTime / 3600000
+      });
+      
       return {
         date,
         day: format(date, 'EEE'),
-        totalHours: totalTime / 3600000, // Convert to hours
-        timers: daySessions.length // Represents session count
+        totalHours: totalTime / 3600000,
+        timers: daySessions.length
       };
     });
     
-    console.log('WeekView - Generated weekData from sessions:', data);
+    console.log('WeekView - Final week data:', data.map(d => ({
+      day: d.day,
+      date: format(d.date, 'yyyy-MM-dd'),
+      hours: d.totalHours.toFixed(2),
+      sessions: d.timers
+    })));
+    
     return data;
   }, [currentWeekStart, sessions]);
   
   // Navigate to previous/next week
   const navigateWeek = (direction: 'previous' | 'next') => {
-    setCurrentWeekStart(prevDate => 
-      direction === 'previous' 
-        ? subWeeks(prevDate, 1) 
-        : addWeeks(prevDate, 1)
-    );
+    const newWeekStart = direction === 'previous' 
+      ? subWeeks(currentWeekStart, 1) 
+      : addWeeks(currentWeekStart, 1);
+    
+    console.log('WeekView - Navigating', direction, 'to week starting:', format(newWeekStart, 'yyyy-MM-dd'));
+    setCurrentWeekStart(newWeekStart);
   };
 
-  // Calculate average hours per day for reference line
+  // Calculate average hours per day
   const averageHours = useMemo(() => {
     const totalHours = weekData.reduce((sum, day) => sum + day.totalHours, 0);
     const avg = totalHours > 0 ? totalHours / 7 : 0;
-    console.log('WeekView - Average hours:', avg);
+    console.log('WeekView - Average hours calculated:', avg, 'from total:', totalHours);
     return avg;
   }, [weekData]);
   
   // Handle bar/day click to update selected date
   const handleBarClick = (data: any) => {
     if (data && data.date) {
+      console.log("WeekView - Bar clicked, setting selected date to:", format(data.date, 'yyyy-MM-dd'));
       setSelectedDate(data.date);
-      console.log("WeekView - Selected date:", format(data.date, 'yyyy-MM-dd'));
     }
   };
   
