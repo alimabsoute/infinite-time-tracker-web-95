@@ -42,8 +42,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (event === 'SIGNED_IN') {
           toast.success('Signed in successfully');
-          // Redirect to dashboard after successful login
-          if (window.location.pathname === '/login' || window.location.pathname === '/signup' || window.location.pathname === '/') {
+          // Only redirect to dashboard if coming from login/signup pages, not from landing page
+          const currentPath = window.location.pathname;
+          if (currentPath === '/login' || currentPath === '/signup') {
             window.location.href = '/dashboard';
           }
         } else if (event === 'SIGNED_OUT') {
