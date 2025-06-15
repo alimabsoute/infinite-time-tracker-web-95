@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,29 +73,30 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       setIsLoading(true);
       
-      // First try to get subscription info from our database
-      const { data: dbSubscription, error: dbError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (dbError) {
-        console.error("Database error:", dbError);
-      }
-
-      // Then call the edge function to sync with Stripe and update database
+      // The edge function is the single source of truth.
+      // It syncs with Stripe and updates our 'subscribers' table.
       const { data, error } = await supabase.functions.invoke("check-subscription");
       
       if (error) {
-        console.error("Error checking subscription:", error);
-        // Fall back to database data if edge function fails
-        if (dbSubscription) {
-          setSubscribed(dbSubscription.subscribed ?? false);
-          setSubscriptionTier(normalizeSubscriptionTier(dbSubscription.subscription_tier));
-          setSubscriptionEnd(dbSubscription.subscription_end ? new Date(dbSubscription.subscription_end) : null);
-        } else {
+        console.error("Error checking subscription via function:", error);
+        // Fallback to reading directly from the database if the function fails
+        const { data: dbData, error: dbError } = await supabase
+          .from('subscribers')
+          .select('subscribed, subscription_tier, subscription_end')
+          .eq('user_id', user.id)
+          .single();
+
+        if (dbError) {
+          console.error("Error fetching subscription from DB:", dbError);
           toast.error("Failed to check subscription status");
+          setSubscribed(false);
+          setSubscriptionTier("free");
+          setSubscriptionEnd(null);
+        } else if (dbData) {
+          toast.info("Displaying last known subscription status.");
+          setSubscribed(dbData.subscribed ?? false);
+          setSubscriptionTier(normalizeSubscriptionTier(dbData.subscription_tier));
+          setSubscriptionEnd(dbData.subscription_end ? new Date(dbData.subscription_end) : null);
         }
         return;
       }
@@ -103,10 +105,13 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setSubscribed(data.subscribed);
         setSubscriptionTier(normalizeSubscriptionTier(data.subscription_tier));
         setSubscriptionEnd(data.subscription_end ? new Date(data.subscription_end) : null);
+      } else {
+        // The function executed but returned success: false
+        toast.error(data.error || "An unknown error occurred while checking subscription.");
       }
     } catch (error) {
-      console.error("Error checking subscription:", error);
-      toast.error("Failed to check subscription status");
+      console.error("Error in checkSubscription process:", error);
+      toast.error("A critical error occurred while checking subscription status.");
     } finally {
       setIsLoading(false);
     }
