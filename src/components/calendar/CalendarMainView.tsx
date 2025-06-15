@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
 import { motion } from "framer-motion";
@@ -109,84 +110,79 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   
   return (
     <motion.div 
-      className="flex flex-col items-center space-y-6 w-full"
+      className="space-y-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
       {/* Upcoming Deadlines Section */}
-      <div className="w-full max-w-4xl">
-        <UpcomingDeadlines timers={timers} />
-      </div>
+      <UpcomingDeadlines timers={timers} />
 
-      {/* Centered Calendar Section */}
-      <div className="w-full max-w-4xl flex justify-center">
-        <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300 w-full">
-          <CalendarHeader 
-            currentMonth={currentMonth} 
-            onMonthChange={handleMonthChange} 
+      {/* Calendar Section */}
+      <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
+        <CalendarHeader 
+          currentMonth={currentMonth} 
+          onMonthChange={handleMonthChange} 
+        />
+        <CardContent className="p-4 pt-0">
+          <CalendarControls
+            currentMonth={currentMonth}
+            isExpanded={isExpanded}
+            calendarView={calendarView}
+            toggleExpand={toggleExpand}
+            toggleYearView={toggleYearView}
+            goToToday={goToToday}
+            setCurrentMonth={setCurrentMonth}
           />
-          <CardContent className="p-4 pt-0">
-            <CalendarControls
-              currentMonth={currentMonth}
-              isExpanded={isExpanded}
-              calendarView={calendarView}
-              toggleExpand={toggleExpand}
-              toggleYearView={toggleYearView}
-              goToToday={goToToday}
-              setCurrentMonth={setCurrentMonth}
-            />
-            
-            <motion.div
-              layout
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="flex justify-center"
-            >
-              {calendarView === 'month' ? (
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  month={currentMonth}
-                  onMonthChange={setCurrentMonth}
-                  className="rounded-md border border-border/40 p-3 pointer-events-auto w-full max-w-[600px]"
-                  components={{
-                    Day: enhancedDayRenderer
-                  }}
-                  showOutsideDays={true}
-                  numberOfMonths={1}
-                />
-              ) : (
-                <YearView
-                  currentMonth={currentMonth}
-                  selectedDate={selectedDate}
-                  setCurrentMonth={setCurrentMonth}
-                  setCalendarView={setCalendarView}
-                />
-              )}
-            </motion.div>
-            
-            {/* Calendar summary and stats */}
-            <CalendarStats
-              daysWithData={daysWithData}
-              mostActiveDay={mostActiveDay}
-              setSelectedDate={setSelectedDate}
-            />
-            
-            {/* Color scale legend */}
-            <ColorLegend />
-          </CardContent>
-        </Card>
-      </div>
+          
+          <motion.div
+            layout
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="flex justify-center"
+          >
+            {calendarView === 'month' ? (
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                month={currentMonth}
+                onMonthChange={setCurrentMonth}
+                className="rounded-md border border-border/40 p-3 pointer-events-auto w-full max-w-[600px]"
+                components={{
+                  Day: enhancedDayRenderer
+                }}
+                showOutsideDays={true}
+                numberOfMonths={1}
+              />
+            ) : (
+              <YearView
+                currentMonth={currentMonth}
+                selectedDate={selectedDate}
+                setCurrentMonth={setCurrentMonth}
+                setCalendarView={setCalendarView}
+              />
+            )}
+          </motion.div>
+          
+          {/* Calendar summary and stats */}
+          <CalendarStats
+            daysWithData={daysWithData}
+            mostActiveDay={mostActiveDay}
+            setSelectedDate={setSelectedDate}
+          />
+          
+          {/* Color scale legend */}
+          <ColorLegend />
+        </CardContent>
+      </Card>
       
-      {/* Daily details - centered below calendar */}
+      {/* Daily details */}
       <motion.div
         key={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "no-date"}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className="w-full max-w-4xl"
       >
         <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
           <CardContent className="pt-6">
