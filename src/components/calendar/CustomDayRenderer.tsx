@@ -172,10 +172,8 @@ export const renderDay = (
           deadlineStyle,
           // Override with selection styling if selected
           isSelected && !hasDeadlines && "bg-primary text-primary-foreground",
-          isSelected && hasDeadlines && "ring-2 ring-primary ring-offset-1",
-          // Hover effects
-          !isSelected && !hasDeadlines && "hover:bg-secondary/50",
-          !isSelected && hasDeadlines && "hover:brightness-110"
+          isSelected && hasDeadlines && "ring-2 ring-primary ring-offset-1"
+          // Removed conflicting hover effects that caused blinking
         )}
         whileHover={{ scale: 1.05 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
@@ -220,10 +218,10 @@ export const renderDay = (
       </motion.div>
     );
 
-    // Use HoverCard instead of Tooltip to prevent flickering
+    // Use HoverCard with increased delay to prevent flickering
     if (hasActivity || hasDeadlines) {
       return (
-        <HoverCard openDelay={300} closeDelay={100}>
+        <HoverCard openDelay={500} closeDelay={200}>
           <HoverCardTrigger asChild>
             {dayContent}
           </HoverCardTrigger>

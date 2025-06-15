@@ -5,9 +5,9 @@ import { Timer } from "../../types";
 import DayViewHeader from './DayViewHeader';
 import DeadlinesList from './DeadlinesList';
 import DayViewSummary from './DayViewSummary';
-import TimersList from './TimersList';
+import HorizontalTimerDisplay from './HorizontalTimerDisplay';
 import DayViewFilters from './DayViewFilters';
-import { getAllTimersForDate, getTimersForDate, getTimersWithDeadlinesForDate } from './CalendarUtils';
+import { getTimersForDate, getTimersWithDeadlinesForDate } from './CalendarUtils';
 
 interface DayViewProps {
   selectedDate: Date | undefined;
@@ -63,7 +63,7 @@ const DayView: React.FC<DayViewProps> = ({
   });
 
   return (
-    <>
+    <div className="space-y-6">
       <DayViewHeader 
         selectedDate={selectedDate} 
         hasDeadlines={deadlineTimers.length > 0}
@@ -85,12 +85,11 @@ const DayView: React.FC<DayViewProps> = ({
         sessionCount={createdOnDateTimers.length}
       />
       
-      <TimersList
-        filteredTimers={createdOnDateTimers}
+      <HorizontalTimerDisplay
+        timers={createdOnDateTimers}
         formatTime={formatTime}
-        totalTrackedTime={totalTrackedTime}
       />
-    </>
+    </div>
   );
 };
 
