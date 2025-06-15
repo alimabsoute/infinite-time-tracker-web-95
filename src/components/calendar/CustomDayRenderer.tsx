@@ -22,7 +22,7 @@ export const renderDay = (
   getColor: GetColorFunction,
   getAllTimers: GetAllTimersFunction
 ) => {
-  return function DayContent(props: ExtendedDayContentProps) {
+  return React.memo(function DayContent(props: ExtendedDayContentProps) {
     const { date, selected, modifiers, ...otherProps } = props;
     
     if (!date) {
@@ -37,16 +37,15 @@ export const renderDay = (
     // Use the utility function for consistent deadline detection
     const deadlineTimers = getTimersWithDeadlinesForDate(date, allDayTimers);
     
-    console.log(`CustomDayRenderer - ${format(date, 'yyyy-MM-dd')}:`, {
-      totalTimers: allDayTimers.length,
-      createdTimers: createdTimers.length,
-      deadlineTimers: deadlineTimers.length,
-      timeTracked: timeTracked,
-      deadlineDetails: deadlineTimers.map(t => ({ 
-        name: t.name, 
-        deadline: t.deadline ? format(new Date(t.deadline), 'yyyy-MM-dd HH:mm') : 'no deadline'
-      }))
-    });
+    // Reduce console logging frequency - only log for dates with data
+    if (deadlineTimers.length > 0 || createdTimers.length > 0) {
+      console.log(`CustomDayRenderer - ${format(date, 'yyyy-MM-dd')}:`, {
+        totalTimers: allDayTimers.length,
+        createdTimers: createdTimers.length,
+        deadlineTimers: deadlineTimers.length,
+        timeTracked: timeTracked
+      });
+    }
     
     // Check for overdue deadlines
     const overdueDeadlines = deadlineTimers.filter(timer => 
@@ -68,7 +67,7 @@ export const renderDay = (
     const isSelected = selected || (modifiers && modifiers.selected);
     
     // Format time for tooltip
-    const formattedTime = (() => {
+    const formattedTime = React.useMemo(() => {
       const totalSeconds = Math.floor(timeTracked / 1000);
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -77,7 +76,7 @@ export const renderDay = (
         return `${hours}h ${minutes}m`;
       }
       return minutes > 0 ? `${minutes}m` : 'No activity';
-    })();
+    }, [timeTracked]);
     
     // Get activity level for visual intensity - more prominent indicators
     const getActivityLevel = () => {
@@ -123,8 +122,8 @@ export const renderDay = (
     
     const activityStyle = getActivityStyle();
     
-    // Create tooltip content
-    const tooltipContent = (
+    // Create tooltip content - memoized to prevent unnecessary re-renders
+    const tooltipContent = React.useMemo(() => (
       <div className="max-w-64 p-1">
         <div className="font-semibold mb-2 text-sm">{format(date, 'EEEE, MMM d, yyyy')}</div>
         
@@ -182,7 +181,7 @@ export const renderDay = (
           <div className="text-xs text-muted-foreground">No activity or deadlines</div>
         )}
       </div>
-    );
+    ), [date, hasDeadlines, hasTimerSessions, hasActivity, hasOverdueDeadlines, hasTodayDeadlines, deadlineTimers, createdTimers, formattedTime]);
 
     const dayContent = (
       <motion.div 
@@ -252,14 +251,19 @@ export const renderDay = (
       </motion.div>
     );
 
-    // Use HoverCard with increased delays to prevent blinking
+    // Use HoverCard with longer delays to prevent flickering
     if (hasActivity || hasDeadlines || hasTimerSessions) {
       return (
-        <HoverCard openDelay={500} closeDelay={300}>
+        <HoverCard openDelay={700} closeDelay={400}>
           <HoverCardTrigger asChild>
             {dayContent}
           </HoverCardTrigger>
-          <HoverCardContent side="top" className="z-50 w-auto p-3" avoidCollisions={true}>
+          <HoverCardContent 
+            side="top" 
+            className="z-50 w-auto p-3" 
+            avoidCollisions={true}
+            sideOffset={8}
+          >
             {tooltipContent}
           </HoverCardContent>
         </HoverCard>
@@ -267,5 +271,5 @@ export const renderDay = (
     }
 
     return dayContent;
-  };
+  });
 };

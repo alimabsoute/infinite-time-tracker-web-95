@@ -24,10 +24,20 @@ export const getTimersForDate = (date: Date | undefined, timers: Timer[]): Timer
   const endOfDay = new Date(date);
   endOfDay.setHours(23, 59, 59, 999);
   
-  return timers.filter(timer => {
+  const result = timers.filter(timer => {
     const timerDate = new Date(timer.createdAt);
-    return timerDate >= startOfDay && timerDate <= endOfDay;
+    const isMatch = timerDate >= startOfDay && timerDate <= endOfDay;
+    return isMatch;
   });
+  
+  console.log(`getTimersForDate - ${date.toDateString()}:`, {
+    targetDate: date.toDateString(),
+    totalTimers: timers.length,
+    matchingTimers: result.length,
+    matches: result.map(t => ({ name: t.name, createdAt: new Date(t.createdAt).toISOString() }))
+  });
+  
+  return result;
 };
 
 // Calculate timers that have deadlines on a specific date - TIMEZONE FIXED VERSION
@@ -50,19 +60,11 @@ export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Ti
     
     const isMatch = deadlineDateStr === targetDateStr;
     
-    // Debug log for deadline detection
-    console.log(`Deadline check for ${timer.name}:`, {
-      targetDateStr,
-      deadlineDateStr,
-      originalDeadline: new Date(timer.deadline).toISOString(),
-      localDeadline: deadlineDate.toString(),
-      isMatch
-    });
-    
     return isMatch;
   });
   
-  console.log(`getTimersWithDeadlinesForDate for ${targetDateStr}:`, {
+  console.log(`getTimersWithDeadlinesForDate - ${targetDateStr}:`, {
+    targetDateStr,
     inputTimers: timers.length,
     timersWithDeadlines: timers.filter(t => t.deadline).length,
     matchingDeadlines: result.length,
@@ -87,11 +89,17 @@ export const getAllTimersForDate = (date: Date | undefined, timers: Timer[]): Ti
     }
   });
   
-  console.log(`getAllTimersForDate for ${date.toDateString()}:`, {
+  console.log(`getAllTimersForDate - ${date.toDateString()}:`, {
     createdTimers: createdTimers.length,
     deadlineTimers: deadlineTimers.length,
-    totalTimers: allTimers.length,
-    deadlineDetails: deadlineTimers.map(t => ({ name: t.name, deadline: t.deadline }))
+    totalUniqueTimers: allTimers.length,
+    allTimerDetails: allTimers.map(t => ({ 
+      name: t.name, 
+      id: t.id,
+      createdAt: new Date(t.createdAt).toISOString(),
+      deadline: t.deadline ? new Date(t.deadline).toISOString() : null,
+      category: t.category
+    }))
   });
   
   return allTimers;

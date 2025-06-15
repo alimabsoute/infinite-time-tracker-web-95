@@ -17,7 +17,10 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
   timers,
   formatTime
 }) => {
-  console.log('HorizontalTimerDisplay - Received timers:', timers.length, timers);
+  console.log('=== HorizontalTimerDisplay Debug ===');
+  console.log('HorizontalTimerDisplay - Received timers count:', timers?.length || 0);
+  console.log('HorizontalTimerDisplay - Received timers:', timers);
+  console.log('HorizontalTimerDisplay - Is timers array?', Array.isArray(timers));
 
   const getCategoryColor = (category?: string) => {
     switch (category) {
@@ -35,22 +38,39 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
   // Validate and filter timers data
   const validTimers = React.useMemo(() => {
     if (!Array.isArray(timers)) {
-      console.warn('HorizontalTimerDisplay - Invalid timers data:', timers);
+      console.warn('HorizontalTimerDisplay - Invalid timers data (not array):', timers);
       return [];
     }
     
-    return timers.filter(timer => 
-      timer && 
-      typeof timer === 'object' && 
-      timer.id && 
-      timer.name &&
-      typeof timer.elapsedTime === 'number'
-    );
+    const filtered = timers.filter(timer => {
+      const isValid = timer && 
+        typeof timer === 'object' && 
+        timer.id && 
+        timer.name &&
+        typeof timer.elapsedTime === 'number';
+      
+      if (!isValid) {
+        console.warn('HorizontalTimerDisplay - Invalid timer object:', timer);
+      }
+      
+      return isValid;
+    });
+    
+    console.log('HorizontalTimerDisplay - Valid timers after filtering:', filtered.length);
+    console.log('HorizontalTimerDisplay - Valid timer details:', filtered.map(t => ({
+      id: t.id,
+      name: t.name,
+      elapsedTime: t.elapsedTime,
+      category: t.category,
+      createdAt: t.createdAt,
+      deadline: t.deadline
+    })));
+    
+    return filtered;
   }, [timers]);
 
-  console.log('HorizontalTimerDisplay - Valid timers:', validTimers.length, validTimers);
-
   if (validTimers.length === 0) {
+    console.log('HorizontalTimerDisplay - No valid timers to display');
     return (
       <div className="text-center py-8 text-muted-foreground">
         <div className="flex flex-col items-center gap-3">
@@ -69,17 +89,24 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
 
   // Sort timers by creation time (most recent first)
   const sortedTimers = React.useMemo(() => {
-    return [...validTimers].sort((a, b) => {
+    const sorted = [...validTimers].sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
       return dateB - dateA;
     });
+    
+    console.log('HorizontalTimerDisplay - Sorted timers:', sorted.length);
+    return sorted;
   }, [validTimers]);
 
   // Calculate total time for the day
   const totalTime = React.useMemo(() => {
-    return sortedTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
+    const total = sortedTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
+    console.log('HorizontalTimerDisplay - Total time calculated:', total);
+    return total;
   }, [sortedTimers]);
+
+  console.log('HorizontalTimerDisplay - Rendering with', sortedTimers.length, 'timers');
 
   return (
     <div className="space-y-4">

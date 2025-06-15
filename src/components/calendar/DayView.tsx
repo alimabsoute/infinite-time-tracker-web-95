@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { isPast, isToday } from 'date-fns';
+import { isPast, isToday, format } from 'date-fns';
 import { Timer } from "../../types";
 import DayViewHeader from './DayViewHeader';
 import DeadlinesList from './DeadlinesList';
@@ -26,8 +26,9 @@ const DayView: React.FC<DayViewProps> = ({
   setCategoryFilter,
   categories
 }) => {
-  console.log('DayView - selectedDate:', selectedDate);
-  console.log('DayView - filteredTimers (should be all timers):', filteredTimers.length);
+  console.log('=== DayView Debug ===');
+  console.log('DayView - selectedDate:', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none');
+  console.log('DayView - total available timers:', filteredTimers.length);
 
   if (!selectedDate) {
     return (
@@ -45,25 +46,32 @@ const DayView: React.FC<DayViewProps> = ({
   
   // Apply category filter to ALL relevant timers if needed
   const displayTimers = React.useMemo(() => {
+    console.log('DayView - Applying category filter:', categoryFilter);
     if (categoryFilter === "all") {
+      console.log('DayView - No category filter, returning all relevant timers:', allRelevantTimers.length);
       return allRelevantTimers;
     }
     
-    return allRelevantTimers.filter(timer => {
+    const filtered = allRelevantTimers.filter(timer => {
       if (categoryFilter === "Uncategorized") {
         return !timer.category;
       }
       return timer.category === categoryFilter;
     });
+    
+    console.log('DayView - Category filtered timers:', filtered.length);
+    return filtered;
   }, [allRelevantTimers, categoryFilter]);
   
   // Get deadlines for the selected date using the utility function
   const deadlineTimers = getTimersWithDeadlinesForDate(selectedDate, filteredTimers);
 
-  console.log('DayView - deadlineTimers for date:', deadlineTimers);
-  console.log('DayView - createdOnDateTimers for date:', createdOnDateTimers);
-  console.log('DayView - allRelevantTimers for date:', allRelevantTimers);
-  console.log('DayView - displayTimers after filter:', displayTimers);
+  console.log('DayView - Final data for', format(selectedDate, 'yyyy-MM-dd'), ':');
+  console.log('  - deadlineTimers:', deadlineTimers.length);
+  console.log('  - createdOnDateTimers:', createdOnDateTimers.length);
+  console.log('  - allRelevantTimers:', allRelevantTimers.length);
+  console.log('  - displayTimers (after category filter):', displayTimers.length);
+  console.log('  - displayTimers details:', displayTimers.map(t => ({ name: t.name, id: t.id, category: t.category, createdAt: t.createdAt, deadline: t.deadline })));
 
   // Get total time tracked for the selected date (only from timers created on that date)
   const totalTrackedTime = createdOnDateTimers.reduce((sum, t) => sum + t.elapsedTime, 0);
