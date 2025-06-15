@@ -18,7 +18,7 @@ export const renderDay = (
   getAllTimers: GetAllTimersFunction
 ) => {
   return function DayContent(props: DayProps): React.ReactElement {
-    const { date, modifiers } = props;
+    const { date, displayMonth, ...dayProps } = props;
     
     if (!date) {
       return <div>-</div>;
@@ -59,8 +59,9 @@ export const renderDay = (
     const hasTodayDeadlines = todayDeadlines.length > 0;
     const hasTimerSessions = createdTimers.length > 0;
     
-    // Access selected state from modifiers
-    const isSelected = modifiers?.selected || false;
+    // Check if this day is selected by examining the button element's aria-selected attribute
+    // This is a workaround since DayProps doesn't directly expose selection state
+    const isSelected = (dayProps as any)['aria-selected'] === true;
     
     // Format time for tooltip
     const formattedTime = React.useMemo(() => {
