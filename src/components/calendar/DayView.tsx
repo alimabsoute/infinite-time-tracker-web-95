@@ -5,7 +5,7 @@ import { Timer } from "../../types";
 import DayViewHeader from './DayViewHeader';
 import DeadlinesList from './DeadlinesList';
 import DayViewSummary from './DayViewSummary';
-import HorizontalTimerDisplay from './HorizontalTimerDisplay';
+import QuickStatsDashboard from './QuickStatsDashboard';
 import DayViewFilters from './DayViewFilters';
 import { getTimersForDate, getTimersWithDeadlinesForDate, getAllTimersForDate } from './CalendarUtils';
 
@@ -52,25 +52,6 @@ const DayView: React.FC<DayViewProps> = ({
     return result;
   }, [selectedDate, filteredTimers]);
   
-  // Apply category filter to ALL relevant timers if needed
-  const displayTimers = React.useMemo(() => {
-    console.log('DayView - Applying category filter:', categoryFilter);
-    if (categoryFilter === "all") {
-      console.log('DayView - No category filter, returning all relevant timers:', allRelevantTimers.length);
-      return allRelevantTimers;
-    }
-    
-    const filtered = allRelevantTimers.filter(timer => {
-      if (categoryFilter === "Uncategorized") {
-        return !timer.category;
-      }
-      return timer.category === categoryFilter;
-    });
-    
-    console.log('DayView - Category filtered timers:', filtered.length);
-    return filtered;
-  }, [allRelevantTimers, categoryFilter]);
-  
   // Get deadlines for the selected date using the utility function
   const deadlineTimers = React.useMemo(() => {
     const result = getTimersWithDeadlinesForDate(selectedDate, filteredTimers);
@@ -82,14 +63,6 @@ const DayView: React.FC<DayViewProps> = ({
   console.log('  - deadlineTimers:', deadlineTimers.length);
   console.log('  - createdOnDateTimers:', createdOnDateTimers.length);
   console.log('  - allRelevantTimers:', allRelevantTimers.length);
-  console.log('  - displayTimers (after category filter):', displayTimers.length);
-  console.log('  - displayTimers details:', displayTimers.map(t => ({ 
-    name: t.name, 
-    id: t.id, 
-    category: t.category, 
-    createdAt: t.createdAt, 
-    deadline: t.deadline 
-  })));
 
   // Get total time tracked for the selected date (only from timers created on that date)
   const totalTrackedTime = createdOnDateTimers.reduce((sum, t) => sum + t.elapsedTime, 0);
@@ -130,9 +103,9 @@ const DayView: React.FC<DayViewProps> = ({
         sessionCount={createdOnDateTimers.length}
       />
       
-      <HorizontalTimerDisplay
-        timers={displayTimers}
-        formatTime={formatTime}
+      <QuickStatsDashboard
+        selectedDate={selectedDate}
+        timers={filteredTimers}
       />
     </div>
   );
