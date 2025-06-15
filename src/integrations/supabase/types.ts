@@ -9,7 +9,110 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          id: string
+          subscribed: boolean | null
+          subscription_end: string | null
+          subscription_tier: string | null
+        }
+        Insert: {
+          id: string
+          subscribed?: boolean | null
+          subscription_end?: string | null
+          subscription_tier?: string | null
+        }
+        Update: {
+          id?: string
+          subscribed?: boolean | null
+          subscription_end?: string | null
+          subscription_tier?: string | null
+        }
+        Relationships: []
+      }
+      timer_sessions: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          end_time: string | null
+          id: string
+          start_time: string
+          timer_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          end_time?: string | null
+          id?: string
+          start_time: string
+          timer_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          timer_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timer_sessions_timer_id_fkey"
+            columns: ["timer_id"]
+            isOneToOne: false
+            referencedRelation: "timers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      timers: {
+        Row: {
+          category: string | null
+          created_at: string
+          deadline: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          elapsed_time: number
+          id: string
+          is_running: boolean
+          name: string
+          priority: number | null
+          tags: string[] | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          deadline?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          elapsed_time?: number
+          id?: string
+          is_running?: boolean
+          name: string
+          priority?: number | null
+          tags?: string[] | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          deadline?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          elapsed_time?: number
+          id?: string
+          is_running?: boolean
+          name?: string
+          priority?: number | null
+          tags?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,4 +1,5 @@
-import { Timer, TimerSession } from "../../types";
+
+import { Timer, TimerSession, TimerSessionWithTimer } from "../../types";
 import { isSameDay, parseISO } from "date-fns";
 
 // Format time for display
@@ -16,19 +17,19 @@ export const formatTime = (milliseconds: number): string => {
 // --- NEW SESSION-BASED FUNCTIONS ---
 
 // Get all sessions that occurred on a specific date
-export const getSessionsForDate = (date: Date, sessions: TimerSession[]): TimerSession[] => {
+export const getSessionsForDate = (date: Date, sessions: TimerSessionWithTimer[]): TimerSessionWithTimer[] => {
   if (!date || !sessions) return [];
   return sessions.filter(session => isSameDay(parseISO(session.start_time), date));
 };
 
 // Calculate total time tracked for a specific date from sessions
-export const getTotalTimeForDate = (date: Date, sessions: TimerSession[]): number => {
+export const getTotalTimeForDate = (date: Date, sessions: TimerSessionWithTimer[]): number => {
   const daySessions = getSessionsForDate(date, sessions);
   return daySessions.reduce((total, session) => total + (session.duration_ms || 0), 0);
 };
 
 // Generate color intensity based on activity level from sessions
-export const getHeatMapColor = (date: Date, sessions: TimerSession[]): string => {
+export const getHeatMapColor = (date: Date, sessions: TimerSessionWithTimer[]): string => {
   const totalTime = getTotalTimeForDate(date, sessions);
   
   if (totalTime === 0) return "bg-transparent";
