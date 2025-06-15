@@ -252,22 +252,15 @@ export const renderDay = (
       </motion.div>
     );
 
-    // Use optimized Tooltip component with anti-flicker settings
+    // Simplified tooltip implementation
     if (hasActivity || hasDeadlines || hasTimerSessions) {
       return (
-        <TooltipProvider delayDuration={800} skipDelayDuration={300}>
-          <Tooltip delayDuration={800} disableHoverableContent={false}>
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
             <TooltipTrigger asChild>
-              <div className="relative inline-block p-1">
-                {dayContent}
-              </div>
+              {dayContent}
             </TooltipTrigger>
-            <TooltipContent 
-              side="top" 
-              className="z-50 w-auto p-3 pointer-events-auto" 
-              sideOffset={12}
-              collisionPadding={8}
-            >
+            <TooltipContent side="top" className="z-50 max-w-sm p-3" sideOffset={5}>
               {tooltipContent}
             </TooltipContent>
           </Tooltip>
