@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -83,22 +84,24 @@ const HeroSection = () => {
             </motion.p>
             
             <motion.div 
-              className="flex flex-wrap gap-4 justify-center lg:justify-start"
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.6 }}
             >
               <Link to="/signup">
-                <Button size="lg" className="rounded-full text-lg px-8 py-6">
+                <Button 
+                  size="lg" 
+                  className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                >
                   Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
 
               <Button 
                 onClick={handleGoogleSignIn}
-                variant="outline" 
                 size="lg" 
-                className="rounded-full text-lg px-8 py-6"
+                className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
                 <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -120,9 +123,20 @@ const HeroSection = () => {
                 </svg>
                 Continue with Google
               </Button>
-              
+            </motion.div>
+            
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1, duration: 0.6 }}
+            >
               <Link to="/login">
-                <Button variant="outline" size="lg" className="rounded-full text-lg px-8 py-6">
+                <Button 
+                  variant="ghost" 
+                  size="lg" 
+                  className="w-full sm:w-auto rounded-full text-lg px-8 py-6 hover:bg-muted/50 transition-all duration-200 hover:scale-105 text-muted-foreground hover:text-foreground"
+                >
                   Sign In
                 </Button>
               </Link>
@@ -130,7 +144,7 @@ const HeroSection = () => {
               <Button 
                 onClick={handleUpgradeClick}
                 size="lg" 
-                className="rounded-full text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
                 <Crown className="mr-2 h-5 w-5" />
                 Upgrade to Pro
