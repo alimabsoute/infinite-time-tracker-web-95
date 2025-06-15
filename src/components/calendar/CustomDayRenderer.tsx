@@ -1,17 +1,12 @@
 
 import React from 'react';
-import { DayContentProps } from 'react-day-picker';
+import { DayProps } from 'react-day-picker';
 import { cn } from "@/lib/utils";
 import { motion } from 'framer-motion';
 import { Timer } from '../../types';
 import { format, isPast, isToday } from 'date-fns';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { getTimersWithDeadlinesForDate, getTimersForDate } from './CalendarUtils';
-
-interface ExtendedDayContentProps extends DayContentProps {
-  selected?: boolean;
-  modifiers?: Record<string, boolean>;
-}
 
 type GetTimeFunction = (date: Date) => number;
 type GetColorFunction = (date: Date) => string;
@@ -22,8 +17,8 @@ export const renderDay = (
   getColor: GetColorFunction,
   getAllTimers: GetAllTimersFunction
 ) => {
-  return React.memo(function DayContent(props: ExtendedDayContentProps) {
-    const { date, selected, modifiers, ...otherProps } = props;
+  return React.memo(function DayContent(props: DayProps) {
+    const { date, ...otherProps } = props;
     
     if (!date) {
       return <div>-</div>;
@@ -64,7 +59,8 @@ export const renderDay = (
     const hasTodayDeadlines = todayDeadlines.length > 0;
     const hasTimerSessions = createdTimers.length > 0;
     
-    const isSelected = selected || (modifiers && modifiers.selected);
+    // Access selected state from props
+    const isSelected = props.selected;
     
     // Format time for tooltip
     const formattedTime = React.useMemo(() => {
