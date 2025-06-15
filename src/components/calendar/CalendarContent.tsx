@@ -82,8 +82,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
           transition={{ duration: 0.3 }}
         >
           <ActivityVisualization
-            categoryDistribution={categoryDistribution}
-            filteredTimers={timers} // Use all timers for better analytics
+            filteredTimers={timers} // Pass full timer dataset for comprehensive analytics
             formatTime={formatTime}
           />
         </motion.div>

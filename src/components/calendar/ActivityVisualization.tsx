@@ -7,28 +7,23 @@ import ProductivityInsights from './ProductivityInsights';
 import TimeHeatmap from './TimeHeatmap';
 import CategoryPerformance from './CategoryPerformance';
 import TrendAnalysis from './TrendAnalysis';
-import { BarChart3, TrendingUp, PieChart, Zap } from 'lucide-react';
-
-interface CategoryDistributionItem {
-  name: string;
-  value: number;
-}
+import FocusAnalytics from './FocusAnalytics';
+import ProductivityHeatmap from './ProductivityHeatmap';
+import { BarChart3, TrendingUp, PieChart, Zap, Target, Calendar } from 'lucide-react';
 
 interface ActivityVisualizationProps {
-  categoryDistribution: CategoryDistributionItem[];
   filteredTimers: Timer[];
   formatTime: (ms: number) => string;
 }
 
 const ActivityVisualization: React.FC<ActivityVisualizationProps> = ({
-  categoryDistribution,
   filteredTimers,
   formatTime
 }) => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="insights" className="w-full">
-        <TabsList className="grid grid-cols-4 w-full">
+        <TabsList className="grid grid-cols-6 w-full">
           <TabsTrigger value="insights" className="flex items-center gap-2">
             <Zap className="h-4 w-4" />
             Insights
@@ -44,6 +39,14 @@ const ActivityVisualization: React.FC<ActivityVisualizationProps> = ({
           <TabsTrigger value="patterns" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Patterns
+          </TabsTrigger>
+          <TabsTrigger value="focus" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Focus
+          </TabsTrigger>
+          <TabsTrigger value="heatmap" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Heatmap
           </TabsTrigger>
         </TabsList>
 
@@ -61,6 +64,14 @@ const ActivityVisualization: React.FC<ActivityVisualizationProps> = ({
 
         <TabsContent value="patterns" className="mt-6">
           <TimeHeatmap timers={filteredTimers} formatTime={formatTime} />
+        </TabsContent>
+
+        <TabsContent value="focus" className="mt-6">
+          <FocusAnalytics timers={filteredTimers} formatTime={formatTime} />
+        </TabsContent>
+
+        <TabsContent value="heatmap" className="mt-6">
+          <ProductivityHeatmap timers={filteredTimers} formatTime={formatTime} />
         </TabsContent>
       </Tabs>
     </div>

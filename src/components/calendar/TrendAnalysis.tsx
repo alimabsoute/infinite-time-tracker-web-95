@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { format, subDays } from 'date-fns';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
+import { format, subDays, startOfWeek, addDays, subWeeks } from 'date-fns';
 import { Timer } from "../../types";
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Clock, Calendar, Target } from 'lucide-react';
 
 interface TrendAnalysisProps {
   timers: Timer[];
@@ -44,7 +44,36 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ timers, formatTime }) => 
     return data;
   };
 
+  // Generate weekly comparison data
+  const generateWeeklyData = () => {
+    const now = new Date();
+    const weeks = [];
+    
+    for (let i = 3; i >= 0; i--) {
+      const weekStart = startOfWeek(subWeeks(now, i));
+      const weekData = Array.from({ length: 7 }, (_, day) => {
+        const date = addDays(weekStart, day);
+        const dayTimers = timers.filter(timer => {
+          const timerDate = new Date(timer.createdAt);
+          return timerDate.toDateString() === date.toDateString();
+        });
+        return dayTimers.reduce((sum, timer) => sum + timer.elapsedTime, 0) / 3600000;
+      });
+      
+      const weekTotal = weekData.reduce((sum, day) => sum + day, 0);
+      weeks.push({
+        week: `Week ${4 - i}`,
+        total: weekTotal,
+        average: weekTotal / 7,
+        data: weekData
+      });
+    }
+    
+    return weeks;
+  };
+
   const trendData = generateTrendData();
+  const weeklyData = generateWeeklyData();
   
   // Calculate moving averages
   const dataWithMovingAverage = trendData.map((item, index) => {
@@ -133,7 +162,10 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ timers, formatTime }) => 
       {/* Session Patterns */}
       <Card className="glass-effect">
         <CardHeader>
-          <CardTitle className="text-lg">Session Patterns</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Session Patterns
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[250px]">
@@ -169,6 +201,44 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ timers, formatTime }) => 
                   dot={{ r: 3, fill: "hsl(var(--accent))" }}
                 />
               </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Weekly Comparison */}
+      <Card className="glass-effect">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Weekly Comparison
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[250px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={weeklyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="week" 
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={{ stroke: 'hsl(var(--border))' }}
+                />
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={{ stroke: 'hsl(var(--border))' }}
+                  tickFormatter={(value) => `${value}h`}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar
+                  dataKey="total"
+                  name="Total Hours"
+                  fill="hsl(var(--primary))"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
