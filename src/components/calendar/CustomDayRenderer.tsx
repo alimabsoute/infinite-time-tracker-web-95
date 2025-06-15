@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { motion } from 'framer-motion';
 import { Timer } from '../../types';
 import { format, isPast, isToday } from 'date-fns';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { getTimersWithDeadlinesForDate, getTimersForDate } from './CalendarUtils';
 
 type GetTimeFunction = (date: Date) => number;
@@ -24,46 +24,53 @@ export const renderDay = (
       return <div>-</div>;
     }
     
-    const allDayTimers = getAllTimers(date);
-    const timeTracked = getTime(date);
-    const createdTimers = getTimersForDate(date, allDayTimers);
-    const hasActivity = timeTracked > 0;
-    
-    // Use the utility function for consistent deadline detection
-    const deadlineTimers = getTimersWithDeadlinesForDate(date, allDayTimers);
-    
-    // Reduce console logging frequency - only log for dates with data
-    if (deadlineTimers.length > 0 || createdTimers.length > 0) {
-      console.log(`CustomDayRenderer - ${format(date, 'yyyy-MM-dd')}:`, {
-        totalTimers: allDayTimers.length,
-        createdTimers: createdTimers.length,
-        deadlineTimers: deadlineTimers.length,
-        timeTracked: timeTracked
-      });
-    }
+    // Memoize data calculations to prevent unnecessary re-renders
+    const dayData = React.useMemo(() => {
+      const allDayTimers = getAllTimers(date);
+      const timeTracked = getTime(date);
+      const createdTimers = getTimersForDate(date, allDayTimers);
+      const deadlineTimers = getTimersWithDeadlinesForDate(date, allDayTimers);
+      
+      return {
+        allDayTimers,
+        timeTracked,
+        createdTimers,
+        deadlineTimers,
+        hasActivity: timeTracked > 0
+      };
+    }, [date, getAllTimers, getTime]);
+
+    const { allDayTimers, timeTracked, createdTimers, deadlineTimers, hasActivity } = dayData;
     
     // Check for overdue deadlines
-    const overdueDeadlines = deadlineTimers.filter(timer => 
-      timer.deadline && 
-      isPast(new Date(timer.deadline)) && 
-      !isToday(new Date(timer.deadline))
-    );
-    
-    const todayDeadlines = deadlineTimers.filter(timer =>
-      timer.deadline &&
-      isToday(new Date(timer.deadline))
-    );
-    
-    const hasDeadlines = deadlineTimers.length > 0;
-    const hasOverdueDeadlines = overdueDeadlines.length > 0;
-    const hasTodayDeadlines = todayDeadlines.length > 0;
+    const deadlineAnalysis = React.useMemo(() => {
+      const overdueDeadlines = deadlineTimers.filter(timer => 
+        timer.deadline && 
+        isPast(new Date(timer.deadline)) && 
+        !isToday(new Date(timer.deadline))
+      );
+      
+      const todayDeadlines = deadlineTimers.filter(timer =>
+        timer.deadline &&
+        isToday(new Date(timer.deadline))
+      );
+      
+      return {
+        overdueDeadlines,
+        todayDeadlines,
+        hasDeadlines: deadlineTimers.length > 0,
+        hasOverdueDeadlines: overdueDeadlines.length > 0,
+        hasTodayDeadlines: todayDeadlines.length > 0
+      };
+    }, [deadlineTimers]);
+
+    const { overdueDeadlines, todayDeadlines, hasDeadlines, hasOverdueDeadlines, hasTodayDeadlines } = deadlineAnalysis;
     const hasTimerSessions = createdTimers.length > 0;
     
-    // Check if this day is selected by examining the button element's aria-selected attribute
-    // This is a workaround since DayProps doesn't directly expose selection state
+    // Check if this day is selected
     const isSelected = (dayProps as any)['aria-selected'] === true;
     
-    // Format time for tooltip
+    // Format time for tooltip - memoized
     const formattedTime = React.useMemo(() => {
       const totalSeconds = Math.floor(timeTracked / 1000);
       const hours = Math.floor(totalSeconds / 3600);
@@ -75,17 +82,15 @@ export const renderDay = (
       return minutes > 0 ? `${minutes}m` : 'No activity';
     }, [timeTracked]);
     
-    // Get activity level for visual intensity - more prominent indicators
-    const getActivityLevel = () => {
+    // Get activity level for visual intensity
+    const activityLevel = React.useMemo(() => {
       if (timeTracked === 0) return 0;
       if (timeTracked < 900000) return 1; // Less than 15 mins
       if (timeTracked < 1800000) return 2; // Less than 30 mins
       if (timeTracked < 3600000) return 3; // Less than 1 hour
       if (timeTracked < 7200000) return 4; // Less than 2 hours
       return 5; // More than 2 hours
-    };
-    
-    const activityLevel = getActivityLevel();
+    }, [timeTracked]);
     
     // Enhanced deadline styling with stronger contrast
     const getDeadlineStyle = () => {
@@ -195,7 +200,7 @@ export const renderDay = (
       >
         <div className="relative z-10 font-medium">{date.getDate()}</div>
         
-        {/* Enhanced Activity indicator - more prominent */}
+        {/* Enhanced Activity indicator */}
         {hasActivity && (
           <div className="absolute bottom-0.5 w-full flex justify-center">
             <div 
@@ -207,14 +212,13 @@ export const renderDay = (
                 activityLevel === 3 && !isSelected && "bg-blue-700/90 w-5",
                 activityLevel === 4 && !isSelected && "bg-blue-800/95 w-6",
                 activityLevel === 5 && !isSelected && "bg-blue-900 w-7",
-                // Adjust for deadline styling
                 hasDeadlines && !isSelected && "bg-white/90 shadow-sm"
               )}
             />
           </div>
         )}
         
-        {/* Timer sessions indicator - separate from activity bar */}
+        {/* Timer sessions indicator */}
         {hasTimerSessions && (
           <div className="absolute top-0.5 left-0.5">
             <motion.div 
@@ -248,22 +252,23 @@ export const renderDay = (
       </motion.div>
     );
 
-    // Use HoverCard with longer delays to prevent flickering
+    // Use stable Tooltip component with fixed delays
     if (hasActivity || hasDeadlines || hasTimerSessions) {
       return (
-        <HoverCard openDelay={700} closeDelay={400}>
-          <HoverCardTrigger asChild>
-            {dayContent}
-          </HoverCardTrigger>
-          <HoverCardContent 
-            side="top" 
-            className="z-50 w-auto p-3" 
-            avoidCollisions={true}
-            sideOffset={8}
-          >
-            {tooltipContent}
-          </HoverCardContent>
-        </HoverCard>
+        <TooltipProvider delayDuration={500}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {dayContent}
+            </TooltipTrigger>
+            <TooltipContent 
+              side="top" 
+              className="z-50 w-auto p-3" 
+              sideOffset={8}
+            >
+              {tooltipContent}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     }
 

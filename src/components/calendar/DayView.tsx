@@ -11,7 +11,7 @@ import { getTimersForDate, getTimersWithDeadlinesForDate, getAllTimersForDate } 
 
 interface DayViewProps {
   selectedDate: Date | undefined;
-  filteredTimers: Timer[]; // This should actually be all timers, not filtered
+  filteredTimers: Timer[]; // This should be all timers
   formatTime: (ms: number) => string;
   categoryFilter: string;
   setCategoryFilter: (category: string) => void;
@@ -20,7 +20,7 @@ interface DayViewProps {
 
 const DayView: React.FC<DayViewProps> = ({
   selectedDate,
-  filteredTimers, // This is actually the full timers array now
+  filteredTimers, // This is the full timers array
   formatTime,
   categoryFilter,
   setCategoryFilter,
@@ -38,11 +38,19 @@ const DayView: React.FC<DayViewProps> = ({
     );
   }
 
-  // Get ALL relevant timers for the selected date (created AND deadlines)
-  const allRelevantTimers = getAllTimersForDate(selectedDate, filteredTimers);
+  // Get ALL relevant timers for the selected date using the fixed utility functions
+  const allRelevantTimers = React.useMemo(() => {
+    const result = getAllTimersForDate(selectedDate, filteredTimers);
+    console.log('DayView - allRelevantTimers calculated:', result.length);
+    return result;
+  }, [selectedDate, filteredTimers]);
   
   // Get only timers created on the selected date for time tracking calculation
-  const createdOnDateTimers = getTimersForDate(selectedDate, filteredTimers);
+  const createdOnDateTimers = React.useMemo(() => {
+    const result = getTimersForDate(selectedDate, filteredTimers);
+    console.log('DayView - createdOnDateTimers calculated:', result.length);
+    return result;
+  }, [selectedDate, filteredTimers]);
   
   // Apply category filter to ALL relevant timers if needed
   const displayTimers = React.useMemo(() => {
@@ -64,14 +72,24 @@ const DayView: React.FC<DayViewProps> = ({
   }, [allRelevantTimers, categoryFilter]);
   
   // Get deadlines for the selected date using the utility function
-  const deadlineTimers = getTimersWithDeadlinesForDate(selectedDate, filteredTimers);
+  const deadlineTimers = React.useMemo(() => {
+    const result = getTimersWithDeadlinesForDate(selectedDate, filteredTimers);
+    console.log('DayView - deadlineTimers calculated:', result.length);
+    return result;
+  }, [selectedDate, filteredTimers]);
 
   console.log('DayView - Final data for', format(selectedDate, 'yyyy-MM-dd'), ':');
   console.log('  - deadlineTimers:', deadlineTimers.length);
   console.log('  - createdOnDateTimers:', createdOnDateTimers.length);
   console.log('  - allRelevantTimers:', allRelevantTimers.length);
   console.log('  - displayTimers (after category filter):', displayTimers.length);
-  console.log('  - displayTimers details:', displayTimers.map(t => ({ name: t.name, id: t.id, category: t.category, createdAt: t.createdAt, deadline: t.deadline })));
+  console.log('  - displayTimers details:', displayTimers.map(t => ({ 
+    name: t.name, 
+    id: t.id, 
+    category: t.category, 
+    createdAt: t.createdAt, 
+    deadline: t.deadline 
+  })));
 
   // Get total time tracked for the selected date (only from timers created on that date)
   const totalTrackedTime = createdOnDateTimers.reduce((sum, t) => sum + t.elapsedTime, 0);

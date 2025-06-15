@@ -13,25 +13,27 @@ export const formatTime = (milliseconds: number): string => {
   return `${minutes}m`;
 };
 
-// Calculate timers for selected date (by creation date)
+// FIXED: Calculate timers for selected date (by creation date) - TIMEZONE SAFE VERSION
 export const getTimersForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
   if (!date) return [];
   
-  // Set time to midnight for comparison
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-  
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
+  // Create normalized date strings for comparison (YYYY-MM-DD format)
+  const targetDateStr = date.getFullYear() + '-' + 
+    String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+    String(date.getDate()).padStart(2, '0');
   
   const result = timers.filter(timer => {
     const timerDate = new Date(timer.createdAt);
-    const isMatch = timerDate >= startOfDay && timerDate <= endOfDay;
+    const timerDateStr = timerDate.getFullYear() + '-' + 
+      String(timerDate.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(timerDate.getDate()).padStart(2, '0');
+    
+    const isMatch = timerDateStr === targetDateStr;
     return isMatch;
   });
   
-  console.log(`getTimersForDate - ${date.toDateString()}:`, {
-    targetDate: date.toDateString(),
+  console.log(`getTimersForDate - ${targetDateStr}:`, {
+    targetDateStr,
     totalTimers: timers.length,
     matchingTimers: result.length,
     matches: result.map(t => ({ name: t.name, createdAt: new Date(t.createdAt).toISOString() }))
@@ -40,7 +42,7 @@ export const getTimersForDate = (date: Date | undefined, timers: Timer[]): Timer
   return result;
 };
 
-// Calculate timers that have deadlines on a specific date - TIMEZONE FIXED VERSION
+// FIXED: Calculate timers that have deadlines on a specific date - TIMEZONE SAFE VERSION
 export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
   if (!date) return [];
   
@@ -74,7 +76,7 @@ export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Ti
   return result;
 };
 
-// Get all timers relevant to a specific date (created on that date OR have deadline on that date)
+// FIXED: Get all timers relevant to a specific date (created on that date OR have deadline on that date)
 export const getAllTimersForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
   if (!date) return [];
   
