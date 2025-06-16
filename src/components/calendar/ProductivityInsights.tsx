@@ -3,11 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Target, Calendar, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, Clock, Target, Calendar, Zap } from 'lucide-react';
 import { useProductivityInsights } from '../../hooks/useProductivityInsights';
 import { Timer, TimerSessionWithTimer } from "../../types";
 import { format } from 'date-fns';
-import PhynxTimerLogo from '../PhynxTimerLogo';
 
 interface ProductivityInsightsProps {
   timers: Timer[];
@@ -41,7 +40,7 @@ const ProductivityInsights: React.FC<ProductivityInsightsProps> = ({
     {
       title: "Avg Session",
       value: formatTime(insights.averageSessionTime),
-      icon: PhynxTimerLogo,
+      icon: Clock,
       color: 'text-blue-500',
       description: `Across ${sessions.length} sessions`
     },
@@ -70,11 +69,7 @@ const ProductivityInsights: React.FC<ProductivityInsightsProps> = ({
                     <p className="text-xl font-bold">{metric.value}</p>
                     <p className="text-xs text-muted-foreground mt-1">{metric.description}</p>
                   </div>
-                  {IconComponent === PhynxTimerLogo ? (
-                    <PhynxTimerLogo width={32} height={32} className={metric.color} />
-                  ) : (
-                    <IconComponent className={`h-8 w-8 ${metric.color}`} />
-                  )}
+                  <IconComponent className={`h-8 w-8 ${metric.color}`} />
                 </div>
               </CardContent>
             </Card>

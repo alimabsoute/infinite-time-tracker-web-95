@@ -1,8 +1,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, BarChart3 } from "lucide-react";
-import PhynxTimerLogo from "../PhynxTimerLogo";
+import { Clock, Play, Pause, BarChart3 } from "lucide-react";
 
 const AnimatedDashboard = () => {
   return (
@@ -20,7 +19,7 @@ const AnimatedDashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <PhynxTimerLogo width={20} height={20} className="text-blue-400" />
+            <Clock className="h-5 w-5 text-blue-400" />
             <h3 className="text-lg font-semibold">Active Timers</h3>
           </div>
           <div className="text-2xl font-mono">

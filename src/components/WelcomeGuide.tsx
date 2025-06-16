@@ -1,9 +1,9 @@
+
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { X, ArrowRight, Calendar, TrendingUp, Target } from "lucide-react";
-import PhynxTimerLogo from "./PhynxTimerLogo";
+import { X, ArrowRight, Timer, Calendar, TrendingUp, Target } from "lucide-react";
 
 interface WelcomeGuideProps {
   onClose: () => void;
@@ -15,7 +15,7 @@ const WelcomeGuide: React.FC<WelcomeGuideProps> = ({ onClose, onCreateTimer }) =
 
   const steps = [
     {
-      icon: <PhynxTimerLogo width={32} height={32} className="text-primary" />,
+      icon: <Timer className="h-8 w-8 text-primary" />,
       title: "Track Your Time",
       description: "Create timers for different activities like work, study, or personal projects. Click play to start tracking!"
     },

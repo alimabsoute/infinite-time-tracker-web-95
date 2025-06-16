@@ -1,8 +1,7 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, BarChart3, Calendar, Play, Pause, Flag, AlertCircle, Crown } from "lucide-react";
+import { ArrowRight, BarChart3, Calendar, Clock, Play, Pause, Flag, AlertCircle, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import PhynxTimerLogo from "../PhynxTimerLogo";
@@ -159,7 +158,7 @@ const HeroSection = () => {
             >
               <div className="flex flex-col items-center">
                 <div className="rounded-full bg-primary/10 p-3 mb-2">
-                  <PhynxTimerLogo width={20} height={20} className="text-primary" />
+                  <Clock className="h-5 w-5 text-primary" />
                 </div>
                 <p className="text-sm">Time Tracking</p>
               </div>
@@ -352,34 +351,24 @@ const HeroSection = () => {
                             </div>
                           </div>
                           <div>
-                            <p className="text-lg font-bold">01:15:45</p>
+                            <p className="text-lg font-bold">01:15:20</p>
                             <p className="text-xs text-muted-foreground">Completed</p>
                           </div>
                         </div>
                         
-                        <BarChart3 className="h-4 w-4 text-emerald-500" />
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                          <Play className="h-4 w-4" />
+                        </Button>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border/50">
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-primary">4h 35m</p>
-                      <p className="text-xs text-muted-foreground">Today</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-accent">7</p>
-                      <p className="text-xs text-muted-foreground">Sessions</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-emerald-500">95%</p>
-                      <p className="text-xs text-muted-foreground">Focus</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+            
+            {/* Decorative elements */}
+            <div className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full bg-primary/5 -z-10"></div>
+            <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-accent/5 -z-10"></div>
           </motion.div>
         </div>
       </div>

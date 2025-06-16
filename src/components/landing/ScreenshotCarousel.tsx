@@ -1,13 +1,12 @@
 
 import React from "react";
-import { Calendar, BarChart3 } from "lucide-react";
+import { Clock, Calendar, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { FadeInWhenVisible } from "./Animation";
 import AnimatedDashboard from "./AnimatedDashboard";
-import PhynxTimerLogo from "../PhynxTimerLogo";
 
 // App screenshots with actual images
 const screenshots = [
@@ -16,7 +15,7 @@ const screenshots = [
     description: "Track multiple timers with customizable categories and deadlines",
     image: null,
     fallbackColor: "bg-blue-100",
-    icon: <PhynxTimerLogo width={64} height={64} className="text-blue-500/70" />,
+    icon: <Clock className="h-16 w-16 text-blue-500/70" />,
     isAnimated: true
   },
   {
@@ -63,7 +62,7 @@ const ScreenshotCarousel = () => {
                             <div className="mt-auto">
                               <div className="inline-flex items-center justify-center rounded-full bg-primary/10 p-2">
                                 {index === 0 ? 
-                                  <PhynxTimerLogo width={20} height={20} className="text-primary" /> : 
+                                  <Clock className="h-5 w-5 text-primary" /> : 
                                   index === 1 ? 
                                   <Calendar className="h-5 w-5 text-primary" /> : 
                                   <BarChart3 className="h-5 w-5 text-primary" />
