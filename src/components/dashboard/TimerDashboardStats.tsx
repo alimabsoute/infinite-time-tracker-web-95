@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Timer } from '../../types';
 
@@ -21,10 +22,3 @@ export const getTimerDashboardStats = (timers: Timer[]) => {
     description: `${runningTimersCount} timer${runningTimersCount !== 1 ? 's' : ''} running • Total time today: ${formatTime(totalTimeToday)}`
   };
 };
-
-// Keep the component interface for backward compatibility
-const TimerDashboardStats: React.FC<TimerDashboardStatsProps> = ({ timers }) => {
-  return getTimerDashboardStats(timers);
-};
-
-export default TimerDashboardStats;
