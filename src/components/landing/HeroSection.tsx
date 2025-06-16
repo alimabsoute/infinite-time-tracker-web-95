@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -36,12 +37,37 @@ const HeroSection = () => {
     }
   };
 
+  // Animation variants for floating circles
+  const createFloatingAnimation = (initialX: number, initialY: number, range: number) => ({
+    x: [initialX, initialX + range, initialX - range, initialX],
+    y: [initialY, initialY - range, initialY + range, initialY],
+    transition: {
+      duration: Math.random() * 20 + 30, // 30-50 seconds for very slow movement
+      repeat: Infinity,
+      ease: "easeInOut",
+      delay: Math.random() * 10, // Stagger the start times
+    }
+  });
+
   return (
     <section className="relative overflow-hidden py-24 bg-gradient-to-br from-background via-background to-background">
       <div className="absolute inset-0 z-0 opacity-30">
-        <div className="absolute top-10 left-10 w-40 h-40 rounded-full bg-primary/20"></div>
-        <div className="absolute bottom-40 right-20 w-60 h-60 rounded-full bg-primary/10"></div>
-        <div className="absolute top-40 right-40 w-20 h-20 rounded-full bg-accent/20"></div>
+        {/* Animated floating circles */}
+        <motion.div 
+          className="absolute w-40 h-40 rounded-full bg-primary/20"
+          style={{ top: '2.5rem', left: '2.5rem' }}
+          animate={createFloatingAnimation(0, 0, 50)}
+        />
+        <motion.div 
+          className="absolute w-60 h-60 rounded-full bg-primary/10"
+          style={{ bottom: '10rem', right: '5rem' }}
+          animate={createFloatingAnimation(0, 0, 80)}
+        />
+        <motion.div 
+          className="absolute w-20 h-20 rounded-full bg-accent/20"
+          style={{ top: '10rem', right: '10rem' }}
+          animate={createFloatingAnimation(0, 0, 30)}
+        />
       </div>
       
       <div className="container mx-auto px-4 relative z-10">
