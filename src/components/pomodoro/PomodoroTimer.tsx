@@ -36,19 +36,30 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
       return;
     }
 
-    const interval = setInterval(() => {
+    // Calculate initial remaining time
+    const updateRemainingTime = () => {
       const elapsed = Date.now() - pomodoroState.currentSession!.startTime.getTime();
       const remaining = Math.max(0, pomodoroState.currentSession!.duration - elapsed);
-      
       setRemainingTime(remaining);
+      return remaining;
+    };
+
+    // Set initial time
+    updateRemainingTime();
+
+    // Set up interval to update every second
+    const interval = setInterval(() => {
+      const remaining = updateRemainingTime();
       
+      // Session will be completed automatically by the hook's internal timer
       if (remaining === 0) {
-        completePomodoroSession();
+        // The usePomodoroTimer hook handles completion automatically
+        return;
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [pomodoroState.currentSession, pomodoroState.isActive, completePomodoroSession]);
+  }, [pomodoroState.currentSession, pomodoroState.isActive]);
 
   const handleStartWork = () => {
     if (!isTimerRunning) {
@@ -94,7 +105,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     }
   };
 
-  const progressPercentage = pomodoroState.currentSession
+  const progressPercentage = pomodoroState.currentSession && remainingTime > 0
     ? ((pomodoroState.currentSession.duration - remainingTime) / pomodoroState.currentSession.duration) * 100
     : 0;
 

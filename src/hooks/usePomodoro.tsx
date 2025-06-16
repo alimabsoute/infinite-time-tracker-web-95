@@ -36,11 +36,16 @@ export const usePomodoro = (timerId?: string) => {
     stopSession();
     clearSessionData();
 
+    // Also clear persisted timer state
+    if (timerId) {
+      localStorage.removeItem(`pomodoro-state-${timerId}`);
+    }
+
     toast({
       title: "Pomodoro cycle reset",
       description: "Starting fresh with a new cycle",
     });
-  }, [stopSession, clearSessionData, toast]);
+  }, [stopSession, clearSessionData, timerId, toast]);
 
   // Expose the main API with renamed methods for consistency
   return {

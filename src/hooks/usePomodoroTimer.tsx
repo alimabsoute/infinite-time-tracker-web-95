@@ -1,7 +1,14 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { PomodoroSession, PomodoroSettings } from '@/types/pomodoro';
+
+interface PersistedPomodoroState {
+  isActive: boolean;
+  currentSession: PomodoroSession | null;
+  currentPhase: 'work' | 'short-break' | 'long-break' | 'idle';
+  lastUpdated: string;
+}
 
 export const usePomodoroTimer = (
   timerId: string | undefined,
@@ -15,6 +22,95 @@ export const usePomodoroTimer = (
   const [isActive, setIsActive] = useState(false);
   const [currentSession, setCurrentSession] = useState<PomodoroSession | null>(null);
   const [currentPhase, setCurrentPhase] = useState<'work' | 'short-break' | 'long-break' | 'idle'>('idle');
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const stateLoadedRef = useRef(false);
+
+  // Load persisted state on mount
+  useEffect(() => {
+    if (!timerId || stateLoadedRef.current) return;
+
+    const savedState = localStorage.getItem(`pomodoro-state-${timerId}`);
+    if (savedState) {
+      try {
+        const persistedState: PersistedPomodoroState = JSON.parse(savedState);
+        
+        // Only restore if state is recent (within last 5 minutes to handle browser refreshes)
+        const lastUpdated = new Date(persistedState.lastUpdated);
+        const now = new Date();
+        const timeDiff = now.getTime() - lastUpdated.getTime();
+        
+        if (timeDiff < 5 * 60 * 1000) { // 5 minutes
+          setIsActive(persistedState.isActive);
+          setCurrentPhase(persistedState.currentPhase);
+          
+          if (persistedState.currentSession) {
+            // Restore session with corrected start time
+            const restoredSession = {
+              ...persistedState.currentSession,
+              startTime: new Date(persistedState.currentSession.startTime),
+            };
+            setCurrentSession(restoredSession);
+          }
+        } else {
+          // Clear expired state
+          localStorage.removeItem(`pomodoro-state-${timerId}`);
+        }
+      } catch (error) {
+        console.error('Error loading persisted Pomodoro state:', error);
+        localStorage.removeItem(`pomodoro-state-${timerId}`);
+      }
+    }
+    stateLoadedRef.current = true;
+  }, [timerId]);
+
+  // Persist state changes
+  const persistState = useCallback((
+    activeState: boolean,
+    session: PomodoroSession | null,
+    phase: 'work' | 'short-break' | 'long-break' | 'idle'
+  ) => {
+    if (!timerId) return;
+
+    if (!activeState && phase === 'idle') {
+      // Clear state when not active
+      localStorage.removeItem(`pomodoro-state-${timerId}`);
+    } else {
+      const stateToSave: PersistedPomodoroState = {
+        isActive: activeState,
+        currentSession: session,
+        currentPhase: phase,
+        lastUpdated: new Date().toISOString(),
+      };
+      localStorage.setItem(`pomodoro-state-${timerId}`, JSON.stringify(stateToSave));
+    }
+  }, [timerId]);
+
+  // Auto-complete timer when duration is reached
+  useEffect(() => {
+    if (!isActive || !currentSession) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+
+    intervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - currentSession.startTime.getTime();
+      const remaining = currentSession.duration - elapsed;
+      
+      if (remaining <= 0) {
+        completeSession();
+      }
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isActive, currentSession]);
 
   // Play notification sound
   const playNotificationSound = useCallback(() => {
@@ -66,6 +162,9 @@ export const usePomodoroTimer = (
     setCurrentSession(newSession);
     setCurrentPhase(type);
 
+    // Persist state immediately
+    persistState(true, newSession, type);
+
     // Save session data
     saveSessionData(newSessionCount, totalSessions);
 
@@ -73,7 +172,7 @@ export const usePomodoroTimer = (
       title: `${type === 'work' ? 'Work' : 'Break'} session started`,
       description: `${Math.floor(duration / 60000)} minutes on the clock`,
     });
-  }, [timerId, settings, sessionCount, totalSessions, toast, saveSessionData]);
+  }, [timerId, settings, sessionCount, totalSessions, toast, saveSessionData, persistState]);
 
   // Complete current session
   const completeSession = useCallback(() => {
@@ -116,6 +215,9 @@ export const usePomodoroTimer = (
     setCurrentSession(null);
     setCurrentPhase(shouldAutoStart && nextPhase ? nextPhase : 'idle');
 
+    // Persist state
+    persistState(false, null, shouldAutoStart && nextPhase ? nextPhase : 'idle');
+
     // Save updated session data
     saveSessionData(sessionCount, newTotalSessions);
 
@@ -125,7 +227,7 @@ export const usePomodoroTimer = (
         startSession(nextPhase);
       }, 1000);
     }
-  }, [currentSession, sessionCount, totalSessions, settings, toast, playNotificationSound, saveSessionData, startSession]);
+  }, [currentSession, sessionCount, totalSessions, settings, toast, playNotificationSound, saveSessionData, startSession, persistState]);
 
   // Stop current session
   const stopSession = useCallback(() => {
@@ -133,11 +235,23 @@ export const usePomodoroTimer = (
     setCurrentSession(null);
     setCurrentPhase('idle');
 
+    // Clear persisted state
+    persistState(false, null, 'idle');
+
     toast({
       title: "Pomodoro session stopped",
       description: "Session has been cancelled",
     });
-  }, [toast]);
+  }, [toast, persistState]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   return {
     isActive,
