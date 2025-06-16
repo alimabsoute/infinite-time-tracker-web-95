@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '../contexts/AuthContext';
-import { Timer as TimerIcon } from 'lucide-react';
+import PhynxTimerLogo from '../components/PhynxTimerLogo';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -45,7 +45,7 @@ const Signup = () => {
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
-              <TimerIcon size={24} className="text-primary" />
+              <PhynxTimerLogo width={24} height={24} className="text-primary" />
             </div>
           </div>
           <CardTitle className="text-2xl text-center">Create Account</CardTitle>
