@@ -12,7 +12,7 @@ import ConfettiAnimation from "../components/animations/ConfettiAnimation";
 import NotificationPromptSection from "../components/dashboard/NotificationPromptSection";
 import SubscriptionBanner from "../components/dashboard/SubscriptionBanner";
 import ClearDataControls from "../components/dashboard/ClearDataControls";
-import TimerDashboardStats from "../components/dashboard/TimerDashboardStats";
+import { getTimerDashboardStats } from "../components/dashboard/TimerDashboardStats";
 import PomodoroDashboard from "../components/pomodoro/PomodoroDashboard";
 import PomodoroSettingsComponent from "../components/pomodoro/PomodoroSettings";
 import PomodoroStatusIndicator from "../components/pomodoro/PomodoroStatusIndicator";
@@ -115,7 +115,7 @@ const Index = () => {
     );
   }
 
-  const dashboardStats = TimerDashboardStats({ timers });
+  const dashboardStats = getTimerDashboardStats(timers);
 
   return (
     <PageLayout 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Timer } from '../../types';
 
@@ -6,7 +5,7 @@ interface TimerDashboardStatsProps {
   timers: Timer[];
 }
 
-const TimerDashboardStats: React.FC<TimerDashboardStatsProps> = ({ timers }) => {
+export const getTimerDashboardStats = (timers: Timer[]) => {
   const runningTimersCount = timers.filter(timer => timer.isRunning).length;
   const totalTimeToday = timers.reduce((total, timer) => total + timer.elapsedTime, 0);
   
@@ -21,6 +20,11 @@ const TimerDashboardStats: React.FC<TimerDashboardStatsProps> = ({ timers }) => 
     title: "Timer Dashboard",
     description: `${runningTimersCount} timer${runningTimersCount !== 1 ? 's' : ''} running • Total time today: ${formatTime(totalTimeToday)}`
   };
+};
+
+// Keep the component interface for backward compatibility
+const TimerDashboardStats: React.FC<TimerDashboardStatsProps> = ({ timers }) => {
+  return getTimerDashboardStats(timers);
 };
 
 export default TimerDashboardStats;
