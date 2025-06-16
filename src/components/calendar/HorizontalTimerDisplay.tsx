@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Timer, TimerSessionWithTimer } from "../../types";
-import { Clock, PlayCircle, Calendar } from 'lucide-react';
+import { PlayCircle, Calendar } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { cn } from "@/lib/utils";
 import PhynxTimerLogo from '../PhynxTimerLogo';
@@ -111,7 +110,7 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
                         </h4>
                       </div>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
-                        <Clock className="h-3 w-3" />
+                        <PhynxTimerLogo width={12} height={12} className="text-primary opacity-70" />
                         <span className="font-mono font-medium">{formatTime(session.duration_ms || 0)}</span>
                       </div>
                     </div>

@@ -1,14 +1,14 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { Clock, Calendar, BarChart3, Users, Tag, Bell, Zap, Layers } from "lucide-react";
+import { Calendar, BarChart3, Users, Tag, Bell, Zap, Layers } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import PhynxTimerLogo from "../PhynxTimerLogo";
 
 // Features for the feature section
 const features = [
   { 
-    icon: <Clock className="h-10 w-10 text-primary" />,
+    icon: <PhynxTimerLogo width={40} height={40} className="text-primary" />,
     title: "Smart Time Tracking",
     description: "Track time with a single click and organize tasks by projects, clients or categories"
   },

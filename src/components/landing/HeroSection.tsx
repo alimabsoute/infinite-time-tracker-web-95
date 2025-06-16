@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, BarChart3, Calendar, Clock, Play, Pause, Flag, AlertCircle, Crown } from "lucide-react";
+import { ArrowRight, BarChart3, Calendar, Play, Pause, Flag, AlertCircle, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import PhynxTimerLogo from "../PhynxTimerLogo";
@@ -158,7 +158,7 @@ const HeroSection = () => {
             >
               <div className="flex flex-col items-center">
                 <div className="rounded-full bg-primary/10 p-3 mb-2">
-                  <Clock className="h-5 w-5 text-primary" />
+                  <PhynxTimerLogo width={20} height={20} className="text-primary" />
                 </div>
                 <p className="text-sm">Time Tracking</p>
               </div>
