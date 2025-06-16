@@ -35,7 +35,7 @@ const Index = () => {
   
   const { canCreateTimer, getTimerLimit, subscribed, createCheckoutSession } = useSubscription();
   const { isNotificationSupported, hasPermission, preferences } = useNotifications();
-  const { clearMockTimers, isClearing } = useClearMockData();
+  const { clearMockTimers, forceClearAllTimers, isClearing } = useClearMockData();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const [activeTab, setActiveTab] = useState('timers');
@@ -162,14 +162,25 @@ const Index = () => {
               >
                 Upgrade
               </Button>
-              <Button 
-                variant="destructive" 
-                size="sm"
-                onClick={clearMockTimers}
-                disabled={isClearing}
-              >
-                {isClearing ? "Clearing..." : "Clear Mock Data"}
-              </Button>
+              <div className="flex gap-1">
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={clearMockTimers}
+                  disabled={isClearing}
+                >
+                  {isClearing ? "Clearing..." : "Clear Mock Data"}
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={forceClearAllTimers}
+                  disabled={isClearing}
+                  title="Force clear ALL timers (use with caution)"
+                >
+                  🗑️
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -178,14 +189,25 @@ const Index = () => {
       {/* Clear Mock Data Button for Pro Users */}
       {subscribed && (
         <div className="mb-6 flex justify-end">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={clearMockTimers}
-            disabled={isClearing}
-          >
-            {isClearing ? "Clearing..." : "Clear Mock Data"}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={clearMockTimers}
+              disabled={isClearing}
+            >
+              {isClearing ? "Clearing..." : "Clear Mock Data"}
+            </Button>
+            <Button 
+              variant="destructive" 
+              size="sm"
+              onClick={forceClearAllTimers}
+              disabled={isClearing}
+              title="Force clear ALL timers (use with caution)"
+            >
+              🗑️ Force Clear
+            </Button>
+          </div>
         </div>
       )}
 
