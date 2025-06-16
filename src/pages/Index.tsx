@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
 import { useSubscription } from "../contexts/SubscriptionContext";
 import { useNotifications } from "../hooks/useNotifications";
+import { useClearMockData } from "../hooks/useClearMockData";
 import { Button } from "@/components/ui/button";
 import PageLayout from "../components/layout/PageLayout";
 import TimerList from "../components/TimerList";
@@ -12,6 +13,7 @@ import TimerLimitIndicator from "../components/premium/TimerLimitIndicator";
 import NotificationPrompt from "../components/notifications/NotificationPrompt";
 import PomodoroDashboard from "../components/pomodoro/PomodoroDashboard";
 import PomodoroSettingsComponent from "../components/pomodoro/PomodoroSettings";
+import PomodoroStatusIndicator from "../components/pomodoro/PomodoroStatusIndicator";
 import { DEFAULT_POMODORO_SETTINGS } from "../types/pomodoro";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -34,6 +36,7 @@ const Index = () => {
   
   const { canCreateTimer, getTimerLimit, subscribed, createCheckoutSession } = useSubscription();
   const { isNotificationSupported, hasPermission, preferences } = useNotifications();
+  const { clearMockTimers, isClearing } = useClearMockData();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const [activeTab, setActiveTab] = useState('timers');
@@ -124,6 +127,9 @@ const Index = () => {
       title="Timer Dashboard"
       description={`${runningTimersCount} timer${runningTimersCount !== 1 ? 's' : ''} running • Total time today: ${formatTime(totalTimeToday)}`}
     >
+      {/* Global Pomodoro Status Indicator */}
+      <PomodoroStatusIndicator timers={timers} />
+
       {/* Notification Prompt */}
       {showNotificationPrompt && (
         <div className="mb-6">
@@ -148,14 +154,24 @@ const Index = () => {
                 {timers.length}/{getTimerLimit()} timers used. Upgrade for unlimited timers and premium features.
               </p>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-blue-300 text-blue-700 hover:bg-blue-100"
-              onClick={handleUpgrade}
-            >
-              Upgrade
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                onClick={handleUpgrade}
+              >
+                Upgrade
+              </Button>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={clearMockTimers}
+                disabled={isClearing}
+              >
+                {isClearing ? "Clearing..." : "Clear Mock Data"}
+              </Button>
+            </div>
           </div>
         </div>
       )}

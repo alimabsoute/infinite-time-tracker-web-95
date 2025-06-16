@@ -4,6 +4,7 @@ import { Timer as TimerType } from '../../types';
 import TimerCard from './TimerCard';
 import DeletionAnimation from '../animations/DeletionAnimations';
 import { usePomodoro } from '@/hooks/usePomodoro';
+import { useTimerTabs } from '@/hooks/useTimerTabs';
 
 type TimerProps = {
   timer: TimerType;
@@ -31,6 +32,9 @@ const Timer = ({
   // Pomodoro integration
   const { pomodoroState } = usePomodoro(id);
 
+  // Persistent tab state
+  const { activeTab, setActiveTab } = useTimerTabs(id, 'timer');
+
   // State variables
   const [isEditing, setIsEditing] = useState(isNew);
   const [editedName, setEditedName] = useState(name);
@@ -39,7 +43,6 @@ const Timer = ({
   const [date, setDate] = useState<Date | undefined>(deadline ? new Date(deadline) : undefined);
   const [selectedPriority, setSelectedPriority] = useState<string>(priority?.toString() || 'none');
   const [isDeleting, setIsDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState('timer');
   const [deletionAnimationType] = useState<'explode' | 'melt' | 'crumble' | 'vaporize'>(() => {
     const animations: ('explode' | 'melt' | 'crumble' | 'vaporize')[] = ['explode', 'melt', 'crumble', 'vaporize'];
     return animations[Math.floor(Math.random() * animations.length)];
