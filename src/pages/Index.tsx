@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
 import { useSubscription } from "../contexts/SubscriptionContext";
@@ -173,6 +172,20 @@ const Index = () => {
               </Button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Clear Mock Data Button for Pro Users */}
+      {subscribed && (
+        <div className="mb-6 flex justify-end">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={clearMockTimers}
+            disabled={isClearing}
+          >
+            {isClearing ? "Clearing..." : "Clear Mock Data"}
+          </Button>
         </div>
       )}
 
