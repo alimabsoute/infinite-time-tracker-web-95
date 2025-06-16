@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useTimers } from "../hooks/useTimers";
 import { useSubscription } from "../contexts/SubscriptionContext";
@@ -8,8 +9,10 @@ import PageLayout from "../components/layout/PageLayout";
 import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import ConfettiAnimation from "../components/animations/ConfettiAnimation";
-import TimerLimitIndicator from "../components/premium/TimerLimitIndicator";
-import NotificationPrompt from "../components/notifications/NotificationPrompt";
+import NotificationPromptSection from "../components/dashboard/NotificationPromptSection";
+import SubscriptionBanner from "../components/dashboard/SubscriptionBanner";
+import ClearDataControls from "../components/dashboard/ClearDataControls";
+import TimerDashboardStats from "../components/dashboard/TimerDashboardStats";
 import PomodoroDashboard from "../components/pomodoro/PomodoroDashboard";
 import PomodoroSettingsComponent from "../components/pomodoro/PomodoroSettings";
 import PomodoroStatusIndicator from "../components/pomodoro/PomodoroStatusIndicator";
@@ -112,104 +115,37 @@ const Index = () => {
     );
   }
 
-  const runningTimersCount = timers.filter(timer => timer.isRunning).length;
-  const totalTimeToday = timers.reduce((total, timer) => total + timer.elapsedTime, 0);
-  const formatTime = (ms: number) => {
-    const hours = Math.floor(ms / 3600000);
-    const minutes = Math.floor((ms % 3600000) / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
+  const dashboardStats = TimerDashboardStats({ timers });
 
   return (
     <PageLayout 
-      title="Timer Dashboard"
-      description={`${runningTimersCount} timer${runningTimersCount !== 1 ? 's' : ''} running • Total time today: ${formatTime(totalTimeToday)}`}
+      title={dashboardStats.title}
+      description={dashboardStats.description}
     >
       {/* Global Pomodoro Status Indicator */}
       <PomodoroStatusIndicator timers={timers} />
 
       {/* Notification Prompt */}
-      {showNotificationPrompt && (
-        <div className="mb-6">
-          <NotificationPrompt onDismiss={handleDismissNotificationPrompt} />
-        </div>
-      )}
+      <NotificationPromptSection 
+        showNotificationPrompt={showNotificationPrompt}
+        onDismissNotificationPrompt={handleDismissNotificationPrompt}
+      />
 
-      {/* Premium Timer Limit Indicator */}
-      {!subscribed && (
-        <div className="mb-6">
-          <TimerLimitIndicator currentCount={timers.length} />
-        </div>
-      )}
+      {/* Subscription Banner (for free users) */}
+      <SubscriptionBanner 
+        subscribed={subscribed}
+        timersCount={timers.length}
+        getTimerLimit={getTimerLimit}
+        onUpgrade={handleUpgrade}
+      />
 
-      {/* Subscription Status Banner */}
-      {!subscribed && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-medium text-blue-900">Free Plan</h3>
-              <p className="text-sm text-blue-700">
-                {timers.length}/{getTimerLimit()} timers used. Upgrade for unlimited timers and premium features.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="border-blue-300 text-blue-700 hover:bg-blue-100"
-                onClick={handleUpgrade}
-              >
-                Upgrade
-              </Button>
-              <div className="flex gap-1">
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={clearMockTimers}
-                  disabled={isClearing}
-                >
-                  {isClearing ? "Clearing..." : "Clear Mock Data"}
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={forceClearAllTimers}
-                  disabled={isClearing}
-                  title="Force clear ALL timers (use with caution)"
-                >
-                  🗑️
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Clear Mock Data Button for Pro Users */}
-      {subscribed && (
-        <div className="mb-6 flex justify-end">
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={clearMockTimers}
-              disabled={isClearing}
-            >
-              {isClearing ? "Clearing..." : "Clear Mock Data"}
-            </Button>
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={forceClearAllTimers}
-              disabled={isClearing}
-              title="Force clear ALL timers (use with caution)"
-            >
-              🗑️ Force Clear
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Clear Data Controls */}
+      <ClearDataControls 
+        subscribed={subscribed}
+        isClearing={isClearing}
+        onClearMockTimers={clearMockTimers}
+        onForceClearAllTimers={forceClearAllTimers}
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-6">
