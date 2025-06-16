@@ -1,11 +1,13 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Timer, TimerSessionWithTimer } from "../../types";
-import { Clock, PlayCircle, Calendar, TimerIcon } from 'lucide-react';
+import { Clock, PlayCircle, Calendar } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { cn } from "@/lib/utils";
+import PhynxTimerLogo from '../PhynxTimerLogo';
 
 interface HorizontalTimerDisplayProps {
   sessions: TimerSessionWithTimer[];
@@ -39,7 +41,7 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
         <div className="flex flex-col items-center gap-3">
           <div className="relative">
             <PlayCircle className="h-12 w-12 opacity-50" />
-            <TimerIcon className="h-6 w-6 absolute top-3 left-3 opacity-30" />
+            <PhynxTimerLogo width={24} height={24} className="absolute top-3 left-3 opacity-30" />
           </div>
           <div>
             <p className="text-sm font-medium">No timer sessions for this date</p>
@@ -48,7 +50,7 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
         </div>
       </div>
     );
-  }
+  };
 
   // Sort sessions by start time (most recent first)
   const sortedSessions = React.useMemo(() => {

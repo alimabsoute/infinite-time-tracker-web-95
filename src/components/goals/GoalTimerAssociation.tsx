@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Timer as TimerIcon, Target, Link } from 'lucide-react';
+import { Target, Link } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import PhynxTimerLogo from '../PhynxTimerLogo';
 
 interface GoalTimerAssociationProps {
   goal: Goal;
@@ -69,7 +70,7 @@ const GoalTimerAssociation: React.FC<GoalTimerAssociationProps> = ({
       <CardContent className="space-y-4">
         {availableTimers.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <TimerIcon className="mx-auto h-12 w-12 opacity-50" />
+            <PhynxTimerLogo width={48} height={48} className="mx-auto opacity-50" />
             <p className="mt-2">No timers available</p>
             <p className="text-sm">Create some timers to link them to this goal</p>
           </div>

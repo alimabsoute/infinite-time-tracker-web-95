@@ -3,7 +3,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Timer, Play, Calendar, TrendingUp, Plus } from "lucide-react";
+import { Play, Calendar, TrendingUp, Plus } from "lucide-react";
+import PhynxTimerLogo from "./PhynxTimerLogo";
 
 interface EmptyStateProps {
   type: "timers" | "calendar" | "analytics";
@@ -20,7 +21,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     switch (type) {
       case "timers":
         return {
-          icon: <Timer className="h-16 w-16 text-muted-foreground/60" />,
+          icon: <PhynxTimerLogo width={64} height={64} className="text-muted-foreground/60" />,
           title: "No timers yet",
           description: "Create your first timer to start tracking your time and boost productivity.",
           tips: [
@@ -53,7 +54,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
         };
       default:
         return {
-          icon: <Timer className="h-16 w-16 text-muted-foreground/60" />,
+          icon: <PhynxTimerLogo width={64} height={64} className="text-muted-foreground/60" />,
           title: "Getting started",
           description: "Welcome to PhynxTimer! Let's help you get started.",
           tips: []
