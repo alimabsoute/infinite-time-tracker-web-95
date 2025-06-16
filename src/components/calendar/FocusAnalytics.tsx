@@ -5,8 +5,9 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Timer } from "../../types";
-import { Target, Clock, Brain, Zap, TrendingUp } from 'lucide-react';
+import { Target, Brain, Zap, TrendingUp } from 'lucide-react';
 import { format, startOfWeek, addDays, differenceInMinutes } from 'date-fns';
+import PhynxTimerLogo from '../PhynxTimerLogo';
 
 interface FocusAnalyticsProps {
   timers: Timer[];
@@ -171,7 +172,7 @@ const FocusAnalytics: React.FC<FocusAnalyticsProps> = ({ timers, formatTime }) =
                 <p className="text-xl font-bold">{formatTime(focusMetrics.averageFocusSession)}</p>
                 <p className="text-xs text-muted-foreground">Focus sessions only</p>
               </div>
-              <Clock className="h-8 w-8 text-blue-500" />
+              <PhynxTimerLogo width={32} height={32} className="text-blue-500" />
             </div>
           </CardContent>
         </Card>
@@ -250,7 +251,7 @@ const FocusAnalytics: React.FC<FocusAnalyticsProps> = ({ timers, formatTime }) =
       <Card className="glass-effect">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Clock className="h-5 w-5" />
+            <PhynxTimerLogo width={20} height={20} className="text-current" />
             Hourly Focus Pattern
           </CardTitle>
         </CardHeader>

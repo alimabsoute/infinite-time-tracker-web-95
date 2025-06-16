@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Clock, Calendar, BarChart3, Play, Pause, Flag } from 'lucide-react';
+import { Calendar, BarChart3, Play, Pause, Flag } from 'lucide-react';
 import PhynxTimerLogo from '../PhynxTimerLogo';
 
 const FacebookLaunchImage: React.FC = () => {
@@ -212,7 +212,7 @@ const FacebookLaunchImage: React.FC = () => {
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-primary" />
+              <PhynxTimerLogo width={16} height={16} className="text-primary" />
               <span className="text-sm">Smart Time Tracking</span>
             </div>
             <div className="flex items-center gap-2">

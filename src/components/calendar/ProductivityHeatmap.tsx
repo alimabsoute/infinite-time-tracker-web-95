@@ -5,7 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Timer } from "../../types";
 import { format, startOfWeek, addDays, subWeeks, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
-import { Calendar, TrendingUp, Clock, Target } from 'lucide-react';
+import { Calendar, TrendingUp, Target } from 'lucide-react';
+import PhynxTimerLogo from '../PhynxTimerLogo';
 
 interface ProductivityHeatmapProps {
   timers: Timer[];
@@ -164,7 +165,7 @@ const ProductivityHeatmap: React.FC<ProductivityHeatmapProps> = ({ timers, forma
         </Card>
         <Card className="glass-effect">
           <CardContent className="p-4 text-center">
-            <Clock className="h-6 w-6 mx-auto mb-2 text-blue-500" />
+            <PhynxTimerLogo width={24} height={24} className="mx-auto mb-2 text-blue-500" />
             <p className="text-2xl font-bold">{formatTime(stats.totalTime)}</p>
             <p className="text-xs text-muted-foreground">Total Time</p>
           </CardContent>
