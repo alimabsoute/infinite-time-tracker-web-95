@@ -38,21 +38,8 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
     : 0;
 
   return (
-    <div 
-      className={cn(
-        'relative w-full max-w-[260px] mx-auto transition-all duration-200 hover:scale-[1.02]',
-        className
-      )}
-      style={{
-        borderRadius: "8px", 
-        border: `2px solid ${timerColor}`,
-        background: 'transparent',
-        boxShadow: isActive 
-          ? `0 0 0 1px ${timerColor}, 0 0 16px ${timerColor}50, 0 2px 12px rgba(0, 0, 0, 0.1)` 
-          : `0 0 0 1px ${timerColor}90, 0 1px 6px rgba(0, 0, 0, 0.06)`,
-      }}
-    >
-      <div className="p-2 rounded-[6px]">
+    <div className={cn('relative w-full max-w-[260px] mx-auto', className)}>
+      <div className="p-2">
         <div className="flex flex-col space-y-1">
           {/* Timer Header */}
           <div className="flex items-center justify-between mb-1">
