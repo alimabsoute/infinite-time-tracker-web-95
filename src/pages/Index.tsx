@@ -45,7 +45,7 @@ const Index = () => {
   return (
     <PageLayout>
       <div 
-        className="min-h-screen py-6"
+        className="min-h-screen py-2"
         style={{
           background: 'rgba(243, 244, 246, 0.4)',
           backdropFilter: 'blur(10px)'
@@ -57,7 +57,7 @@ const Index = () => {
           onReset={resetTimer}
           onDelete={deleteTimer}
           onRename={renameTimer}
-          onUpdateDeadline={updateDeadline}
+          onUpdateDeadline={updateDeladline}
           onUpdatePriority={updatePriority}
           onReorder={reorderTimers}
           newTimerId={newTimerId}
