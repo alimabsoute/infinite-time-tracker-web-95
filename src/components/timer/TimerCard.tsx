@@ -71,10 +71,14 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
   return (
     <article 
-      className="relative group w-80 h-80 mx-auto"
+      className="relative group w-72 h-72 mx-auto flex-shrink-0"
       role="region"
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
       tabIndex={0}
+      style={{
+        minWidth: '288px',
+        minHeight: '288px'
+      }}
     >
       {/* Spinning gradient border - only this spins */}
       <div 
@@ -95,7 +99,7 @@ const TimerCard: React.FC<TimerCardProps> = ({
         }}
       >
         {/* Header positioned at top left outside the circle */}
-        <div className="absolute -top-12 -left-4 z-20">
+        <div className="absolute -top-12 -left-4 z-20 max-w-64">
           <TimerHeader
             name={name}
             category={category}
