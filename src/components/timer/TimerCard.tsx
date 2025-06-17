@@ -59,20 +59,20 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
   return (
     <article 
-      className="relative group timer-card w-full max-w-[280px] mx-auto transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
+      className="relative group timer-card w-full max-w-[260px] mx-auto transition-all duration-200 hover:scale-[1.02] hover:-translate-y-1"
       style={{
-        borderRadius: "12px",
+        borderRadius: "8px",
         border: `2px solid ${timerColor}`,
         background: 'transparent',
         boxShadow: isRunning 
-          ? `0 0 0 1px ${timerColor}, 0 0 20px ${timerColor}40, 0 4px 15px rgba(0, 0, 0, 0.1)` 
-          : `0 0 0 1px ${timerColor}80, 0 2px 8px rgba(0, 0, 0, 0.08)`,
+          ? `0 0 0 1px ${timerColor}, 0 0 16px ${timerColor}50, 0 2px 12px rgba(0, 0, 0, 0.1)` 
+          : `0 0 0 1px ${timerColor}90, 0 1px 6px rgba(0, 0, 0, 0.06)`,
       }}
       role="region"
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
       tabIndex={0}
     >
-      <div className="p-3 rounded-[10px]">
+      <div className="p-2 rounded-[6px]">
         {isEditing ? (
           <div role="form" aria-label="Edit timer">
             <TimerEditForm
@@ -86,7 +86,7 @@ const TimerCard: React.FC<TimerCardProps> = ({
             />
           </div>
         ) : (
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-1">
             <header className="relative z-10">
               <TimerHeader
                 name={name}

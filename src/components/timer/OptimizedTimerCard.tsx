@@ -59,17 +59,17 @@ const OptimizedTimerCard: React.FC<OptimizedTimerCardProps> = memo(({
 
   return (
     <div 
-      className="relative w-full max-w-[280px] mx-auto transition-all duration-200 hover:scale-[1.02]"
+      className="relative w-full max-w-[260px] mx-auto transition-all duration-200 hover:scale-[1.02]"
       style={{
-        borderRadius: "12px",
+        borderRadius: "8px",
         border: `2px solid ${timerColor}`,
         background: 'transparent',
         boxShadow: isRunning 
-          ? `0 0 0 1px ${timerColor}, 0 0 15px ${timerColor}30, 0 2px 8px rgba(0, 0, 0, 0.08)` 
-          : `0 0 0 1px ${timerColor}60, 0 1px 4px rgba(0, 0, 0, 0.05)`,
+          ? `0 0 0 1px ${timerColor}, 0 0 12px ${timerColor}40, 0 1px 8px rgba(0, 0, 0, 0.06)` 
+          : `0 0 0 1px ${timerColor}70, 0 1px 4px rgba(0, 0, 0, 0.04)`,
       }}
     >
-      <div className="p-2 rounded-[10px]">
+      <div className="p-2 rounded-[6px]">
         {isEditing ? (
           <TimerEditForm
             nameInputRef={nameInputRef}

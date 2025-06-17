@@ -24,7 +24,7 @@ const TimerDisplay = ({
 
   return (
     <div 
-      className={`w-28 h-28 relative mx-auto ${
+      className={`w-24 h-24 relative mx-auto ${
         isRunning ? 'timer-pulsing' : ''
       }`}
       role="timer"
@@ -34,12 +34,12 @@ const TimerDisplay = ({
     >
       <CircularProgressbar
         value={progressPercentage}
-        strokeWidth={4}
+        strokeWidth={6}
         styles={buildStyles({
           pathColor: timerColor,
-          trailColor: `${timerColor}20`,
+          trailColor: `${timerColor}15`,
           textSize: '0px',
-          pathTransitionDuration: 0.3,
+          pathTransitionDuration: 0.2,
           rotation: 0.25,
           strokeLinecap: 'round',
           backgroundColor: 'transparent',
@@ -49,14 +49,14 @@ const TimerDisplay = ({
       
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
         <div 
-          className="text-lg font-bold tracking-tight text-foreground"
+          className="text-base font-bold tracking-tight text-foreground leading-tight"
           aria-label={`${formattedTime} elapsed`}
         >
           {formattedTime}
         </div>
         {category && (
           <div 
-            className="text-xs text-muted-foreground uppercase tracking-wider font-medium opacity-70 mt-0.5 text-center max-w-20 truncate"
+            className="text-xs text-muted-foreground uppercase tracking-wider font-medium opacity-60 mt-0.5 text-center max-w-16 truncate"
             title={category}
             aria-label={`Category: ${category}`}
           >
@@ -68,7 +68,8 @@ const TimerDisplay = ({
       {sessionCount > 1 && (
         <Badge 
           variant="secondary" 
-          className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-secondary/80 backdrop-blur-sm text-xs px-1.5 py-0.5 shadow-sm"
+          className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-background/90 backdrop-blur-sm text-xs px-1.5 py-0.5 shadow-sm border"
+          style={{ borderColor: `${timerColor}40` }}
           aria-label={`${sessionCount} sessions completed`}
         >
           {sessionCount}
@@ -79,21 +80,21 @@ const TimerDisplay = ({
         {`
           @keyframes subtle-pulse {
             0% {
-              filter: drop-shadow(0 0 4px ${timerColor});
+              filter: drop-shadow(0 0 3px ${timerColor});
               transform: scale(1);
             }
             50% {
-              filter: drop-shadow(0 0 12px ${timerColor});
-              transform: scale(1.02);
+              filter: drop-shadow(0 0 8px ${timerColor});
+              transform: scale(1.01);
             }
             100% {
-              filter: drop-shadow(0 0 4px ${timerColor});
+              filter: drop-shadow(0 0 3px ${timerColor});
               transform: scale(1);
             }
           }
           
           .timer-pulsing {
-            animation: subtle-pulse 2s infinite ease-in-out;
+            animation: subtle-pulse 1.8s infinite ease-in-out;
           }
         `}
       </style>
