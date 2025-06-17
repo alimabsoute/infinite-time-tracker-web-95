@@ -3,7 +3,6 @@ import React from 'react';
 import TimerDisplay from './TimerDisplay';
 import TimerControls from './TimerControls';
 import TimerMetadata from './TimerMetadata';
-import PomodoroStats from '../pomodoro/PomodoroStats';
 
 interface TimerContentProps {
   timerId: string;
@@ -14,7 +13,6 @@ interface TimerContentProps {
   selectedPriority: string;
   date: Date | undefined;
   isOverdue: boolean;
-  totalSessions: number;
   onToggle: () => void;
   onReset: () => void;
   onPriorityChange: (value: string) => void;
@@ -22,7 +20,6 @@ interface TimerContentProps {
 }
 
 const TimerContent: React.FC<TimerContentProps> = ({
-  timerId,
   currentTime,
   isRunning,
   category,
@@ -30,7 +27,6 @@ const TimerContent: React.FC<TimerContentProps> = ({
   selectedPriority,
   date,
   isOverdue,
-  totalSessions,
   onToggle,
   onReset,
   onPriorityChange,
@@ -65,11 +61,6 @@ const TimerContent: React.FC<TimerContentProps> = ({
           />
         </div>
       </div>
-      
-      {/* Pomodoro Quick Stats */}
-      {totalSessions > 0 && (
-        <PomodoroStats timerId={timerId} compact />
-      )}
     </div>
   );
 };

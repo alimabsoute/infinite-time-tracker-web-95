@@ -13,11 +13,6 @@ import NotificationPromptSection from "../components/dashboard/NotificationPromp
 import SubscriptionBanner from "../components/dashboard/SubscriptionBanner";
 import ClearDataControls from "../components/dashboard/ClearDataControls";
 import { getTimerDashboardStats } from "../components/dashboard/TimerDashboardStats";
-import PomodoroDashboard from "../components/pomodoro/PomodoroDashboard";
-import PomodoroSettingsComponent from "../components/pomodoro/PomodoroSettings";
-import PomodoroStatusIndicator from "../components/pomodoro/PomodoroStatusIndicator";
-import { DEFAULT_POMODORO_SETTINGS } from "../types/pomodoro";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -41,23 +36,6 @@ const Index = () => {
   const { clearMockTimers, forceClearAllTimers, isClearing } = useClearMockData();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
-  const [activeTab, setActiveTab] = useState('timers');
-
-  // Pomodoro settings state
-  const [pomodoroSettings, setPomodoroSettings] = useState(DEFAULT_POMODORO_SETTINGS);
-
-  // Load Pomodoro settings from localStorage
-  useEffect(() => {
-    const savedSettings = localStorage.getItem('pomodoro-settings');
-    if (savedSettings) {
-      try {
-        const settings = JSON.parse(savedSettings);
-        setPomodoroSettings(settings);
-      } catch (error) {
-        console.error('Error loading Pomodoro settings:', error);
-      }
-    }
-  }, []);
 
   // Check if we should show the notification prompt
   useEffect(() => {
@@ -99,12 +77,6 @@ const Index = () => {
     }
   };
 
-  const handlePomodoroSettingsChange = (settings: typeof DEFAULT_POMODORO_SETTINGS) => {
-    setPomodoroSettings(settings);
-    localStorage.setItem('pomodoro-settings', JSON.stringify(settings));
-    toast.success("Pomodoro settings updated");
-  };
-
   if (loading) {
     return (
       <PageLayout>
@@ -122,9 +94,6 @@ const Index = () => {
       title={dashboardStats.title}
       description={dashboardStats.description}
     >
-      {/* Global Pomodoro Status Indicator */}
-      <PomodoroStatusIndicator timers={timers} />
-
       {/* Notification Prompt */}
       <NotificationPromptSection 
         showNotificationPrompt={showNotificationPrompt}
@@ -147,55 +116,25 @@ const Index = () => {
         onForceClearAllTimers={forceClearAllTimers}
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="timers">Timers</TabsTrigger>
-          <TabsTrigger value="pomodoro">Pomodoro</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="timers" className="space-y-8">
-          <CreateTimerForm 
-            onAddTimer={handleAddTimer} 
-            currentTimerCount={timers.length}
-          />
-          
-          <TimerList
-            timers={timers}
-            onToggle={toggleTimer}
-            onReset={resetTimer}
-            onDelete={deleteTimer}
-            onRename={renameTimer}
-            onUpdateDeadline={updateDeadline}
-            onUpdatePriority={updatePriority}
-            onReorder={reorderTimers}
-            newTimerId={newTimerId}
-            onCreateTimer={() => handleAddTimer("New Timer")}
-          />
-        </TabsContent>
-
-        <TabsContent value="pomodoro" className="space-y-6">
-          <PomodoroDashboard timers={timers} />
-          
-          {timers.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">
-                Create some timers to start using the Pomodoro technique
-              </p>
-              <Button onClick={() => setActiveTab('timers')}>
-                Go to Timers
-              </Button>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="settings" className="space-y-6">
-          <PomodoroSettingsComponent
-            settings={pomodoroSettings}
-            onSettingsChange={handlePomodoroSettingsChange}
-          />
-        </TabsContent>
-      </Tabs>
+      <div className="space-y-8">
+        <CreateTimerForm 
+          onAddTimer={handleAddTimer} 
+          currentTimerCount={timers.length}
+        />
+        
+        <TimerList
+          timers={timers}
+          onToggle={toggleTimer}
+          onReset={resetTimer}
+          onDelete={deleteTimer}
+          onRename={renameTimer}
+          onUpdateDeadline={updateDeadline}
+          onUpdatePriority={updatePriority}
+          onReorder={reorderTimers}
+          newTimerId={newTimerId}
+          onCreateTimer={() => handleAddTimer("New Timer")}
+        />
+      </div>
       
       {/* Confetti Animation */}
       {confettiTrigger && (

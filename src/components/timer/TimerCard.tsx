@@ -5,8 +5,6 @@ import { getTimerColorClass } from './TimerUtils';
 import TimerHeader from './TimerHeader';
 import TimerEditForm from './TimerEditForm';
 import TimerStatusIndicator from './TimerStatusIndicator';
-import { Badge } from '@/components/ui/badge';
-import TimerTabs from './TimerTabs';
 import TimerContent from './TimerContent';
 
 interface TimerCardProps {
@@ -43,9 +41,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
   date,
   selectedPriority,
   isPomodoroActive,
-  currentPhase,
-  sessionCount,
-  totalSessions,
   nameInputRef,
   onToggle,
   onReset,
@@ -92,17 +87,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
               onDeleteClick={onDelete}
             />
             
-            {/* Pomodoro Status Badge */}
-            {isPomodoroActive && (
-              <div className="mb-2 flex justify-center">
-                <Badge variant="secondary" className="text-xs bg-red-100 text-red-700 border-red-200">
-                  🍅 {currentPhase?.replace('-', ' ')} session
-                </Badge>
-              </div>
-            )}
-            
-            <TimerTabs sessionCount={sessionCount} />
-            
             <TimerContent
               timerId={id}
               currentTime={currentTime}
@@ -112,7 +96,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
               selectedPriority={selectedPriority}
               date={date}
               isOverdue={!!isOverdue}
-              totalSessions={totalSessions}
               onToggle={onToggle}
               onReset={onReset}
               onPriorityChange={onPriorityChange}

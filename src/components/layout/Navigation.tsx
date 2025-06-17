@@ -9,7 +9,8 @@ import {
   Target,
   User, 
   Menu, 
-  X 
+  X,
+  lightbulb
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -19,6 +20,11 @@ const navItems = [
     name: 'Dashboard',
     href: '/dashboard',
     icon: Timer,
+  },
+  {
+    name: 'Insights',
+    href: '/insights',
+    icon: lightbulb,
   },
   {
     name: 'Calendar',

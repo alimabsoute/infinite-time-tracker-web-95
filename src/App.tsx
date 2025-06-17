@@ -9,6 +9,7 @@ import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Index from "./pages/Index";
+import Insights from "./pages/Insights";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import Goals from "./pages/Goals";
@@ -57,6 +58,7 @@ const App = () => (
                 {/* Protected routes */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/dashboard" element={<Index />} />
+                  <Route path="/insights" element={<Insights />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/goals" element={<Goals />} />

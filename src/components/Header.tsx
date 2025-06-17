@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Calendar, Home, Table, Crown } from "lucide-react";
+import { Calendar, Home, Table, Crown, lightbulb } from "lucide-react";
 import PhynxTimerLogo from "./PhynxTimerLogo";
 import AuthHeader from "./AuthHeader";
 import { useAuth } from "@/contexts/AuthContext";
@@ -67,6 +67,16 @@ const Header = () => {
               >
                 <PhynxTimerLogo width={16} height={16} className="text-current opacity-70" />
                 <span className="hidden sm:inline">Timers</span>
+              </Button>
+            </Link>
+            
+            <Link to="/insights">
+              <Button 
+                variant={location.pathname === "/insights" ? "secondary" : "ghost"} 
+                className="gap-2"
+              >
+                <lightbulb size={18} />
+                <span className="hidden sm:inline">Insights</span>
               </Button>
             </Link>
             
