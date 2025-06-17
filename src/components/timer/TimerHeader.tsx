@@ -11,22 +11,27 @@ interface TimerHeaderProps {
 
 const TimerHeader = ({ name, category, onEditClick, onDeleteClick }: TimerHeaderProps) => {
   return (
-    <div className="flex justify-between items-center px-2">
-      {/* Timer name - centered */}
-      <div className="flex-1 text-center">
-        <h3 className="text-base font-semibold text-white leading-tight truncate px-8">
+    <div className="flex justify-center items-center relative">
+      {/* Timer name - centered above circle */}
+      <div className="text-center">
+        <h3 className="text-lg font-semibold text-gray-800 leading-tight truncate max-w-60">
           {name}
         </h3>
+        {category && (
+          <div className="text-sm text-gray-600 mt-1 truncate max-w-60">
+            {category}
+          </div>
+        )}
       </div>
       
-      {/* Floating action buttons */}
-      <div className="absolute -right-2 -top-2 flex gap-1">
+      {/* Floating action buttons positioned to the right */}
+      <div className="absolute -right-4 top-0 flex gap-2">
         <Button 
           onClick={onEditClick} 
           variant="ghost" 
           size="icon"
-          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/20 transition-colors rounded-full backdrop-blur-sm border border-white/20"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+          className="h-8 w-8 p-0 text-gray-600 hover:text-gray-800 hover:bg-white/80 transition-colors rounded-full backdrop-blur-sm border border-gray-300/50"
+          style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
         >
           <Pencil size={14} />
         </Button>
@@ -35,9 +40,9 @@ const TimerHeader = ({ name, category, onEditClick, onDeleteClick }: TimerHeader
           onClick={onDeleteClick} 
           variant="ghost" 
           size="icon"
-          className="h-8 w-8 text-red-400 hover:bg-red-500/30 hover:text-red-300 p-0 transition-colors rounded-full backdrop-blur-sm border border-red-400/30"
+          className="h-8 w-8 text-red-500 hover:bg-red-50 hover:text-red-600 p-0 transition-colors rounded-full backdrop-blur-sm border border-red-200/50"
           title="Delete Timer"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+          style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
         >
           <Trash2 size={14} />
         </Button>

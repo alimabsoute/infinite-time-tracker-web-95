@@ -57,40 +57,40 @@ const TimerCard: React.FC<TimerCardProps> = ({
   const timerColor = getTimerColor(id);
   const isOverdue = deadline && new Date(deadline) < new Date();
 
-  // Get darker pastel color for inner fill
+  // Get lighter pastel color for inner fill
   const getInnerFillColor = (color: string) => {
-    // Extract HSL values and create a darker, more muted version
+    // Extract HSL values and create a much lighter, more pastel version
     const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
     if (hslMatch) {
       const [, h, s, l] = hslMatch;
-      return `hsla(${h}, ${Math.max(20, parseInt(s) - 30)}%, ${Math.max(15, parseInt(l) - 25)}%, 0.4)`;
+      return `hsla(${h}, ${Math.max(25, parseInt(s) - 40)}%, ${Math.min(92, parseInt(l) + 35)}%, 0.6)`;
     }
-    return 'rgba(0, 0, 0, 0.3)';
+    return 'rgba(255, 255, 255, 0.8)';
   };
 
   const innerFillColor = getInnerFillColor(timerColor);
 
   return (
     <article 
-      className="relative group w-64 h-64 mx-auto"
+      className="relative group w-72 h-72 mx-auto"
       role="region"
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
       tabIndex={0}
     >
-      {/* Main circular container */}
+      {/* Perfect circular container */}
       <div 
-        className={`w-full h-full rounded-full relative border-4 transition-all duration-300 hover:scale-105 ${
+        className={`w-full h-full rounded-full relative border-3 transition-all duration-300 hover:scale-105 ${
           isRunning ? 'timer-pulsing' : ''
         }`}
         style={{
           borderColor: timerColor,
           backgroundColor: innerFillColor,
-          backdropFilter: 'blur(8px)',
-          boxShadow: `0 8px 32px ${timerColor}30, inset 0 0 20px ${timerColor}20`,
+          backdropFilter: 'blur(12px)',
+          boxShadow: `0 12px 40px ${timerColor}25, inset 0 0 30px ${timerColor}15`,
         }}
       >
-        {/* Floating Header Controls (outside the circle) */}
-        <div className="absolute -top-6 left-0 right-0 z-20">
+        {/* Floating Header Controls positioned outside circle at top */}
+        <div className="absolute -top-8 left-0 right-0 z-20">
           <TimerHeader
             name={name}
             category={category}
@@ -101,22 +101,24 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
         {/* Edit Form Overlay */}
         {isEditing && (
-          <div className="absolute inset-0 z-30 flex items-center justify-center p-6">
-            <div className="bg-black/80 backdrop-blur-md rounded-2xl p-4 w-full max-w-xs">
-              <TimerEditForm
-                nameInputRef={nameInputRef}
-                editedName={editedName}
-                editedCategory={editedCategory}
-                onNameChange={onNameChange}
-                onCategoryChange={onCategoryChange}
-                onSubmit={onSubmit}
-                onCancel={onCancel}
-              />
+          <div className="absolute inset-4 z-30 flex items-center justify-center">
+            <div className="bg-black/70 backdrop-blur-xl rounded-full p-6 w-full h-full flex items-center justify-center">
+              <div className="w-full max-w-xs">
+                <TimerEditForm
+                  nameInputRef={nameInputRef}
+                  editedName={editedName}
+                  editedCategory={editedCategory}
+                  onNameChange={onNameChange}
+                  onCategoryChange={onCategoryChange}
+                  onSubmit={onSubmit}
+                  onCancel={onCancel}
+                />
+              </div>
             </div>
           </div>
         )}
 
-        {/* Main Timer Content (overlaid on circle) */}
+        {/* Main Timer Content centered in circle */}
         {!isEditing && (
           <div className="absolute inset-0 flex items-center justify-center">
             <TimerContent
@@ -136,33 +138,35 @@ const TimerCard: React.FC<TimerCardProps> = ({
           </div>
         )}
         
-        {/* Status Indicator */}
-        <TimerStatusIndicator
-          isRunning={isRunning}
-          isPomodoroActive={isPomodoroActive}
-          timerColor={timerColor}
-        />
+        {/* Status Indicator positioned at top right */}
+        <div className="absolute -top-2 -right-2 z-10">
+          <TimerStatusIndicator
+            isRunning={isRunning}
+            isPomodoroActive={isPomodoroActive}
+            timerColor={timerColor}
+          />
+        </div>
       </div>
 
       <style>
         {`
-          @keyframes subtle-pulse {
+          @keyframes gentle-pulse {
             0% {
-              box-shadow: 0 8px 32px ${timerColor}30, inset 0 0 20px ${timerColor}20;
+              box-shadow: 0 12px 40px ${timerColor}25, inset 0 0 30px ${timerColor}15;
               transform: scale(1);
             }
             50% {
-              box-shadow: 0 12px 40px ${timerColor}50, inset 0 0 30px ${timerColor}30;
-              transform: scale(1.02);
+              box-shadow: 0 16px 50px ${timerColor}40, inset 0 0 40px ${timerColor}25;
+              transform: scale(1.03);
             }
             100% {
-              box-shadow: 0 8px 32px ${timerColor}30, inset 0 0 20px ${timerColor}20;
+              box-shadow: 0 12px 40px ${timerColor}25, inset 0 0 30px ${timerColor}15;
               transform: scale(1);
             }
           }
           
           .timer-pulsing {
-            animation: subtle-pulse 2s infinite ease-in-out;
+            animation: gentle-pulse 2.5s infinite ease-in-out;
           }
         `}
       </style>

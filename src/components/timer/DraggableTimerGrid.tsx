@@ -37,12 +37,12 @@ const DraggableTimerGrid = ({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-8">
+    <div className="w-full max-w-8xl mx-auto px-6 pt-8">
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="timers" direction="horizontal">
           {(provided) => (
             <div 
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-12 justify-items-center"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-16 justify-items-center"
               {...provided.droppableProps}
               ref={provided.innerRef}
             >

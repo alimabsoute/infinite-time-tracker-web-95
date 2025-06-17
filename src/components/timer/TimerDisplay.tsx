@@ -27,35 +27,24 @@ const TimerDisplay = ({
     >
       {/* Large time display */}
       <div 
-        className="text-4xl font-bold tracking-tight text-white leading-tight mb-2"
-        style={{ textShadow: `0 2px 8px ${timerColor}80` }}
+        className="text-3xl font-bold tracking-tight text-gray-800 leading-tight"
+        style={{ textShadow: `0 2px 8px ${timerColor}40` }}
         aria-label={`${formattedTime} elapsed`}
       >
         {formattedTime}
       </div>
-      
-      {/* Category label */}
-      {category && (
-        <div 
-          className="text-sm text-gray-200 uppercase tracking-wider font-medium opacity-90"
-          title={category}
-          aria-label={`Category: ${category}`}
-        >
-          {category}
-        </div>
-      )}
 
       <style>
         {`
           @keyframes text-pulse {
             0% {
-              text-shadow: 0 2px 8px ${timerColor}80;
+              text-shadow: 0 2px 8px ${timerColor}40;
             }
             50% {
-              text-shadow: 0 4px 16px ${timerColor}100, 0 0 20px ${timerColor}60;
+              text-shadow: 0 4px 16px ${timerColor}60, 0 0 20px ${timerColor}30;
             }
             100% {
-              text-shadow: 0 2px 8px ${timerColor}80;
+              text-shadow: 0 2px 8px ${timerColor}40;
             }
           }
           

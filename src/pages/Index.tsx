@@ -45,10 +45,10 @@ const Index = () => {
   return (
     <PageLayout>
       <div 
-        className="min-h-screen py-8"
+        className="min-h-screen py-12"
         style={{
-          background: 'rgba(243, 244, 246, 0.3)', // Light gray transparent
-          backdropFilter: 'blur(8px)'
+          background: 'rgba(243, 244, 246, 0.4)', // Lighter gray transparent
+          backdropFilter: 'blur(10px)'
         }}
       >
         <TimerList

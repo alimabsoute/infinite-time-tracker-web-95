@@ -34,10 +34,10 @@ const TimerMetadata = ({
   // Map priority to color
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "1": return "text-green-400 border-green-400/40";
-      case "2": return "text-amber-400 border-amber-400/40";
-      case "3": return "text-red-400 border-red-400/40";
-      default: return "";
+      case "1": return "text-green-600 border-green-300";
+      case "2": return "text-amber-600 border-amber-300";
+      case "3": return "text-red-600 border-red-300";
+      default: return "text-gray-600 border-gray-300";
     }
   };
 
@@ -92,34 +92,34 @@ const TimerMetadata = ({
   };
 
   return (
-    <div className="flex gap-2 justify-center opacity-80 hover:opacity-100 transition-opacity">
-      {/* Compact Priority Indicator */}
+    <div className="flex gap-3 justify-center">
+      {/* Priority Indicator */}
       <Select value={selectedPriority} onValueChange={onPriorityChange}>
         <SelectTrigger 
           className={cn(
-            "h-6 w-16 text-xs bg-black/40 border-white/20 text-white backdrop-blur-sm rounded-full",
+            "h-7 w-20 text-xs bg-white/90 border text-gray-700 backdrop-blur-sm rounded-full",
             getPriorityColor(selectedPriority)
           )}
         >
-          <SelectValue placeholder="P" />
+          <SelectValue placeholder="Priority" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="none">None</SelectItem>
-          <SelectItem value="1" className="text-green-500">Low</SelectItem>
-          <SelectItem value="2" className="text-amber-500">Med</SelectItem>
-          <SelectItem value="3" className="text-red-500">High</SelectItem>
+          <SelectItem value="1" className="text-green-600">Low</SelectItem>
+          <SelectItem value="2" className="text-amber-600">Med</SelectItem>
+          <SelectItem value="3" className="text-red-600">High</SelectItem>
         </SelectContent>
       </Select>
       
-      {/* Compact Deadline Indicator */}
+      {/* Deadline Indicator */}
       <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverTrigger asChild>
           <Button 
             variant="outline" 
             size="sm"
             className={cn(
-              "h-6 px-2 text-xs bg-black/40 border-white/20 text-white backdrop-blur-sm rounded-full",
-              isOverdue && "text-red-400 border-red-400/60"
+              "h-7 px-3 text-xs bg-white/90 border text-gray-700 backdrop-blur-sm rounded-full",
+              isOverdue && "text-red-600 border-red-300"
             )}
           >
             <Clock className="mr-1 h-3 w-3" />

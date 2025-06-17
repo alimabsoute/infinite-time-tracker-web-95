@@ -33,9 +33,9 @@ const TimerContent: React.FC<TimerContentProps> = ({
   onDateSelect,
 }) => {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center relative" role="region" aria-label="Timer content">
-      {/* Main Timer Display - centered */}
-      <div className="flex-1 flex items-center justify-center">
+    <div className="w-full h-full flex flex-col items-center justify-center relative p-8" role="region" aria-label="Timer content">
+      {/* Timer Display - positioned in upper center */}
+      <div className="absolute top-16">
         <TimerDisplay
           currentTime={currentTime}
           isRunning={isRunning}
@@ -44,8 +44,8 @@ const TimerContent: React.FC<TimerContentProps> = ({
         />
       </div>
       
-      {/* Controls - positioned at bottom center */}
-      <div className="absolute bottom-6">
+      {/* Controls - positioned in center */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <TimerControls
           isRunning={isRunning}
           onToggle={onToggle}
@@ -54,8 +54,8 @@ const TimerContent: React.FC<TimerContentProps> = ({
         />
       </div>
       
-      {/* Metadata - positioned at very bottom */}
-      <div className="absolute bottom-0 left-0 right-0 px-4 pb-2">
+      {/* Metadata - positioned at bottom */}
+      <div className="absolute bottom-16">
         <TimerMetadata
           selectedPriority={selectedPriority}
           date={date}
