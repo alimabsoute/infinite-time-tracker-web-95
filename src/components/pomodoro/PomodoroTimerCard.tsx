@@ -132,13 +132,13 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
                   <CircularProgressbar
                     value={progressPercentage}
                     text=""
+                    strokeWidth={6}
                     styles={buildStyles({
                       pathColor: timerColor,
                       trailColor: `${timerColor}15`,
                       backgroundColor: 'transparent',
                       strokeLinecap: 'round',
                       pathTransitionDuration: 0.2,
-                      strokeWidth: 6,
                     })}
                   />
                 </div>
