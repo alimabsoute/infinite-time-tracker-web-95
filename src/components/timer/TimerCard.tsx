@@ -58,50 +58,70 @@ const TimerCard: React.FC<TimerCardProps> = ({
   const isOverdue = deadline && new Date(deadline) < new Date();
 
   return (
-    <div 
-      className="relative mb-3 px-1 bg-card/95 backdrop-blur-sm border border-border/50"
+    <article 
+      className="relative group timer-card w-full max-w-sm mx-auto"
       style={{
-        borderRadius: "0.5rem", 
-        boxShadow: `0 0 0 2px ${timerColor}40, 0 4px 6px -1px rgba(0, 0, 0, 0.1)`,
-        transition: "all 0.2s ease-in-out",
-        backgroundColor: 'hsl(var(--card) / 0.95)'
+        borderRadius: "0.75rem", 
+        boxShadow: `0 0 0 2px ${timerColor}20, 0 4px 12px -2px rgba(0, 0, 0, 0.1)`,
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        background: 'linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card)/0.95) 100%)',
+        border: `1px solid ${timerColor}30`,
+        backdropFilter: 'blur(10px)'
       }}
+      role="region"
+      aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
+      tabIndex={0}
     >
-      <div className="p-2 bg-transparent rounded-lg">
+      {/* Enhanced hover and focus effects */}
+      <div 
+        className="p-3 sm:p-4 md:p-5 rounded-lg transition-all duration-300 group-hover:bg-card/80 group-focus-within:bg-card/80"
+        style={{
+          background: 'transparent'
+        }}
+      >
         {isEditing ? (
-          <TimerEditForm
-            nameInputRef={nameInputRef}
-            editedName={editedName}
-            editedCategory={editedCategory}
-            onNameChange={onNameChange}
-            onCategoryChange={onCategoryChange}
-            onSubmit={onSubmit}
-            onCancel={onCancel}
-          />
+          <div role="form" aria-label="Edit timer">
+            <TimerEditForm
+              nameInputRef={nameInputRef}
+              editedName={editedName}
+              editedCategory={editedCategory}
+              onNameChange={onNameChange}
+              onCategoryChange={onCategoryChange}
+              onSubmit={onSubmit}
+              onCancel={onCancel}
+            />
+          </div>
         ) : (
-          <div className="flex flex-col">
-            <TimerHeader
-              name={name}
-              category={category}
-              onEditClick={onEdit}
-              onDeleteClick={onDelete}
-            />
+          <div className="flex flex-col space-y-2 sm:space-y-3">
+            {/* Header with improved typography hierarchy */}
+            <header className="relative z-10">
+              <TimerHeader
+                name={name}
+                category={category}
+                onEditClick={onEdit}
+                onDeleteClick={onDelete}
+              />
+            </header>
             
-            <TimerContent
-              timerId={id}
-              currentTime={currentTime}
-              isRunning={isRunning}
-              category={category}
-              timerColor={timerColor}
-              selectedPriority={selectedPriority}
-              date={date}
-              isOverdue={!!isOverdue}
-              onToggle={onToggle}
-              onReset={onReset}
-              onPriorityChange={onPriorityChange}
-              onDateSelect={onDateSelect}
-            />
+            {/* Main content area */}
+            <main className="flex-1">
+              <TimerContent
+                timerId={id}
+                currentTime={currentTime}
+                isRunning={isRunning}
+                category={category}
+                timerColor={timerColor}
+                selectedPriority={selectedPriority}
+                date={date}
+                isOverdue={!!isOverdue}
+                onToggle={onToggle}
+                onReset={onReset}
+                onPriorityChange={onPriorityChange}
+                onDateSelect={onDateSelect}
+              />
+            </main>
             
+            {/* Status indicator */}
             <TimerStatusIndicator
               isRunning={isRunning}
               isPomodoroActive={isPomodoroActive}
@@ -110,7 +130,35 @@ const TimerCard: React.FC<TimerCardProps> = ({
           </div>
         )}
       </div>
-    </div>
+
+      {/* Enhanced visual feedback styles */}
+      <style jsx>{`
+        article:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 0 0 2px ${timerColor}40, 0 8px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+        
+        article:focus-within {
+          outline: 2px solid ${timerColor};
+          outline-offset: 2px;
+        }
+        
+        @media (max-width: 640px) {
+          article:hover {
+            transform: translateY(-1px) scale(1.01);
+          }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+          article {
+            transition: none;
+          }
+          article:hover {
+            transform: none;
+          }
+        }
+      `}</style>
+    </article>
   );
 };
 
