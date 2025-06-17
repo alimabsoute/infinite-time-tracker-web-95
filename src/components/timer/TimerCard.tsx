@@ -59,18 +59,26 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
   return (
     <article 
-      className="relative group timer-card w-full max-w-sm mx-auto"
+      className="relative group timer-card w-full max-w-sm mx-auto transition-all duration-300 hover:scale-102 hover:-translate-y-1 focus-within:outline-2 focus-within:outline-offset-2"
       style={{
         borderRadius: "0.75rem", 
         boxShadow: `0 0 0 2px ${timerColor}20, 0 4px 12px -2px rgba(0, 0, 0, 0.1)`,
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         background: 'linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card)/0.95) 100%)',
         border: `1px solid ${timerColor}30`,
-        backdropFilter: 'blur(10px)'
+        backdropFilter: 'blur(10px)',
+        focusWithinOutlineColor: timerColor
       }}
       role="region"
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
       tabIndex={0}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+        e.currentTarget.style.boxShadow = `0 0 0 2px ${timerColor}40, 0 8px 25px -5px rgba(0, 0, 0, 0.15)`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = '';
+        e.currentTarget.style.boxShadow = `0 0 0 2px ${timerColor}20, 0 4px 12px -2px rgba(0, 0, 0, 0.1)`;
+      }}
     >
       {/* Enhanced hover and focus effects */}
       <div 
@@ -130,34 +138,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
           </div>
         )}
       </div>
-
-      {/* Enhanced visual feedback styles */}
-      <style jsx>{`
-        article:hover {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 0 0 0 2px ${timerColor}40, 0 8px 25px -5px rgba(0, 0, 0, 0.15);
-        }
-        
-        article:focus-within {
-          outline: 2px solid ${timerColor};
-          outline-offset: 2px;
-        }
-        
-        @media (max-width: 640px) {
-          article:hover {
-            transform: translateY(-1px) scale(1.01);
-          }
-        }
-        
-        @media (prefers-reduced-motion: reduce) {
-          article {
-            transition: none;
-          }
-          article:hover {
-            transform: none;
-          }
-        }
-      `}</style>
     </article>
   );
 };
