@@ -45,9 +45,9 @@ const Index = () => {
   return (
     <PageLayout>
       <div 
-        className="min-h-screen py-12"
+        className="min-h-screen py-6"
         style={{
-          background: 'rgba(243, 244, 246, 0.4)', // Lighter gray transparent
+          background: 'rgba(243, 244, 246, 0.4)',
           backdropFilter: 'blur(10px)'
         }}
       >

@@ -59,7 +59,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
   // Get lighter pastel color for inner fill
   const getInnerFillColor = (color: string) => {
-    // Extract HSL values and create a much lighter, more pastel version
     const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
     if (hslMatch) {
       const [, h, s, l] = hslMatch;
@@ -77,99 +76,82 @@ const TimerCard: React.FC<TimerCardProps> = ({
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
       tabIndex={0}
     >
-      {/* Perfect circular container */}
+      {/* Animated rotating gradient border */}
       <div 
-        className={`w-full h-full rounded-full relative border-3 transition-all duration-300 hover:scale-105 ${
-          isRunning ? 'timer-pulsing' : ''
-        }`}
+        className={`absolute inset-0 rounded-full ${isRunning ? 'animate-spin' : ''}`}
         style={{
-          borderColor: timerColor,
-          backgroundColor: innerFillColor,
-          backdropFilter: 'blur(12px)',
-          boxShadow: `0 12px 40px ${timerColor}25, inset 0 0 30px ${timerColor}15`,
+          background: `conic-gradient(from 0deg, ${timerColor}, transparent 60%, ${timerColor})`,
+          animation: isRunning ? 'spin 3s linear infinite' : 'none',
         }}
       >
-        {/* Floating Header Controls positioned outside circle at top */}
-        <div className="absolute -top-8 left-0 right-0 z-20">
-          <TimerHeader
-            name={name}
-            category={category}
-            onEditClick={onEdit}
-            onDeleteClick={onDelete}
-          />
-        </div>
-
-        {/* Edit Form Overlay */}
-        {isEditing && (
-          <div className="absolute inset-4 z-30 flex items-center justify-center">
-            <div className="bg-black/70 backdrop-blur-xl rounded-full p-6 w-full h-full flex items-center justify-center">
-              <div className="w-full max-w-xs">
-                <TimerEditForm
-                  nameInputRef={nameInputRef}
-                  editedName={editedName}
-                  editedCategory={editedCategory}
-                  onNameChange={onNameChange}
-                  onCategoryChange={onCategoryChange}
-                  onSubmit={onSubmit}
-                  onCancel={onCancel}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Main Timer Content centered in circle */}
-        {!isEditing && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <TimerContent
-              timerId={id}
-              currentTime={currentTime}
-              isRunning={isRunning}
+        {/* Inner circle with content */}
+        <div 
+          className="absolute inset-1 rounded-full transition-all duration-300 hover:scale-105"
+          style={{
+            backgroundColor: innerFillColor,
+            backdropFilter: 'blur(12px)',
+            boxShadow: `inset 0 0 30px ${timerColor}15`,
+          }}
+        >
+          {/* Header positioned at top left outside the circle */}
+          <div className="absolute -top-12 -left-4 z-20">
+            <TimerHeader
+              name={name}
               category={category}
-              timerColor={timerColor}
-              selectedPriority={selectedPriority}
-              date={date}
-              isOverdue={!!isOverdue}
-              onToggle={onToggle}
-              onReset={onReset}
-              onPriorityChange={onPriorityChange}
-              onDateSelect={onDateSelect}
+              onEditClick={onEdit}
+              onDeleteClick={onDelete}
             />
           </div>
-        )}
-        
-        {/* Status Indicator positioned at top right */}
-        <div className="absolute -top-2 -right-2 z-10">
-          <TimerStatusIndicator
-            isRunning={isRunning}
-            isPomodoroActive={isPomodoroActive}
-            timerColor={timerColor}
-          />
+
+          {/* Edit Form Overlay */}
+          {isEditing && (
+            <div className="absolute inset-4 z-30 flex items-center justify-center">
+              <div className="bg-black/70 backdrop-blur-xl rounded-full p-6 w-full h-full flex items-center justify-center">
+                <div className="w-full max-w-xs">
+                  <TimerEditForm
+                    nameInputRef={nameInputRef}
+                    editedName={editedName}
+                    editedCategory={editedCategory}
+                    onNameChange={onNameChange}
+                    onCategoryChange={onCategoryChange}
+                    onSubmit={onSubmit}
+                    onCancel={onCancel}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Main Timer Content centered in circle */}
+          {!isEditing && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <TimerContent
+                timerId={id}
+                currentTime={currentTime}
+                isRunning={isRunning}
+                category={category}
+                timerColor={timerColor}
+                selectedPriority={selectedPriority}
+                date={date}
+                isOverdue={!!isOverdue}
+                onToggle={onToggle}
+                onReset={onReset}
+                onPriorityChange={onPriorityChange}
+                onDateSelect={onDateSelect}
+              />
+            </div>
+          )}
+          
+          {/* Status Indicator positioned at top right */}
+          <div className="absolute -top-2 -right-2 z-10">
+            <TimerStatusIndicator
+              isRunning={isRunning}
+              isPomodoroActive={isPomodoroActive}
+              timerColor={timerColor}
+            />
+          </div>
         </div>
       </div>
-
-      <style>
-        {`
-          @keyframes gentle-pulse {
-            0% {
-              box-shadow: 0 12px 40px ${timerColor}25, inset 0 0 30px ${timerColor}15;
-              transform: scale(1);
-            }
-            50% {
-              box-shadow: 0 16px 50px ${timerColor}40, inset 0 0 40px ${timerColor}25;
-              transform: scale(1.03);
-            }
-            100% {
-              box-shadow: 0 12px 40px ${timerColor}25, inset 0 0 30px ${timerColor}15;
-              transform: scale(1);
-            }
-          }
-          
-          .timer-pulsing {
-            animation: gentle-pulse 2.5s infinite ease-in-out;
-          }
-        `}
-      </style>
     </article>
   );
 };
