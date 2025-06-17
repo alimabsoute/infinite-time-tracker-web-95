@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { lightbulb, TrendingUp, Clock, Target, Calendar } from 'lucide-react';
+import { Lightbulb, TrendingUp, Clock, Target, Calendar } from 'lucide-react';
 import { Timer, TimerSessionWithTimer } from '../../types';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -77,7 +77,7 @@ const InsightRecommendations: React.FC<InsightRecommendationsProps> = ({
       <Card className="glass-effect">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <lightbulb className="h-5 w-5" />
+            <Lightbulb className="h-5 w-5" />
             You're doing great!
           </CardTitle>
         </CardHeader>
@@ -94,7 +94,7 @@ const InsightRecommendations: React.FC<InsightRecommendationsProps> = ({
     <Card className="glass-effect">
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
-          <lightbulb className="h-5 w-5" />
+          <Lightbulb className="h-5 w-5" />
           Smart Recommendations
         </CardTitle>
       </CardHeader>
