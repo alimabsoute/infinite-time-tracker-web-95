@@ -44,10 +44,9 @@ export const useTimerActions = ({
         id: crypto.randomUUID(),
         name,
         elapsedTime: 0,
-        isRunning: true,
+        isRunning: false, // Start as false, will be set to true after successful creation
         createdAt: new Date(),
         category,
-        sessionStartTime: new Date(),
       };
       
       console.log('➕ Adding new timer:', newTimer.name);
@@ -69,16 +68,49 @@ export const useTimerActions = ({
       
       await Promise.all(endPromises);
       
-      // Create new session for new timer
-      const sessionId = await createSession(newTimer.id, newTimer.sessionStartTime!);
-      if (!sessionId) {
-        toast.error("Failed to create timer session");
+      // First, insert the timer into the database
+      const { error: insertError } = await supabase
+        .from('timers')
+        .insert({
+          id: newTimer.id,
+          name: newTimer.name,
+          elapsed_time: newTimer.elapsedTime,
+          is_running: false, // Insert as false initially
+          created_at: newTimer.createdAt.toISOString(),
+          category: newTimer.category,
+          user_id: user.id
+        });
+      
+      if (insertError) {
+        toast.error("Failed to create timer");
+        console.error("❌ Error creating timer:", insertError);
         return "";
       }
-      
-      newTimer.currentSessionId = sessionId;
 
-      // Optimistic update
+      // Now that the timer exists in the database, create a session and start it
+      const sessionId = await createSession(newTimer.id, now);
+      if (!sessionId) {
+        toast.error("Failed to start timer session");
+        return "";
+      }
+
+      // Update the timer to running state in the database
+      const { error: updateError } = await supabase
+        .from('timers')
+        .update({ is_running: true })
+        .eq('id', newTimer.id);
+
+      if (updateError) {
+        console.error("❌ Error updating timer to running:", updateError);
+        // Timer was created but couldn't be started - still return success
+      }
+
+      // Set the timer properties for local state
+      newTimer.isRunning = true;
+      newTimer.currentSessionId = sessionId;
+      newTimer.sessionStartTime = now;
+
+      // Optimistic update - add new timer and pause others
       setTimers((prev) => [
         newTimer,
         ...prev.map(timer => ({ 
@@ -88,26 +120,6 @@ export const useTimerActions = ({
           sessionStartTime: undefined 
         }))
       ]);
-      
-      // Insert the new timer into database
-      const { error } = await supabase
-        .from('timers')
-        .insert({
-          id: newTimer.id,
-          name: newTimer.name,
-          elapsed_time: newTimer.elapsedTime,
-          is_running: newTimer.isRunning,
-          created_at: newTimer.createdAt.toISOString(),
-          category: newTimer.category,
-          user_id: user.id
-        });
-      
-      if (error) {
-        setTimers((prev) => prev.filter(t => t.id !== newTimer.id));
-        toast.error("Failed to create timer");
-        console.error("❌ Error creating timer:", error);
-        return "";
-      }
       
       clearConfettiTrigger();
       
