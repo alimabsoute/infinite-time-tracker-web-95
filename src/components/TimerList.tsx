@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Timer as TimerType } from "../types";
 import Timer from "./Timer";
@@ -6,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "./ui/button";
 import { ArrowDownAZ, ArrowDownUp, Clock, Trash2 } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { useTimerPerformance } from '../hooks/useTimerPerformance';
 import { 
   AlertDialog, 
   AlertDialogAction, 
@@ -55,39 +57,11 @@ const TimerList = ({
   const [showMultiDeleteDialog, setShowMultiDeleteDialog] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("custom");
   
-  // Get unique categories from timers
-  const categories = Array.from(new Set(timers.map(timer => timer.category || "Uncategorized")));
-  
-  // Filter timers based on selected category
-  const filteredTimers = filter === "all" 
-    ? timers 
-    : timers.filter(timer => 
-        filter === "Uncategorized" 
-          ? !timer.category 
-          : timer.category === filter
-      );
-
-  // Sort timers based on selected option
-  const sortedTimers = [...filteredTimers].sort((a, b) => {
-    switch (sortBy) {
-      case "name":
-        return a.name.localeCompare(b.name);
-      case "priority":
-        // Sort by priority (undefined priorities come last)
-        if (a.priority === undefined && b.priority === undefined) return 0;
-        if (a.priority === undefined) return 1;
-        if (b.priority === undefined) return -1;
-        return a.priority - b.priority;
-      case "deadline":
-        // Sort by deadline (undefined deadlines come last)
-        if (!a.deadline && !b.deadline) return 0;
-        if (!a.deadline) return 1;
-        if (!b.deadline) return -1;
-        return a.deadline.getTime() - b.deadline.getTime();
-      case "custom":
-      default:
-        return 0; // Keep existing order for custom
-    }
+  // Use performance optimization hook
+  const { filteredTimers, sortedTimers, categories } = useTimerPerformance({
+    timers,
+    filter,
+    sortBy
   });
 
   // Handle batch deletion of selected timers
@@ -119,8 +93,6 @@ const TimerList = ({
   }
 
   const isSelectionMode = selectedTimers.length > 0;
-  
-  // Only allow drag and drop when sorting is set to custom
   const isDraggable = sortBy === "custom";
 
   return (

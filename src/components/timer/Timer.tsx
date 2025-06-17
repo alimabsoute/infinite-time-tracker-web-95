@@ -48,20 +48,26 @@ const Timer = ({
   });
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  // Update time while running
+  // Update time while running - optimized with useRef to prevent unnecessary re-renders
+  const intervalRef = useRef<NodeJS.Timeout>();
+  
   useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
     
     setCurrentTime(elapsedTime);
     
     if (timer.isRunning) {
-      interval = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         setCurrentTime(prevTime => prevTime + 1000);
       }, 1000);
     }
     
     return () => {
-      if (interval) clearInterval(interval);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     };
   }, [timer.isRunning, elapsedTime, id]);
 

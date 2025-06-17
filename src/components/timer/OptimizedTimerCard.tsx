@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Timer as TimerType } from '../../types';
 import { getTimerColor } from '../../utils/timerUtils';
 import TimerHeader from './TimerHeader';
@@ -7,7 +7,7 @@ import TimerEditForm from './TimerEditForm';
 import TimerStatusIndicator from './TimerStatusIndicator';
 import TimerContent from './TimerContent';
 
-interface TimerCardProps {
+interface OptimizedTimerCardProps {
   timer: TimerType;
   currentTime: number;
   isEditing: boolean;
@@ -32,7 +32,7 @@ interface TimerCardProps {
   onDateSelect: (date: Date | undefined) => void;
 }
 
-const TimerCard: React.FC<TimerCardProps> = ({
+const OptimizedTimerCard: React.FC<OptimizedTimerCardProps> = memo(({
   timer,
   currentTime,
   isEditing,
@@ -59,15 +59,15 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
   return (
     <div 
-      className="relative mb-3 px-1 bg-card/95 backdrop-blur-sm border border-border/50"
+      className="relative mb-3 px-1 bg-background/95 backdrop-blur-sm"
       style={{
         borderRadius: "0.5rem", 
         boxShadow: `0 0 0 2px ${timerColor}40, 0 4px 6px -1px rgba(0, 0, 0, 0.1)`,
         transition: "all 0.2s ease-in-out",
-        backgroundColor: 'hsl(var(--card) / 0.95)'
+        border: `1px solid ${timerColor}20`
       }}
     >
-      <div className="p-2 bg-transparent rounded-lg">
+      <div className="p-2 rounded-lg">
         {isEditing ? (
           <TimerEditForm
             nameInputRef={nameInputRef}
@@ -112,6 +112,20 @@ const TimerCard: React.FC<TimerCardProps> = ({
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison function for memo optimization
+  return (
+    prevProps.timer.id === nextProps.timer.id &&
+    prevProps.currentTime === nextProps.currentTime &&
+    prevProps.timer.isRunning === nextProps.timer.isRunning &&
+    prevProps.isEditing === nextProps.isEditing &&
+    prevProps.editedName === nextProps.editedName &&
+    prevProps.editedCategory === nextProps.editedCategory &&
+    prevProps.selectedPriority === nextProps.selectedPriority &&
+    prevProps.isPomodoroActive === nextProps.isPomodoroActive
+  );
+});
 
-export default TimerCard;
+OptimizedTimerCard.displayName = 'OptimizedTimerCard';
+
+export default OptimizedTimerCard;

@@ -2,7 +2,7 @@
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { Badge } from '../ui/badge';
-import { formatTime } from './TimerUtils';
+import { formatTime, getTimerProgress } from '../../utils/timerUtils';
 
 interface TimerDisplayProps {
   currentTime: number;
@@ -19,7 +19,7 @@ const TimerDisplay = ({
   category,
   timerColor = 'hsl(221, 83%, 53%)' 
 }: TimerDisplayProps) => {
-  // Calculate progress percentage for circular progress
+  // Use the consolidated progress calculation
   const progressPercentage = Math.min(100, (currentTime / 3600000) * 100); // Max at 1 hour
 
   return (
@@ -28,14 +28,13 @@ const TimerDisplay = ({
         value={progressPercentage}
         strokeWidth={3}
         styles={buildStyles({
-          // Sharper outer lines with no color bleed
           pathColor: timerColor,
           trailColor: 'rgba(226, 232, 240, 0.2)',
-          textSize: '0px', // Hide the default text
+          textSize: '0px',
           pathTransitionDuration: 0.3,
           rotation: 0.25,
-          strokeLinecap: 'butt', // Sharp edges instead of round
-          backgroundColor: 'transparent', // Remove background fill color
+          strokeLinecap: 'butt',
+          backgroundColor: 'transparent',
         })}
       />
       
@@ -56,7 +55,6 @@ const TimerDisplay = ({
         </Badge>
       )}
 
-      {/* Update animation styles to better highlight the timer edge */}
       <style>
         {`
           @keyframes subtle-pulse {
