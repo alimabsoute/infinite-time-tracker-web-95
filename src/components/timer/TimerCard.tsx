@@ -57,75 +57,115 @@ const TimerCard: React.FC<TimerCardProps> = ({
   const timerColor = getTimerColor(id);
   const isOverdue = deadline && new Date(deadline) < new Date();
 
+  // Get darker pastel color for inner fill
+  const getInnerFillColor = (color: string) => {
+    // Extract HSL values and create a darker, more muted version
+    const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+    if (hslMatch) {
+      const [, h, s, l] = hslMatch;
+      return `hsla(${h}, ${Math.max(20, parseInt(s) - 30)}%, ${Math.max(15, parseInt(l) - 25)}%, 0.4)`;
+    }
+    return 'rgba(0, 0, 0, 0.3)';
+  };
+
+  const innerFillColor = getInnerFillColor(timerColor);
+
   return (
     <article 
-      className="relative group timer-card w-full max-w-[280px] mx-auto rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-4 backdrop-blur-sm"
-      style={{
-        borderColor: timerColor,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        backdropFilter: 'blur(12px)',
-      }}
+      className="relative group w-64 h-64 mx-auto"
       role="region"
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
       tabIndex={0}
     >
-      {/* Subtle inner glow effect */}
+      {/* Main circular container */}
       <div 
-        className="absolute inset-0 rounded-3xl opacity-20"
+        className={`w-full h-full rounded-full relative border-4 transition-all duration-300 hover:scale-105 ${
+          isRunning ? 'timer-pulsing' : ''
+        }`}
         style={{
-          background: `radial-gradient(circle at center, ${timerColor}40 0%, transparent 70%)`,
+          borderColor: timerColor,
+          backgroundColor: innerFillColor,
+          backdropFilter: 'blur(8px)',
+          boxShadow: `0 8px 32px ${timerColor}30, inset 0 0 20px ${timerColor}20`,
         }}
-      />
-      
-      <div className="relative z-10 p-6">
-        {isEditing ? (
-          <div role="form" aria-label="Edit timer">
-            <TimerEditForm
-              nameInputRef={nameInputRef}
-              editedName={editedName}
-              editedCategory={editedCategory}
-              onNameChange={onNameChange}
-              onCategoryChange={onCategoryChange}
-              onSubmit={onSubmit}
-              onCancel={onCancel}
-            />
+      >
+        {/* Floating Header Controls (outside the circle) */}
+        <div className="absolute -top-6 left-0 right-0 z-20">
+          <TimerHeader
+            name={name}
+            category={category}
+            onEditClick={onEdit}
+            onDeleteClick={onDelete}
+          />
+        </div>
+
+        {/* Edit Form Overlay */}
+        {isEditing && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center p-6">
+            <div className="bg-black/80 backdrop-blur-md rounded-2xl p-4 w-full max-w-xs">
+              <TimerEditForm
+                nameInputRef={nameInputRef}
+                editedName={editedName}
+                editedCategory={editedCategory}
+                onNameChange={onNameChange}
+                onCategoryChange={onCategoryChange}
+                onSubmit={onSubmit}
+                onCancel={onCancel}
+              />
+            </div>
           </div>
-        ) : (
-          <div className="flex flex-col space-y-4">
-            <header className="relative z-10">
-              <TimerHeader
-                name={name}
-                category={category}
-                onEditClick={onEdit}
-                onDeleteClick={onDelete}
-              />
-            </header>
-            
-            <main className="flex-1">
-              <TimerContent
-                timerId={id}
-                currentTime={currentTime}
-                isRunning={isRunning}
-                category={category}
-                timerColor={timerColor}
-                selectedPriority={selectedPriority}
-                date={date}
-                isOverdue={!!isOverdue}
-                onToggle={onToggle}
-                onReset={onReset}
-                onPriorityChange={onPriorityChange}
-                onDateSelect={onDateSelect}
-              />
-            </main>
-            
-            <TimerStatusIndicator
+        )}
+
+        {/* Main Timer Content (overlaid on circle) */}
+        {!isEditing && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <TimerContent
+              timerId={id}
+              currentTime={currentTime}
               isRunning={isRunning}
-              isPomodoroActive={isPomodoroActive}
+              category={category}
               timerColor={timerColor}
+              selectedPriority={selectedPriority}
+              date={date}
+              isOverdue={!!isOverdue}
+              onToggle={onToggle}
+              onReset={onReset}
+              onPriorityChange={onPriorityChange}
+              onDateSelect={onDateSelect}
             />
           </div>
         )}
+        
+        {/* Status Indicator */}
+        <TimerStatusIndicator
+          isRunning={isRunning}
+          isPomodoroActive={isPomodoroActive}
+          timerColor={timerColor}
+        />
       </div>
+
+      <style>
+        {`
+          @keyframes subtle-pulse {
+            0% {
+              box-shadow: 0 8px 32px ${timerColor}30, inset 0 0 20px ${timerColor}20;
+              transform: scale(1);
+            }
+            50% {
+              box-shadow: 0 12px 40px ${timerColor}50, inset 0 0 30px ${timerColor}30;
+              transform: scale(1.02);
+            }
+            100% {
+              box-shadow: 0 8px 32px ${timerColor}30, inset 0 0 20px ${timerColor}20;
+              transform: scale(1);
+            }
+          }
+          
+          .timer-pulsing {
+            animation: subtle-pulse 2s infinite ease-in-out;
+          }
+        `}
+      </style>
     </article>
   );
 };

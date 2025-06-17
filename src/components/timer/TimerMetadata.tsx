@@ -41,28 +41,16 @@ const TimerMetadata = ({
     }
   };
 
-  // Map priority to text
-  const getPriorityText = (priority: string) => {
-    switch (priority) {
-      case "1": return "Low";
-      case "2": return "Medium";
-      case "3": return "High";
-      default: return "None";
-    }
-  };
-
   // Handle date selection from calendar
   const handleDateSelect = (newDate: Date | undefined) => {
     if (newDate) {
       setSelectedDate(newDate);
-      // If we have a time, apply it to the selected date
       if (selectedTime) {
         const [hours, minutes] = selectedTime.split(':').map(Number);
         const finalDate = new Date(newDate);
         finalDate.setHours(hours, minutes, 0, 0);
         onDateSelect(finalDate);
       } else {
-        // Default to end of day if no time is set
         const finalDate = new Date(newDate);
         finalDate.setHours(23, 59, 0, 0);
         onDateSelect(finalDate);
@@ -104,95 +92,85 @@ const TimerMetadata = ({
   };
 
   return (
-    <div className="flex gap-3 justify-center mt-2">
-      <div className="flex flex-col space-y-2 flex-1">
-        <span className="text-xs text-gray-300 font-medium">Priority</span>
-        <Select value={selectedPriority} onValueChange={onPriorityChange}>
-          <SelectTrigger 
+    <div className="flex gap-2 justify-center opacity-80 hover:opacity-100 transition-opacity">
+      {/* Compact Priority Indicator */}
+      <Select value={selectedPriority} onValueChange={onPriorityChange}>
+        <SelectTrigger 
+          className={cn(
+            "h-6 w-16 text-xs bg-black/40 border-white/20 text-white backdrop-blur-sm rounded-full",
+            getPriorityColor(selectedPriority)
+          )}
+        >
+          <SelectValue placeholder="P" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">None</SelectItem>
+          <SelectItem value="1" className="text-green-500">Low</SelectItem>
+          <SelectItem value="2" className="text-amber-500">Med</SelectItem>
+          <SelectItem value="3" className="text-red-500">High</SelectItem>
+        </SelectContent>
+      </Select>
+      
+      {/* Compact Deadline Indicator */}
+      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+        <PopoverTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm"
             className={cn(
-              "h-9 text-xs bg-white/10 border-white/20 text-white backdrop-blur-sm",
-              getPriorityColor(selectedPriority)
+              "h-6 px-2 text-xs bg-black/40 border-white/20 text-white backdrop-blur-sm rounded-full",
+              isOverdue && "text-red-400 border-red-400/60"
             )}
           >
-            <SelectValue placeholder="Priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            <SelectItem value="1" className="text-green-500">Low</SelectItem>
-            <SelectItem value="2" className="text-amber-500">Medium</SelectItem>
-            <SelectItem value="3" className="text-red-500">High</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      
-      <div className="flex flex-col space-y-2 flex-1">
-        <span className="text-xs text-gray-300 font-medium">Deadline</span>
-        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className={cn(
-                "w-full justify-start text-left font-normal h-9 text-xs bg-white/10 border-white/20 text-white backdrop-blur-sm",
-                isOverdue && "text-red-400 border-red-400/60"
-              )}
-            >
-              <Clock className="mr-1 h-3 w-3" />
-              {date ? (
-                <span>
-                  {format(date, 'MMM d')} at {format(date, 'HH:mm')}
-                </span>
-              ) : (
-                <span>Set deadline</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <div className="flex flex-col space-y-4 p-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Select Date</Label>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleDateSelect}
-                  initialFocus
-                  className="pointer-events-auto border rounded-md"
-                  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Select Time</Label>
-                <Input
-                  type="time"
-                  value={selectedTime}
-                  onChange={(e) => handleTimeChange(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-              
-              <div className="flex gap-2 pt-2">
-                <Button 
-                  onClick={handleApplyDateTime}
-                  size="sm"
-                  className="flex-1"
-                  disabled={!selectedDate}
-                >
-                  Apply
-                </Button>
-                <Button 
-                  onClick={handleClearDeadline}
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                >
-                  Clear
-                </Button>
-              </div>
+            <Clock className="mr-1 h-3 w-3" />
+            {date ? format(date, 'MMM d') : 'Set'}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <div className="flex flex-col space-y-4 p-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Select Date</Label>
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
+                initialFocus
+                className="pointer-events-auto border rounded-md"
+                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+              />
             </div>
-          </PopoverContent>
-        </Popover>
-      </div>
+            
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Select Time</Label>
+              <Input
+                type="time"
+                value={selectedTime}
+                onChange={(e) => handleTimeChange(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            
+            <div className="flex gap-2 pt-2">
+              <Button 
+                onClick={handleApplyDateTime}
+                size="sm"
+                className="flex-1"
+                disabled={!selectedDate}
+              >
+                Apply
+              </Button>
+              <Button 
+                onClick={handleClearDeadline}
+                variant="outline"
+                size="sm"
+                className="flex-1"
+              >
+                Clear
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };

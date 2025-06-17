@@ -44,7 +44,13 @@ const Index = () => {
 
   return (
     <PageLayout>
-      <div className="min-h-screen py-8">
+      <div 
+        className="min-h-screen py-8"
+        style={{
+          background: 'rgba(243, 244, 246, 0.3)', // Light gray transparent
+          backdropFilter: 'blur(8px)'
+        }}
+      >
         <TimerList
           timers={timers}
           onToggle={toggleTimer}

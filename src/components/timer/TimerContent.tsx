@@ -33,8 +33,9 @@ const TimerContent: React.FC<TimerContentProps> = ({
   onDateSelect,
 }) => {
   return (
-    <div className="space-y-4" role="region" aria-label="Timer content">
-      <div className="flex items-center justify-center">
+    <div className="w-full h-full flex flex-col items-center justify-center relative" role="region" aria-label="Timer content">
+      {/* Main Timer Display - centered */}
+      <div className="flex-1 flex items-center justify-center">
         <TimerDisplay
           currentTime={currentTime}
           isRunning={isRunning}
@@ -43,25 +44,25 @@ const TimerContent: React.FC<TimerContentProps> = ({
         />
       </div>
       
-      <div className="space-y-3">
-        <div className="flex justify-center">
-          <TimerControls
-            isRunning={isRunning}
-            onToggle={onToggle}
-            onReset={onReset}
-            timerColor={timerColor}
-          />
-        </div>
-        
-        <div className="border-t border-border/20 pt-3">
-          <TimerMetadata
-            selectedPriority={selectedPriority}
-            date={date}
-            isOverdue={isOverdue}
-            onPriorityChange={onPriorityChange}
-            onDateSelect={onDateSelect}
-          />
-        </div>
+      {/* Controls - positioned at bottom center */}
+      <div className="absolute bottom-6">
+        <TimerControls
+          isRunning={isRunning}
+          onToggle={onToggle}
+          onReset={onReset}
+          timerColor={timerColor}
+        />
+      </div>
+      
+      {/* Metadata - positioned at very bottom */}
+      <div className="absolute bottom-0 left-0 right-0 px-4 pb-2">
+        <TimerMetadata
+          selectedPriority={selectedPriority}
+          date={date}
+          isOverdue={isOverdue}
+          onPriorityChange={onPriorityChange}
+          onDateSelect={onDateSelect}
+        />
       </div>
     </div>
   );
