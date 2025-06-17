@@ -6,7 +6,7 @@ import InsightCard from './InsightCard';
 import InsightRecommendations from './InsightRecommendations';
 import { Clock, TrendingUp, Target, Zap, Calendar, BarChart3 } from 'lucide-react';
 import { formatTime } from '../timer/TimerUtils';
-import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
+import { format, subDays, startOfWeek, endOfWeek, addDays, addHours } from 'date-fns';
 
 interface QuickInsightsDashboardProps {
   timers: Timer[];
@@ -19,7 +19,29 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
 }) => {
   const insights = useProductivityInsights(timers, sessions);
 
-  // Generate insight data
+  // Generate countdown dates for actionable insights
+  const getNextOptimalWorkTime = () => {
+    const now = new Date();
+    const nextWorkDay = addDays(now, 1);
+    nextWorkDay.setHours(insights.mostProductiveHour, 0, 0, 0);
+    return nextWorkDay;
+  };
+
+  const getWeekEndTarget = () => {
+    const now = new Date();
+    const weekEnd = endOfWeek(now);
+    weekEnd.setHours(23, 59, 59, 999);
+    return weekEnd;
+  };
+
+  const getNextDeadline = () => {
+    if (insights.upcomingDeadlines.length > 0) {
+      return new Date(insights.upcomingDeadlines[0].deadline!);
+    }
+    return addDays(new Date(), 7); // Default to next week
+  };
+
+  // Generate insight data with countdown functionality
   const insightCards = [
     {
       headline: "Your productivity is trending upward",
@@ -29,7 +51,12 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
       icon: TrendingUp,
       color: insights.weeklyGrowth >= 0 ? 'text-green-500' : 'text-red-500',
       bgColor: insights.weeklyGrowth >= 0 ? 'bg-green-50' : 'bg-red-50',
-      actionable: insights.weeklyGrowth < 10
+      actionable: insights.weeklyGrowth < 10,
+      countdown: insights.weeklyGrowth < 10 ? {
+        targetDate: getWeekEndTarget(),
+        label: "Week ends in"
+      } : undefined,
+      realTimeUpdate: true
     },
     {
       headline: "Peak performance window identified",
@@ -39,7 +66,11 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
       icon: Clock,
       color: 'text-blue-500',
       bgColor: 'bg-blue-50',
-      actionable: true
+      actionable: true,
+      countdown: {
+        targetDate: getNextOptimalWorkTime(),
+        label: "Next peak time in"
+      }
     },
     {
       headline: `Your ${insights.mostProductiveDay} momentum`,
@@ -59,7 +90,8 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
       icon: Target,
       color: insights.averageSessionTime >= 25 * 60 * 1000 ? 'text-green-500' : 'text-yellow-500',
       bgColor: insights.averageSessionTime >= 25 * 60 * 1000 ? 'bg-green-50' : 'bg-yellow-50',
-      actionable: insights.averageSessionTime < 20 * 60 * 1000
+      actionable: insights.averageSessionTime < 20 * 60 * 1000,
+      realTimeUpdate: true
     },
     {
       headline: "Consistency score",
@@ -69,7 +101,11 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
       icon: BarChart3,
       color: insights.dailyTrend.filter(d => d.time > 0).length >= 5 ? 'text-green-500' : 'text-yellow-500',
       bgColor: insights.dailyTrend.filter(d => d.time > 0).length >= 5 ? 'bg-green-50' : 'bg-yellow-50',
-      actionable: insights.dailyTrend.filter(d => d.time > 0).length < 5
+      actionable: insights.dailyTrend.filter(d => d.time > 0).length < 5,
+      countdown: insights.dailyTrend.filter(d => d.time > 0).length < 5 ? {
+        targetDate: getWeekEndTarget(),
+        label: "Week goal deadline"
+      } : undefined
     },
     {
       headline: "Energy optimization",
@@ -81,9 +117,29 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
              insights.productivityScore >= 40 ? 'text-yellow-500' : 'text-red-500',
       bgColor: insights.productivityScore >= 70 ? 'bg-green-50' : 
                insights.productivityScore >= 40 ? 'bg-yellow-50' : 'bg-red-50',
-      actionable: insights.productivityScore < 70
+      actionable: insights.productivityScore < 70,
+      realTimeUpdate: true
     }
   ];
+
+  // Add urgent deadline insight if there are upcoming deadlines
+  if (insights.upcomingDeadlines.length > 0) {
+    const urgentDeadline = insights.upcomingDeadlines[0];
+    insightCards.unshift({
+      headline: "Urgent deadline approaching",
+      takeaway: `"${urgentDeadline.name}" is due soon`,
+      comparison: `${insights.upcomingDeadlines.length} total deadlines this week`,
+      value: format(new Date(urgentDeadline.deadline!), 'MMM dd'),
+      icon: Target,
+      color: 'text-red-500',
+      bgColor: 'bg-red-50',
+      actionable: true,
+      countdown: {
+        targetDate: getNextDeadline(),
+        label: "Due in"
+      }
+    });
+  }
 
   // Filter out insights with no data
   const validInsights = insightCards.filter(card => {
@@ -106,6 +162,16 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
 
   return (
     <div className="space-y-8">
+      {/* Real-time status indicator */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-sm text-muted-foreground">
+            Live insights • Updated {format(new Date(), 'HH:mm')}
+          </span>
+        </div>
+      </div>
+
       {/* Insight Cards Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {validInsights.map((insight, index) => (
@@ -119,6 +185,8 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
             color={insight.color}
             bgColor={insight.bgColor}
             actionable={insight.actionable}
+            countdown={insight.countdown}
+            realTimeUpdate={insight.realTimeUpdate}
           />
         ))}
       </div>

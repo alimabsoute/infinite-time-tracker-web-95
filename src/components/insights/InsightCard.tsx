@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LucideIcon } from 'lucide-react';
+import CountdownTimer from './CountdownTimer';
 
 interface InsightCardProps {
   headline: string;
@@ -13,6 +14,11 @@ interface InsightCardProps {
   color: string;
   bgColor: string;
   actionable: boolean;
+  countdown?: {
+    targetDate: Date;
+    label: string;
+  };
+  realTimeUpdate?: boolean;
 }
 
 const InsightCard: React.FC<InsightCardProps> = ({
@@ -23,20 +29,29 @@ const InsightCard: React.FC<InsightCardProps> = ({
   icon: Icon,
   color,
   bgColor,
-  actionable
+  actionable,
+  countdown,
+  realTimeUpdate = false
 }) => {
   return (
-    <Card className="glass-effect hover:shadow-lg transition-all duration-200">
+    <Card className={`glass-effect hover:shadow-lg transition-all duration-200 ${realTimeUpdate ? 'animate-pulse' : ''}`}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className={`p-2 rounded-lg ${bgColor}`}>
             <Icon className={`h-5 w-5 ${color}`} />
           </div>
-          {actionable && (
-            <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
-              Action needed
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {actionable && (
+              <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                Action needed
+              </Badge>
+            )}
+            {realTimeUpdate && (
+              <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                Live
+              </Badge>
+            )}
+          </div>
         </div>
         
         <div className="space-y-3">
@@ -58,6 +73,16 @@ const InsightCard: React.FC<InsightCardProps> = ({
               {value}
             </span>
           </div>
+          
+          {countdown && (
+            <div className="pt-2">
+              <CountdownTimer
+                targetDate={countdown.targetDate}
+                label={countdown.label}
+                className="w-full justify-center"
+              />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
