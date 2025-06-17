@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { PomodoroState } from '@/types/pomodoro';
 import PomodoroCircularProgress from './PomodoroCircularProgress';
-import PomodoroPhaseDisplay from './PomodoroPhaseDisplay';
+import { usePomodoroPhaseData } from './PomodoroPhaseDisplay';
 import PomodoroControls from './PomodoroControls';
 import PomodoroMetadata from './PomodoroMetadata';
 import PomodoroPulseIndicator from './PomodoroPulseIndicator';
@@ -30,8 +30,8 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
 }) => {
   const { isActive, currentSession, currentPhase, sessionCount, totalSessions } = pomodoroState;
 
-  const phaseDisplay = PomodoroPhaseDisplay({ currentPhase });
-  const timerColor = phaseDisplay.color;
+  const phaseData = usePomodoroPhaseData(currentPhase);
+  const timerColor = phaseData.color;
 
   const progressPercentage = currentSession && remainingTime > 0
     ? ((currentSession.duration - remainingTime) / currentSession.duration) * 100
@@ -57,7 +57,7 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
           {/* Timer Header */}
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              {phaseDisplay.icon}
+              {phaseData.icon}
               <span className="font-medium text-sm">Pomodoro</span>
             </div>
             <div className="flex items-center gap-1">
@@ -82,7 +82,7 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
                 remainingTime={remainingTime}
                 isActive={isActive}
                 timerColor={timerColor}
-                phaseLabel={phaseDisplay.label}
+                phaseLabel={phaseData.label}
               />
             </div>
             
@@ -101,7 +101,7 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
               <PomodoroMetadata
                 currentPhase={currentPhase}
                 totalSessions={totalSessions}
-                phaseLabel={phaseDisplay.label}
+                phaseLabel={phaseData.label}
               />
             </div>
           </div>

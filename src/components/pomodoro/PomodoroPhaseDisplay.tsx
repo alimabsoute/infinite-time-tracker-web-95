@@ -4,9 +4,10 @@ import { Coffee, Zap, Play } from 'lucide-react';
 
 interface PomodoroPhaseDisplayProps {
   currentPhase: 'work' | 'short-break' | 'long-break' | 'idle';
+  onGetPhaseData?: (data: { icon: React.ReactElement; label: string; color: string }) => void;
 }
 
-const PomodoroPhaseDisplay: React.FC<PomodoroPhaseDisplayProps> = ({ currentPhase }) => {
+export const usePomodoroPhaseData = (currentPhase: 'work' | 'short-break' | 'long-break' | 'idle') => {
   const getPhaseIcon = () => {
     switch (currentPhase) {
       case 'work':
@@ -50,6 +51,23 @@ const PomodoroPhaseDisplay: React.FC<PomodoroPhaseDisplayProps> = ({ currentPhas
     label: getPhaseLabel(),
     color: getPhaseColor()
   };
+};
+
+const PomodoroPhaseDisplay: React.FC<PomodoroPhaseDisplayProps> = ({ currentPhase, onGetPhaseData }) => {
+  const phaseData = usePomodoroPhaseData(currentPhase);
+  
+  React.useEffect(() => {
+    if (onGetPhaseData) {
+      onGetPhaseData(phaseData);
+    }
+  }, [phaseData, onGetPhaseData]);
+
+  return (
+    <div className="flex items-center gap-2">
+      {phaseData.icon}
+      <span className="font-medium text-sm">Pomodoro</span>
+    </div>
+  );
 };
 
 export default PomodoroPhaseDisplay;
