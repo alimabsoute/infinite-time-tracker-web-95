@@ -65,8 +65,7 @@ const TimerCard: React.FC<TimerCardProps> = ({
         boxShadow: `0 0 0 2px ${timerColor}20, 0 4px 12px -2px rgba(0, 0, 0, 0.1)`,
         background: 'linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card)/0.95) 100%)',
         border: `1px solid ${timerColor}30`,
-        backdropFilter: 'blur(10px)',
-        focusWithinOutlineColor: timerColor
+        backdropFilter: 'blur(10px)'
       }}
       role="region"
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
