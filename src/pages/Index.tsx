@@ -57,7 +57,7 @@ const Index = () => {
           onReset={resetTimer}
           onDelete={deleteTimer}
           onRename={renameTimer}
-          onUpdateDeadline={updateDeladline}
+          onUpdateDeadline={updateDeadline}
           onUpdatePriority={updatePriority}
           onReorder={reorderTimers}
           newTimerId={newTimerId}
