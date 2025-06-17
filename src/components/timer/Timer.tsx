@@ -4,7 +4,6 @@ import { Timer as TimerType } from '../../types';
 import TimerCard from './TimerCard';
 import DeletionAnimation from '../animations/DeletionAnimations';
 import { usePomodoro } from '@/hooks/usePomodoro';
-import { useTimerTabs } from '@/hooks/useTimerTabs';
 
 type TimerProps = {
   timer: TimerType;
@@ -31,9 +30,6 @@ const Timer = ({
 
   // Pomodoro integration
   const { pomodoroState } = usePomodoro(id);
-
-  // Persistent tab state
-  const { activeTab, setActiveTab } = useTimerTabs(id, 'timer');
 
   // State variables
   const [isEditing, setIsEditing] = useState(isNew);
@@ -123,7 +119,6 @@ const Timer = ({
       editedCategory={editedCategory}
       date={date}
       selectedPriority={selectedPriority}
-      activeTab={activeTab}
       isPomodoroActive={isPomodoroActive}
       currentPhase={pomodoroState.currentPhase}
       sessionCount={pomodoroState.sessionCount}
@@ -139,7 +134,6 @@ const Timer = ({
       onCategoryChange={handleCategoryChange}
       onPriorityChange={handlePriorityChange}
       onDateSelect={handleDateSelect}
-      onTabChange={setActiveTab}
     />
   );
 
