@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Timer as TimerType } from '../../types';
 import TimerCard from './TimerCard';
 import DeletionAnimation from '../animations/DeletionAnimations';
+import PomodoroTimer from '../pomodoro/PomodoroTimer';
 import { usePomodoro } from '@/hooks/usePomodoro';
 
 type TimerProps = {
@@ -14,6 +15,7 @@ type TimerProps = {
   onUpdateDeadline: (id: string, deadline: Date | undefined) => void;
   onUpdatePriority: (id: string, priority: number | undefined) => void;
   isNew?: boolean;
+  showPomodoro?: boolean;
 };
 
 const Timer = ({
@@ -25,6 +27,7 @@ const Timer = ({
   onUpdateDeadline,
   onUpdatePriority,
   isNew = false,
+  showPomodoro = false,
 }: TimerProps) => {
   const { id, name, elapsedTime, category, deadline, priority } = timer;
 
@@ -109,6 +112,30 @@ const Timer = ({
 
   // Determine if Pomodoro is active for this timer
   const isPomodoroActive = pomodoroState.isActive && pomodoroState.currentSession?.timerId === id;
+
+  // If we're showing Pomodoro mode, render the Pomodoro timer card instead
+  if (showPomodoro) {
+    const pomodoroContent = (
+      <PomodoroTimer
+        timerId={id}
+        isTimerRunning={timer.isRunning}
+        onTimerToggle={() => onToggle(id)}
+      />
+    );
+
+    if (isDeleting) {
+      return (
+        <DeletionAnimation
+          animationType={deletionAnimationType}
+          onComplete={handleDeletionComplete}
+        >
+          {pomodoroContent}
+        </DeletionAnimation>
+      );
+    }
+
+    return pomodoroContent;
+  }
 
   const timerContent = (
     <TimerCard

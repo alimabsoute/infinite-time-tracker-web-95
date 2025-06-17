@@ -8,7 +8,7 @@ interface CountdownTimerProps {
   label?: string;
   className?: string;
   onComplete?: () => void;
-  variant?: 'default' | 'urgent' | 'warning';
+  variant?: 'default' | 'urgent' | 'warning' | 'work' | 'short-break' | 'long-break';
 }
 
 const CountdownTimer: React.FC<CountdownTimerProps> = ({
@@ -33,6 +33,12 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
         return 'text-red-600 bg-red-50 border-red-200';
       case 'warning':
         return 'text-orange-600 bg-orange-50 border-orange-200';
+      case 'work':
+        return 'text-red-600 bg-red-50 border-red-200';
+      case 'short-break':
+        return 'text-green-600 bg-green-50 border-green-200';
+      case 'long-break':
+        return 'text-blue-600 bg-blue-50 border-blue-200';
       default:
         return 'text-blue-600 bg-blue-50 border-blue-200';
     }
