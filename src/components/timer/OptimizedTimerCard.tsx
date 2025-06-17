@@ -59,15 +59,17 @@ const OptimizedTimerCard: React.FC<OptimizedTimerCardProps> = memo(({
 
   return (
     <div 
-      className="relative mb-3 px-1 bg-background/95 backdrop-blur-sm"
+      className="relative w-full max-w-[280px] mx-auto transition-all duration-200 hover:scale-[1.02]"
       style={{
-        borderRadius: "0.5rem", 
-        boxShadow: `0 0 0 2px ${timerColor}40, 0 4px 6px -1px rgba(0, 0, 0, 0.1)`,
-        transition: "all 0.2s ease-in-out",
-        border: `1px solid ${timerColor}20`
+        borderRadius: "12px",
+        border: `2px solid ${timerColor}`,
+        background: 'transparent',
+        boxShadow: isRunning 
+          ? `0 0 0 1px ${timerColor}, 0 0 15px ${timerColor}30, 0 2px 8px rgba(0, 0, 0, 0.08)` 
+          : `0 0 0 1px ${timerColor}60, 0 1px 4px rgba(0, 0, 0, 0.05)`,
       }}
     >
-      <div className="p-2 rounded-lg">
+      <div className="p-2 rounded-[10px]">
         {isEditing ? (
           <TimerEditForm
             nameInputRef={nameInputRef}
@@ -79,7 +81,7 @@ const OptimizedTimerCard: React.FC<OptimizedTimerCardProps> = memo(({
             onCancel={onCancel}
           />
         ) : (
-          <div className="flex flex-col">
+          <div className="flex flex-col space-y-1">
             <TimerHeader
               name={name}
               category={category}
@@ -113,7 +115,6 @@ const OptimizedTimerCard: React.FC<OptimizedTimerCardProps> = memo(({
     </div>
   );
 }, (prevProps, nextProps) => {
-  // Custom comparison function for memo optimization
   return (
     prevProps.timer.id === nextProps.timer.id &&
     prevProps.currentTime === nextProps.currentTime &&

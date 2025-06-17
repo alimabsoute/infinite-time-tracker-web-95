@@ -57,21 +57,18 @@ const TimerList = ({
   const [showMultiDeleteDialog, setShowMultiDeleteDialog] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("custom");
   
-  // Use performance optimization hook
   const { filteredTimers, sortedTimers, categories } = useTimerPerformance({
     timers,
     filter,
     sortBy
   });
 
-  // Handle batch deletion of selected timers
   const handleBatchDelete = () => {
     selectedTimers.forEach(id => onDelete(id));
     setSelectedTimers([]);
     setShowMultiDeleteDialog(false);
   };
 
-  // Handle drag end event for reordering timers
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     
@@ -97,7 +94,6 @@ const TimerList = ({
 
   return (
     <div className="space-y-4">
-      {/* Header with filter and batch actions */}
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-2">
           {isSelectionMode && (
@@ -112,7 +108,6 @@ const TimerList = ({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {/* Sort dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="flex items-center gap-1">
@@ -135,7 +130,6 @@ const TimerList = ({
             </DropdownMenuContent>
           </DropdownMenu>
           
-          {/* Category filter */}
           <Select value={filter} onValueChange={setFilter}>
             <SelectTrigger className="w-[180px] bg-secondary/50 border-secondary">
               <SelectValue placeholder="Filter by category" />
@@ -150,12 +144,11 @@ const TimerList = ({
         </div>
       </div>
       
-      {/* Timers grid with drag and drop */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="timers" direction="horizontal" isDropDisabled={!isDraggable}>
           {(provided) => (
             <div 
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 justify-items-center p-4"
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-center p-2"
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
@@ -196,7 +189,6 @@ const TimerList = ({
         </Droppable>
       </DragDropContext>
       
-      {/* Show enhanced empty state when filtered results are empty */}
       {filteredTimers.length === 0 && (
         <div className="text-center py-8">
           <EmptyState 
@@ -210,7 +202,6 @@ const TimerList = ({
         </div>
       )}
 
-      {/* Batch delete confirmation dialog */}
       <AlertDialog open={showMultiDeleteDialog} onOpenChange={setShowMultiDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

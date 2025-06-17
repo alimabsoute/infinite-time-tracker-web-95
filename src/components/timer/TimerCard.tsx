@@ -59,33 +59,20 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
   return (
     <article 
-      className="relative group timer-card w-full max-w-sm mx-auto transition-all duration-300 hover:scale-102 hover:-translate-y-1 focus-within:outline-2 focus-within:outline-offset-2"
+      className="relative group timer-card w-full max-w-[280px] mx-auto transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
       style={{
-        borderRadius: "0.75rem", 
-        boxShadow: `0 0 0 2px ${timerColor}20, 0 4px 12px -2px rgba(0, 0, 0, 0.1)`,
-        background: 'linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card)/0.95) 100%)',
-        border: `1px solid ${timerColor}30`,
-        backdropFilter: 'blur(10px)'
+        borderRadius: "12px",
+        border: `2px solid ${timerColor}`,
+        background: 'transparent',
+        boxShadow: isRunning 
+          ? `0 0 0 1px ${timerColor}, 0 0 20px ${timerColor}40, 0 4px 15px rgba(0, 0, 0, 0.1)` 
+          : `0 0 0 1px ${timerColor}80, 0 2px 8px rgba(0, 0, 0, 0.08)`,
       }}
       role="region"
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
       tabIndex={0}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-        e.currentTarget.style.boxShadow = `0 0 0 2px ${timerColor}40, 0 8px 25px -5px rgba(0, 0, 0, 0.15)`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = '';
-        e.currentTarget.style.boxShadow = `0 0 0 2px ${timerColor}20, 0 4px 12px -2px rgba(0, 0, 0, 0.1)`;
-      }}
     >
-      {/* Enhanced hover and focus effects */}
-      <div 
-        className="p-3 sm:p-4 md:p-5 rounded-lg transition-all duration-300 group-hover:bg-card/80 group-focus-within:bg-card/80"
-        style={{
-          background: 'transparent'
-        }}
-      >
+      <div className="p-3 rounded-[10px]">
         {isEditing ? (
           <div role="form" aria-label="Edit timer">
             <TimerEditForm
@@ -99,8 +86,7 @@ const TimerCard: React.FC<TimerCardProps> = ({
             />
           </div>
         ) : (
-          <div className="flex flex-col space-y-2 sm:space-y-3">
-            {/* Header with improved typography hierarchy */}
+          <div className="flex flex-col space-y-2">
             <header className="relative z-10">
               <TimerHeader
                 name={name}
@@ -110,7 +96,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
               />
             </header>
             
-            {/* Main content area */}
             <main className="flex-1">
               <TimerContent
                 timerId={id}
@@ -128,7 +113,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
               />
             </main>
             
-            {/* Status indicator */}
             <TimerStatusIndicator
               isRunning={isRunning}
               isPomodoroActive={isPomodoroActive}
