@@ -38,9 +38,18 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
     : 0;
 
   return (
-    <div className={cn('relative w-full max-w-[260px] mx-auto', className)}>
-      <div className="p-2">
-        <div className="flex flex-col space-y-1">
+    <div 
+      className={cn(
+        'relative w-full max-w-[280px] mx-auto bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2',
+        className
+      )}
+      style={{
+        borderColor: timerColor,
+        background: `linear-gradient(135deg, ${timerColor}08, ${timerColor}15)`,
+      }}
+    >
+      <div className="p-6">
+        <div className="flex flex-col space-y-4">
           {/* Timer Header */}
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
@@ -61,7 +70,7 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
           </div>
 
           {/* Timer Content */}
-          <div className="space-y-1.5">
+          <div className="space-y-4">
             {/* Timer Display */}
             <div className="flex items-center justify-center">
               <PomodoroCircularProgress
@@ -73,7 +82,7 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
               />
             </div>
             
-            <div className="space-y-1.5">
+            <div className="space-y-3">
               {/* Timer Controls */}
               <PomodoroControls
                 isActive={isActive}

@@ -58,8 +58,14 @@ const OptimizedTimerCard: React.FC<OptimizedTimerCardProps> = memo(({
   const isOverdue = deadline && new Date(deadline) < new Date();
 
   return (
-    <div className="relative w-full max-w-[260px] mx-auto">
-      <div className="p-2">
+    <div 
+      className="relative w-full max-w-[280px] mx-auto bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2"
+      style={{
+        borderColor: timerColor,
+        background: `linear-gradient(135deg, ${timerColor}08, ${timerColor}15)`,
+      }}
+    >
+      <div className="p-6">
         {isEditing ? (
           <TimerEditForm
             nameInputRef={nameInputRef}
@@ -71,7 +77,7 @@ const OptimizedTimerCard: React.FC<OptimizedTimerCardProps> = memo(({
             onCancel={onCancel}
           />
         ) : (
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-4">
             <TimerHeader
               name={name}
               category={category}

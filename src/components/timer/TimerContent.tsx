@@ -33,7 +33,7 @@ const TimerContent: React.FC<TimerContentProps> = ({
   onDateSelect,
 }) => {
   return (
-    <div className="space-y-1.5" role="region" aria-label="Timer content">
+    <div className="space-y-4" role="region" aria-label="Timer content">
       <div className="flex items-center justify-center">
         <TimerDisplay
           currentTime={currentTime}
@@ -43,7 +43,7 @@ const TimerContent: React.FC<TimerContentProps> = ({
         />
       </div>
       
-      <div className="space-y-1.5">
+      <div className="space-y-3">
         <div className="flex justify-center">
           <TimerControls
             isRunning={isRunning}
@@ -53,7 +53,7 @@ const TimerContent: React.FC<TimerContentProps> = ({
           />
         </div>
         
-        <div className="border-t border-border/15 pt-1.5">
+        <div className="border-t border-border/20 pt-3">
           <TimerMetadata
             selectedPriority={selectedPriority}
             date={date}
