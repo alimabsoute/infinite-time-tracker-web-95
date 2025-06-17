@@ -25,20 +25,20 @@ const TimerEditForm = ({
   onCancel
 }: TimerEditFormProps) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-2">
+    <form onSubmit={onSubmit} className="space-y-3">
       <div className="flex">
         <Input
           ref={nameInputRef}
           value={editedName}
           onChange={(e) => onNameChange(e.target.value)}
-          className="bg-background/60 border-border/20 text-sm h-8"
+          className="bg-white/10 border-white/20 text-white placeholder:text-gray-300 text-sm h-9 backdrop-blur-sm"
           placeholder="Timer name"
         />
       </div>
       
-      <div className="flex gap-1">
+      <div className="flex gap-2">
         <Select value={editedCategory} onValueChange={onCategoryChange}>
-          <SelectTrigger className="bg-background/60 border-border/20 flex-1 text-xs h-7">
+          <SelectTrigger className="bg-white/10 border-white/20 text-white backdrop-blur-sm flex-1 text-xs h-8">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -53,13 +53,13 @@ const TimerEditForm = ({
           </SelectContent>
         </Select>
         
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           <Button 
             type="button" 
             variant="outline" 
             size="icon"
             onClick={onCancel}
-            className="bg-background/60 border-border/20 h-7 w-7"
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 h-8 w-8 backdrop-blur-sm"
           >
             <X size={14} />
           </Button>
@@ -67,7 +67,7 @@ const TimerEditForm = ({
             type="submit" 
             variant="outline" 
             size="icon"
-            className="bg-background/60 border-border/20 h-7 w-7"
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 h-8 w-8 backdrop-blur-sm"
           >
             <Check size={14} />
           </Button>

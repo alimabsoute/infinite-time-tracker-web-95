@@ -34,9 +34,9 @@ const TimerMetadata = ({
   // Map priority to color
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "1": return "text-green-500 border-green-500/30";
-      case "2": return "text-amber-500 border-amber-500/30";
-      case "3": return "text-red-500 border-red-500/30";
+      case "1": return "text-green-400 border-green-400/40";
+      case "2": return "text-amber-400 border-amber-400/40";
+      case "3": return "text-red-400 border-red-400/40";
       default: return "";
     }
   };
@@ -104,13 +104,13 @@ const TimerMetadata = ({
   };
 
   return (
-    <div className="flex gap-3 justify-center mt-1">
-      <div className="flex flex-col space-y-1 flex-1">
-        <span className="text-xs text-muted-foreground">Priority</span>
+    <div className="flex gap-3 justify-center mt-2">
+      <div className="flex flex-col space-y-2 flex-1">
+        <span className="text-xs text-gray-300 font-medium">Priority</span>
         <Select value={selectedPriority} onValueChange={onPriorityChange}>
           <SelectTrigger 
             className={cn(
-              "h-8 text-xs bg-secondary/30 border-secondary/50",
+              "h-9 text-xs bg-white/10 border-white/20 text-white backdrop-blur-sm",
               getPriorityColor(selectedPriority)
             )}
           >
@@ -125,16 +125,16 @@ const TimerMetadata = ({
         </Select>
       </div>
       
-      <div className="flex flex-col space-y-1 flex-1">
-        <span className="text-xs text-muted-foreground">Deadline</span>
+      <div className="flex flex-col space-y-2 flex-1">
+        <span className="text-xs text-gray-300 font-medium">Deadline</span>
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <Button 
               variant="outline" 
               size="sm"
               className={cn(
-                "w-full justify-start text-left font-normal h-8 text-xs bg-secondary/30 border-secondary/50",
-                isOverdue && "text-destructive border-destructive"
+                "w-full justify-start text-left font-normal h-9 text-xs bg-white/10 border-white/20 text-white backdrop-blur-sm",
+                isOverdue && "text-red-400 border-red-400/60"
               )}
             >
               <Clock className="mr-1 h-3 w-3" />

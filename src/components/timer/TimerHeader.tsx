@@ -12,24 +12,27 @@ interface TimerHeaderProps {
 
 const TimerHeader = ({ name, category, onEditClick, onDeleteClick }: TimerHeaderProps) => {
   return (
-    <div className="flex justify-between items-start mb-2">
+    <div className="flex justify-between items-start mb-3">
       <div className="flex-1">
-        <div className="flex items-center gap-1">
-          <h3 className="text-base font-semibold text-foreground">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-white leading-tight">
             {name}
           </h3>
           <Button 
             onClick={onEditClick} 
             variant="ghost" 
             size="icon"
-            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground transition-colors"
+            className="h-7 w-7 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors rounded-full"
           >
-            <Pencil size={12} />
+            <Pencil size={14} />
           </Button>
         </div>
         {category && (
-          <div className="mt-1">
-            <Badge variant="outline" className="bg-secondary/50 text-foreground text-xs py-0.5 px-2 border-border/30">
+          <div className="mt-2">
+            <Badge 
+              variant="outline" 
+              className="bg-white/10 text-gray-200 text-xs py-1 px-3 border-white/20 backdrop-blur-sm"
+            >
               {category}
             </Badge>
           </div>
@@ -40,10 +43,10 @@ const TimerHeader = ({ name, category, onEditClick, onDeleteClick }: TimerHeader
         onClick={onDeleteClick} 
         variant="ghost" 
         size="icon"
-        className="h-7 w-7 text-destructive hover:bg-destructive/10 p-0 transition-colors"
+        className="h-8 w-8 text-red-400 hover:bg-red-500/20 hover:text-red-300 p-0 transition-colors rounded-full"
         title="Delete Timer"
       >
-        <Trash2 size={14} />
+        <Trash2 size={16} />
       </Button>
     </div>
   );
