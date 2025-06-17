@@ -1,35 +1,38 @@
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Timer as TimerIcon, Coffee, Zap } from 'lucide-react';
-import { usePomodoro } from '@/hooks/usePomodoro';
+import SingleTimerPomodoroCheck from './SingleTimerPomodoroCheck';
 
 interface PomodoroStatusIndicatorProps {
   timers: Array<{ id: string; name: string; isRunning: boolean }>;
 }
 
+interface ActivePomodoroData {
+  timerId: string;
+  timerName: string;
+  isActive: boolean;
+  currentPhase: string;
+  sessionCount: number;
+}
+
 const PomodoroStatusIndicator: React.FC<PomodoroStatusIndicatorProps> = ({ timers }) => {
-  // Check for active Pomodoro sessions across all timers
-  const activePomodoros = timers
-    .map(timer => {
-      const { pomodoroState } = usePomodoro(timer.id);
-      return {
-        timerId: timer.id,
-        timerName: timer.name,
-        isActive: pomodoroState.isActive,
-        currentPhase: pomodoroState.currentPhase,
-        sessionCount: pomodoroState.sessionCount
-      };
-    })
-    .filter(p => p.isActive);
+  const [activePomodoro, setActivePomodoro] = useState<ActivePomodoroData | null>(null);
 
-  if (activePomodoros.length === 0) {
-    return null;
-  }
+  const handleActivePomodoro = useCallback((data: ActivePomodoroData) => {
+    setActivePomodoro(data);
+  }, []);
 
-  const activePomodoro = activePomodoros[0]; // Show the first active one
+  // Clear active pomodoro when no timers
+  React.useEffect(() => {
+    if (timers.length === 0) {
+      setActivePomodoro(null);
+    }
+  }, [timers.length]);
 
   const getPhaseIcon = () => {
+    if (!activePomodoro) return <TimerIcon className="h-3 w-3" />;
+    
     switch (activePomodoro.currentPhase) {
       case 'work':
         return <Zap className="h-3 w-3" />;
@@ -42,6 +45,8 @@ const PomodoroStatusIndicator: React.FC<PomodoroStatusIndicatorProps> = ({ timer
   };
 
   const getPhaseColor = () => {
+    if (!activePomodoro) return 'bg-gray-100 text-gray-700 border-gray-200';
+    
     switch (activePomodoro.currentPhase) {
       case 'work':
         return 'bg-red-100 text-red-700 border-red-200';
@@ -55,17 +60,32 @@ const PomodoroStatusIndicator: React.FC<PomodoroStatusIndicatorProps> = ({ timer
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50">
-      <Badge variant="secondary" className={`${getPhaseColor()} animate-pulse`}>
-        <div className="flex items-center gap-1">
-          {getPhaseIcon()}
-          <span className="text-xs font-medium">
-            🍅 {activePomodoro.currentPhase.replace('-', ' ')} 
-            {activePomodoro.sessionCount > 0 && ` (${activePomodoro.sessionCount})`}
-          </span>
+    <>
+      {/* Invisible components that check each timer's pomodoro state */}
+      {timers.map(timer => (
+        <SingleTimerPomodoroCheck
+          key={timer.id}
+          timerId={timer.id}
+          timerName={timer.name}
+          onActivePomodoro={handleActivePomodoro}
+        />
+      ))}
+      
+      {/* Show the status indicator only if there's an active pomodoro */}
+      {activePomodoro && (
+        <div className="fixed top-4 right-4 z-50">
+          <Badge variant="secondary" className={`${getPhaseColor()} animate-pulse`}>
+            <div className="flex items-center gap-1">
+              {getPhaseIcon()}
+              <span className="text-xs font-medium">
+                🍅 {activePomodoro.currentPhase.replace('-', ' ')} 
+                {activePomodoro.sessionCount > 0 && ` (${activePomodoro.sessionCount})`}
+              </span>
+            </div>
+          </Badge>
         </div>
-      </Badge>
-    </div>
+      )}
+    </>
   );
 };
 
