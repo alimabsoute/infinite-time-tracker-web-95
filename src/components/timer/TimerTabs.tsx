@@ -1,31 +1,24 @@
 
 import React from 'react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 
 interface TimerTabsProps {
-  activeTab: string;
-  onTabChange: (value: string) => void;
   sessionCount: number;
 }
 
-const TimerTabs: React.FC<TimerTabsProps> = ({
-  activeTab,
-  onTabChange,
-  sessionCount,
-}) => {
+const TimerTabs: React.FC<TimerTabsProps> = ({ sessionCount }) => {
+  // Since we only have one tab now, we can show session count as a badge
   return (
-    <TabsList className="grid w-full grid-cols-2 mb-3">
-      <TabsTrigger value="timer" className="text-xs">Timer</TabsTrigger>
-      <TabsTrigger value="pomodoro" className="text-xs">
-        Pomodoro
+    <div className="flex items-center justify-center mb-3">
+      <div className="text-sm font-medium text-muted-foreground">
+        Timer
         {sessionCount > 0 && (
-          <Badge variant="outline" className="ml-1 h-4 text-[0.6rem] px-1">
-            {sessionCount}
+          <Badge variant="outline" className="ml-2 h-4 text-[0.6rem] px-1">
+            🍅 {sessionCount}
           </Badge>
         )}
-      </TabsTrigger>
-    </TabsList>
+      </div>
+    </div>
   );
 };
 

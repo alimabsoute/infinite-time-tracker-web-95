@@ -1,14 +1,11 @@
 
 import React from 'react';
-import { TabsContent } from '@/components/ui/tabs';
 import TimerDisplay from './TimerDisplay';
 import TimerControls from './TimerControls';
 import TimerMetadata from './TimerMetadata';
-import PomodoroTimer from '../pomodoro/PomodoroTimer';
 import PomodoroStats from '../pomodoro/PomodoroStats';
 
 interface TimerContentProps {
-  // Timer tab props
   timerId: string;
   currentTime: number;
   isRunning: boolean;
@@ -40,50 +37,40 @@ const TimerContent: React.FC<TimerContentProps> = ({
   onDateSelect,
 }) => {
   return (
-    <>
-      <TabsContent value="timer" className="space-y-0">
-        <div className="grid grid-cols-1 gap-0">
-          <div className="flex items-center justify-center">
-            <TimerDisplay
-              currentTime={currentTime}
-              isRunning={isRunning}
-              category={category}
-              timerColor={timerColor}
-            />
-          </div>
-          
-          <div className="space-y-1">
-            <TimerControls
-              isRunning={isRunning}
-              onToggle={onToggle}
-              onReset={onReset}
-              timerColor={timerColor}
-            />
-            
-            <TimerMetadata
-              selectedPriority={selectedPriority}
-              date={date}
-              isOverdue={isOverdue}
-              onPriorityChange={onPriorityChange}
-              onDateSelect={onDateSelect}
-            />
-          </div>
+    <div className="space-y-0">
+      <div className="grid grid-cols-1 gap-0">
+        <div className="flex items-center justify-center">
+          <TimerDisplay
+            currentTime={currentTime}
+            isRunning={isRunning}
+            category={category}
+            timerColor={timerColor}
+          />
         </div>
         
-        {/* Pomodoro Quick Stats */}
-        {totalSessions > 0 && (
-          <PomodoroStats timerId={timerId} compact />
-        )}
-      </TabsContent>
+        <div className="space-y-1">
+          <TimerControls
+            isRunning={isRunning}
+            onToggle={onToggle}
+            onReset={onReset}
+            timerColor={timerColor}
+          />
+          
+          <TimerMetadata
+            selectedPriority={selectedPriority}
+            date={date}
+            isOverdue={isOverdue}
+            onPriorityChange={onPriorityChange}
+            onDateSelect={onDateSelect}
+          />
+        </div>
+      </div>
       
-      <TabsContent value="pomodoro" className="space-y-0">
-        <PomodoroTimer
-          timerId={timerId}
-          isTimerRunning={isRunning}
-          onTimerToggle={onToggle}
-        />
-      </TabsContent>
-    </>
+      {/* Pomodoro Quick Stats */}
+      {totalSessions > 0 && (
+        <PomodoroStats timerId={timerId} compact />
+      )}
+    </div>
   );
 };
 

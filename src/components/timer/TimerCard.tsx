@@ -6,7 +6,6 @@ import TimerHeader from './TimerHeader';
 import TimerEditForm from './TimerEditForm';
 import TimerStatusIndicator from './TimerStatusIndicator';
 import { Badge } from '@/components/ui/badge';
-import { Tabs } from '@/components/ui/tabs';
 import TimerTabs from './TimerTabs';
 import TimerContent from './TimerContent';
 
@@ -18,7 +17,6 @@ interface TimerCardProps {
   editedCategory: string;
   date: Date | undefined;
   selectedPriority: string;
-  activeTab: string;
   isPomodoroActive: boolean;
   currentPhase?: string;
   sessionCount: number;
@@ -34,7 +32,6 @@ interface TimerCardProps {
   onCategoryChange: (value: string) => void;
   onPriorityChange: (value: string) => void;
   onDateSelect: (date: Date | undefined) => void;
-  onTabChange: (value: string) => void;
 }
 
 const TimerCard: React.FC<TimerCardProps> = ({
@@ -45,7 +42,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
   editedCategory,
   date,
   selectedPriority,
-  activeTab,
   isPomodoroActive,
   currentPhase,
   sessionCount,
@@ -61,7 +57,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
   onCategoryChange,
   onPriorityChange,
   onDateSelect,
-  onTabChange,
 }) => {
   const { id, name, isRunning, category, deadline } = timer;
   const timerColorClass = getTimerColorClass(id);
@@ -106,29 +101,23 @@ const TimerCard: React.FC<TimerCardProps> = ({
               </div>
             )}
             
-            <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-              <TimerTabs
-                activeTab={activeTab}
-                onTabChange={onTabChange}
-                sessionCount={sessionCount}
-              />
-              
-              <TimerContent
-                timerId={id}
-                currentTime={currentTime}
-                isRunning={isRunning}
-                category={category}
-                timerColor={timerColor}
-                selectedPriority={selectedPriority}
-                date={date}
-                isOverdue={!!isOverdue}
-                totalSessions={totalSessions}
-                onToggle={onToggle}
-                onReset={onReset}
-                onPriorityChange={onPriorityChange}
-                onDateSelect={onDateSelect}
-              />
-            </Tabs>
+            <TimerTabs sessionCount={sessionCount} />
+            
+            <TimerContent
+              timerId={id}
+              currentTime={currentTime}
+              isRunning={isRunning}
+              category={category}
+              timerColor={timerColor}
+              selectedPriority={selectedPriority}
+              date={date}
+              isOverdue={!!isOverdue}
+              totalSessions={totalSessions}
+              onToggle={onToggle}
+              onReset={onReset}
+              onPriorityChange={onPriorityChange}
+              onDateSelect={onDateSelect}
+            />
             
             {/* Running indicator pulse */}
             <TimerStatusIndicator

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 
 const TIMER_TAB_STORAGE_KEY = 'timer-tab-preferences';
