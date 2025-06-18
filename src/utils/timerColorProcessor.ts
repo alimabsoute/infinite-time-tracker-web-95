@@ -25,11 +25,11 @@ export const processTimerColor = (rawColor: string, timerId: string): ProcessedT
     
     console.log('🔧 Parsed HSL values:', { hue, saturation, lightness });
     
-    // Create strong, visible colors
-    const primaryBorder = `hsl(${hue}, ${Math.max(80, saturation)}%, ${Math.min(50, Math.max(40, lightness))}%)`;
-    const secondaryBorder = `hsl(${hue}, ${Math.max(60, saturation)}%, ${Math.min(60, Math.max(45, lightness))}%)`;
-    const backgroundFill = `hsla(${hue}, ${Math.max(30, saturation - 30)}%, ${Math.min(95, lightness + 40)}%, 0.95)`;
-    const shadowColor = `hsl(${hue}, ${Math.max(70, saturation)}%, ${Math.max(30, lightness - 20)}%)`;
+    // Create strong, visible colors optimized for circular borders
+    const primaryBorder = `hsl(${hue}, ${Math.max(85, saturation)}%, ${Math.min(50, Math.max(40, lightness))}%)`;
+    const secondaryBorder = `hsl(${hue}, ${Math.max(65, saturation)}%, ${Math.min(60, Math.max(45, lightness))}%)`;
+    const backgroundFill = `hsla(${hue}, ${Math.max(30, saturation - 30)}%, ${Math.min(96, lightness + 45)}%, 0.95)`;
+    const shadowColor = `hsl(${hue}, ${Math.max(75, saturation)}%, ${Math.max(30, lightness - 20)}%)`;
     
     const result = {
       primaryBorder,
@@ -38,16 +38,16 @@ export const processTimerColor = (rawColor: string, timerId: string): ProcessedT
       shadowColor
     };
     
-    console.log('✅ Processed colors:', result);
+    console.log('✅ Processed colors for perfect circles:', result);
     return result;
   }
   
-  // Fallback colors if parsing fails
-  console.log('⚠️ Color parsing failed, using fallback colors');
+  // Enhanced fallback colors if parsing fails
+  console.log('⚠️ Color parsing failed, using enhanced fallback colors');
   return {
     primaryBorder: '#3B82F6',
     secondaryBorder: '#60A5FA',
-    backgroundFill: 'rgba(59, 130, 246, 0.1)',
+    backgroundFill: 'rgba(59, 130, 246, 0.08)',
     shadowColor: '#1D4ED8'
   };
 };
