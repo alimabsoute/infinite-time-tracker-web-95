@@ -34,22 +34,44 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
   const timerColor = phaseData.color;
 
   console.log('🎨 Timer color for phase:', currentPhase, timerColor);
+  console.log('🔍 Debug - Timer card render with active state:', isActive);
+  console.log('🎯 Debug - Phase data:', phaseData);
 
   const progressPercentage = currentSession && remainingTime > 0
     ? ((currentSession.duration - remainingTime) / currentSession.duration) * 100
     : 0;
+
+  // Convert HSL color to a solid RGB value for better border visibility
+  const getSolidBorderColor = (color: string) => {
+    console.log('🔧 Converting color to solid border:', color);
+    // Extract HSL values and create a solid color
+    const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+    if (hslMatch) {
+      const [, h, s, l] = hslMatch;
+      // Use full saturation and medium lightness for strong border
+      const solidColor = `hsl(${h}, 80%, 50%)`;
+      console.log('🎨 Generated solid border color:', solidColor);
+      return solidColor;
+    }
+    // Fallback to bright blue if parsing fails
+    console.log('⚠️ Color parsing failed, using fallback');
+    return '#3B82F6';
+  };
 
   // Get lighter pastel color for inner fill
   const getInnerFillColor = (color: string) => {
     const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
     if (hslMatch) {
       const [, h, s, l] = hslMatch;
-      return `hsla(${h}, ${Math.max(25, parseInt(s) - 40)}%, ${Math.min(92, parseInt(l) + 35)}%, 0.8)`;
+      return `hsla(${h}, ${Math.max(25, parseInt(s) - 40)}%, ${Math.min(92, parseInt(l) + 35)}%, 0.9)`;
     }
     return 'rgba(255, 255, 255, 0.9)';
   };
 
+  const solidBorderColor = getSolidBorderColor(timerColor);
   const innerFillColor = getInnerFillColor(timerColor);
+
+  console.log('🎨 Final colors - Border:', solidBorderColor, 'Inner:', innerFillColor);
 
   return (
     <article 
@@ -86,49 +108,51 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
             {isActive && (
               <div 
                 className="w-2 h-2 rounded-full animate-pulse" 
-                style={{ backgroundColor: timerColor }}
+                style={{ backgroundColor: solidBorderColor }}
               />
             )}
           </div>
         </div>
       </div>
 
-      {/* Main timer circle container with enhanced border styling */}
+      {/* Main timer circle container with simplified strong border */}
       <div className="absolute top-12 left-4 right-4 bottom-4 transition-all duration-300 ease-in-out group-hover:scale-95">
-        {/* Enhanced circular border with stronger visibility */}
+        {/* Strong solid border with maximum CSS specificity */}
         <div 
-          className="absolute inset-0 rounded-full transition-all duration-300 ease-in-out border-4"
+          className="!absolute !inset-0 !rounded-full !transition-all !duration-300 !ease-in-out pomodoro-timer-border"
           style={{
-            background: `conic-gradient(from 0deg, ${timerColor}, ${timerColor}AA, ${timerColor})`,
-            borderColor: timerColor,
+            border: `6px solid ${solidBorderColor} !important`,
             boxShadow: `
-              0 0 0 2px ${timerColor}, 
-              0 4px 20px ${timerColor}30, 
-              inset 0 0 40px ${timerColor}20,
-              0 8px 32px ${timerColor}20
+              0 0 0 2px ${solidBorderColor}, 
+              0 4px 20px ${solidBorderColor}40, 
+              inset 0 0 20px ${solidBorderColor}20,
+              0 8px 32px ${solidBorderColor}30
             `,
+            background: `radial-gradient(circle, ${solidBorderColor}10, transparent 70%)`,
+            zIndex: 1
           }}
         />
         
-        {/* Inner content container with enhanced styling */}
+        {/* Inner content container with clear background */}
         <div 
-          className="absolute inset-3 rounded-full transition-all duration-300 ease-in-out border"
+          className="!absolute !inset-2 !rounded-full !transition-all !duration-300 !ease-in-out pomodoro-timer-inner"
           style={{
             backgroundColor: innerFillColor,
-            backdropFilter: 'blur(15px)',
-            borderColor: `${timerColor}40`,
-            boxShadow: `inset 0 0 40px ${timerColor}25`,
+            backdropFilter: 'blur(10px)',
+            border: `2px solid ${solidBorderColor}60`,
+            boxShadow: `inset 0 0 30px ${solidBorderColor}20`,
+            zIndex: 2
           }}
         >
           {/* Main Timer Content centered in circle */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-8">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8" style={{ zIndex: 3 }}>
             {/* Timer Display */}
             <div className="flex items-center justify-center mb-4">
               <PomodoroCircularProgress
                 progressPercentage={progressPercentage}
                 remainingTime={remainingTime}
                 isActive={isActive}
-                timerColor={timerColor}
+                timerColor={solidBorderColor}
                 phaseLabel={phaseData.label}
               />
             </div>
@@ -138,7 +162,7 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
               <PomodoroControls
                 isActive={isActive}
                 sessionCount={sessionCount}
-                timerColor={timerColor}
+                timerColor={solidBorderColor}
                 onStartWork={onStartWork}
                 onStartBreak={onStartBreak}
                 onStop={onStop}
@@ -156,7 +180,7 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
           {/* Running indicator pulse */}
           <PomodoroPulseIndicator
             isActive={isActive}
-            timerColor={timerColor}
+            timerColor={solidBorderColor}
           />
         </div>
       </div>
