@@ -33,6 +33,8 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
   const phaseData = usePomodoroPhaseData(currentPhase);
   const timerColor = phaseData.color;
 
+  console.log('🎨 Timer color for phase:', currentPhase, timerColor);
+
   const progressPercentage = currentSession && remainingTime > 0
     ? ((currentSession.duration - remainingTime) / currentSession.duration) * 100
     : 0;
@@ -91,25 +93,31 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
         </div>
       </div>
 
-      {/* Main timer circle container with restored border styling */}
+      {/* Main timer circle container with enhanced border styling */}
       <div className="absolute top-12 left-4 right-4 bottom-4 transition-all duration-300 ease-in-out group-hover:scale-95">
-        {/* Solid gradient border - restored circular outline */}
+        {/* Enhanced circular border with stronger visibility */}
         <div 
-          className="absolute inset-0 rounded-full transition-all duration-300 ease-in-out"
+          className="absolute inset-0 rounded-full transition-all duration-300 ease-in-out border-4"
           style={{
-            background: `conic-gradient(from 0deg, ${timerColor}, ${timerColor}80, ${timerColor})`,
-            boxShadow: `0 4px 20px ${timerColor}20, inset 0 0 0 2px ${timerColor}40`,
+            background: `conic-gradient(from 0deg, ${timerColor}, ${timerColor}AA, ${timerColor})`,
+            borderColor: timerColor,
+            boxShadow: `
+              0 0 0 2px ${timerColor}, 
+              0 4px 20px ${timerColor}30, 
+              inset 0 0 40px ${timerColor}20,
+              0 8px 32px ${timerColor}20
+            `,
           }}
         />
         
-        {/* Inner content container with restored styling */}
+        {/* Inner content container with enhanced styling */}
         <div 
-          className="absolute inset-2 rounded-full transition-all duration-300 ease-in-out"
+          className="absolute inset-3 rounded-full transition-all duration-300 ease-in-out border"
           style={{
             backgroundColor: innerFillColor,
             backdropFilter: 'blur(15px)',
-            boxShadow: `inset 0 0 40px ${timerColor}20, 0 8px 32px ${timerColor}15`,
-            border: `1px solid ${timerColor}30`,
+            borderColor: `${timerColor}40`,
+            boxShadow: `inset 0 0 40px ${timerColor}25`,
           }}
         >
           {/* Main Timer Content centered in circle */}
