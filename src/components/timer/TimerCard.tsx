@@ -92,12 +92,11 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
       {/* Main timer circle container */}
       <div className="absolute top-12 left-4 right-4 bottom-4">
-        {/* Spinning gradient border - only this spins */}
+        {/* Solid gradient border - always visible */}
         <div 
-          className={`absolute inset-0 rounded-full ${isRunning ? 'animate-spin' : ''}`}
+          className="absolute inset-0 rounded-full"
           style={{
-            background: `conic-gradient(from 0deg, ${timerColor}, transparent 60%, ${timerColor})`,
-            animation: isRunning ? 'spin 3s linear infinite' : 'none',
+            background: `conic-gradient(from 0deg, ${timerColor}, ${timerColor}80, ${timerColor})`,
           }}
         />
         
