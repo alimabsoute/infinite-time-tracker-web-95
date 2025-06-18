@@ -76,66 +76,38 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
   return (
     <article 
       className={cn(
-        'relative group w-full max-w-[280px] h-[320px] mx-auto flex-shrink-0 p-4 transition-all duration-300 ease-in-out hover:scale-95',
+        'relative group w-full max-w-[320px] h-[280px] mx-auto flex-shrink-0 p-4 transition-all duration-300 ease-in-out hover:scale-95',
         className
       )}
       role="region"
       aria-label={`Pomodoro timer - ${phaseData.label}`}
       tabIndex={0}
       style={{
-        minWidth: '280px',
-        minHeight: '320px'
+        minWidth: '320px',
+        minHeight: '280px'
       }}
     >
-      {/* Header positioned within card boundaries at top */}
-      <div className="absolute top-0 left-4 right-4 z-20 pt-2">
-        <div className="flex items-start gap-2 w-full">
-          {/* Timer name and category - centered */}
-          <div className="text-center flex-1 min-w-0 px-2">
-            <h3 className="text-sm font-semibold text-gray-800 leading-tight truncate">
-              Pomodoro Timer
-            </h3>
-            <div className="text-xs text-gray-600 mt-0.5 truncate">
-              {phaseData.label}
-            </div>
-          </div>
-          
-          {/* Status badges */}
-          <div className="flex items-center gap-1">
-            <Badge variant="outline" className="text-xs h-4 px-1">
-              🍅 {sessionCount}
-            </Badge>
-            {isActive && (
-              <div 
-                className="w-2 h-2 rounded-full animate-pulse" 
-                style={{ backgroundColor: solidBorderColor }}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Main timer circle container with simplified strong border */}
-      <div className="absolute top-12 left-4 right-4 bottom-4 transition-all duration-300 ease-in-out group-hover:scale-95">
-        {/* Strong solid border with maximum CSS specificity */}
+      {/* Main rectangular card container with strong border */}
+      <div className="relative w-full h-full transition-all duration-300 ease-in-out group-hover:scale-95">
+        {/* Strong solid border with rounded corners */}
         <div 
-          className="!absolute !inset-0 !rounded-full !transition-all !duration-300 !ease-in-out pomodoro-timer-border"
+          className="absolute inset-0 rounded-xl transition-all duration-300 ease-in-out"
           style={{
-            border: `6px solid ${solidBorderColor} !important`,
+            border: `4px solid ${solidBorderColor}`,
             boxShadow: `
-              0 0 0 2px ${solidBorderColor}, 
+              0 0 0 1px ${solidBorderColor}, 
               0 4px 20px ${solidBorderColor}40, 
               inset 0 0 20px ${solidBorderColor}20,
               0 8px 32px ${solidBorderColor}30
             `,
-            background: `radial-gradient(circle, ${solidBorderColor}10, transparent 70%)`,
+            background: `linear-gradient(135deg, ${solidBorderColor}10, transparent 70%)`,
             zIndex: 1
           }}
         />
         
         {/* Inner content container with clear background */}
         <div 
-          className="!absolute !inset-2 !rounded-full !transition-all !duration-300 !ease-in-out pomodoro-timer-inner"
+          className="absolute inset-2 rounded-lg transition-all duration-300 ease-in-out"
           style={{
             backgroundColor: innerFillColor,
             backdropFilter: 'blur(10px)',
@@ -144,10 +116,38 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
             zIndex: 2
           }}
         >
-          {/* Main Timer Content centered in circle */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-8" style={{ zIndex: 3 }}>
+          {/* Header */}
+          <div className="absolute top-0 left-0 right-0 z-20 p-4">
+            <div className="flex items-start justify-between">
+              {/* Timer name and category */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold text-gray-800 leading-tight truncate">
+                  Pomodoro Timer
+                </h3>
+                <div className="text-sm text-gray-600 mt-1 truncate">
+                  {phaseData.label}
+                </div>
+              </div>
+              
+              {/* Status badges */}
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">
+                  🍅 {sessionCount}
+                </Badge>
+                {isActive && (
+                  <div 
+                    className="w-2 h-2 rounded-full animate-pulse" 
+                    style={{ backgroundColor: solidBorderColor }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Timer Content */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 pt-16 pb-8" style={{ zIndex: 3 }}>
             {/* Timer Display */}
-            <div className="flex items-center justify-center mb-4">
+            <div className="flex items-center justify-center mb-6">
               <PomodoroCircularProgress
                 progressPercentage={progressPercentage}
                 remainingTime={remainingTime}
@@ -157,7 +157,7 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
               />
             </div>
             
-            <div className="space-y-3 w-full">
+            <div className="space-y-4 w-full">
               {/* Timer Controls */}
               <PomodoroControls
                 isActive={isActive}
