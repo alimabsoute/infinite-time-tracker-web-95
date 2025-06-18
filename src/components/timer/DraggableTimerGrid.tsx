@@ -37,28 +37,34 @@ const DraggableTimerGrid = ({
   };
 
   return (
-    <div className="w-full max-w-[100rem] mx-auto px-4 py-2">
+    <div className="w-full max-w-[100rem] mx-auto px-6 py-4">
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="timers" direction="horizontal">
           {(provided) => (
             <div 
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 md:gap-8 lg:gap-10 xl:gap-12 justify-items-center items-start"
+              className="grid auto-fit-[280px] gap-8 lg:gap-12 xl:gap-16 justify-center items-start"
+              style={{
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                maxWidth: '100%',
+                width: '100%'
+              }}
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
               {timers.map((timer, index) => (
-                <DraggableTimerItem
-                  key={timer.id}
-                  timer={timer}
-                  index={index}
-                  onToggle={onToggle}
-                  onReset={onReset}
-                  onDelete={onDelete}
-                  onRename={onRename}
-                  onUpdateDeadline={onUpdateDeadline}
-                  onUpdatePriority={onUpdatePriority}
-                  newTimerId={newTimerId}
-                />
+                <div key={timer.id} className="flex justify-center">
+                  <DraggableTimerItem
+                    timer={timer}
+                    index={index}
+                    onToggle={onToggle}
+                    onReset={onReset}
+                    onDelete={onDelete}
+                    onRename={onRename}
+                    onUpdateDeadline={onUpdateDeadline}
+                    onUpdatePriority={onUpdatePriority}
+                    newTimerId={newTimerId}
+                  />
+                </div>
               ))}
               {provided.placeholder}
             </div>

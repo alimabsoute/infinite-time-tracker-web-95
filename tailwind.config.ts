@@ -24,6 +24,12 @@ export default {
 				'9xl': '96rem',
 				'10xl': '104rem'
 			},
+			gridTemplateColumns: {
+				'auto-fit': 'repeat(auto-fit, minmax(0, 1fr))',
+				'auto-fit-280': 'repeat(auto-fit, minmax(280px, 1fr))',
+				'auto-fill': 'repeat(auto-fill, minmax(0, 1fr))',
+				'auto-fill-280': 'repeat(auto-fill, minmax(280px, 1fr))',
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

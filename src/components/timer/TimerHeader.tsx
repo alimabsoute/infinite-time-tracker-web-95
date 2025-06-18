@@ -11,7 +11,7 @@ interface TimerHeaderProps {
 
 const TimerHeader = ({ name, category, onEditClick, onDeleteClick }: TimerHeaderProps) => {
   return (
-    <div className="flex items-start gap-2 max-w-full">
+    <div className="flex items-start gap-2 w-full">
       {/* Edit button positioned at top left */}
       <Button 
         onClick={onEditClick} 
@@ -23,13 +23,13 @@ const TimerHeader = ({ name, category, onEditClick, onDeleteClick }: TimerHeader
         <Pencil size={10} />
       </Button>
       
-      {/* Timer name and category */}
-      <div className="text-left min-w-0 flex-1 mr-1">
-        <h3 className="text-sm font-semibold text-gray-800 leading-tight truncate max-w-32">
+      {/* Timer name and category - centered with proper width constraints */}
+      <div className="text-center flex-1 min-w-0 px-2">
+        <h3 className="text-sm font-semibold text-gray-800 leading-tight truncate">
           {name}
         </h3>
         {category && (
-          <div className="text-xs text-gray-600 mt-0.5 truncate max-w-32">
+          <div className="text-xs text-gray-600 mt-0.5 truncate">
             {category}
           </div>
         )}

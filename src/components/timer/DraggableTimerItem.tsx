@@ -40,8 +40,10 @@ const DraggableTimerItem = ({
           style={{
             ...provided.draggableProps.style,
             cursor: 'grab',
+            width: '280px',
+            height: '320px'
           }}
-          className="w-full"
+          className="flex-shrink-0"
         >
           <Timer
             timer={timer}

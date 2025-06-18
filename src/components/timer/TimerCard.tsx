@@ -71,89 +71,92 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
   return (
     <article 
-      className="relative group w-64 h-64 mx-auto flex-shrink-0"
+      className="relative group w-full max-w-[280px] h-[320px] mx-auto flex-shrink-0 p-4"
       role="region"
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
       tabIndex={0}
       style={{
-        minWidth: '256px',
-        minHeight: '256px'
+        minWidth: '280px',
+        minHeight: '320px'
       }}
     >
-      {/* Spinning gradient border - only this spins */}
-      <div 
-        className={`absolute inset-0 rounded-full ${isRunning ? 'animate-spin' : ''}`}
-        style={{
-          background: `conic-gradient(from 0deg, ${timerColor}, transparent 60%, ${timerColor})`,
-          animation: isRunning ? 'spin 3s linear infinite' : 'none',
-        }}
-      />
-      
-      {/* Stationary content container */}
-      <div 
-        className="absolute inset-2 rounded-full transition-all duration-300 hover:scale-105"
-        style={{
-          backgroundColor: innerFillColor,
-          backdropFilter: 'blur(15px)',
-          boxShadow: `inset 0 0 40px ${timerColor}20, 0 8px 32px ${timerColor}15`,
-        }}
-      >
-        {/* Header positioned at top left outside the circle */}
-        <div className="absolute -top-10 -left-2 z-20 max-w-56">
-          <TimerHeader
-            name={name}
-            category={category}
-            onEditClick={onEdit}
-            onDeleteClick={onDelete}
-          />
-        </div>
+      {/* Header positioned within card boundaries at top */}
+      <div className="absolute top-0 left-4 right-4 z-20 pt-2">
+        <TimerHeader
+          name={name}
+          category={category}
+          onEditClick={onEdit}
+          onDeleteClick={onDelete}
+        />
+      </div>
 
-        {/* Edit Form Overlay */}
-        {isEditing && (
-          <div className="absolute inset-4 z-30 flex items-center justify-center">
-            <div className="bg-black/70 backdrop-blur-xl rounded-full p-6 w-full h-full flex items-center justify-center">
-              <div className="w-full max-w-xs">
-                <TimerEditForm
-                  nameInputRef={nameInputRef}
-                  editedName={editedName}
-                  editedCategory={editedCategory}
-                  onNameChange={onNameChange}
-                  onCategoryChange={onCategoryChange}
-                  onSubmit={onSubmit}
-                  onCancel={onCancel}
-                />
+      {/* Main timer circle container */}
+      <div className="absolute top-12 left-4 right-4 bottom-4">
+        {/* Spinning gradient border - only this spins */}
+        <div 
+          className={`absolute inset-0 rounded-full ${isRunning ? 'animate-spin' : ''}`}
+          style={{
+            background: `conic-gradient(from 0deg, ${timerColor}, transparent 60%, ${timerColor})`,
+            animation: isRunning ? 'spin 3s linear infinite' : 'none',
+          }}
+        />
+        
+        {/* Stationary content container */}
+        <div 
+          className="absolute inset-2 rounded-full transition-all duration-300 hover:scale-105"
+          style={{
+            backgroundColor: innerFillColor,
+            backdropFilter: 'blur(15px)',
+            boxShadow: `inset 0 0 40px ${timerColor}20, 0 8px 32px ${timerColor}15`,
+          }}
+        >
+          {/* Edit Form Overlay */}
+          {isEditing && (
+            <div className="absolute inset-4 z-30 flex items-center justify-center">
+              <div className="bg-black/70 backdrop-blur-xl rounded-full p-6 w-full h-full flex items-center justify-center">
+                <div className="w-full max-w-xs">
+                  <TimerEditForm
+                    nameInputRef={nameInputRef}
+                    editedName={editedName}
+                    editedCategory={editedCategory}
+                    onNameChange={onNameChange}
+                    onCategoryChange={onCategoryChange}
+                    onSubmit={onSubmit}
+                    onCancel={onCancel}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Main Timer Content centered in circle */}
-        {!isEditing && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <TimerContent
-              timerId={id}
-              currentTime={currentTime}
+          {/* Main Timer Content centered in circle */}
+          {!isEditing && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <TimerContent
+                timerId={id}
+                currentTime={currentTime}
+                isRunning={isRunning}
+                category={category}
+                timerColor={timerColor}
+                selectedPriority={selectedPriority}
+                date={date}
+                isOverdue={!!isOverdue}
+                onToggle={onToggle}
+                onReset={onReset}
+                onPriorityChange={onPriorityChange}
+                onDateSelect={onDateSelect}
+              />
+            </div>
+          )}
+          
+          {/* Status Indicator positioned within circle at top right */}
+          <div className="absolute top-2 right-2 z-10">
+            <TimerStatusIndicator
               isRunning={isRunning}
-              category={category}
+              isPomodoroActive={isPomodoroActive}
               timerColor={timerColor}
-              selectedPriority={selectedPriority}
-              date={date}
-              isOverdue={!!isOverdue}
-              onToggle={onToggle}
-              onReset={onReset}
-              onPriorityChange={onPriorityChange}
-              onDateSelect={onDateSelect}
             />
           </div>
-        )}
-        
-        {/* Status Indicator positioned at top right */}
-        <div className="absolute -top-2 -right-2 z-10">
-          <TimerStatusIndicator
-            isRunning={isRunning}
-            isPomodoroActive={isPomodoroActive}
-            timerColor={timerColor}
-          />
         </div>
       </div>
     </article>
