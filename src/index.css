@@ -315,8 +315,9 @@
   border: 1px solid rgba(59, 130, 246, 0.7);
 }
 
-/* Pomodoro Timer Border Styles - Maximum Specificity */
-.pomodoro-timer-border {
+/* Timer Border Styles - Maximum Specificity for Both Pomodoro and Regular Timers */
+.pomodoro-timer-border,
+.timer-border {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
@@ -327,7 +328,8 @@
   pointer-events: none !important;
 }
 
-.pomodoro-timer-inner {
+.pomodoro-timer-inner,
+.timer-inner {
   position: absolute !important;
   top: 8px !important;
   left: 8px !important;
@@ -350,6 +352,7 @@
   }
 }
 
+.timer-border.active,
 .pomodoro-timer-border.active {
   animation: border-pulse 2s infinite ease-in-out;
 }

@@ -57,17 +57,40 @@ const TimerCard: React.FC<TimerCardProps> = ({
   const timerColor = getTimerColor(id);
   const isOverdue = deadline && new Date(deadline) < new Date();
 
+  console.log('🎨 Timer color for timer:', id, timerColor);
+  console.log('🔍 Debug - Timer card render with running state:', isRunning);
+
+  // Convert HSL color to a solid RGB value for better border visibility
+  const getSolidBorderColor = (color: string) => {
+    console.log('🔧 Converting color to solid border:', color);
+    // Extract HSL values and create a solid color
+    const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+    if (hslMatch) {
+      const [, h, s, l] = hslMatch;
+      // Use full saturation and medium lightness for strong border
+      const solidColor = `hsl(${h}, 80%, 50%)`;
+      console.log('🎨 Generated solid border color:', solidColor);
+      return solidColor;
+    }
+    // Fallback to bright blue if parsing fails
+    console.log('⚠️ Color parsing failed, using fallback');
+    return '#3B82F6';
+  };
+
   // Get lighter pastel color for inner fill
   const getInnerFillColor = (color: string) => {
     const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
     if (hslMatch) {
       const [, h, s, l] = hslMatch;
-      return `hsla(${h}, ${Math.max(25, parseInt(s) - 40)}%, ${Math.min(92, parseInt(l) + 35)}%, 0.8)`;
+      return `hsla(${h}, ${Math.max(25, parseInt(s) - 40)}%, ${Math.min(92, parseInt(l) + 35)}%, 0.9)`;
     }
     return 'rgba(255, 255, 255, 0.9)';
   };
 
+  const solidBorderColor = getSolidBorderColor(timerColor);
   const innerFillColor = getInnerFillColor(timerColor);
+
+  console.log('🎨 Final colors - Border:', solidBorderColor, 'Inner:', innerFillColor);
 
   return (
     <article 
@@ -90,23 +113,33 @@ const TimerCard: React.FC<TimerCardProps> = ({
         />
       </div>
 
-      {/* Main timer circle container with slimmer hover effect */}
+      {/* Main timer circle container with simplified strong border */}
       <div className="absolute top-12 left-4 right-4 bottom-4 transition-all duration-300 ease-in-out group-hover:scale-95">
-        {/* Solid gradient border - scales with container */}
+        {/* Strong solid border with maximum CSS specificity */}
         <div 
-          className="absolute inset-0 rounded-full transition-all duration-300 ease-in-out"
+          className="!absolute !inset-0 !rounded-full !transition-all !duration-300 !ease-in-out timer-border"
           style={{
-            background: `conic-gradient(from 0deg, ${timerColor}, ${timerColor}80, ${timerColor})`,
+            border: `6px solid ${solidBorderColor} !important`,
+            boxShadow: `
+              0 0 0 2px ${solidBorderColor}, 
+              0 4px 20px ${solidBorderColor}40, 
+              inset 0 0 20px ${solidBorderColor}20,
+              0 8px 32px ${solidBorderColor}30
+            `,
+            background: `radial-gradient(circle, ${solidBorderColor}10, transparent 70%)`,
+            zIndex: 1
           }}
         />
         
-        {/* Stationary content container - scales with parent */}
+        {/* Inner content container with clear background */}
         <div 
-          className="absolute inset-2 rounded-full transition-all duration-300 ease-in-out"
+          className="!absolute !inset-2 !rounded-full !transition-all !duration-300 !ease-in-out timer-inner"
           style={{
             backgroundColor: innerFillColor,
-            backdropFilter: 'blur(15px)',
-            boxShadow: `inset 0 0 40px ${timerColor}20, 0 8px 32px ${timerColor}15`,
+            backdropFilter: 'blur(10px)',
+            border: `2px solid ${solidBorderColor}60`,
+            boxShadow: `inset 0 0 30px ${solidBorderColor}20`,
+            zIndex: 2
           }}
         >
           {/* Edit Form Overlay */}
@@ -130,13 +163,13 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
           {/* Main Timer Content centered in circle */}
           {!isEditing && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 3 }}>
               <TimerContent
                 timerId={id}
                 currentTime={currentTime}
                 isRunning={isRunning}
                 category={category}
-                timerColor={timerColor}
+                timerColor={solidBorderColor}
                 selectedPriority={selectedPriority}
                 date={date}
                 isOverdue={!!isOverdue}
@@ -153,9 +186,17 @@ const TimerCard: React.FC<TimerCardProps> = ({
             <TimerStatusIndicator
               isRunning={isRunning}
               isPomodoroActive={isPomodoroActive}
-              timerColor={timerColor}
+              timerColor={solidBorderColor}
             />
           </div>
+
+          {/* Running indicator pulse */}
+          {isRunning && (
+            <div 
+              className="absolute top-1 right-1 w-3 h-3 rounded-full animate-pulse z-20"
+              style={{ backgroundColor: solidBorderColor }}
+            />
+          )}
         </div>
       </div>
     </article>
