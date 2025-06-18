@@ -71,7 +71,7 @@ const TimerCard: React.FC<TimerCardProps> = ({
 
   return (
     <article 
-      className="relative group w-full max-w-[280px] h-[320px] mx-auto flex-shrink-0 p-4"
+      className="relative group w-full max-w-[280px] h-[320px] mx-auto flex-shrink-0 p-4 transition-all duration-300 ease-in-out hover:scale-95"
       role="region"
       aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
       tabIndex={0}
@@ -90,19 +90,19 @@ const TimerCard: React.FC<TimerCardProps> = ({
         />
       </div>
 
-      {/* Main timer circle container */}
-      <div className="absolute top-12 left-4 right-4 bottom-4">
-        {/* Solid gradient border - always visible */}
+      {/* Main timer circle container with slimmer hover effect */}
+      <div className="absolute top-12 left-4 right-4 bottom-4 transition-all duration-300 ease-in-out group-hover:scale-95">
+        {/* Solid gradient border - scales with container */}
         <div 
-          className="absolute inset-0 rounded-full"
+          className="absolute inset-0 rounded-full transition-all duration-300 ease-in-out"
           style={{
             background: `conic-gradient(from 0deg, ${timerColor}, ${timerColor}80, ${timerColor})`,
           }}
         />
         
-        {/* Stationary content container */}
+        {/* Stationary content container - scales with parent */}
         <div 
-          className="absolute inset-2 rounded-full transition-all duration-300 hover:scale-105"
+          className="absolute inset-2 rounded-full transition-all duration-300 ease-in-out"
           style={{
             backgroundColor: innerFillColor,
             backdropFilter: 'blur(15px)',
