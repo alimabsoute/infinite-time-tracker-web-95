@@ -1,11 +1,14 @@
 
 import React from 'react';
 import { Timer as TimerType } from '../../types';
-import { getTimerColor } from '../../utils/timerUtils';
+import { getProcessedTimerColors } from '../../utils/timerColorProcessor';
 import TimerHeader from './TimerHeader';
 import TimerEditForm from './TimerEditForm';
 import TimerStatusIndicator from './TimerStatusIndicator';
 import TimerContent from './TimerContent';
+import TimerCardContainer from './TimerCardContainer';
+import TimerCircleBorder from './TimerCircleBorder';
+import TimerRunningIndicator from './TimerRunningIndicator';
 
 interface TimerCardProps {
   timer: TimerType;
@@ -54,74 +57,79 @@ const TimerCard: React.FC<TimerCardProps> = ({
   onDateSelect,
 }) => {
   const { id, name, isRunning, category, deadline } = timer;
-  const timerColor = getTimerColor(id);
   const isOverdue = deadline && new Date(deadline) < new Date();
 
+  console.log('🔍 TimerCard render - Timer:', id, 'Running:', isRunning);
+
+  // Get processed colors using the new utility
+  const colors = getProcessedTimerColors(id);
+
   return (
-    <article 
-      className="relative group timer-card w-full max-w-[260px] mx-auto transition-all duration-200 hover:scale-[1.02] hover:-translate-y-1"
-      style={{
-        borderRadius: "8px",
-        border: `2px solid ${timerColor}`,
-        background: 'transparent',
-        boxShadow: isRunning 
-          ? `0 0 0 1px ${timerColor}, 0 0 16px ${timerColor}50, 0 2px 12px rgba(0, 0, 0, 0.1)` 
-          : `0 0 0 1px ${timerColor}90, 0 1px 6px rgba(0, 0, 0, 0.06)`,
-      }}
-      role="region"
-      aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
-      tabIndex={0}
-    >
-      <div className="p-2 rounded-[6px]">
-        {isEditing ? (
-          <div role="form" aria-label="Edit timer">
-            <TimerEditForm
-              nameInputRef={nameInputRef}
-              editedName={editedName}
-              editedCategory={editedCategory}
-              onNameChange={onNameChange}
-              onCategoryChange={onCategoryChange}
-              onSubmit={onSubmit}
-              onCancel={onCancel}
-            />
+    <TimerCardContainer name={name} category={category} timerId={id}>
+      {/* Header positioned within card boundaries at top */}
+      <div className="absolute top-0 left-4 right-4 z-20 pt-2">
+        <TimerHeader
+          name={name}
+          category={category}
+          onEditClick={onEdit}
+          onDeleteClick={onDelete}
+        />
+      </div>
+
+      {/* Enhanced circular timer container with multiple border layers */}
+      <TimerCircleBorder colors={colors} isRunning={isRunning}>
+        {/* Edit Form Overlay */}
+        {isEditing && (
+          <div className="absolute inset-4 z-30 flex items-center justify-center">
+            <div className="bg-black/70 backdrop-blur-xl rounded-full p-6 w-full h-full flex items-center justify-center">
+              <div className="w-full max-w-xs">
+                <TimerEditForm
+                  nameInputRef={nameInputRef}
+                  editedName={editedName}
+                  editedCategory={editedCategory}
+                  onNameChange={onNameChange}
+                  onCategoryChange={onCategoryChange}
+                  onSubmit={onSubmit}
+                  onCancel={onCancel}
+                />
+              </div>
+            </div>
           </div>
-        ) : (
-          <div className="flex flex-col space-y-1">
-            <header className="relative z-10">
-              <TimerHeader
-                name={name}
-                category={category}
-                onEditClick={onEdit}
-                onDeleteClick={onDelete}
-              />
-            </header>
-            
-            <main className="flex-1">
-              <TimerContent
-                timerId={id}
-                currentTime={currentTime}
-                isRunning={isRunning}
-                category={category}
-                timerColor={timerColor}
-                selectedPriority={selectedPriority}
-                date={date}
-                isOverdue={!!isOverdue}
-                onToggle={onToggle}
-                onReset={onReset}
-                onPriorityChange={onPriorityChange}
-                onDateSelect={onDateSelect}
-              />
-            </main>
-            
-            <TimerStatusIndicator
+        )}
+
+        {/* Main Timer Content */}
+        {!isEditing && (
+          <div className="w-full h-full flex items-center justify-center">
+            <TimerContent
+              timerId={id}
+              currentTime={currentTime}
               isRunning={isRunning}
-              isPomodoroActive={isPomodoroActive}
-              timerColor={timerColor}
+              category={category}
+              timerColor={colors.primaryBorder}
+              selectedPriority={selectedPriority}
+              date={date}
+              isOverdue={!!isOverdue}
+              onToggle={onToggle}
+              onReset={onReset}
+              onPriorityChange={onPriorityChange}
+              onDateSelect={onDateSelect}
             />
           </div>
         )}
-      </div>
-    </article>
+        
+        {/* Status Indicator positioned within circle */}
+        <div className="absolute top-2 right-2 z-10">
+          <TimerStatusIndicator
+            isRunning={isRunning}
+            isPomodoroActive={isPomodoroActive}
+            timerColor={colors.primaryBorder}
+          />
+        </div>
+
+        {/* Enhanced running indicator pulse */}
+        <TimerRunningIndicator isRunning={isRunning} colors={colors} />
+      </TimerCircleBorder>
+    </TimerCardContainer>
   );
 };
 

@@ -1,24 +1,21 @@
 
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Timer as TimerType } from '../../types';
+import { formatTime } from './TimerUtils';
 import TimerCard from './TimerCard';
-import DeletionAnimation from '../animations/DeletionAnimations';
-import PomodoroTimer from '../pomodoro/PomodoroTimer';
-import { usePomodoro } from '@/hooks/usePomodoro';
 
-type TimerProps = {
+interface TimerProps {
   timer: TimerType;
   onToggle: (id: string) => void;
   onReset: (id: string) => void;
   onDelete: (id: string) => void;
-  onRename: (id: string, name: string, category?: string) => void;
+  onRename: (id: string, newName: string, category?: string) => void;
   onUpdateDeadline: (id: string, deadline: Date | undefined) => void;
   onUpdatePriority: (id: string, priority: number | undefined) => void;
   isNew?: boolean;
-  showPomodoro?: boolean;
-};
+}
 
-const Timer = ({
+const Timer: React.FC<TimerProps> = ({
   timer,
   onToggle,
   onReset,
@@ -27,161 +24,98 @@ const Timer = ({
   onUpdateDeadline,
   onUpdatePriority,
   isNew = false,
-  showPomodoro = false,
-}: TimerProps) => {
-  const { id, name, elapsedTime, category, deadline, priority } = timer;
-
-  // Pomodoro integration
-  const { pomodoroState } = usePomodoro(id);
-
-  // State variables
+}) => {
   const [isEditing, setIsEditing] = useState(isNew);
-  const [editedName, setEditedName] = useState(name);
-  const [editedCategory, setEditedCategory] = useState(category || 'uncategorized');
-  const [currentTime, setCurrentTime] = useState(elapsedTime);
-  const [date, setDate] = useState<Date | undefined>(deadline ? new Date(deadline) : undefined);
-  const [selectedPriority, setSelectedPriority] = useState<string>(priority?.toString() || 'none');
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [deletionAnimationType] = useState<'explode' | 'melt' | 'crumble' | 'vaporize'>(() => {
-    const animations: ('explode' | 'melt' | 'crumble' | 'vaporize')[] = ['explode', 'melt', 'crumble', 'vaporize'];
-    return animations[Math.floor(Math.random() * animations.length)];
-  });
+  const [editedName, setEditedName] = useState(timer.name);
+  const [editedCategory, setEditedCategory] = useState(timer.category || '');
+  const [selectedPriority, setSelectedPriority] = useState(timer.priority?.toString() || '');
+  const [date, setDate] = useState<Date | undefined>(timer.deadline);
+  
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  // Update time while running - optimized with useRef to prevent unnecessary re-renders
-  const intervalRef = useRef<NodeJS.Timeout>();
-  
-  useEffect(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-    
-    setCurrentTime(elapsedTime);
-    
-    if (timer.isRunning) {
-      intervalRef.current = setInterval(() => {
-        setCurrentTime(prevTime => prevTime + 1000);
-      }, 1000);
-    }
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [timer.isRunning, elapsedTime, id]);
-
-  // Auto-focus name input when editing begins
   useEffect(() => {
     if (isEditing && nameInputRef.current) {
       nameInputRef.current.focus();
+      nameInputRef.current.select();
     }
   }, [isEditing]);
 
-  // Handle editing submission
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditedName(timer.name);
+    setEditedCategory(timer.category || '');
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (editedName.trim() !== '') {
-      onRename(id, editedName, editedCategory === 'uncategorized' ? undefined : editedCategory);
-      setIsEditing(false);
+    if (editedName.trim()) {
+      onRename(timer.id, editedName.trim(), editedCategory.trim() || undefined);
+      if (selectedPriority) {
+        onUpdatePriority(timer.id, parseInt(selectedPriority));
+      }
+      if (date) {
+        onUpdateDeadline(timer.id, date);
+      }
     }
+    setIsEditing(false);
   };
 
-  // Handle category change
-  const handleCategoryChange = (value: string) => {
-    setEditedCategory(value);
-    if (!isEditing) {
-      onRename(id, name, value === "uncategorized" ? undefined : value);
-    }
+  const handleCancel = () => {
+    setEditedName(timer.name);
+    setEditedCategory(timer.category || '');
+    setSelectedPriority(timer.priority?.toString() || '');
+    setDate(timer.deadline);
+    setIsEditing(false);
   };
 
-  // Handle priority change
+  const handleToggle = () => {
+    onToggle(timer.id);
+  };
+
+  const handleReset = () => {
+    onReset(timer.id);
+  };
+
+  const handleDelete = () => {
+    onDelete(timer.id);
+  };
+
   const handlePriorityChange = (value: string) => {
     setSelectedPriority(value);
-    onUpdatePriority(id, value !== 'none' ? parseInt(value) : undefined);
+    const priority = value ? parseInt(value) : undefined;
+    onUpdatePriority(timer.id, priority);
   };
 
-  // Handle deadline change
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    setDate(selectedDate);
-    onUpdateDeadline(id, selectedDate);
+  const handleDateSelect = (newDate: Date | undefined) => {
+    setDate(newDate);
+    onUpdateDeadline(timer.id, newDate);
   };
 
-  // Handle deletion with animation
-  const handleDelete = () => {
-    setIsDeleting(true);
-  };
-
-  const handleDeletionComplete = () => {
-    onDelete(id);
-  };
-
-  // Determine if Pomodoro is active for this timer
-  const isPomodoroActive = pomodoroState.isActive && pomodoroState.currentSession?.timerId === id;
-
-  // If we're showing Pomodoro mode, render the Pomodoro timer card instead
-  if (showPomodoro) {
-    const pomodoroContent = (
-      <PomodoroTimer
-        timerId={id}
-        isTimerRunning={timer.isRunning}
-        onTimerToggle={() => onToggle(id)}
-      />
-    );
-
-    if (isDeleting) {
-      return (
-        <DeletionAnimation
-          animationType={deletionAnimationType}
-          onComplete={handleDeletionComplete}
-        >
-          {pomodoroContent}
-        </DeletionAnimation>
-      );
-    }
-
-    return pomodoroContent;
-  }
-
-  const timerContent = (
+  return (
     <TimerCard
       timer={timer}
-      currentTime={currentTime}
+      currentTime={timer.elapsedTime}
       isEditing={isEditing}
       editedName={editedName}
       editedCategory={editedCategory}
       date={date}
       selectedPriority={selectedPriority}
-      isPomodoroActive={isPomodoroActive}
-      currentPhase={pomodoroState.currentPhase}
-      sessionCount={pomodoroState.sessionCount}
-      totalSessions={pomodoroState.totalSessions}
+      isPomodoroActive={false}
+      sessionCount={0}
+      totalSessions={0}
       nameInputRef={nameInputRef}
-      onToggle={() => onToggle(id)}
-      onReset={() => onReset(id)}
+      onToggle={handleToggle}
+      onReset={handleReset}
       onDelete={handleDelete}
-      onEdit={() => setIsEditing(true)}
+      onEdit={handleEdit}
       onSubmit={handleSubmit}
-      onCancel={() => setIsEditing(false)}
+      onCancel={handleCancel}
       onNameChange={setEditedName}
-      onCategoryChange={handleCategoryChange}
+      onCategoryChange={setEditedCategory}
       onPriorityChange={handlePriorityChange}
       onDateSelect={handleDateSelect}
     />
   );
-
-  if (isDeleting) {
-    return (
-      <DeletionAnimation
-        animationType={deletionAnimationType}
-        onComplete={handleDeletionComplete}
-      >
-        {timerContent}
-      </DeletionAnimation>
-    );
-  }
-
-  return timerContent;
 };
 
 export default Timer;

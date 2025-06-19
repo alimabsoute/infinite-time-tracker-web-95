@@ -1,0 +1,120 @@
+
+/* Animated Border for Upgrade Buttons */
+@keyframes rotate-border {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Add sleek animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+  }
+}
+
+/* Timer animation effects */
+@keyframes timer-pulse {
+  0%, 100% {
+    transform: scale(1) !important;
+    opacity: 1 !important;
+  }
+  50% {
+    transform: scale(1.02) !important;
+    opacity: 0.9 !important;
+  }
+}
+
+.upgrade-btn-animated {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.upgrade-btn-animated::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: conic-gradient(from 0deg, #f59e0b, #f97316, #dc2626, #f59e0b);
+  border-radius: inherit;
+  z-index: -1;
+  animation: rotate-border 3s linear infinite;
+}
+
+.upgrade-btn-animated::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  border-radius: calc(var(--radius) - 2px);
+  z-index: -1;
+}
+
+.upgrade-btn-animated:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+}
+
+.upgrade-btn-animated:hover::before {
+  animation-duration: 1.5s;
+}
+
+.running-timer {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Timer running animation for active timers */
+.timer-running-animation {
+  animation: timer-pulse 2s ease-in-out infinite !important;
+}
+
+/* Hover effects */
+.timer-circle-container:hover .timer-primary-border {
+  transform: scale(1.02) !important;
+  transition: transform 0.3s ease !important;
+}
+
+/* Focus states for accessibility */
+.timer-circle-container:focus-within .timer-primary-border {
+  outline: 2px solid rgba(59, 130, 246, 0.5) !important;
+  outline-offset: 4px !important;
+}
+
+/* Enhanced timer controls */
+.timer-control-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timer-control-btn:hover {
+  transform: scale(1.08);
+}
+
+.timer-control-btn:active {
+  transform: scale(0.95);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .timer-running-animation {
+    animation: none !important;
+  }
+  
+  .timer-circle-container:hover .timer-primary-border {
+    transform: none !important;
+  }
+}

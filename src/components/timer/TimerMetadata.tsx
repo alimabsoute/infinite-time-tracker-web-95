@@ -34,20 +34,10 @@ const TimerMetadata = ({
   // Map priority to color
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "1": return "text-green-500 border-green-500/30";
-      case "2": return "text-amber-500 border-amber-500/30";
-      case "3": return "text-red-500 border-red-500/30";
-      default: return "";
-    }
-  };
-
-  // Map priority to text
-  const getPriorityText = (priority: string) => {
-    switch (priority) {
-      case "1": return "Low";
-      case "2": return "Medium";
-      case "3": return "High";
-      default: return "None";
+      case "1": return "text-green-600 border-green-300";
+      case "2": return "text-amber-600 border-amber-300";
+      case "3": return "text-red-600 border-red-300";
+      default: return "text-gray-600 border-gray-300";
     }
   };
 
@@ -55,14 +45,12 @@ const TimerMetadata = ({
   const handleDateSelect = (newDate: Date | undefined) => {
     if (newDate) {
       setSelectedDate(newDate);
-      // If we have a time, apply it to the selected date
       if (selectedTime) {
         const [hours, minutes] = selectedTime.split(':').map(Number);
         const finalDate = new Date(newDate);
         finalDate.setHours(hours, minutes, 0, 0);
         onDateSelect(finalDate);
       } else {
-        // Default to end of day if no time is set
         const finalDate = new Date(newDate);
         finalDate.setHours(23, 59, 0, 0);
         onDateSelect(finalDate);
@@ -104,95 +92,85 @@ const TimerMetadata = ({
   };
 
   return (
-    <div className="flex gap-3 justify-center mt-1">
-      <div className="flex flex-col space-y-1 flex-1">
-        <span className="text-xs text-muted-foreground">Priority</span>
-        <Select value={selectedPriority} onValueChange={onPriorityChange}>
-          <SelectTrigger 
+    <div className="flex gap-3 justify-center">
+      {/* Priority Indicator */}
+      <Select value={selectedPriority} onValueChange={onPriorityChange}>
+        <SelectTrigger 
+          className={cn(
+            "h-7 w-20 text-xs bg-white/90 border text-gray-700 backdrop-blur-sm rounded-full",
+            getPriorityColor(selectedPriority)
+          )}
+        >
+          <SelectValue placeholder="Priority" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">None</SelectItem>
+          <SelectItem value="1" className="text-green-600">Low</SelectItem>
+          <SelectItem value="2" className="text-amber-600">Med</SelectItem>
+          <SelectItem value="3" className="text-red-600">High</SelectItem>
+        </SelectContent>
+      </Select>
+      
+      {/* Deadline Indicator */}
+      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+        <PopoverTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm"
             className={cn(
-              "h-8 text-xs bg-secondary/30 border-secondary/50",
-              getPriorityColor(selectedPriority)
+              "h-7 px-3 text-xs bg-white/90 border text-gray-700 backdrop-blur-sm rounded-full",
+              isOverdue && "text-red-600 border-red-300"
             )}
           >
-            <SelectValue placeholder="Priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            <SelectItem value="1" className="text-green-500">Low</SelectItem>
-            <SelectItem value="2" className="text-amber-500">Medium</SelectItem>
-            <SelectItem value="3" className="text-red-500">High</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      
-      <div className="flex flex-col space-y-1 flex-1">
-        <span className="text-xs text-muted-foreground">Deadline</span>
-        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className={cn(
-                "w-full justify-start text-left font-normal h-8 text-xs bg-secondary/30 border-secondary/50",
-                isOverdue && "text-destructive border-destructive"
-              )}
-            >
-              <Clock className="mr-1 h-3 w-3" />
-              {date ? (
-                <span>
-                  {format(date, 'MMM d')} at {format(date, 'HH:mm')}
-                </span>
-              ) : (
-                <span>Set deadline</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <div className="flex flex-col space-y-4 p-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Select Date</Label>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleDateSelect}
-                  initialFocus
-                  className="pointer-events-auto border rounded-md"
-                  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Select Time</Label>
-                <Input
-                  type="time"
-                  value={selectedTime}
-                  onChange={(e) => handleTimeChange(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-              
-              <div className="flex gap-2 pt-2">
-                <Button 
-                  onClick={handleApplyDateTime}
-                  size="sm"
-                  className="flex-1"
-                  disabled={!selectedDate}
-                >
-                  Apply
-                </Button>
-                <Button 
-                  onClick={handleClearDeadline}
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                >
-                  Clear
-                </Button>
-              </div>
+            <Clock className="mr-1 h-3 w-3" />
+            {date ? format(date, 'MMM d') : 'Set'}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <div className="flex flex-col space-y-4 p-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Select Date</Label>
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
+                initialFocus
+                className="pointer-events-auto border rounded-md"
+                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+              />
             </div>
-          </PopoverContent>
-        </Popover>
-      </div>
+            
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Select Time</Label>
+              <Input
+                type="time"
+                value={selectedTime}
+                onChange={(e) => handleTimeChange(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            
+            <div className="flex gap-2 pt-2">
+              <Button 
+                onClick={handleApplyDateTime}
+                size="sm"
+                className="flex-1"
+                disabled={!selectedDate}
+              >
+                Apply
+              </Button>
+              <Button 
+                onClick={handleClearDeadline}
+                variant="outline"
+                size="sm"
+                className="flex-1"
+              >
+                Clear
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };
