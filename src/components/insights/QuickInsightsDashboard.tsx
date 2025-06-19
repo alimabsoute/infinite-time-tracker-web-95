@@ -4,7 +4,7 @@ import { Timer, TimerSessionWithTimer } from '../../types';
 import { useProductivityInsights } from '../../hooks/useProductivityInsights';
 import InsightCard from './InsightCard';
 import InsightRecommendations from './InsightRecommendations';
-import { Clock, TrendingUp, Target, Zap, Calendar, BarChart3, Timer as TimerIcon } from 'lucide-react';
+import { Clock, TrendingUp, Target, Zap, Calendar, BarChart3 } from 'lucide-react';
 import { formatTime } from '../timer/TimerUtils';
 import { format, subDays, startOfWeek, endOfWeek, addDays, addHours } from 'date-fns';
 
@@ -18,51 +18,6 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
   sessions 
 }) => {
   const insights = useProductivityInsights(timers, sessions);
-
-  // Calculate combined metrics from both timers and sessions
-  const combinedMetrics = React.useMemo(() => {
-    // Total time from both running timers and completed sessions
-    const activeTimerTime = timers.reduce((sum, timer) => sum + timer.elapsedTime, 0);
-    const completedSessionTime = sessions.reduce((sum, session) => sum + (session.duration_ms || 0), 0);
-    const totalCombinedTime = activeTimerTime + completedSessionTime;
-
-    // Active vs completed ratio
-    const activeTimerCount = timers.filter(timer => timer.isRunning).length;
-    const completedSessionCount = sessions.length;
-
-    // Most used timer by total time
-    const timerUsage = new Map<string, { name: string; totalTime: number }>();
-    
-    // Add active timer data
-    timers.forEach(timer => {
-      timerUsage.set(timer.id, {
-        name: timer.name,
-        totalTime: timer.elapsedTime
-      });
-    });
-
-    // Add session data
-    sessions.forEach(session => {
-      if (session.timers) {
-        const existing = timerUsage.get(session.timer_id) || { name: session.timers.name, totalTime: 0 };
-        timerUsage.set(session.timer_id, {
-          ...existing,
-          totalTime: existing.totalTime + (session.duration_ms || 0)
-        });
-      }
-    });
-
-    const topTimer = Array.from(timerUsage.values())
-      .sort((a, b) => b.totalTime - a.totalTime)[0];
-
-    return {
-      totalCombinedTime,
-      activeTimerCount,
-      completedSessionCount,
-      topTimer,
-      timerUsageMap: timerUsage
-    };
-  }, [timers, sessions]);
 
   // Generate countdown dates for actionable insights
   const getNextOptimalWorkTime = () => {
@@ -86,19 +41,8 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
     return addDays(new Date(), 7); // Default to next week
   };
 
-  // Enhanced insight cards with combined data
+  // Generate insight data with countdown functionality
   const insightCards = [
-    {
-      headline: "Combined productivity overview",
-      takeaway: `Total tracked time: ${formatTime(combinedMetrics.totalCombinedTime)}`,
-      comparison: `${combinedMetrics.activeTimerCount} active timers • ${combinedMetrics.completedSessionCount} completed sessions`,
-      value: formatTime(combinedMetrics.totalCombinedTime),
-      icon: TimerIcon,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-50',
-      actionable: combinedMetrics.totalCombinedTime < 3600000, // Less than 1 hour
-      realTimeUpdate: true
-    },
     {
       headline: "Your productivity is trending upward",
       takeaway: `You've increased your focus time by ${Math.abs(insights.weeklyGrowth).toFixed(1)}% this week`,
@@ -112,21 +56,6 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
         targetDate: getWeekEndTarget(),
         label: "Week ends in"
       } : undefined,
-      realTimeUpdate: true
-    },
-    {
-      headline: "Most productive timer identified",
-      takeaway: combinedMetrics.topTimer ? 
-        `"${combinedMetrics.topTimer.name}" has the most activity` : 
-        "No dominant timer pattern yet",
-      comparison: combinedMetrics.topTimer ? 
-        `${formatTime(combinedMetrics.topTimer.totalTime)} total time` : 
-        "Start tracking to see patterns",
-      value: combinedMetrics.topTimer ? combinedMetrics.topTimer.name : "N/A",
-      icon: Target,
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-50',
-      actionable: !combinedMetrics.topTimer,
       realTimeUpdate: true
     },
     {
@@ -219,7 +148,7 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
     return true;
   });
 
-  if (sessions.length === 0 && timers.length === 0) {
+  if (sessions.length === 0) {
     return (
       <div className="text-center py-12">
         <Zap className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -240,9 +169,6 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
           <span className="text-sm text-muted-foreground">
             Live insights • Updated {format(new Date(), 'HH:mm')}
           </span>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {combinedMetrics.activeTimerCount > 0 && `${combinedMetrics.activeTimerCount} timer${combinedMetrics.activeTimerCount !== 1 ? 's' : ''} running`}
         </div>
       </div>
 

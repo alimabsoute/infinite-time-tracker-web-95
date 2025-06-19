@@ -1,6 +1,316 @@
 
-/* Import all CSS modules in proper order */
-@import './styles/base.css';
-@import './styles/timer.css';
-@import './styles/animations.css';
-@import './styles/utilities.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 25% 96%;
+    --foreground: 225 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 225 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 15% 15%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 30 25% 93%;
+    --secondary-foreground: 225 15% 25%;
+
+    --muted: 30 25% 93%;
+    --muted-foreground: 225 15% 40%;
+
+    --accent: 225 70% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 25% 90%;
+    --input: 30 25% 90%;
+    --ring: 221 83% 53%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 30 25% 96%;
+    --sidebar-foreground: 225 15% 15%;
+    --sidebar-primary: 225 15% 25%;
+    --sidebar-primary-foreground: 220 10% 98%;
+    --sidebar-accent: 225 15% 15%;
+    --sidebar-accent-foreground: 220 10% 98%;
+    --sidebar-border: 30 25% 90%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 30 25% 96%;
+    --foreground: 225 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 225 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 15% 15%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 225 15% 10%;
+
+    --secondary: 30 25% 93%;
+    --secondary-foreground: 225 15% 25%;
+
+    --muted: 30 25% 93%;
+    --muted-foreground: 225 15% 40%;
+
+    --accent: 225 70% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 25% 90%;
+    --input: 30 25% 90%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+}
+
+/* Animated Border for Upgrade Buttons */
+@keyframes rotate-border {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.upgrade-btn-animated {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.upgrade-btn-animated::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: conic-gradient(from 0deg, #f59e0b, #f97316, #dc2626, #f59e0b);
+  border-radius: inherit;
+  z-index: -1;
+  animation: rotate-border 3s linear infinite;
+}
+
+.upgrade-btn-animated::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  border-radius: calc(var(--radius) - 2px);
+  z-index: -1;
+}
+
+.upgrade-btn-animated:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+}
+
+.upgrade-btn-animated:hover::before {
+  animation-duration: 1.5s;
+}
+
+.timer-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timer-card:hover {
+  transform: translateY(-4px);
+}
+
+.chart-container {
+  height: 300px;
+  width: 100%;
+}
+
+/* Add sleek animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+  }
+}
+
+.running-timer {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Glass effect for cards */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
+}
+
+.glass-effect:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Smooth transitions */
+.smooth-transition {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Sleek scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--secondary));
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent));
+}
+
+/* Timer color variations - more refined professional palette */
+.timer-color-1 { --timer-color: 221, 83%, 53%; }  /* Blue */
+.timer-color-2 { --timer-color: 262, 80%, 55%; }  /* Purple */
+.timer-color-3 { --timer-color: 291, 64%, 50%; }  /* Magenta */
+.timer-color-4 { --timer-color: 326, 72%, 48%; }  /* Rose */
+.timer-color-5 { --timer-color: 354, 70%, 54%; }  /* Red */
+.timer-color-6 { --timer-color: 24, 90%, 50%; }   /* Orange */
+.timer-color-7 { --timer-color: 43, 96%, 45%; }   /* Amber */
+.timer-color-8 { --timer-color: 142, 71%, 40%; }  /* Green */
+.timer-color-9 { --timer-color: 172, 66%, 48%; }  /* Teal */
+.timer-color-10 { --timer-color: 199, 89%, 48%; } /* Cyan */
+
+/* Add professional fade effects */
+.fade-edge {
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 90%, rgba(0,0,0,0));
+}
+
+/* Timer animation effects */
+.timer-pip {
+  height: 4px;
+  width: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.timer-pip.active {
+  transform: scale(1.5);
+}
+
+/* Enhanced timer controls */
+.timer-control-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timer-control-btn:hover {
+  transform: scale(1.08);
+}
+
+.timer-control-btn:active {
+  transform: scale(0.95);
+}
+
+/* Custom scrollbar for timer lists */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 40%);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 60%);
+}
+
+/* Calendar day highlight styles */
+.rdp-day_selected {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.rdp-day_today {
+  border: 1px solid hsl(var(--primary) / 50%) !important;
+  font-weight: bold;
+}
+
+/* Timer focus highlight */
+.timer-focused {
+  box-shadow: 0 0 0 2px hsl(var(--primary)), 
+              0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Stats cards enhanced style */
+.stats-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced heat map for calendar */
+.heat-low {
+  background-color: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.heat-medium {
+  background-color: rgba(59, 130, 246, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+}
+
+.heat-high {
+  background-color: rgba(59, 130, 246, 0.65);
+  border: 1px solid rgba(59, 130, 246, 0.7);
+}

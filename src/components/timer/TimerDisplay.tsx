@@ -1,5 +1,8 @@
 
-import { formatTime } from '../../utils/timerUtils';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+import { Badge } from '../ui/badge';
+import { formatTime } from './TimerUtils';
 
 interface TimerDisplayProps {
   currentTime: number;
@@ -12,44 +15,61 @@ interface TimerDisplayProps {
 const TimerDisplay = ({ 
   currentTime, 
   isRunning, 
+  sessionCount = 1, 
   category,
   timerColor = 'hsl(221, 83%, 53%)' 
 }: TimerDisplayProps) => {
-  const formattedTime = formatTime(currentTime);
+  // Calculate progress percentage for circular progress
+  const progressPercentage = Math.min(100, (currentTime / 3600000) * 100); // Max at 1 hour
 
   return (
-    <div 
-      className={`text-center ${isRunning ? 'timer-pulsing' : ''}`}
-      role="timer"
-      aria-label={`Timer showing ${formattedTime}${category ? ` for ${category}` : ''}`}
-      aria-live={isRunning ? "polite" : "off"}
-      tabIndex={0}
-    >
-      {/* Large time display */}
-      <div 
-        className="text-3xl font-bold tracking-tight text-gray-800 leading-tight"
-        style={{ textShadow: `0 2px 8px ${timerColor}40` }}
-        aria-label={`${formattedTime} elapsed`}
-      >
-        {formattedTime}
+    <div className={`w-36 h-36 relative mx-auto ${isRunning ? 'timer-pulsing' : ''}`}>
+      <CircularProgressbar
+        value={progressPercentage}
+        strokeWidth={3}
+        styles={buildStyles({
+          // Sharper outer lines with no color bleed
+          pathColor: timerColor,
+          trailColor: 'rgba(226, 232, 240, 0.2)',
+          textSize: '0px', // Hide the default text
+          pathTransitionDuration: 0.3,
+          rotation: 0.25,
+          strokeLinecap: 'butt', // Sharp edges instead of round
+          backgroundColor: 'transparent', // Remove background fill color
+        })}
+      />
+      
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+        <div className="text-xl font-semibold tracking-tight">
+          {formatTime(currentTime)}
+        </div>
+        {category && (
+          <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium opacity-80">
+            {category}
+          </div>
+        )}
       </div>
+      
+      {sessionCount > 1 && (
+        <Badge variant="secondary" className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-secondary/30 text-xs">
+          {sessionCount} sessions
+        </Badge>
+      )}
 
+      {/* Update animation styles to better highlight the timer edge */}
       <style>
         {`
-          @keyframes text-pulse {
+          @keyframes subtle-pulse {
             0% {
-              text-shadow: 0 2px 8px ${timerColor}40;
-            }
-            50% {
-              text-shadow: 0 4px 16px ${timerColor}60, 0 0 20px ${timerColor}30;
+              filter: drop-shadow(0 0 1px ${timerColor});
             }
             100% {
-              text-shadow: 0 2px 8px ${timerColor}40;
+              filter: drop-shadow(0 0 5px ${timerColor});
             }
           }
           
           .timer-pulsing {
-            animation: text-pulse 2s infinite ease-in-out;
+            animation: subtle-pulse 2s infinite alternate;
           }
         `}
       </style>

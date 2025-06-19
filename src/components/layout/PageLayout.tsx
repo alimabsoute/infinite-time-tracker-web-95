@@ -1,69 +1,48 @@
 
 import React from 'react';
 import Navigation from './Navigation';
-import ResponsiveContainer from './ResponsiveContainer';
-import { cn } from '@/lib/utils';
 
 interface PageLayoutProps {
   children: React.ReactNode;
   title?: string;
   description?: string;
   actions?: React.ReactNode;
-  variant?: 'default' | 'compact' | 'expanded';
-  className?: string;
 }
 
 const PageLayout: React.FC<PageLayoutProps> = ({ 
   children, 
   title, 
   description, 
-  actions,
-  variant = 'default',
-  className
+  actions 
 }) => {
   return (
-    <div className={cn("min-h-screen bg-background", className)}>
+    <div className="min-h-screen bg-background">
       <Navigation />
-      
-      <main 
-        className="pb-8 sm:pb-12 lg:pb-16"
-        role="main"
-        aria-label="Main content"
-      >
-        <ResponsiveContainer variant={variant} padding="medium">
-          {/* Enhanced page header with better typography scale */}
-          {(title || description || actions) && (
-            <header className="py-6 sm:py-8 lg:py-12">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
-                <div className="flex-1 min-w-0">
-                  {title && (
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground leading-tight">
-                      {title}
-                    </h1>
-                  )}
-                  {description && (
-                    <p className="text-sm sm:text-base text-muted-foreground mt-2 sm:mt-3 leading-relaxed max-w-3xl">
-                      {description}
-                    </p>
-                  )}
-                </div>
-                {actions && (
-                  <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
-                    {actions}
-                  </div>
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
+        {(title || description || actions) && (
+          <div className="mb-8">
+            <div className="flex justify-between items-start">
+              <div>
+                {title && (
+                  <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                    {title}
+                  </h1>
+                )}
+                {description && (
+                  <p className="text-muted-foreground mt-2">
+                    {description}
+                  </p>
                 )}
               </div>
-            </header>
-          )}
-          
-          {/* Main content area with improved spacing */}
-          <section 
-            className="space-y-6 sm:space-y-8 lg:space-y-10"
-            aria-label="Page content"
-          >
-            {children}
-          </section>
-        </ResponsiveContainer>
+              {actions && (
+                <div className="flex items-center space-x-2">
+                  {actions}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {children}
       </main>
     </div>
   );

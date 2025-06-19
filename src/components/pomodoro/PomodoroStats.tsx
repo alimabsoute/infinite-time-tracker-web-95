@@ -1,74 +1,56 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Timer as TimerIcon, Coffee, Zap, Target } from 'lucide-react';
-import { Timer as TimerType } from '@/types';
+import { Coffee, Zap } from 'lucide-react';
+import { usePomodoro } from '@/hooks/usePomodoro';
 
 interface PomodoroStatsProps {
-  timers: TimerType[];
+  timerId: string;
+  compact?: boolean;
 }
 
-const PomodoroStats: React.FC<PomodoroStatsProps> = ({ timers }) => {
-  const runningTimers = timers.filter(t => t.isRunning).length;
+const PomodoroStats: React.FC<PomodoroStatsProps> = ({ timerId, compact = false }) => {
+  const { pomodoroState } = usePomodoro(timerId);
 
-  // For now, we'll show basic timer stats
-  // TODO: Add proper Pomodoro session tracking
-  const totalTimers = timers.length;
-  const activeTimers = runningTimers;
+  if (pomodoroState.totalSessions === 0) {
+    return null;
+  }
+
+  if (compact) {
+    return (
+      <div className="pt-2 border-t border-border/30 mt-2">
+        <div className="flex justify-between items-center text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Zap className="h-3 w-3" />
+            <span>Sessions: {pomodoroState.sessionCount}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Coffee className="h-3 w-3" />
+            <span>Total: {pomodoroState.totalSessions}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Timers</CardTitle>
-          <TimerIcon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{activeTimers}</div>
-          <p className="text-xs text-muted-foreground">Currently running</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Ready for Pomodoro</CardTitle>
-          <Zap className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalTimers}</div>
-          <p className="text-xs text-muted-foreground">Available timers</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Focus Sessions</CardTitle>
-          <Target className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">0</div>
-          <p className="text-xs text-muted-foreground">Sessions today</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Productivity</CardTitle>
-          <Coffee className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {activeTimers > 0 ? (
-              <Badge variant="secondary" className="text-lg font-bold">
-                🔥 Active
-              </Badge>
-            ) : (
-              <span className="text-muted-foreground">Ready</span>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="text-center p-2 bg-secondary/20 rounded-md">
+          <div className="text-lg font-bold">{pomodoroState.sessionCount}</div>
+          <div className="text-xs text-muted-foreground">Work Sessions</div>
+        </div>
+        <div className="text-center p-2 bg-secondary/20 rounded-md">
+          <div className="text-lg font-bold">{pomodoroState.totalSessions}</div>
+          <div className="text-xs text-muted-foreground">Total Sessions</div>
+        </div>
+      </div>
+      
+      <div className="flex justify-center">
+        <Badge variant="outline" className="text-xs">
+          Next: {pomodoroState.sessionCount % pomodoroState.settings.sessionsUntilLongBreak === 0 ? 'Long Break' : 'Short Break'}
+        </Badge>
+      </div>
     </div>
   );
 };
