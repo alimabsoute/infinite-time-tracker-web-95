@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Timer as TimerType } from '../../types';
-import { getTimerColorClass } from './TimerUtils';
+import { getTimerColor } from '../../utils/timerUtils';
 import TimerHeader from './TimerHeader';
 import TimerEditForm from './TimerEditForm';
 import TimerStatusIndicator from './TimerStatusIndicator';
@@ -54,55 +54,65 @@ const TimerCard: React.FC<TimerCardProps> = ({
   onDateSelect,
 }) => {
   const { id, name, isRunning, category, deadline } = timer;
-  const timerColorClass = getTimerColorClass(id);
-  const timerColor = `hsl(var(--timer-color))`;
+  const timerColor = getTimerColor(id);
   const isOverdue = deadline && new Date(deadline) < new Date();
 
   return (
-    <div 
-      className={`relative ${timerColorClass} mb-3 px-1`}
+    <article 
+      className="relative group timer-card w-full max-w-[260px] mx-auto transition-all duration-200 hover:scale-[1.02] hover:-translate-y-1"
       style={{
-        borderRadius: "0.5rem", 
-        boxShadow: `0 0 0 2px ${timerColor}40, 0 4px 6px -1px rgba(0, 0, 0, 0.1)`,
-        transition: "all 0.2s ease-in-out"
+        borderRadius: "8px",
+        border: `2px solid ${timerColor}`,
+        background: 'transparent',
+        boxShadow: isRunning 
+          ? `0 0 0 1px ${timerColor}, 0 0 16px ${timerColor}50, 0 2px 12px rgba(0, 0, 0, 0.1)` 
+          : `0 0 0 1px ${timerColor}90, 0 1px 6px rgba(0, 0, 0, 0.06)`,
       }}
+      role="region"
+      aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
+      tabIndex={0}
     >
-      <div className="p-2 bg-transparent rounded-lg">
+      <div className="p-2 rounded-[6px]">
         {isEditing ? (
-          <TimerEditForm
-            nameInputRef={nameInputRef}
-            editedName={editedName}
-            editedCategory={editedCategory}
-            onNameChange={onNameChange}
-            onCategoryChange={onCategoryChange}
-            onSubmit={onSubmit}
-            onCancel={onCancel}
-          />
+          <div role="form" aria-label="Edit timer">
+            <TimerEditForm
+              nameInputRef={nameInputRef}
+              editedName={editedName}
+              editedCategory={editedCategory}
+              onNameChange={onNameChange}
+              onCategoryChange={onCategoryChange}
+              onSubmit={onSubmit}
+              onCancel={onCancel}
+            />
+          </div>
         ) : (
-          <div className="flex flex-col">
-            <TimerHeader
-              name={name}
-              category={category}
-              onEditClick={onEdit}
-              onDeleteClick={onDelete}
-            />
+          <div className="flex flex-col space-y-1">
+            <header className="relative z-10">
+              <TimerHeader
+                name={name}
+                category={category}
+                onEditClick={onEdit}
+                onDeleteClick={onDelete}
+              />
+            </header>
             
-            <TimerContent
-              timerId={id}
-              currentTime={currentTime}
-              isRunning={isRunning}
-              category={category}
-              timerColor={timerColor}
-              selectedPriority={selectedPriority}
-              date={date}
-              isOverdue={!!isOverdue}
-              onToggle={onToggle}
-              onReset={onReset}
-              onPriorityChange={onPriorityChange}
-              onDateSelect={onDateSelect}
-            />
+            <main className="flex-1">
+              <TimerContent
+                timerId={id}
+                currentTime={currentTime}
+                isRunning={isRunning}
+                category={category}
+                timerColor={timerColor}
+                selectedPriority={selectedPriority}
+                date={date}
+                isOverdue={!!isOverdue}
+                onToggle={onToggle}
+                onReset={onReset}
+                onPriorityChange={onPriorityChange}
+                onDateSelect={onDateSelect}
+              />
+            </main>
             
-            {/* Running indicator pulse */}
             <TimerStatusIndicator
               isRunning={isRunning}
               isPomodoroActive={isPomodoroActive}
@@ -111,7 +121,7 @@ const TimerCard: React.FC<TimerCardProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </article>
   );
 };
 

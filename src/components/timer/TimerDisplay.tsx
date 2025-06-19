@@ -2,7 +2,7 @@
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { Badge } from '../ui/badge';
-import { formatTime } from './TimerUtils';
+import { formatTime, getTimerProgress } from '../../utils/timerUtils';
 
 interface TimerDisplayProps {
   currentTime: number;
@@ -19,57 +19,82 @@ const TimerDisplay = ({
   category,
   timerColor = 'hsl(221, 83%, 53%)' 
 }: TimerDisplayProps) => {
-  // Calculate progress percentage for circular progress
-  const progressPercentage = Math.min(100, (currentTime / 3600000) * 100); // Max at 1 hour
+  const progressPercentage = Math.min(100, (currentTime / 3600000) * 100);
+  const formattedTime = formatTime(currentTime);
 
   return (
-    <div className={`w-36 h-36 relative mx-auto ${isRunning ? 'timer-pulsing' : ''}`}>
+    <div 
+      className={`w-24 h-24 relative mx-auto ${
+        isRunning ? 'timer-pulsing' : ''
+      }`}
+      role="timer"
+      aria-label={`Timer showing ${formattedTime}${category ? ` for ${category}` : ''}`}
+      aria-live={isRunning ? "polite" : "off"}
+      tabIndex={0}
+    >
       <CircularProgressbar
         value={progressPercentage}
-        strokeWidth={3}
+        strokeWidth={6}
         styles={buildStyles({
-          // Sharper outer lines with no color bleed
           pathColor: timerColor,
-          trailColor: 'rgba(226, 232, 240, 0.2)',
-          textSize: '0px', // Hide the default text
-          pathTransitionDuration: 0.3,
+          trailColor: `${timerColor}15`,
+          textSize: '0px',
+          pathTransitionDuration: 0.2,
           rotation: 0.25,
-          strokeLinecap: 'butt', // Sharp edges instead of round
-          backgroundColor: 'transparent', // Remove background fill color
+          strokeLinecap: 'round',
+          backgroundColor: 'transparent',
         })}
+        aria-hidden="true"
       />
       
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-        <div className="text-xl font-semibold tracking-tight">
-          {formatTime(currentTime)}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center">
+        <div 
+          className="text-base font-bold tracking-tight text-foreground leading-tight"
+          aria-label={`${formattedTime} elapsed`}
+        >
+          {formattedTime}
         </div>
         {category && (
-          <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium opacity-80">
+          <div 
+            className="text-xs text-muted-foreground uppercase tracking-wider font-medium opacity-60 mt-0.5 text-center max-w-16 truncate"
+            title={category}
+            aria-label={`Category: ${category}`}
+          >
             {category}
           </div>
         )}
       </div>
       
       {sessionCount > 1 && (
-        <Badge variant="secondary" className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-secondary/30 text-xs">
-          {sessionCount} sessions
+        <Badge 
+          variant="secondary" 
+          className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-background/90 backdrop-blur-sm text-xs px-1.5 py-0.5 shadow-sm border"
+          style={{ borderColor: `${timerColor}40` }}
+          aria-label={`${sessionCount} sessions completed`}
+        >
+          {sessionCount}
         </Badge>
       )}
 
-      {/* Update animation styles to better highlight the timer edge */}
       <style>
         {`
           @keyframes subtle-pulse {
             0% {
-              filter: drop-shadow(0 0 1px ${timerColor});
+              filter: drop-shadow(0 0 3px ${timerColor});
+              transform: scale(1);
+            }
+            50% {
+              filter: drop-shadow(0 0 8px ${timerColor});
+              transform: scale(1.01);
             }
             100% {
-              filter: drop-shadow(0 0 5px ${timerColor});
+              filter: drop-shadow(0 0 3px ${timerColor});
+              transform: scale(1);
             }
           }
           
           .timer-pulsing {
-            animation: subtle-pulse 2s infinite alternate;
+            animation: subtle-pulse 1.8s infinite ease-in-out;
           }
         `}
       </style>
