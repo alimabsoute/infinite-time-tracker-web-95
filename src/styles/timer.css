@@ -11,37 +11,30 @@
 .timer-color-9 { --timer-color: 172, 66%, 48%; }  /* Teal */
 .timer-color-10 { --timer-color: 199, 89%, 48%; } /* Cyan */
 
-/* ENHANCED PERFECT CIRCLE TIMER SYSTEM - Maximum Specificity */
+/* ENHANCED TIMER BORDER SYSTEM - Maximum Specificity */
 
-/* Base timer container styles for perfect circles */
+/* Base timer container styles */
 .timer-circle-container {
   position: relative !important;
   width: 100% !important;
   height: 100% !important;
-  aspect-ratio: 1 !important;
   border-radius: 50% !important;
   overflow: visible !important;
-  min-width: 240px !important;
-  min-height: 240px !important;
 }
 
-/* Primary border layer with maximum specificity for perfect circles */
+/* Primary border layer with maximum specificity */
 .timer-primary-border {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  aspect-ratio: 1 !important;
   border-radius: 50% !important;
   z-index: 1 !important;
   pointer-events: none !important;
   /* Border will be set via inline styles for color specificity */
   border-width: 6px !important;
   border-style: solid !important;
-  box-sizing: border-box !important;
 }
 
 /* Secondary border for enhanced visibility */
@@ -51,62 +44,40 @@
   left: 2px !important;
   right: 2px !important;
   bottom: 2px !important;
-  width: calc(100% - 4px) !important;
-  height: calc(100% - 4px) !important;
-  aspect-ratio: 1 !important;
   border-radius: 50% !important;
   border-width: 2px !important;
   border-style: solid !important;
   z-index: 2 !important;
   pointer-events: none !important;
-  box-sizing: border-box !important;
 }
 
-/* Inner content area for perfect circles */
+/* Inner content area */
 .timer-inner-content {
   position: absolute !important;
   top: 8px !important;
   left: 8px !important;
   right: 8px !important;
   bottom: 8px !important;
-  width: calc(100% - 16px) !important;
-  height: calc(100% - 16px) !important;
-  aspect-ratio: 1 !important;
   border-radius: 50% !important;
   z-index: 3 !important;
   overflow: hidden !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  box-sizing: border-box !important;
-}
-
-/* Force perfect circles on all browsers */
-.timer-circle-container *,
-.timer-primary-border,
-.timer-secondary-border,
-.timer-inner-content {
-  -webkit-border-radius: 50% !important;
-  -moz-border-radius: 50% !important;
-  border-radius: 50% !important;
-}
-
-/* Ensure aspect ratio support across browsers */
-@supports not (aspect-ratio: 1) {
-  .timer-circle-container::before,
-  .timer-primary-border::before,
-  .timer-secondary-border::before,
-  .timer-inner-content::before {
-    content: "" !important;
-    display: block !important;
-    padding-top: 100% !important;
-  }
 }
 
 /* Fallback borders for browser compatibility */
 .timer-fallback-border {
   border: 6px solid #3B82F6 !important;
   border-radius: 50% !important;
+}
+
+/* Cross-browser border support */
+@supports not (border-radius: 50%) {
+  .timer-primary-border {
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+  }
 }
 
 /* High contrast mode support */

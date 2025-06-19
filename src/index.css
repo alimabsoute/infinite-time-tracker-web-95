@@ -1,6 +1,6 @@
 
-/* Import all CSS modules in proper order */
+/* Import all CSS modules */
 @import './styles/base.css';
-@import './styles/timer.css';
 @import './styles/animations.css';
+@import './styles/timer.css';
 @import './styles/utilities.css';
