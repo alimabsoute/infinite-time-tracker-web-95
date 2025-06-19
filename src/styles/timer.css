@@ -16,13 +16,22 @@
 /* Base timer container styles for perfect circles */
 .timer-circle-container {
   position: relative !important;
-  width: 100% !important;
-  height: 100% !important;
-  aspect-ratio: 1 !important;
-  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   overflow: visible !important;
   min-width: 240px !important;
   min-height: 240px !important;
+}
+
+/* Circle wrapper for aspect ratio constraint */
+.timer-circle-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 280px !important;
+  aspect-ratio: 1 !important;
+  border-radius: 50% !important;
+  overflow: visible !important;
 }
 
 /* Primary border layer with maximum specificity for perfect circles */
@@ -30,15 +39,12 @@
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
   width: 100% !important;
   height: 100% !important;
   aspect-ratio: 1 !important;
   border-radius: 50% !important;
   z-index: 1 !important;
   pointer-events: none !important;
-  /* Border will be set via inline styles for color specificity */
   border-width: 6px !important;
   border-style: solid !important;
   box-sizing: border-box !important;
@@ -49,8 +55,6 @@
   position: absolute !important;
   top: 2px !important;
   left: 2px !important;
-  right: 2px !important;
-  bottom: 2px !important;
   width: calc(100% - 4px) !important;
   height: calc(100% - 4px) !important;
   aspect-ratio: 1 !important;
@@ -67,8 +71,6 @@
   position: absolute !important;
   top: 8px !important;
   left: 8px !important;
-  right: 8px !important;
-  bottom: 8px !important;
   width: calc(100% - 16px) !important;
   height: calc(100% - 16px) !important;
   aspect-ratio: 1 !important;
@@ -81,25 +83,35 @@
   box-sizing: border-box !important;
 }
 
-/* Force perfect circles on all browsers */
+/* Force perfect circles on all browsers with enhanced specificity */
 .timer-circle-container *,
+.timer-circle-wrapper,
 .timer-primary-border,
 .timer-secondary-border,
 .timer-inner-content {
   -webkit-border-radius: 50% !important;
   -moz-border-radius: 50% !important;
   border-radius: 50% !important;
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
 }
 
-/* Ensure aspect ratio support across browsers */
+/* Enhanced aspect ratio support for perfect circles */
 @supports not (aspect-ratio: 1) {
-  .timer-circle-container::before,
-  .timer-primary-border::before,
-  .timer-secondary-border::before,
-  .timer-inner-content::before {
+  .timer-circle-wrapper::before {
     content: "" !important;
     display: block !important;
     padding-top: 100% !important;
+    width: 100% !important;
+  }
+  
+  .timer-circle-wrapper > * {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
   }
 }
 
@@ -107,6 +119,7 @@
 .timer-fallback-border {
   border: 6px solid #3B82F6 !important;
   border-radius: 50% !important;
+  aspect-ratio: 1 !important;
 }
 
 /* High contrast mode support */
@@ -116,11 +129,12 @@
   }
 }
 
-/* Timer pip animations */
+/* Timer pip animations - ensure circular pips */
 .timer-pip {
-  height: 4px;
-  width: 4px;
-  border-radius: 50%;
+  height: 4px !important;
+  width: 4px !important;
+  aspect-ratio: 1 !important;
+  border-radius: 50% !important;
   transition: all 0.2s ease;
 }
 
@@ -135,12 +149,43 @@
   transform: translateY(-2px);
 }
 
+/* Enhanced circular running indicators */
+.timer-running-indicator {
+  width: 12px !important;
+  height: 12px !important;
+  aspect-ratio: 1 !important;
+  border-radius: 50% !important;
+  position: absolute !important;
+  top: 4px !important;
+  right: 4px !important;
+  z-index: 20 !important;
+}
+
 /* Force visibility debugging classes */
 .debug-timer-border {
   border: 6px solid red !important;
   background: rgba(255, 0, 0, 0.1) !important;
+  aspect-ratio: 1 !important;
+  border-radius: 50% !important;
 }
 
 .debug-timer-content {
   background: rgba(0, 255, 0, 0.1) !important;
+  aspect-ratio: 1 !important;
+  border-radius: 50% !important;
+}
+
+/* Enhanced circular progress bars */
+.circular-progress-container {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 1 !important;
+  border-radius: 50% !important;
+  overflow: visible !important;
+}
+
+.circular-progress-container > * {
+  aspect-ratio: 1 !important;
+  border-radius: 50% !important;
 }
