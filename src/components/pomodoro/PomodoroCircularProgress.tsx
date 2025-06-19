@@ -19,9 +19,35 @@ const PomodoroCircularProgress: React.FC<PomodoroCircularProgressProps> = ({
   timerColor,
   phaseLabel
 }) => {
+  const containerStyle: React.CSSProperties = {
+    position: 'relative',
+    width: '96px',
+    height: '96px',
+    aspectRatio: '1',
+    borderRadius: '50%'
+  };
+
+  const progressStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    aspectRatio: '1',
+    borderRadius: '50%'
+  };
+
+  const textOverlayStyle: React.CSSProperties = {
+    position: 'absolute',
+    inset: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    aspectRatio: '1',
+    borderRadius: '50%'
+  };
+
   return (
-    <div className="relative">
-      <div className="w-24 h-24">
+    <div className="circular-progress-container" style={containerStyle}>
+      <div style={progressStyle}>
         <CircularProgressbar
           value={progressPercentage}
           text=""
@@ -35,7 +61,7 @@ const PomodoroCircularProgress: React.FC<PomodoroCircularProgressProps> = ({
           })}
         />
       </div>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div style={textOverlayStyle}>
         <div className="text-base font-bold leading-tight">
           {isActive ? formatTime(remainingTime) : '00:00'}
         </div>

@@ -13,13 +13,24 @@ const TimerRunningIndicator: React.FC<TimerRunningIndicatorProps> = ({
 }) => {
   if (!isRunning) return null;
 
+  const indicatorStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '4px',
+    right: '4px',
+    width: '12px',
+    height: '12px',
+    aspectRatio: '1',
+    borderRadius: '50%',
+    backgroundColor: colors.primaryBorder,
+    boxShadow: `0 0 10px ${colors.shadowColor}50`,
+    zIndex: 20,
+    animation: 'pulse 2s infinite'
+  };
+
   return (
     <div 
-      className="absolute top-1 right-1 w-3 h-3 rounded-full animate-pulse z-20"
-      style={{ 
-        backgroundColor: colors.primaryBorder,
-        boxShadow: `0 0 10px ${colors.shadowColor}50`
-      }}
+      className="timer-running-indicator animate-pulse"
+      style={indicatorStyle}
     />
   );
 };
