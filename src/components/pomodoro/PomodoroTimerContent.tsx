@@ -33,9 +33,9 @@ const PomodoroTimerContent: React.FC<PomodoroTimerContentProps> = ({
   onStop
 }) => {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 pt-16 pb-8" style={{ zIndex: 3 }}>
-      {/* Timer Display */}
-      <div className="flex items-center justify-center mb-6">
+    <div className="w-full h-full flex flex-col items-center justify-center relative p-8" role="region" aria-label="Pomodoro timer content">
+      {/* Timer Display - positioned in upper center */}
+      <div className="absolute top-16">
         <PomodoroCircularProgress
           progressPercentage={progressPercentage}
           remainingTime={remainingTime}
@@ -45,8 +45,8 @@ const PomodoroTimerContent: React.FC<PomodoroTimerContentProps> = ({
         />
       </div>
       
-      <div className="space-y-4 w-full">
-        {/* Timer Controls */}
+      {/* Controls - positioned in center */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <PomodoroControls
           isActive={isActive}
           sessionCount={sessionCount}
@@ -55,8 +55,10 @@ const PomodoroTimerContent: React.FC<PomodoroTimerContentProps> = ({
           onStartBreak={onStartBreak}
           onStop={onStop}
         />
-        
-        {/* Timer Metadata */}
+      </div>
+      
+      {/* Metadata - positioned at bottom */}
+      <div className="absolute bottom-16">
         <PomodoroMetadata
           currentPhase={currentPhase}
           totalSessions={totalSessions}

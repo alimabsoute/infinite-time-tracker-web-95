@@ -3,7 +3,7 @@ import React from 'react';
 import { PomodoroState } from '@/types/pomodoro';
 import { usePomodoroPhaseData } from './PomodoroPhaseDisplay';
 import { processPomodoroColor } from '@/utils/pomodoroColorProcessor';
-import PomodoroCardContainer from './PomodoroCardContainer';
+import PomodoroCircularContainer from './PomodoroCircularContainer';
 import PomodoroTimerHeader from './PomodoroTimerHeader';
 import PomodoroTimerContent from './PomodoroTimerContent';
 import PomodoroPulseIndicator from './PomodoroPulseIndicator';
@@ -43,41 +43,47 @@ const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = ({
   const colors = processPomodoroColor(rawTimerColor, currentPhase);
 
   return (
-    <PomodoroCardContainer
+    <PomodoroCircularContainer
       phaseLabel={phaseData.label}
       isActive={isActive}
       colors={colors}
       className={className}
     >
-      {/* Header */}
-      <PomodoroTimerHeader
-        phaseLabel={phaseData.label}
-        sessionCount={sessionCount}
-        isActive={isActive}
-        colors={colors}
-      />
+      {/* Header positioned within circle boundaries at top */}
+      <div className="absolute top-0 left-4 right-4 z-20 pt-2">
+        <PomodoroTimerHeader
+          phaseLabel={phaseData.label}
+          sessionCount={sessionCount}
+          isActive={isActive}
+          colors={colors}
+        />
+      </div>
 
-      {/* Main Timer Content */}
-      <PomodoroTimerContent
-        progressPercentage={progressPercentage}
-        remainingTime={remainingTime}
-        isActive={isActive}
-        colors={colors}
-        phaseLabel={phaseData.label}
-        sessionCount={sessionCount}
-        currentPhase={currentPhase}
-        totalSessions={totalSessions}
-        onStartWork={onStartWork}
-        onStartBreak={onStartBreak}
-        onStop={onStop}
-      />
+      {/* Main Timer Content - positioned within circle */}
+      <div className="w-full h-full flex items-center justify-center">
+        <PomodoroTimerContent
+          progressPercentage={progressPercentage}
+          remainingTime={remainingTime}
+          isActive={isActive}
+          colors={colors}
+          phaseLabel={phaseData.label}
+          sessionCount={sessionCount}
+          currentPhase={currentPhase}
+          totalSessions={totalSessions}
+          onStartWork={onStartWork}
+          onStartBreak={onStartBreak}
+          onStop={onStop}
+        />
+      </div>
       
-      {/* Running indicator pulse */}
-      <PomodoroPulseIndicator
-        isActive={isActive}
-        timerColor={colors.primaryBorder}
-      />
-    </PomodoroCardContainer>
+      {/* Running indicator pulse - positioned within circle */}
+      <div className="absolute top-2 right-2 z-10">
+        <PomodoroPulseIndicator
+          isActive={isActive}
+          timerColor={colors.primaryBorder}
+        />
+      </div>
+    </PomodoroCircularContainer>
   );
 };
 

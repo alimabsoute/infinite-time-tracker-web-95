@@ -16,7 +16,7 @@ const TimerCircleBorder: React.FC<TimerCircleBorderProps> = ({
   // Container style for perfect circular constraint
   const containerStyle: React.CSSProperties = {
     position: 'absolute',
-    top: '48px', // Account for header space
+    top: '48px',
     left: '16px',
     right: '16px',
     bottom: '16px',

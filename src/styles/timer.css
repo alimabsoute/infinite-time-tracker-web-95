@@ -14,7 +14,8 @@
 /* ENHANCED PERFECT CIRCLE TIMER SYSTEM - Maximum Specificity */
 
 /* Base timer container styles for perfect circles */
-.timer-circle-container {
+.timer-circle-container,
+.pomodoro-circle-container {
   position: relative !important;
   display: flex !important;
   align-items: center !important;
@@ -25,7 +26,8 @@
 }
 
 /* Circle wrapper for aspect ratio constraint */
-.timer-circle-wrapper {
+.timer-circle-wrapper,
+.pomodoro-circle-wrapper {
   position: relative !important;
   width: 100% !important;
   max-width: 280px !important;
@@ -35,7 +37,8 @@
 }
 
 /* Primary border layer with maximum specificity for perfect circles */
-.timer-primary-border {
+.timer-primary-border,
+.pomodoro-primary-border {
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
@@ -51,7 +54,8 @@
 }
 
 /* Secondary border for enhanced visibility */
-.timer-secondary-border {
+.timer-secondary-border,
+.pomodoro-secondary-border {
   position: absolute !important;
   top: 2px !important;
   left: 2px !important;
@@ -67,7 +71,8 @@
 }
 
 /* Inner content area for perfect circles */
-.timer-inner-content {
+.timer-inner-content,
+.pomodoro-inner-content {
   position: absolute !important;
   top: 8px !important;
   left: 8px !important;
@@ -88,7 +93,12 @@
 .timer-circle-wrapper,
 .timer-primary-border,
 .timer-secondary-border,
-.timer-inner-content {
+.timer-inner-content,
+.pomodoro-circle-container *,
+.pomodoro-circle-wrapper,
+.pomodoro-primary-border,
+.pomodoro-secondary-border,
+.pomodoro-inner-content {
   -webkit-border-radius: 50% !important;
   -moz-border-radius: 50% !important;
   border-radius: 50% !important;
@@ -99,19 +109,37 @@
 
 /* Enhanced aspect ratio support for perfect circles */
 @supports not (aspect-ratio: 1) {
-  .timer-circle-wrapper::before {
+  .timer-circle-wrapper::before,
+  .pomodoro-circle-wrapper::before {
     content: "" !important;
     display: block !important;
     padding-top: 100% !important;
     width: 100% !important;
   }
   
-  .timer-circle-wrapper > * {
+  .timer-circle-wrapper > *,
+  .pomodoro-circle-wrapper > * {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 100% !important;
     height: 100% !important;
+  }
+}
+
+/* Running animation for both timer types */
+.timer-running-animation {
+  animation: timer-pulse 2s infinite ease-in-out !important;
+}
+
+@keyframes timer-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.9;
   }
 }
 
@@ -124,7 +152,8 @@
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .timer-primary-border {
+  .timer-primary-border,
+  .pomodoro-primary-border {
     border-width: 8px !important;
   }
 }
@@ -159,20 +188,6 @@
   top: 4px !important;
   right: 4px !important;
   z-index: 20 !important;
-}
-
-/* Force visibility debugging classes */
-.debug-timer-border {
-  border: 6px solid red !important;
-  background: rgba(255, 0, 0, 0.1) !important;
-  aspect-ratio: 1 !important;
-  border-radius: 50% !important;
-}
-
-.debug-timer-content {
-  background: rgba(0, 255, 0, 0.1) !important;
-  aspect-ratio: 1 !important;
-  border-radius: 50% !important;
 }
 
 /* Enhanced circular progress bars */
