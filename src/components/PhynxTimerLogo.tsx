@@ -26,29 +26,29 @@ const PhynxTimerLogo: React.FC<PhynxTimerLogoProps> = ({
         cx="16"
         cy="16"
         r="14"
-        stroke="currentColor"
+        stroke="#3B82F6"
         strokeWidth="2"
         fill="none"
-        opacity="0.2"
+        opacity="0.3"
       />
       
       {/* Inner timer segments */}
       <path
         d="M16 4 A12 12 0 0 1 28 16"
-        stroke="currentColor"
+        stroke="#1D4ED8"
         strokeWidth="3"
         fill="none"
         strokeLinecap="round"
-        opacity="0.8"
+        opacity="1"
       />
       
       <path
         d="M28 16 A12 12 0 0 1 16 28"
-        stroke="currentColor"
+        stroke="#2563EB"
         strokeWidth="2"
         fill="none"
         strokeLinecap="round"
-        opacity="0.6"
+        opacity="0.8"
       />
       
       {/* Center dot representing active timer */}
@@ -56,7 +56,7 @@ const PhynxTimerLogo: React.FC<PhynxTimerLogoProps> = ({
         cx="16"
         cy="16"
         r="2"
-        fill="currentColor"
+        fill="#1E40AF"
       />
       
       {/* Timer hand/pointer */}
@@ -65,16 +65,16 @@ const PhynxTimerLogo: React.FC<PhynxTimerLogoProps> = ({
         y1="16"
         x2="16"
         y2="8"
-        stroke="currentColor"
+        stroke="#1E40AF"
         strokeWidth="2"
         strokeLinecap="round"
       />
       
       {/* Small accent marks for time intervals */}
-      <circle cx="16" cy="6" r="1" fill="currentColor" opacity="0.6" />
-      <circle cx="26" cy="16" r="1" fill="currentColor" opacity="0.6" />
-      <circle cx="16" cy="26" r="1" fill="currentColor" opacity="0.6" />
-      <circle cx="6" cy="16" r="1" fill="currentColor" opacity="0.6" />
+      <circle cx="16" cy="6" r="1" fill="#3B82F6" opacity="0.8" />
+      <circle cx="26" cy="16" r="1" fill="#3B82F6" opacity="0.8" />
+      <circle cx="16" cy="26" r="1" fill="#3B82F6" opacity="0.8" />
+      <circle cx="6" cy="16" r="1" fill="#3B82F6" opacity="0.8" />
     </svg>
   );
 };
