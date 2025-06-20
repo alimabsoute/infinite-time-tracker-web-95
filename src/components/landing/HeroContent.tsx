@@ -49,7 +49,7 @@ const HeroContent = () => {
         transition={{ delay: 0.2, duration: 0.8 }}
         className="inline-flex items-center gap-3 mb-6"
       >
-        <PhynxTimerLogo width={48} height={48} className="text-primary" />
+        <PhynxTimerLogo width={96} height={96} className="text-primary" />
         <h1 className="text-5xl md:text-7xl font-bold">PhynxTimer</h1>
       </motion.div>
       

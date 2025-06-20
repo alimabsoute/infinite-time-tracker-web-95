@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Calendar, Home, Table, Crown, Lightbulb } from "lucide-react";
@@ -30,7 +29,7 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between px-4 max-w-5xl mx-auto">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2">
-            <PhynxTimerLogo width={32} height={32} className="text-primary" />
+            <PhynxTimerLogo width={64} height={64} className="text-primary" />
             <span className="text-xl font-semibold">PhynxTimer</span>
           </Link>
           
@@ -65,7 +64,7 @@ const Header = () => {
                 variant={location.pathname === "/dashboard" ? "secondary" : "ghost"} 
                 className="gap-2"
               >
-                <PhynxTimerLogo width={16} height={16} className="text-current opacity-70" />
+                <PhynxTimerLogo width={32} height={32} className="text-current opacity-70" />
                 <span className="hidden sm:inline">Timers</span>
               </Button>
             </Link>

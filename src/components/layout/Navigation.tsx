@@ -58,7 +58,7 @@ const Navigation = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center space-x-8">
             <Link to="/dashboard" className="flex items-center space-x-2">
-              <PhynxTimerLogo className="h-8 w-8" />
+              <PhynxTimerLogo className="h-16 w-16" width={64} height={64} />
               <span className="text-xl font-bold text-gray-900">PhynxTimer</span>
             </Link>
             

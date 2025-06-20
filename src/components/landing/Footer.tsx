@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Github, Twitter, Instagram } from "lucide-react";
@@ -13,7 +12,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-10">
           <div className="space-y-4">
             <div className="flex items-center">
-              <PhynxTimerLogo width={24} height={24} className="text-primary mr-2" />
+              <PhynxTimerLogo width={48} height={48} className="text-primary mr-2" />
               <span className="text-xl font-semibold">PhynxTimer</span>
             </div>
             <p className="text-muted-foreground">

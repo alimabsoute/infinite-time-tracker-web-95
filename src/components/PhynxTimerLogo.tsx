@@ -9,8 +9,8 @@ interface PhynxTimerLogoProps {
 
 const PhynxTimerLogo: React.FC<PhynxTimerLogoProps> = ({
   className = "",
-  width = 32,
-  height = 32
+  width = 64, // Increased default size from 32 to 64 (2x larger)
+  height = 64 // Increased default size from 32 to 64 (2x larger)
 }) => {
   return (
     <img
