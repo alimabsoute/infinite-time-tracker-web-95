@@ -13,6 +13,7 @@ import Insights from "./pages/Insights";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import Goals from "./pages/Goals";
+import ActiveTimers from "./pages/ActiveTimers";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -58,6 +59,7 @@ const App = () => (
                 {/* Protected routes */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/dashboard" element={<Index />} />
+                  <Route path="/active-timers" element={<ActiveTimers />} />
                   <Route path="/insights" element={<Insights />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/reports" element={<Reports />} />
