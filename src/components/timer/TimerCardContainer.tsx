@@ -1,13 +1,10 @@
-
 import React from 'react';
-
 interface TimerCardContainerProps {
   name: string;
   category?: string;
   timerId: string;
   children: React.ReactNode;
 }
-
 const TimerCardContainer: React.FC<TimerCardContainerProps> = ({
   name,
   category,
@@ -27,34 +24,19 @@ const TimerCardContainer: React.FC<TimerCardContainerProps> = ({
     minWidth: '320px',
     minHeight: '320px'
   };
-
-  return (
-    <article 
-      className="group hover:scale-95"
-      role="region"
-      aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`}
-      tabIndex={0}
-      style={containerStyle}
-    >
+  return <article role="region" aria-label={`Timer for ${name}${category ? ` in category ${category}` : ''}`} tabIndex={0} style={containerStyle} className="group hover:scale-95 bg-transparent">
       {children}
       
       {/* Debug border for development - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div 
-          className="absolute pointer-events-none z-50"
-          style={{
-            top: '48px',
-            left: '16px',
-            right: '16px',
-            bottom: '16px',
-            border: '2px dashed rgba(255, 0, 0, 0.3)',
-            borderRadius: '50%',
-            aspectRatio: '1'
-          }}
-        />
-      )}
-    </article>
-  );
+      {process.env.NODE_ENV === 'development' && <div className="absolute pointer-events-none z-50" style={{
+      top: '48px',
+      left: '16px',
+      right: '16px',
+      bottom: '16px',
+      border: '2px dashed rgba(255, 0, 0, 0.3)',
+      borderRadius: '50%',
+      aspectRatio: '1'
+    }} />}
+    </article>;
 };
-
 export default TimerCardContainer;
