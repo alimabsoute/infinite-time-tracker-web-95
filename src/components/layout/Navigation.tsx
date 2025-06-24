@@ -6,11 +6,11 @@ import {
   BarChart3, 
   Calendar, 
   FileText, 
-  Target,
   Play,
   User,
   LogOut,
-  Settings
+  Settings,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import PhynxTimerLogo from '../PhynxTimerLogo';
@@ -32,9 +32,9 @@ const Navigation = () => {
     { path: '/dashboard', label: 'Dashboard', icon: Timer },
     { path: '/active-timers', label: 'Active Timers', icon: Play },
     { path: '/insights', label: 'Insights', icon: BarChart3 },
+    { path: '/analytics', label: 'Analytics', icon: TrendingUp },
     { path: '/calendar', label: 'Calendar', icon: Calendar },
     { path: '/reports', label: 'Reports', icon: FileText },
-    { path: '/goals', label: 'Goals', icon: Target },
   ];
 
   const handleSignOut = async () => {

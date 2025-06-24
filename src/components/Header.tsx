@@ -1,6 +1,7 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Calendar, Home, Table, Crown, Lightbulb } from "lucide-react";
+import { Calendar, Home, Table, Crown, BarChart3 } from "lucide-react";
 import PhynxTimerLogo from "./PhynxTimerLogo";
 import AuthHeader from "./AuthHeader";
 import { useAuth } from "@/contexts/AuthContext";
@@ -74,8 +75,18 @@ const Header = () => {
                 variant={location.pathname === "/insights" ? "secondary" : "ghost"} 
                 className="gap-2"
               >
-                <Lightbulb size={18} />
+                <BarChart3 size={18} />
                 <span className="hidden sm:inline">Insights</span>
+              </Button>
+            </Link>
+            
+            <Link to="/analytics">
+              <Button 
+                variant={location.pathname === "/analytics" ? "secondary" : "ghost"} 
+                className="gap-2"
+              >
+                <BarChart3 size={18} />
+                <span className="hidden sm:inline">Analytics</span>
               </Button>
             </Link>
             

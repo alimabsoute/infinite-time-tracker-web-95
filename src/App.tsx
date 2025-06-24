@@ -12,7 +12,7 @@ import Index from "./pages/Index";
 import Insights from "./pages/Insights";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
-import Goals from "./pages/Goals";
+import Analytics from "./pages/Analytics";
 import ActiveTimers from "./pages/ActiveTimers";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -63,11 +63,12 @@ const App = () => (
                   <Route path="/insights" element={<Insights />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/reports" element={<Reports />} />
-                  <Route path="/goals" element={<Goals />} />
+                  <Route path="/analytics" element={<Analytics />} />
                   <Route path="/profile" element={<Profile />} />
                 </Route>
                 
-                {/* Handle old "/" route redirecting to "/dashboard" for existing users */}
+                {/* Handle old "/goals" route redirecting to "/analytics" */}
+                <Route path="/goals" element={<Navigate to="/analytics" replace />} />
                 <Route path="/index" element={<Navigate to="/dashboard" replace />} />
                 
                 {/* Catch-all route */}
