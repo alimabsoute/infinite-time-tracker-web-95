@@ -1,3 +1,4 @@
+
 import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -24,6 +25,22 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "off",
+      // Custom rule to prevent debug borders
+      "no-restricted-syntax": [
+        "error",
+        {
+          "selector": "Literal[value=/.*debug.*border.*/i]",
+          "message": "Debug borders are not allowed in production code. Use proper styling instead."
+        },
+        {
+          "selector": "Literal[value=/.*border.*dashed.*red.*/i]",
+          "message": "Red dashed debug borders are not allowed. Remove debug styling."
+        },
+        {
+          "selector": "Property[key.name='border'][value.value=/.*red.*/i]",
+          "message": "Red borders should not be used for debugging. Use proper CSS classes."
+        }
+      ]
     },
   }
 );

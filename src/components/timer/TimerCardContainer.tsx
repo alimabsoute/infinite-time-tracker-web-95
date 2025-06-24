@@ -37,22 +37,6 @@ const TimerCardContainer: React.FC<TimerCardContainerProps> = ({
       style={containerStyle}
     >
       {children}
-      
-      {/* Debug border for development - remove in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div 
-          className="absolute pointer-events-none z-50"
-          style={{
-            top: '48px',
-            left: '16px',
-            right: '16px',
-            bottom: '16px',
-            border: '2px dashed rgba(255, 0, 0, 0.3)',
-            borderRadius: '50%',
-            aspectRatio: '1'
-          }}
-        />
-      )}
     </article>
   );
 };

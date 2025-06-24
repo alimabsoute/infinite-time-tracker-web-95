@@ -115,13 +115,6 @@
   }
 }
 
-/* Fallback borders for browser compatibility */
-.timer-fallback-border {
-  border: 6px solid #3B82F6 !important;
-  border-radius: 50% !important;
-  aspect-ratio: 1 !important;
-}
-
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .timer-primary-border {
@@ -159,20 +152,6 @@
   top: 4px !important;
   right: 4px !important;
   z-index: 20 !important;
-}
-
-/* Force visibility debugging classes */
-.debug-timer-border {
-  border: 6px solid red !important;
-  background: rgba(255, 0, 0, 0.1) !important;
-  aspect-ratio: 1 !important;
-  border-radius: 50% !important;
-}
-
-.debug-timer-content {
-  background: rgba(0, 255, 0, 0.1) !important;
-  aspect-ratio: 1 !important;
-  border-radius: 50% !important;
 }
 
 /* Enhanced circular progress bars */
