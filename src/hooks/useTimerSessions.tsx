@@ -3,19 +3,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-
-interface TimerSession {
-  id: string;
-  timer_id: string;
-  user_id: string;
-  start_time: string;
-  end_time: string | null;
-  duration_ms: number | null;
-  created_at: string;
-}
+import { TimerSessionWithTimer } from '../types';
 
 export const useTimerSessions = () => {
-  const [sessions, setSessions] = useState<TimerSession[]>([]);
+  const [sessions, setSessions] = useState<TimerSessionWithTimer[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -27,7 +18,14 @@ export const useTimerSessions = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('timer_sessions')
-        .select('*')
+        .select(`
+          *,
+          timers (
+            id,
+            name,
+            category
+          )
+        `)
         .eq('user_id', user.id)
         .order('start_time', { ascending: false });
 
