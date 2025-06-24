@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { useTimers } from '../hooks/useTimers';
-import { useTimerSessionsData } from '../hooks/useTimerSessions';
+import { useTimerSessions } from '../hooks/useTimerSessions';
 import PageLayout from '../components/layout/PageLayout';
 import QuickInsightsDashboard from '../components/insights/QuickInsightsDashboard';
 
 const Insights = () => {
   const { timers, loading } = useTimers();
-  const { sessions } = useTimerSessionsData();
+  const { sessions } = useTimerSessions();
 
   if (loading) {
     return (
