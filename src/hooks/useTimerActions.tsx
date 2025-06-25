@@ -17,7 +17,7 @@ export const useTimerActions = ({
   setConfettiTrigger, 
   clearConfettiTrigger 
 }: UseTimerActionsProps) => {
-  // Timer creation functionality
+  // Timer creation functionality with enhanced animations
   const { addTimer } = useTimerCreation({
     timers,
     setTimers,
@@ -25,7 +25,7 @@ export const useTimerActions = ({
     clearConfettiTrigger
   });
 
-  // Timer operations (toggle, reset, delete)
+  // Timer operations (toggle, reset, delete) with enhanced animations
   const { toggleTimer, resetTimer, deleteTimer } = useTimerOperations({
     timers,
     setTimers

@@ -86,7 +86,7 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
     return addDays(new Date(), 7); // Default to next week
   };
 
-  // Enhanced insight cards with combined data
+  // Enhanced insight cards with combined data - removed flickering realTimeUpdate animations
   const insightCards = [
     {
       headline: "Combined productivity overview",
@@ -97,7 +97,6 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
       color: 'text-blue-500',
       bgColor: 'bg-blue-50',
       actionable: combinedMetrics.totalCombinedTime < 3600000, // Less than 1 hour
-      realTimeUpdate: true
     },
     {
       headline: "Your productivity is trending upward",
@@ -112,7 +111,6 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
         targetDate: getWeekEndTarget(),
         label: "Week ends in"
       } : undefined,
-      realTimeUpdate: true
     },
     {
       headline: "Most productive timer identified",
@@ -127,7 +125,6 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
       color: 'text-purple-500',
       bgColor: 'bg-purple-50',
       actionable: !combinedMetrics.topTimer,
-      realTimeUpdate: true
     },
     {
       headline: "Peak performance window identified",
@@ -162,7 +159,6 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
       color: insights.averageSessionTime >= 25 * 60 * 1000 ? 'text-green-500' : 'text-yellow-500',
       bgColor: insights.averageSessionTime >= 25 * 60 * 1000 ? 'bg-green-50' : 'bg-yellow-50',
       actionable: insights.averageSessionTime < 20 * 60 * 1000,
-      realTimeUpdate: true
     },
     {
       headline: "Consistency score",
@@ -189,7 +185,6 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
       bgColor: insights.productivityScore >= 70 ? 'bg-green-50' : 
                insights.productivityScore >= 40 ? 'bg-yellow-50' : 'bg-red-50',
       actionable: insights.productivityScore < 70,
-      realTimeUpdate: true
     }
   ];
 
@@ -233,7 +228,7 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Real-time status indicator */}
+      {/* Real-time status indicator - static to prevent flickering */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -260,7 +255,6 @@ const QuickInsightsDashboard: React.FC<QuickInsightsDashboardProps> = ({
             bgColor={insight.bgColor}
             actionable={insight.actionable}
             countdown={insight.countdown}
-            realTimeUpdate={insight.realTimeUpdate}
           />
         ))}
       </div>

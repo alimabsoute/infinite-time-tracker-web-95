@@ -106,18 +106,18 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   
   return (
     <motion.div 
-      className="grid grid-cols-1 md:grid-cols-3 gap-6"
+      className="grid grid-cols-1 lg:grid-cols-4 gap-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Upcoming Deadlines Section */}
+      {/* Upcoming Deadlines Section - spans full width */}
       <div className="col-span-full">
         <UpcomingDeadlines timers={timers} />
       </div>
 
-      {/* Calendar view - takes up 2 columns */}
-      <Card className="md:col-span-2 glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
+      {/* Calendar view - takes up 3 columns on large screens */}
+      <Card className="lg:col-span-3 glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
         <CalendarHeader 
           currentMonth={currentMonth} 
           onMonthChange={handleMonthChange} 
@@ -134,11 +134,11 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
           <motion.div
             layout
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="flex justify-start mt-4 pl-8"
+            className="flex justify-center mt-4"
           >
             {calendarView === 'month' ? (
               <TooltipProvider delayDuration={500} skipDelayDuration={200}>
-                <div className="flex justify-center">
+                <div className="flex justify-center w-full">
                   <Calendar
                     mode="single"
                     selected={selectedDate}
@@ -146,8 +146,8 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
                     month={currentMonth}
                     onMonthChange={setCurrentMonth}
                     className={cn(
-                      "rounded-md border border-border/40 p-4 pointer-events-auto transform scale-125",
-                      "w-full max-w-[600px]"
+                      "rounded-md border border-border/40 p-3 pointer-events-auto",
+                      "w-full max-w-[500px]"
                     )}
                     components={{
                       Day: enhancedDayRenderer
@@ -184,7 +184,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
-        className="space-y-6"
+        className="space-y-4"
       >
         <CalendarSidebar
           currentMonth={currentMonth}

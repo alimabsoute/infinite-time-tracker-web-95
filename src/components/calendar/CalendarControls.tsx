@@ -20,9 +20,9 @@ const CalendarControls: React.FC<CalendarControlsProps> = ({
   setCurrentMonth,
 }) => {
   return (
-    <>
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex space-x-1">
+    <div className="space-y-3">
+      <div className="flex justify-between items-center">
+        <div className="flex space-x-2">
           <Button 
             variant="outline" 
             size="sm" 
@@ -44,7 +44,7 @@ const CalendarControls: React.FC<CalendarControlsProps> = ({
       </div>
 
       {/* Calendar navigation */}
-      <div className="flex justify-center mt-4 gap-2">
+      <div className="flex justify-center gap-2">
         <Button 
           variant="outline" 
           size="sm" 
@@ -59,7 +59,7 @@ const CalendarControls: React.FC<CalendarControlsProps> = ({
           variant="default" 
           size="sm"
           onClick={() => setCurrentMonth(new Date())}
-          className="flex items-center"
+          className="flex items-center px-4"
         >
           Today
         </Button>
@@ -74,7 +74,7 @@ const CalendarControls: React.FC<CalendarControlsProps> = ({
           <ArrowRight size={14} className="ml-1" />
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 

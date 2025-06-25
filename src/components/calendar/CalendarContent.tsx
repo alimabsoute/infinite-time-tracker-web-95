@@ -50,46 +50,19 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
   });
 
   return (
-    <div className="space-y-4">
-      {/* Debug Component - Remove after testing */}
-      <SessionDataDebug sessions={sessions} selectedDate={selectedDate} />
-      
-      <Tabs defaultValue="calendar" className="w-full mb-6">
+    <div className="space-y-4">      
+      <Tabs defaultValue="analytics" className="w-full mb-6">
         <TabsList className="grid grid-cols-2 w-full mb-4">
-          <TabsTrigger value="calendar">
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            Calendar
-          </TabsTrigger>
           <TabsTrigger value="analytics" className="relative">
             <Activity className="mr-2 h-4 w-4" />
             Advanced Analytics
             {!subscribed && <Crown className="ml-1 h-3 w-3" />}
           </TabsTrigger>
+          <TabsTrigger value="calendar">
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            Calendar
+          </TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="calendar" className="mt-0">
-          <CalendarMainView
-            currentMonth={currentMonth}
-            handleMonthChange={handleMonthChange}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            setCurrentMonth={setCurrentMonth}
-            timers={timers}
-            sessions={sessions}
-            filteredTimers={[]} // This is deprecated now
-            categoryFilter={categoryFilter}
-            setCategoryFilter={setCategoryFilter}
-            categories={categories}
-          />
-          
-          {selectedDate && (
-            <WeekView 
-              selectedDate={selectedDate}
-              sessions={sessions}
-              setSelectedDate={setSelectedDate}
-            />
-          )}
-        </TabsContent>
         
         <TabsContent value="analytics">
           <motion.div
@@ -116,6 +89,33 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
               </div>
             )}
           </motion.div>
+        </TabsContent>
+        
+        <TabsContent value="calendar" className="mt-0">
+          <CalendarMainView
+            currentMonth={currentMonth}
+            handleMonthChange={handleMonthChange}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            setCurrentMonth={setCurrentMonth}
+            timers={timers}
+            sessions={sessions}
+            filteredTimers={[]} // This is deprecated now
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            categories={categories}
+          />
+          
+          {selectedDate && (
+            <WeekView 
+              selectedDate={selectedDate}
+              sessions={sessions}
+              setSelectedDate={setSelectedDate}
+            />
+          )}
+
+          {/* Debug Component moved to bottom of Calendar tab */}
+          <SessionDataDebug sessions={sessions} selectedDate={selectedDate} />
         </TabsContent>
       </Tabs>
     </div>

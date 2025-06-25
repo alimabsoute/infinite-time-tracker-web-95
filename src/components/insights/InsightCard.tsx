@@ -34,7 +34,7 @@ const InsightCard: React.FC<InsightCardProps> = ({
   realTimeUpdate = false
 }) => {
   return (
-    <Card className={`glass-effect hover:shadow-lg transition-all duration-200 ${realTimeUpdate ? 'animate-pulse' : ''}`}>
+    <Card className="glass-effect hover:shadow-lg transition-all duration-200 insight-card-hover">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className={`p-2 rounded-lg ${bgColor}`}>
