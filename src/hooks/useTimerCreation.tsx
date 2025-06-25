@@ -11,6 +11,7 @@ interface UseTimerCreationProps {
   timers: Timer[];
   setTimers: React.Dispatch<React.SetStateAction<Timer[]>>;
   setConfettiTrigger: React.Dispatch<React.SetStateAction<{ x: number; y: number; id: string } | null>>;
+  setCelebrationTrigger: React.Dispatch<React.SetStateAction<{ type: 'fireworks' | 'sparkles' | null }>>;
   clearConfettiTrigger: () => void;
 }
 
@@ -18,6 +19,7 @@ export const useTimerCreation = ({
   timers, 
   setTimers, 
   setConfettiTrigger, 
+  setCelebrationTrigger,
   clearConfettiTrigger 
 }: UseTimerCreationProps) => {
   const { user } = useAuth();
@@ -141,13 +143,17 @@ export const useTimerCreation = ({
         }))
       ]);
       
-      console.log('🎊 Triggering confetti...');
+      console.log('🎊 Triggering celebration animations...');
       clearConfettiTrigger();
       
       // Trigger confetti animation at center of screen
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       setConfettiTrigger({ x: centerX, y: centerY, id: newTimer.id });
+      
+      // Randomly choose between fireworks and sparkles for additional celebration
+      const celebrationType = Math.random() > 0.5 ? 'fireworks' : 'sparkles';
+      setCelebrationTrigger({ type: celebrationType });
       
       if (runningTimers.length > 0) {
         toast.success("Timer created and started", {
@@ -168,7 +174,7 @@ export const useTimerCreation = ({
       toast.error("Failed to create timer");
       return "";
     }
-  }, [user, timers, clearConfettiTrigger, canCreateTimer, getTimerLimit, setTimers, setConfettiTrigger, createSession, endSession]);
+  }, [user, timers, clearConfettiTrigger, canCreateTimer, getTimerLimit, setTimers, setConfettiTrigger, setCelebrationTrigger, createSession, endSession]);
 
   return {
     addTimer

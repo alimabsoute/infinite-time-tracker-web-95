@@ -8,6 +8,7 @@ interface UseTimerActionsProps {
   timers: Timer[];
   setTimers: React.Dispatch<React.SetStateAction<Timer[]>>;
   setConfettiTrigger: React.Dispatch<React.SetStateAction<{ x: number; y: number; id: string } | null>>;
+  setCelebrationTrigger: React.Dispatch<React.SetStateAction<{ type: 'fireworks' | 'sparkles' | null }>>;
   clearConfettiTrigger: () => void;
 }
 
@@ -15,6 +16,7 @@ export const useTimerActions = ({
   timers, 
   setTimers, 
   setConfettiTrigger, 
+  setCelebrationTrigger,
   clearConfettiTrigger 
 }: UseTimerActionsProps) => {
   // Timer creation functionality with enhanced animations
@@ -22,6 +24,7 @@ export const useTimerActions = ({
     timers,
     setTimers,
     setConfettiTrigger,
+    setCelebrationTrigger,
     clearConfettiTrigger
   });
 

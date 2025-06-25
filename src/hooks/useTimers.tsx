@@ -12,7 +12,9 @@ import { useTimerRealtime } from "./useTimerRealtime";
 
 export const useTimers = () => {
   const [confettiTrigger, setConfettiTrigger] = useState<{ x: number; y: number; id: string } | null>(null);
+  const [celebrationTrigger, setCelebrationTrigger] = useState<{ type: 'fireworks' | 'sparkles' | null }>({ type: null });
   const confettiTimeoutRef = useRef<NodeJS.Timeout>();
+  const celebrationTimeoutRef = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
   const { updateTimerData } = useNotifications();
   
@@ -43,11 +45,21 @@ export const useTimers = () => {
     setConfettiTrigger(null);
   }, []);
 
+  // Clear celebration trigger function
+  const clearCelebrationTrigger = useCallback(() => {
+    console.log('🧹 Clearing celebration trigger');
+    if (celebrationTimeoutRef.current) {
+      clearTimeout(celebrationTimeoutRef.current);
+    }
+    setCelebrationTrigger({ type: null });
+  }, []);
+
   // Timer actions
   const timerActions = useTimerActions({ 
     timers, 
     setTimers, 
     setConfettiTrigger, 
+    setCelebrationTrigger,
     clearConfettiTrigger 
   });
 
@@ -182,6 +194,8 @@ export const useTimers = () => {
     loading,
     ...timerActions,
     confettiTrigger,
+    celebrationTrigger,
     clearConfettiTrigger,
+    clearCelebrationTrigger,
   };
 };

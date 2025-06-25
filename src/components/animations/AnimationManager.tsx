@@ -1,16 +1,14 @@
 
 import React from 'react';
 import DeletionAnimation from './DeletionAnimations';
-import CreationAnimation from './CreationAnimations';
 
 export type DeletionAnimationType = 'explode' | 'melt' | 'crumble' | 'vaporize';
-export type CreationAnimationType = 'sparkle' | 'bounce' | 'glow' | 'spiral' | 'rainbow';
 
 interface AnimationManagerProps {
   children: React.ReactNode;
-  type: 'creation' | 'deletion';
+  type: 'deletion';
   onComplete: () => void;
-  animationType?: DeletionAnimationType | CreationAnimationType;
+  animationType?: DeletionAnimationType;
 }
 
 const AnimationManager: React.FC<AnimationManagerProps> = ({
@@ -24,13 +22,8 @@ const AnimationManager: React.FC<AnimationManagerProps> = ({
     return animations[Math.floor(Math.random() * animations.length)];
   };
 
-  const getRandomCreationAnimation = (): CreationAnimationType => {
-    const animations: CreationAnimationType[] = ['sparkle', 'bounce', 'glow', 'spiral', 'rainbow'];
-    return animations[Math.floor(Math.random() * animations.length)];
-  };
-
   if (type === 'deletion') {
-    const selectedAnimation = (animationType as DeletionAnimationType) || getRandomDeletionAnimation();
+    const selectedAnimation = animationType || getRandomDeletionAnimation();
     return (
       <DeletionAnimation 
         animationType={selectedAnimation} 
@@ -38,18 +31,6 @@ const AnimationManager: React.FC<AnimationManagerProps> = ({
       >
         {children}
       </DeletionAnimation>
-    );
-  }
-
-  if (type === 'creation') {
-    const selectedAnimation = (animationType as CreationAnimationType) || getRandomCreationAnimation();
-    return (
-      <CreationAnimation 
-        animationType={selectedAnimation} 
-        onComplete={onComplete}
-      >
-        {children}
-      </CreationAnimation>
     );
   }
 

@@ -5,6 +5,7 @@ import PageLayout from "../components/layout/PageLayout";
 import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import ConfettiAnimation from "../components/animations/ConfettiAnimation";
+import CelebrationAnimations from "../components/animations/CelebrationAnimations";
 
 const Index = () => {
   const {
@@ -19,7 +20,9 @@ const Index = () => {
     updatePriority,
     reorderTimers,
     confettiTrigger,
+    celebrationTrigger,
     clearConfettiTrigger,
+    clearCelebrationTrigger,
   } = useTimers();
   
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
@@ -76,6 +79,14 @@ const Index = () => {
           x={confettiTrigger.x}
           y={confettiTrigger.y}
           onComplete={clearConfettiTrigger}
+        />
+      )}
+      
+      {/* Celebration Animations */}
+      {celebrationTrigger.type && (
+        <CelebrationAnimations
+          type={celebrationTrigger.type}
+          onComplete={clearCelebrationTrigger}
         />
       )}
     </PageLayout>
