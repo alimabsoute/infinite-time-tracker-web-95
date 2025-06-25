@@ -1,15 +1,12 @@
 
 import React from 'react';
 import { format, addMonths, subMonths } from 'date-fns';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, ZoomIn, ZoomOut, ArrowLeft, ArrowRight } from 'lucide-react';
+import { CalendarIcon, ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface CalendarControlsProps {
   currentMonth: Date;
-  isExpanded: boolean;
   calendarView: 'month' | 'year';
-  toggleExpand: () => void;
   toggleYearView: () => void;
   goToToday: () => void;
   setCurrentMonth: (date: Date) => void;
@@ -17,9 +14,7 @@ interface CalendarControlsProps {
 
 const CalendarControls: React.FC<CalendarControlsProps> = ({
   currentMonth,
-  isExpanded,
   calendarView,
-  toggleExpand,
   toggleYearView,
   goToToday,
   setCurrentMonth,
@@ -46,16 +41,6 @@ const CalendarControls: React.FC<CalendarControlsProps> = ({
             Today
           </Button>
         </div>
-        
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={toggleExpand}
-          className="text-xs flex items-center gap-1 h-8"
-        >
-          {isExpanded ? <ZoomOut size={14} /> : <ZoomIn size={14} />}
-          {isExpanded ? "Compact View" : "Expand Calendar"}
-        </Button>
       </div>
 
       {/* Calendar navigation */}

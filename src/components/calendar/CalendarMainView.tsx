@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
 import { motion } from "framer-motion";
@@ -14,6 +15,7 @@ import CalendarStats from "./CalendarStats";
 import ColorLegend from "./ColorLegend";
 import { renderDay } from "./CustomDayRenderer";
 import UpcomingDeadlines from "./UpcomingDeadlines";
+import CalendarSidebar from "./CalendarSidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface CalendarMainViewProps {
@@ -42,7 +44,6 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   setCategoryFilter,
   categories
 }) => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [calendarView, setCalendarView] = useState<'month' | 'year'>('month');
 
   console.log('CalendarMainView - timers:', timers.length);
@@ -81,11 +82,6 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
       day.totalTime > max.totalTime ? day : max, daysWithData[0]);
   }, [daysWithData]);
 
-  // Toggle calendar size
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   // Toggle year view
   const toggleYearView = () => {
     setCalendarView(calendarView === 'month' ? 'year' : 'month');
@@ -110,7 +106,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
   
   return (
     <motion.div 
-      className={`grid grid-cols-1 ${isExpanded ? 'md:grid-cols-1' : 'md:grid-cols-3'} gap-6`}
+      className="grid grid-cols-1 md:grid-cols-3 gap-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
@@ -120,11 +116,8 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
         <UpcomingDeadlines timers={timers} />
       </div>
 
-      {/* Calendar view */}
-      <Card className={cn(
-        `${isExpanded ? 'md:col-span-1' : 'md:col-span-2'} glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300`,
-        isExpanded && "col-span-1"
-      )}>
+      {/* Calendar view - takes up 2 columns */}
+      <Card className="md:col-span-2 glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
         <CalendarHeader 
           currentMonth={currentMonth} 
           onMonthChange={handleMonthChange} 
@@ -132,9 +125,7 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
         <CardContent className="p-4 pt-0">
           <CalendarControls
             currentMonth={currentMonth}
-            isExpanded={isExpanded}
             calendarView={calendarView}
-            toggleExpand={toggleExpand}
             toggleYearView={toggleYearView}
             goToToday={goToToday}
             setCurrentMonth={setCurrentMonth}
@@ -188,15 +179,26 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
         </CardContent>
       </Card>
       
-      {/* Daily details - always show when not expanded */}
-      {!isExpanded && (
-        <motion.div
-          key={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "no-date"}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
-        >
+      {/* Sidebar - takes up 1 column */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+        className="space-y-6"
+      >
+        <CalendarSidebar
+          currentMonth={currentMonth}
+          selectedDate={selectedDate}
+          timers={timers}
+          sessions={sessions}
+          onDateSelect={(date) => {
+            setSelectedDate(date);
+            setCurrentMonth(date);
+          }}
+        />
+        
+        {/* Daily details card */}
+        {selectedDate && (
           <Card className="glass-effect border border-border/30 shadow-lg hover:shadow-xl transition-all duration-300">
             <CardContent className="pt-6">
               <DayView
@@ -210,8 +212,8 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
               />
             </CardContent>
           </Card>
-        </motion.div>
-      )}
+        )}
+      </motion.div>
     </motion.div>
   );
 };
