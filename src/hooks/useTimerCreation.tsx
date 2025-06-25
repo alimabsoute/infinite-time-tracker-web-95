@@ -48,7 +48,7 @@ export const useTimerCreation = ({
         id: crypto.randomUUID(),
         name,
         elapsedTime: 0,
-        isRunning: false, // Start as false, will be set to true after successful creation
+        isRunning: false,
         createdAt: now,
         category,
       };
@@ -80,7 +80,7 @@ export const useTimerCreation = ({
       await Promise.all(endPromises);
       console.log('✅ All sessions ended successfully');
       
-      // First, insert the timer into the database
+      // Insert the timer into the database
       console.log('💾 Inserting timer into database...');
       const { error: insertError } = await supabase
         .from('timers')
@@ -88,7 +88,7 @@ export const useTimerCreation = ({
           id: newTimer.id,
           name: newTimer.name,
           elapsed_time: newTimer.elapsedTime,
-          is_running: false, // Insert as false initially
+          is_running: false,
           created_at: newTimer.createdAt.toISOString(),
           category: newTimer.category,
           user_id: user.id
@@ -101,7 +101,7 @@ export const useTimerCreation = ({
       }
       console.log('✅ Timer inserted successfully');
 
-      // Now that the timer exists in the database, create a session and start it
+      // Create a session and start the timer
       console.log('🎯 Creating session for timer...');
       const sessionId = await createSession(newTimer.id, now);
       if (!sessionId) {
@@ -120,7 +120,6 @@ export const useTimerCreation = ({
 
       if (updateError) {
         console.error("❌ Error updating timer to running:", updateError);
-        // Timer was created but couldn't be started - still return success
       } else {
         console.log('✅ Timer updated to running state');
       }
@@ -131,7 +130,7 @@ export const useTimerCreation = ({
       newTimer.sessionStartTime = now;
 
       console.log('🔄 Updating local state...');
-      // Optimistic update - add new timer and pause others
+      // Add new timer and pause others
       setTimers((prev) => [
         newTimer,
         ...prev.map(timer => ({ 
@@ -145,6 +144,7 @@ export const useTimerCreation = ({
       console.log('🎊 Triggering confetti...');
       clearConfettiTrigger();
       
+      // Trigger confetti animation at center of screen
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       setConfettiTrigger({ x: centerX, y: centerY, id: newTimer.id });
@@ -161,7 +161,6 @@ export const useTimerCreation = ({
       return newTimer.id;
     } catch (error) {
       console.error("❌ Unexpected error in addTimer:", error);
-      // Log the full error object
       if (error instanceof Error) {
         console.error("Error message:", error.message);
         console.error("Error stack:", error.stack);

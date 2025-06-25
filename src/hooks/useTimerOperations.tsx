@@ -151,8 +151,10 @@ export const useTimerOperations = ({ timers, setTimers }: UseTimerOperationsProp
         }).eq('id', id);
       }
 
+      // Remove from local state immediately (the animation component will handle the visual removal)
       setTimers((prev) => prev.filter(timer => timer.id !== id));
 
+      // Mark as deleted in database
       const { error } = await supabase
         .from('timers')
         .update({
@@ -162,6 +164,7 @@ export const useTimerOperations = ({ timers, setTimers }: UseTimerOperationsProp
         .eq('id', id);
       
       if (error) {
+        // Restore timer if database update failed
         setTimers((prev) => [...prev]);
         toast.error("Failed to delete timer");
         console.error("❌ Error deleting timer:", error);
