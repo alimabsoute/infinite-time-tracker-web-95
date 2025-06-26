@@ -50,11 +50,11 @@ const Header = () => {
         </div>
         
         <div className="flex items-center gap-4">
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center gap-3">
             <Link to="/">
               <AnimatedNavButton 
                 isActive={location.pathname === "/"} 
-                className="gap-2"
+                className="gap-2 px-3 py-2"
               >
                 <Home size={18} />
                 <span className="hidden sm:inline">Home</span>
@@ -64,7 +64,7 @@ const Header = () => {
             <Link to="/dashboard">
               <AnimatedNavButton 
                 isActive={location.pathname === "/dashboard"} 
-                className="gap-2"
+                className="gap-2 px-3 py-2"
               >
                 <PhynxTimerLogo width={32} height={32} className="text-current opacity-70" />
                 <span className="hidden sm:inline">Timers</span>
@@ -74,7 +74,7 @@ const Header = () => {
             <Link to="/insights">
               <AnimatedNavButton 
                 isActive={location.pathname === "/insights"} 
-                className="gap-2"
+                className="gap-2 px-3 py-2"
               >
                 <BarChart3 size={18} />
                 <span className="hidden sm:inline">Insights</span>
@@ -84,7 +84,7 @@ const Header = () => {
             <Link to="/analytics">
               <AnimatedNavButton 
                 isActive={location.pathname === "/analytics"} 
-                className="gap-2"
+                className="gap-2 px-3 py-2"
               >
                 <BarChart3 size={18} />
                 <span className="hidden sm:inline">Analytics</span>
@@ -94,7 +94,7 @@ const Header = () => {
             <Link to="/calendar">
               <AnimatedNavButton 
                 isActive={location.pathname === "/calendar"} 
-                className="gap-2"
+                className="gap-2 px-3 py-2"
               >
                 <Calendar size={18} />
                 <span className="hidden sm:inline">Calendar</span>
@@ -104,7 +104,7 @@ const Header = () => {
             <Link to="/reports">
               <AnimatedNavButton 
                 isActive={location.pathname === "/reports"} 
-                className="gap-2"
+                className="gap-2 px-3 py-2"
               >
                 <Table size={18} />
                 <span className="hidden sm:inline">Reports</span>

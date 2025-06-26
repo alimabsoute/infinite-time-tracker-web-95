@@ -28,18 +28,16 @@ const TabsTrigger = React.forwardRef<
   <div className="relative group">
     {/* Animated border background */}
     <div className={cn(
-      "absolute inset-0 rounded-sm bg-gradient-to-r opacity-0 transition-opacity duration-300",
-      "from-orange-500 via-red-500 to-pink-500 bg-[length:200%_200%]",
-      "animate-[gradient-shift_2s_ease-in-out_infinite]",
+      "absolute inset-0 rounded-sm opacity-0 transition-opacity duration-300",
+      "bg-gradient-to-r from-purple-400 via-pink-400 to-red-400",
+      "bg-[length:300%_300%] animate-[gradient-shift_4s_ease-in-out_infinite]",
       "group-hover:opacity-100",
       "group-data-[state=active]:opacity-100"
     )} />
     
-    {/* Inner background */}
+    {/* Inner background with thin border effect */}
     <div className={cn(
-      "absolute inset-[2px] rounded-sm bg-background transition-all duration-300",
-      "group-hover:inset-[3px]",
-      "group-data-[state=active]:inset-[3px]"
+      "absolute inset-[1px] rounded-sm bg-background transition-all duration-300"
     )} />
     
     <TabsPrimitive.Trigger

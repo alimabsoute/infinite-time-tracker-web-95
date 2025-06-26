@@ -14,18 +14,16 @@ const AnimatedNavButton = React.forwardRef<HTMLButtonElement, AnimatedNavButtonP
       <div className="relative group">
         {/* Animated border background */}
         <div className={cn(
-          "absolute inset-0 rounded-lg bg-gradient-to-r opacity-0 transition-opacity duration-300",
-          "from-blue-500 via-purple-500 to-pink-500 bg-[length:200%_200%]",
-          "animate-[gradient-shift_3s_ease-in-out_infinite]",
+          "absolute inset-0 rounded-lg opacity-0 transition-opacity duration-300",
+          "bg-gradient-to-r from-purple-400 via-pink-400 to-red-400",
+          "bg-[length:300%_300%] animate-[gradient-shift_4s_ease-in-out_infinite]",
           "group-hover:opacity-100",
           isActive && "opacity-100"
         )} />
         
-        {/* Inner animated border */}
+        {/* Inner background with thin border effect */}
         <div className={cn(
-          "absolute inset-[2px] rounded-md bg-background transition-all duration-300",
-          "group-hover:inset-[3px]",
-          isActive && "inset-[3px]"
+          "absolute inset-[1px] rounded-md bg-background transition-all duration-300"
         )} />
         
         {/* Button content */}
@@ -33,7 +31,7 @@ const AnimatedNavButton = React.forwardRef<HTMLButtonElement, AnimatedNavButtonP
           ref={ref}
           variant={isActive ? "secondary" : "ghost"}
           className={cn(
-            "relative z-10 transition-all duration-300 border-0",
+            "relative z-10 transition-all duration-300 border-0 px-3 py-2",
             "group-hover:shadow-lg group-hover:scale-105",
             "active:scale-95",
             isActive && "shadow-lg scale-105",
