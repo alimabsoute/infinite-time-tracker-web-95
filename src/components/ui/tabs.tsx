@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
@@ -24,14 +25,34 @@ const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
 >(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-      className
-    )}
-    {...props}
-  />
+  <div className="relative group">
+    {/* Animated border background */}
+    <div className={cn(
+      "absolute inset-0 rounded-sm bg-gradient-to-r opacity-0 transition-opacity duration-300",
+      "from-orange-500 via-red-500 to-pink-500 bg-[length:200%_200%]",
+      "animate-[gradient-shift_2s_ease-in-out_infinite]",
+      "group-hover:opacity-100",
+      "group-data-[state=active]:opacity-100"
+    )} />
+    
+    {/* Inner background */}
+    <div className={cn(
+      "absolute inset-[2px] rounded-sm bg-background transition-all duration-300",
+      "group-hover:inset-[3px]",
+      "group-data-[state=active]:inset-[3px]"
+    )} />
+    
+    <TabsPrimitive.Trigger
+      ref={ref}
+      className={cn(
+        "relative z-10 inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+        "hover:scale-105 hover:shadow-md active:scale-95",
+        "data-[state=active]:scale-105 data-[state=active]:shadow-lg",
+        className
+      )}
+      {...props}
+    />
+  </div>
 ))
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 

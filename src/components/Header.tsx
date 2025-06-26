@@ -1,6 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { AnimatedNavButton } from "@/components/ui/animated-nav-button";
 import { Calendar, Home, Table, Crown, BarChart3 } from "lucide-react";
 import PhynxTimerLogo from "./PhynxTimerLogo";
 import AuthHeader from "./AuthHeader";
@@ -49,65 +50,65 @@ const Header = () => {
         </div>
         
         <div className="flex items-center gap-4">
-          <nav className="flex items-center gap-4">
+          <nav className="flex items-center gap-2">
             <Link to="/">
-              <Button 
-                variant={location.pathname === "/" ? "secondary" : "ghost"} 
+              <AnimatedNavButton 
+                isActive={location.pathname === "/"} 
                 className="gap-2"
               >
                 <Home size={18} />
                 <span className="hidden sm:inline">Home</span>
-              </Button>
+              </AnimatedNavButton>
             </Link>
             
             <Link to="/dashboard">
-              <Button 
-                variant={location.pathname === "/dashboard" ? "secondary" : "ghost"} 
+              <AnimatedNavButton 
+                isActive={location.pathname === "/dashboard"} 
                 className="gap-2"
               >
                 <PhynxTimerLogo width={32} height={32} className="text-current opacity-70" />
                 <span className="hidden sm:inline">Timers</span>
-              </Button>
+              </AnimatedNavButton>
             </Link>
             
             <Link to="/insights">
-              <Button 
-                variant={location.pathname === "/insights" ? "secondary" : "ghost"} 
+              <AnimatedNavButton 
+                isActive={location.pathname === "/insights"} 
                 className="gap-2"
               >
                 <BarChart3 size={18} />
                 <span className="hidden sm:inline">Insights</span>
-              </Button>
+              </AnimatedNavButton>
             </Link>
             
             <Link to="/analytics">
-              <Button 
-                variant={location.pathname === "/analytics" ? "secondary" : "ghost"} 
+              <AnimatedNavButton 
+                isActive={location.pathname === "/analytics"} 
                 className="gap-2"
               >
                 <BarChart3 size={18} />
                 <span className="hidden sm:inline">Analytics</span>
-              </Button>
+              </AnimatedNavButton>
             </Link>
             
             <Link to="/calendar">
-              <Button 
-                variant={location.pathname === "/calendar" ? "secondary" : "ghost"} 
+              <AnimatedNavButton 
+                isActive={location.pathname === "/calendar"} 
                 className="gap-2"
               >
                 <Calendar size={18} />
                 <span className="hidden sm:inline">Calendar</span>
-              </Button>
+              </AnimatedNavButton>
             </Link>
             
             <Link to="/reports">
-              <Button 
-                variant={location.pathname === "/reports" ? "secondary" : "ghost"} 
+              <AnimatedNavButton 
+                isActive={location.pathname === "/reports"} 
                 className="gap-2"
               >
                 <Table size={18} />
                 <span className="hidden sm:inline">Reports</span>
-              </Button>
+              </AnimatedNavButton>
             </Link>
           </nav>
           
