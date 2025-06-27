@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -123,9 +122,8 @@ const HeroContent = () => {
       >
         <Link to="/login">
           <Button 
-            variant="ghost" 
             size="lg" 
-            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 hover:bg-muted/50 transition-all duration-200 hover:scale-105 text-muted-foreground hover:text-foreground"
+            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           >
             Sign In
           </Button>
