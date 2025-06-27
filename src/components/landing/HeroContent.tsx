@@ -82,7 +82,7 @@ const HeroContent = () => {
         <Link to="/signup">
           <Button 
             size="lg" 
-            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 upgrade-btn-animated"
           >
             Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
