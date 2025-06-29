@@ -23,7 +23,7 @@ export const useTimerCreation = ({
   clearConfettiTrigger 
 }: UseTimerCreationProps) => {
   const { user } = useAuth();
-  const { canCreateTimer, getTimerLimit } = useSubscription();
+  const { canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit } = useSubscription();
   const { createSession, endSession } = useSessionManager();
 
   const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
@@ -35,11 +35,23 @@ export const useTimerCreation = ({
       return "";
     }
 
+    // Check if user can create more timers
     if (!canCreateTimer(timers.length)) {
       const limit = getTimerLimit();
       console.error("❌ Timer limit reached:", limit);
       toast.error("Timer limit reached", {
         description: `Free plan allows up to ${limit} timers. Upgrade to create unlimited timers.`
+      });
+      return "";
+    }
+
+    // Check running timer limit
+    const runningTimers = timers.filter(t => t.isRunning);
+    if (!canStartTimer(runningTimers.length)) {
+      const runningLimit = getRunningTimerLimit();
+      console.error("❌ Running timer limit reached:", runningLimit);
+      toast.error("Running timer limit reached", {
+        description: `Free plan allows up to ${runningLimit} running timers. Upgrade for unlimited running timers.`
       });
       return "";
     }
@@ -57,7 +69,6 @@ export const useTimerCreation = ({
       
       console.log('➕ Adding new timer:', newTimer.name, 'with ID:', newTimer.id);
       
-      const runningTimers = timers.filter(t => t.isRunning);
       console.log('⏸️ Found', runningTimers.length, 'running timers to pause');
       
       // End all running sessions first
@@ -174,7 +185,7 @@ export const useTimerCreation = ({
       toast.error("Failed to create timer");
       return "";
     }
-  }, [user, timers, clearConfettiTrigger, canCreateTimer, getTimerLimit, setTimers, setConfettiTrigger, setCelebrationTrigger, createSession, endSession]);
+  }, [user, timers, clearConfettiTrigger, canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit, setTimers, setConfettiTrigger, setCelebrationTrigger, createSession, endSession]);
 
   return {
     addTimer

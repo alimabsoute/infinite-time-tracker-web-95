@@ -1,8 +1,8 @@
-
 import { useCallback } from 'react';
 import { Timer } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { useNotifications } from './useNotifications';
 import { useSessionManager } from './useSessionManager';
 import { toast } from 'sonner';
@@ -14,6 +14,7 @@ interface UseTimerOperationsProps {
 
 export const useTimerOperations = ({ timers, setTimers }: UseTimerOperationsProps) => {
   const { user } = useAuth();
+  const { canStartTimer, getRunningTimerLimit } = useSubscription();
   const { notifyTimerCompletion } = useNotifications();
   const { createSession, endSession } = useSessionManager();
 
@@ -28,6 +29,16 @@ export const useTimerOperations = ({ timers, setTimers }: UseTimerOperationsProp
       const now = new Date();
 
       if (newRunningState) {
+        // Check running timer limit before starting
+        const currentRunningCount = timers.filter(t => t.isRunning).length;
+        if (!canStartTimer(currentRunningCount)) {
+          const limit = getRunningTimerLimit();
+          toast.error("Running timer limit reached", {
+            description: `Free plan allows up to ${limit} running timers. Upgrade for unlimited running timers.`
+          });
+          return;
+        }
+
         // Starting timer
         const sessionId = await createSession(id, now);
         if (!sessionId) {
@@ -88,7 +99,7 @@ export const useTimerOperations = ({ timers, setTimers }: UseTimerOperationsProp
       console.error("❌ Error toggling timer:", error);
       toast.error("Failed to update timer");
     }
-  }, [timers, user, notifyTimerCompletion, setTimers, createSession, endSession]);
+  }, [timers, user, canStartTimer, getRunningTimerLimit, notifyTimerCompletion, setTimers, createSession, endSession]);
 
   const resetTimer = useCallback(async (id: string) => {
     if (!user) return;

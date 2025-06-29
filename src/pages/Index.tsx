@@ -6,6 +6,8 @@ import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
 import ConfettiAnimation from "../components/animations/ConfettiAnimation";
 import CelebrationAnimations from "../components/animations/CelebrationAnimations";
+import TimerLimitIndicator from "../components/premium/TimerLimitIndicator";
+import RunningTimerLimitIndicator from "../components/premium/RunningTimerLimitIndicator";
 
 const Index = () => {
   const {
@@ -45,6 +47,8 @@ const Index = () => {
     );
   }
 
+  const runningTimers = timers.filter(t => t.isRunning);
+
   return (
     <PageLayout>
       <div 
@@ -54,6 +58,12 @@ const Index = () => {
           backdropFilter: 'blur(10px)'
         }}
       >
+        {/* Timer Limit Indicators */}
+        <div className="container mx-auto px-4 mb-6 space-y-4">
+          <TimerLimitIndicator currentCount={timers.length} />
+          <RunningTimerLimitIndicator currentRunningCount={runningTimers.length} />
+        </div>
+
         <TimerList
           timers={timers}
           onToggle={toggleTimer}

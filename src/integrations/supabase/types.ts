@@ -265,6 +265,7 @@ export type Database = {
           elapsed_time: number
           id: string
           is_running: boolean
+          last_accessed_at: string | null
           name: string
           priority: number | null
           tags: string[] | null
@@ -279,6 +280,7 @@ export type Database = {
           elapsed_time?: number
           id?: string
           is_running?: boolean
+          last_accessed_at?: string | null
           name: string
           priority?: number | null
           tags?: string[] | null
@@ -293,6 +295,7 @@ export type Database = {
           elapsed_time?: number
           id?: string
           is_running?: boolean
+          last_accessed_at?: string | null
           name?: string
           priority?: number | null
           tags?: string[] | null
