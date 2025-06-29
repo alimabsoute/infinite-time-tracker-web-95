@@ -123,7 +123,7 @@ const HeroContent = () => {
         <Link to="/login">
           <Button 
             size="lg" 
-            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           >
             Sign In
           </Button>
