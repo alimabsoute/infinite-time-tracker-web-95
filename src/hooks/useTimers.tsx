@@ -28,6 +28,7 @@ export const useTimers = () => {
   // Refs for tracking state
   const isPageVisibleRef = useRef(true);
   const lastAutoSaveRef = useRef(0);
+  const syncIntervalRef = useRef<NodeJS.Timeout>();
 
   // Update notification data for running timers
   useEffect(() => {
@@ -66,17 +67,30 @@ export const useTimers = () => {
   // Real-time updates
   useTimerRealtime({ timers, setTimers });
 
-  // Browser event handlers
+  // Enhanced persistence with more frequent saves
+  const enhancedSaveTimerState = useCallback((reason: string) => {
+    const runningTimers = timersRef.current.filter(t => t.isRunning);
+    if (runningTimers.length > 0) {
+      saveTimerState(timersRef.current, reason as any);
+      console.log(`💾 Enhanced save: ${runningTimers.length} running timers saved (${reason})`);
+    }
+  }, [saveTimerState]);
+
+  // Browser event handlers with enhanced persistence
   const browserEventHandlers = {
     onVisibilityChange: useCallback((isVisible: boolean) => {
+      console.log(`👁️ Visibility changed: ${isVisible ? 'visible' : 'hidden'}`);
       isPageVisibleRef.current = isVisible;
       
       if (!isVisible) {
-        saveTimerState(timersRef.current, 'visibility');
+        // Save immediately when page becomes hidden
+        enhancedSaveTimerState('visibility');
         batchSyncTimers(timersRef.current, true);
       } else {
+        // Restore when page becomes visible
         const persistenceData = loadTimerState();
         if (persistenceData) {
+          console.log('🔄 Restoring timers from persistence on visibility change');
           setTimers(prevTimers => {
             const restoredTimers = restoreTimerElapsedTime(prevTimers, persistenceData);
             batchSyncTimers(restoredTimers, true);
@@ -84,10 +98,11 @@ export const useTimers = () => {
           });
         }
       }
-    }, [saveTimerState, batchSyncTimers, loadTimerState, restoreTimerElapsedTime]),
+    }, [enhancedSaveTimerState, batchSyncTimers, loadTimerState, restoreTimerElapsedTime]),
 
     onBeforeUnload: useCallback(() => {
-      saveTimerState(timersRef.current, 'beforeunload');
+      console.log('⚠️ Before unload - saving timer state');
+      enhancedSaveTimerState('beforeunload');
       const runningTimers = timersRef.current.filter(t => t.isRunning);
       if (runningTimers.length > 0) {
         const syncData = runningTimers.map(timer => ({
@@ -102,14 +117,16 @@ export const useTimers = () => {
           console.error('Failed to send beacon:', error);
         }
       }
-    }, [saveTimerState]),
+    }, [enhancedSaveTimerState]),
 
     onPageHide: useCallback(() => {
-      saveTimerState(timersRef.current, 'pagehide');
+      console.log('👋 Page hide - saving timer state');
+      enhancedSaveTimerState('pagehide');
       batchSyncTimers(timersRef.current, true);
-    }, [saveTimerState, batchSyncTimers]),
+    }, [enhancedSaveTimerState, batchSyncTimers]),
 
     onPageShow: useCallback(() => {
+      console.log('👁️ Page show - restoring timer state');
       const persistenceData = loadTimerState();
       if (persistenceData) {
         setTimers(prevTimers => {
@@ -121,6 +138,7 @@ export const useTimers = () => {
     }, [loadTimerState, restoreTimerElapsedTime, batchSyncTimers]),
 
     onFocus: useCallback(() => {
+      console.log('🎯 Window focus - checking for timer state');
       const persistenceData = loadTimerState();
       if (persistenceData) {
         setTimers(prevTimers => restoreTimerElapsedTime(prevTimers, persistenceData));
@@ -128,32 +146,34 @@ export const useTimers = () => {
     }, [loadTimerState, restoreTimerElapsedTime]),
 
     onBlur: useCallback(() => {
-      saveTimerState(timersRef.current, 'blur');
-    }, [saveTimerState])
+      console.log('😴 Window blur - saving timer state');
+      enhancedSaveTimerState('blur');
+    }, [enhancedSaveTimerState])
   };
 
   // Register browser event handlers
   useBrowserEvents(browserEventHandlers);
 
-  // Auto-save timer state periodically
+  // Enhanced auto-save with more frequent intervals
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
       const now = Date.now();
       const timeSinceLastSave = now - lastAutoSaveRef.current;
       
-      if (timeSinceLastSave > 30000) {
+      // Save every 10 seconds instead of 30 seconds for better persistence
+      if (timeSinceLastSave > 10000) {
         const runningTimers = timersRef.current.filter(t => t.isRunning);
         if (runningTimers.length > 0) {
-          saveTimerState(timersRef.current, 'manual');
+          enhancedSaveTimerState('auto-save');
           lastAutoSaveRef.current = now;
         }
       }
-    }, 5000);
+    }, 5000); // Check every 5 seconds
 
     return () => clearInterval(autoSaveInterval);
-  }, [saveTimerState]);
+  }, [enhancedSaveTimerState]);
 
-  // Update running timers every second
+  // Enhanced timer update with better sync
   useEffect(() => {
     if (!user) return;
     
@@ -172,12 +192,14 @@ export const useTimers = () => {
         const runningTimers = updatedTimers.filter(t => t.isRunning);
         if (runningTimers.length > 0) {
           const now = Date.now();
-          if (now - lastAutoSaveRef.current > 10000) {
-            saveTimerState(updatedTimers, 'manual');
+          // Save more frequently when timers are running
+          if (now - lastAutoSaveRef.current > 5000) {
+            enhancedSaveTimerState('timer-update');
             lastAutoSaveRef.current = now;
           }
           
-          if (isPageVisibleRef.current && now % 5000 < 1000) {
+          // Sync to database every 10 seconds when page is visible
+          if (isPageVisibleRef.current && now % 10000 < 1000) {
             batchSyncTimers(updatedTimers);
           }
         }
@@ -187,7 +209,21 @@ export const useTimers = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [user, saveTimerState, batchSyncTimers]);
+  }, [user, enhancedSaveTimerState, batchSyncTimers]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current);
+      }
+      // Final save on cleanup
+      const runningTimers = timersRef.current.filter(t => t.isRunning);
+      if (runningTimers.length > 0) {
+        saveTimerState(timersRef.current, 'cleanup');
+      }
+    };
+  }, [saveTimerState]);
 
   return {
     timers,
