@@ -6,7 +6,6 @@ import { CalendarIcon, Activity, Crown } from "lucide-react";
 import CalendarMainView from "./CalendarMainView";
 import WeekView from "./WeekView";
 import ActivityVisualization from "./ActivityVisualization";
-import SessionDataDebug from "./SessionDataDebug";
 import PremiumFeatureGate from "../premium/PremiumFeatureGate";
 import PremiumBadge from "../premium/PremiumBadge";
 import { Timer, TimerSessionWithTimer } from "../../types";
@@ -113,9 +112,6 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
               setSelectedDate={setSelectedDate}
             />
           )}
-
-          {/* Debug Component moved to bottom of Calendar tab */}
-          <SessionDataDebug sessions={sessions} selectedDate={selectedDate} />
         </TabsContent>
       </Tabs>
     </div>
