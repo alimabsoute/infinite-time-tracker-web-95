@@ -7,6 +7,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import { FadeInWhenVisible } from "./Animation";
 import RealisticTimerDisplay from "./RealisticTimerDisplay";
 import RealisticCalendarView from "./RealisticCalendarView";
+import RealisticAnalyticsDisplay from "./RealisticAnalyticsDisplay";
 
 // App screenshots with realistic components
 const screenshots = [
@@ -27,7 +28,7 @@ const screenshots = [
   {
     title: "Analytics Dashboard",
     description: "Get detailed insights into how you spend your time with advanced charts and metrics",
-    image: "/lovable-uploads/e4b39c63-d261-4756-9c9a-b26aaf39d02f.png",
+    component: <RealisticAnalyticsDisplay />,
     icon: <BarChart3 className="h-5 w-5 text-primary" />,
     feature: "Analyze your productivity habits"
   }
@@ -146,28 +147,18 @@ const ScreenshotCarousel = () => {
                             transition={{ delay: 0.2, duration: 0.8 }}
                             whileHover={{ scale: 1.02, rotateY: 2 }}
                           >
-                            {screenshot.component ? (
-                              <motion.div
-                                whileInView={{ 
-                                  rotateX: [0, 5, 0, -5, 0],
-                                }}
-                                transition={{ 
-                                  duration: 6, 
-                                  repeat: Infinity, 
-                                  ease: "easeInOut" 
-                                }}
-                              >
-                                {screenshot.component}
-                              </motion.div>
-                            ) : (
-                              <motion.img 
-                                src={screenshot.image} 
-                                alt={screenshot.title}
-                                className="w-full h-full object-cover rounded-lg shadow-lg"
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ duration: 0.3 }}
-                              />
-                            )}
+                            <motion.div
+                              whileInView={{ 
+                                rotateX: [0, 5, 0, -5, 0],
+                              }}
+                              transition={{ 
+                                duration: 6, 
+                                repeat: Infinity, 
+                                ease: "easeInOut" 
+                              }}
+                            >
+                              {screenshot.component}
+                            </motion.div>
                           </motion.div>
                         </div>
                       </CardContent>
