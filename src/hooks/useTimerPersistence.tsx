@@ -1,4 +1,3 @@
-
 import { useCallback, useRef } from 'react';
 import { Timer } from '../types';
 
@@ -12,7 +11,8 @@ interface TimerStateSnapshot {
 interface TimerPersistenceData {
   timers: TimerStateSnapshot[];
   timestamp: number;
-  reason: 'visibility' | 'beforeunload' | 'pagehide' | 'blur' | 'manual' | 'auto-save' | 'timer-update' | 'cleanup';
+  reason: 'visibility' | 'beforeunload' | 'pagehide' | 'blur' | 'manual' | 'auto-save' | 'timer-update' | 'cleanup' | 
+          'visibility-fallback' | 'beforeunload-fallback' | 'pagehide-fallback' | 'blur-fallback' | 'manual-fallback' | 'auto-save-fallback' | 'timer-update-fallback' | 'cleanup-fallback';
 }
 
 export const useTimerPersistence = () => {
@@ -77,7 +77,7 @@ export const useTimerPersistence = () => {
               snapshotTime: now
             })),
             timestamp: now,
-            reason: `${reason}-fallback`
+            reason: `${reason}-fallback` as TimerPersistenceData['reason']
           };
           sessionStorage.setItem(persistenceKeyRef.current, JSON.stringify(fallbackData));
           console.log('💾 Fallback save to sessionStorage successful');
