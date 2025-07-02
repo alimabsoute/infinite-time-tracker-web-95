@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Crown, Timer, BarChart3, Target, Zap } from "lucide-react";
+import { ArrowRight, Crown, Timer, BarChart3, Target, Zap, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PhynxTimerLogo from "../PhynxTimerLogo";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,11 +45,36 @@ const HeroContent = () => {
 
   return (
     <motion.div 
-      className="text-center lg:text-left"
+      className="text-center lg:text-left relative"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
+      {/* Enhanced floating background elements */}
+      {Array.from({ length: 8 }).map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-2 h-2 bg-gradient-to-r from-primary/30 to-accent/30 rounded-full -z-10"
+          animate={{
+            x: [0, 100 + i * 20, 0],
+            y: [0, -80 - i * 10, 0],
+            opacity: [0, 0.8, 0],
+            scale: [0.5, 1.2, 0.5],
+            rotate: [0, 360, 0],
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 6 + i * 0.5,
+            delay: i * 0.3,
+            ease: "easeInOut"
+          }}
+          style={{
+            left: `${5 + i * 12}%`,
+            top: `${10 + (i % 4) * 20}%`,
+          }}
+        />
+      ))}
+
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -58,11 +83,11 @@ const HeroContent = () => {
       >
         <motion.div
           animate={{ 
-            rotate: [0, 5, -5, 0],
-            scale: [1, 1.05, 1]
+            rotate: [0, 10, -10, 0],
+            scale: [1, 1.1, 1.05, 1]
           }}
           transition={{ 
-            duration: 3,
+            duration: 4,
             repeat: Infinity,
             ease: "easeInOut"
           }}
@@ -71,8 +96,15 @@ const HeroContent = () => {
         </motion.div>
         <motion.h1 
           className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
-          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-          transition={{ duration: 5, repeat: Infinity }}
+          animate={{ 
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+            scale: [1, 1.02, 1]
+          }}
+          transition={{ 
+            backgroundPosition: { duration: 5, repeat: Infinity },
+            scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+          }}
+          style={{ backgroundSize: "200% 200%" }}
         >
           PhynxTimer
         </motion.h1>
@@ -85,13 +117,29 @@ const HeroContent = () => {
         transition={{ delay: 0.4, duration: 0.6 }}
       >
         <motion.span
-          animate={{ color: ["#000", "#6366f1", "#8b5cf6", "#000"] }}
+          animate={{ 
+            color: ["#000", "#6366f1", "#8b5cf6", "#000"],
+            textShadow: [
+              "0 0 0px currentColor",
+              "0 0 20px currentColor", 
+              "0 0 10px currentColor",
+              "0 0 0px currentColor"
+            ]
+          }}
           transition={{ duration: 4, repeat: Infinity }}
         >
           Track your time,
         </motion.span>{" "}
         <motion.span
-          animate={{ color: ["#000", "#8b5cf6", "#6366f1", "#000"] }}
+          animate={{ 
+            color: ["#000", "#8b5cf6", "#6366f1", "#000"],
+            textShadow: [
+              "0 0 0px currentColor",
+              "0 0 20px currentColor", 
+              "0 0 10px currentColor",
+              "0 0 0px currentColor"
+            ]
+          }}
           transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
         >
           boost your productivity
@@ -107,7 +155,10 @@ const HeroContent = () => {
         PhynxTimer helps you understand how you spend your time with{" "}
         <motion.span 
           className="text-primary font-semibold"
-          animate={{ opacity: [0.7, 1, 0.7] }}
+          animate={{ 
+            opacity: [0.7, 1, 0.7],
+            scale: [1, 1.05, 1]
+          }}
           transition={{ duration: 2, repeat: Infinity }}
         >
           unlimited running timers
@@ -116,7 +167,7 @@ const HeroContent = () => {
         then unlock the full power with our Pro plan.
       </motion.p>
 
-      {/* Animated Feature Pills */}
+      {/* Enhanced Animated Feature Pills */}
       <motion.div 
         className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8"
         initial={{ opacity: 0 }}
@@ -126,18 +177,29 @@ const HeroContent = () => {
         {features.map((feature, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.8, y: 20, rotateX: 45 }}
+            animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
             transition={{ delay: feature.delay, duration: 0.5 }}
-            whileHover={{ scale: 1.05, y: -2 }}
-            className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 transition-colors rounded-full px-4 py-2 text-sm"
+            whileHover={{ 
+              scale: 1.1, 
+              y: -5,
+              rotateY: 10,
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)"
+            }}
+            className="flex items-center gap-2 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20 transition-all duration-300 rounded-full px-4 py-2 text-sm border border-primary/20 shadow-md"
           >
-            <feature.icon className="h-4 w-4 text-primary" />
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            >
+              <feature.icon className="h-4 w-4 text-primary" />
+            </motion.div>
             <span>{feature.text}</span>
           </motion.div>
         ))}
       </motion.div>
       
+      {/* Enhanced Button Section */}
       <motion.div 
         className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6"
         initial={{ opacity: 0, y: 20 }}
@@ -146,27 +208,43 @@ const HeroContent = () => {
       >
         <Link to="/signup">
           <motion.div
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, rotateY: 5 }}
             whileTap={{ scale: 0.95 }}
           >
             <Button 
               size="lg" 
-              className="w-full sm:w-auto rounded-full text-lg px-8 py-6 upgrade-btn-animated shadow-lg hover:shadow-xl"
+              className="w-full sm:w-auto rounded-full text-lg px-8 py-6 upgrade-btn-animated shadow-xl hover:shadow-2xl relative overflow-hidden"
             >
-              Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
+              <motion.div
+                animate={{ x: ["-100%", "100%"] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+              />
+              Get Started Free 
+              <motion.div
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </motion.div>
             </Button>
           </motion.div>
         </Link>
 
         <motion.div
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.05, rotateY: -5 }}
           whileTap={{ scale: 0.95 }}
         >
           <Button 
             onClick={handleGoogleSignIn}
             size="lg" 
-            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-xl hover:shadow-2xl transition-all duration-200 relative overflow-hidden"
           >
+            <motion.div
+              animate={{ x: ["-100%", "100%"] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+            />
             <motion.svg 
               className="mr-2 h-5 w-5" 
               viewBox="0 0 24 24"
@@ -195,6 +273,7 @@ const HeroContent = () => {
         </motion.div>
       </motion.div>
       
+      {/* Updated Sign In and Upgrade buttons */}
       <motion.div 
         className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10"
         initial={{ opacity: 0, y: 20 }}
@@ -203,28 +282,43 @@ const HeroContent = () => {
       >
         <Link to="/login">
           <motion.div
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, rotateY: 5 }}
             whileTap={{ scale: 0.95 }}
           >
             <Button 
               size="lg" 
-              variant="outline"
-              className="w-full sm:w-auto rounded-full text-lg px-8 py-6 border-2 hover:bg-primary/5"
+              className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-xl hover:shadow-2xl transition-all duration-200 relative overflow-hidden"
             >
+              <motion.div
+                animate={{ x: ["-100%", "100%"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+              />
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+              >
+                <LogIn className="mr-2 h-5 w-5" />
+              </motion.div>
               Sign In
             </Button>
           </motion.div>
         </Link>
 
         <motion.div
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.05, rotateY: -5 }}
           whileTap={{ scale: 0.95 }}
         >
           <Button 
             onClick={handleUpgradeClick}
             size="lg" 
-            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 upgrade-btn-animated"
+            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 upgrade-btn-animated shadow-xl hover:shadow-2xl relative overflow-hidden"
           >
+            <motion.div
+              animate={{ x: ["-100%", "100%"] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            />
             <motion.div
               animate={{ rotate: [0, 360] }}
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
