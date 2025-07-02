@@ -76,7 +76,7 @@ const HeroActionButtons = () => {
           <Button 
             onClick={handleGoogleSignIn}
             size="lg" 
-            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-xl hover:shadow-2xl transition-all duration-200 relative overflow-hidden"
+            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-xl hover:shadow-2xl transition-all duration-200 relative overflow-hidden backdrop-blur-sm"
           >
             <motion.div
               animate={{ x: ["-100%", "100%"] }}
@@ -111,7 +111,7 @@ const HeroActionButtons = () => {
         </motion.div>
       </motion.div>
       
-      {/* Updated Sign In and Upgrade buttons */}
+      {/* Updated Sign In and Upgrade buttons with blur effects */}
       <motion.div 
         className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10"
         initial={{ opacity: 0, y: 20 }}
@@ -125,7 +125,7 @@ const HeroActionButtons = () => {
           >
             <Button 
               size="lg" 
-              className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-xl hover:shadow-2xl transition-all duration-200 relative overflow-hidden"
+              className="w-full sm:w-auto rounded-full text-lg px-8 py-6 bg-gradient-to-r from-slate-600/90 to-slate-700/90 hover:from-slate-700/90 hover:to-slate-800/90 text-white shadow-xl hover:shadow-2xl transition-all duration-200 relative overflow-hidden backdrop-blur-sm border border-white/10"
             >
               <motion.div
                 animate={{ x: ["-100%", "100%"] }}
@@ -150,7 +150,7 @@ const HeroActionButtons = () => {
           <Button 
             onClick={handleUpgradeClick}
             size="lg" 
-            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 upgrade-btn-animated shadow-xl hover:shadow-2xl relative overflow-hidden"
+            className="w-full sm:w-auto rounded-full text-lg px-8 py-6 upgrade-btn-animated shadow-xl hover:shadow-2xl relative overflow-hidden backdrop-blur-sm"
           >
             <motion.div
               animate={{ x: ["-100%", "100%"] }}

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import EnhancedAnimatedDashboard from "./EnhancedAnimatedDashboard";
+import CircularTimerDisplay from "./CircularTimerDisplay";
 
 const HeroPreview = () => {
   return (
@@ -21,7 +21,7 @@ const HeroPreview = () => {
           transition={{ duration: 0.3 }}
           className="perspective-1000"
         >
-          <EnhancedAnimatedDashboard />
+          <CircularTimerDisplay />
         </motion.div>
       </div>
       
