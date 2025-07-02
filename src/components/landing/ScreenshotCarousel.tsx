@@ -1,9 +1,9 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Clock, Calendar, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, CarouselApi } from "@/components/ui/carousel";
 import { FadeInWhenVisible } from "./Animation";
 import RealisticTimerDisplay from "./RealisticTimerDisplay";
 import RealisticCalendarView from "./RealisticCalendarView";
@@ -35,6 +35,18 @@ const screenshots = [
 ];
 
 const ScreenshotCarousel = () => {
+  const [api, setApi] = React.useState<CarouselApi>();
+
+  useEffect(() => {
+    if (!api) return;
+
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [api]);
+
   return (
     <section className="py-20 bg-gradient-to-br from-muted/30 via-background to-muted/20 relative overflow-hidden">
       {/* Enhanced background elements */}
@@ -80,7 +92,7 @@ const ScreenshotCarousel = () => {
         </FadeInWhenVisible>
         
         <FadeInWhenVisible>
-          <Carousel className="max-w-6xl mx-auto">
+          <Carousel className="max-w-6xl mx-auto" setApi={setApi}>
             <CarouselContent>
               {screenshots.map((screenshot, index) => (
                 <CarouselItem key={index} className="md:basis-1/1 lg:basis-1/1">
