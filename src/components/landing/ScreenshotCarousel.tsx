@@ -41,7 +41,12 @@ const ScreenshotCarousel = () => {
     if (!api) return;
 
     const interval = setInterval(() => {
-      api.scrollNext();
+      if (api.canScrollNext()) {
+        api.scrollNext();
+      } else {
+        // When we can't scroll next (at the last slide), go back to the first slide
+        api.scrollTo(0);
+      }
     }, 3000);
 
     return () => clearInterval(interval);
