@@ -71,7 +71,7 @@ const CircularTimerDisplay = () => {
               
               {/* Circular timer container */}
               <div className="relative w-48 h-48 mx-auto">
-                {/* Primary border with enhanced styling */}
+                {/* Primary border */}
                 <div 
                   className="absolute inset-0 rounded-full border-6 transition-all duration-300"
                   style={{
@@ -175,30 +175,6 @@ const CircularTimerDisplay = () => {
           );
         })}
       </motion.div>
-      
-      {/* Floating particles */}
-      {Array.from({ length: 6 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-30"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -60, 0],
-            opacity: [0, 0.6, 0],
-            scale: [0.5, 1, 0.5],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 4 + i * 0.5,
-            delay: i * 0.3,
-            ease: "easeInOut"
-          }}
-          style={{
-            left: `${10 + i * 15}%`,
-            top: `${20 + (i % 3) * 20}%`,
-          }}
-        />
-      ))}
     </div>
   );
 };
