@@ -11,6 +11,7 @@ import WeeklyChart from './WeeklyChart';
 import WeeklyStats from './WeeklyStats';
 import BubbleChart3D from './BubbleChart3D';
 import WeeklyAnalysis from './WeeklyAnalysis';
+import ErrorBoundary from '../ErrorBoundary';
 
 interface WeekData {
   date: Date;
@@ -155,26 +156,32 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
           />
         </CardHeader>
         <CardContent>
-          {chartType === 'bubble' ? (
-            <BubbleChart3D
-              sessions={sessions}
-              currentWeekStart={currentWeekStart}
-              onBubbleClick={(bubble) => {
-                console.log('🔍 WeekView - Bubble clicked:', bubble.timerName);
-              }}
-            />
-          ) : (
-            <WeeklyChart
-              weekData={weekData}
-              chartType={chartType as 'line'}
-              selectedDate={selectedDate}
-              averageHours={averageHours}
-              hoveredDay={hoveredDay}
-              onHoverDay={setHoveredDay}
-              onBarClick={handleBarClick}
-              formatTime={formatTime}
-            />
-          )}
+          <ErrorBoundary fallback={
+            <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+              <p>Unable to load chart. Please try refreshing the page.</p>
+            </div>
+          }>
+            {chartType === 'bubble' ? (
+              <BubbleChart3D
+                sessions={sessions}
+                currentWeekStart={currentWeekStart}
+                onBubbleClick={(bubble) => {
+                  console.log('🔍 WeekView - Bubble clicked:', bubble.timerName);
+                }}
+              />
+            ) : (
+              <WeeklyChart
+                weekData={weekData}
+                chartType={chartType as 'line'}
+                selectedDate={selectedDate}
+                averageHours={averageHours}
+                hoveredDay={hoveredDay}
+                onHoverDay={setHoveredDay}
+                onBarClick={handleBarClick}
+                formatTime={formatTime}
+              />
+            )}
+          </ErrorBoundary>
           
           <WeeklyStats
             weekData={weekData}

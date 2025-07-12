@@ -34,11 +34,21 @@ const AnimatedBubble: React.FC<{
   const meshRef = useRef<any>(null);
   
   useFrame((state) => {
-    if (meshRef.current) {
-      // Gentle floating animation
-      meshRef.current.position.y = bubble.position[1] + Math.sin(state.clock.elapsedTime + bubble.position[0]) * 0.1;
-      // Subtle rotation
-      meshRef.current.rotation.y += 0.005;
+    if (meshRef.current && bubble?.position && isFinite(bubble.position[1])) {
+      try {
+        // Gentle floating animation with safe calculations
+        const floatOffset = Math.sin(state.clock.elapsedTime + bubble.position[0]) * 0.1;
+        const newY = bubble.position[1] + floatOffset;
+        
+        if (isFinite(newY)) {
+          meshRef.current.position.y = newY;
+        }
+        
+        // Subtle rotation
+        meshRef.current.rotation.y += 0.005;
+      } catch (error) {
+        console.error('🔍 AnimatedBubble - Error in animation frame:', error);
+      }
     }
   });
 
@@ -132,62 +142,101 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
   const bubbles = useMemo(() => {
     console.log('🔍 BubbleChart3D - Processing sessions:', sessions.length);
     
-    // Group sessions by timer
+    // Validate input data
+    if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
+      console.log('🔍 BubbleChart3D - No valid sessions data');
+      return [];
+    }
+
+    if (!currentWeekStart || !(currentWeekStart instanceof Date)) {
+      console.log('🔍 BubbleChart3D - Invalid currentWeekStart');
+      return [];
+    }
+
+    // Group sessions by timer with comprehensive validation
     const timerGroups = sessions.reduce((acc, session) => {
-      if (!session.timers?.name) return acc;
-      
-      const timerName = session.timers.name;
-      if (!acc[timerName]) {
-        acc[timerName] = {
-          sessions: [],
-          totalTime: 0,
-          category: session.timers.category || 'Uncategorized',
-          createdAt: new Date(session.start_time)
-        };
+      try {
+        // Validate session structure
+        if (!session || typeof session !== 'object') {
+          console.warn('🔍 BubbleChart3D - Invalid session object:', session);
+          return acc;
+        }
+
+        // Validate timer data
+        if (!session.timers || typeof session.timers !== 'object' || !session.timers.name) {
+          console.warn('🔍 BubbleChart3D - Missing or invalid timer data:', session.timers);
+          return acc;
+        }
+        
+        const timerName = session.timers.name;
+        if (!acc[timerName]) {
+          acc[timerName] = {
+            sessions: [],
+            totalTime: 0,
+            category: session.timers.category || 'Uncategorized',
+            createdAt: new Date(session.start_time)
+          };
+        }
+        
+        acc[timerName].sessions.push(session);
+        acc[timerName].totalTime += session.duration_ms || 0;
+        
+        return acc;
+      } catch (error) {
+        console.error('🔍 BubbleChart3D - Error processing session:', error, session);
+        return acc;
       }
-      
-      acc[timerName].sessions.push(session);
-      acc[timerName].totalTime += session.duration_ms || 0;
-      
-      return acc;
     }, {} as Record<string, any>);
 
     console.log('🔍 BubbleChart3D - Timer groups:', Object.keys(timerGroups).length);
 
-    // Convert to bubble data
+    // Convert to bubble data with safe calculations
     const bubbleData: BubbleData[] = Object.entries(timerGroups).map(([timerName, data], index) => {
-      // Position calculation
-      const daysFromWeekStart = differenceInDays(data.createdAt, currentWeekStart);
-      const xPosition = Math.max(-8, Math.min(8, (daysFromWeekStart / 7) * 8)); // X: creation date relative to week
-      const yPosition = Math.random() * 6 - 3; // Y: randomized for visual separation
-      const zPosition = Math.random() * 4 - 2; // Z: randomized depth
-      
-      // Size based on total time (log scale for better visualization)
-      const timeInHours = data.totalTime / 3600000;
-      const size = Math.max(0.3, Math.min(2, Math.log(timeInHours + 1) * 0.8));
-      
-      // Color based on category
-      const colors = {
-        'Work': '#3b82f6',
-        'Personal': '#10b981',
-        'Study': '#f59e0b',
-        'Exercise': '#ef4444',
-        'Uncategorized': '#6b7280'
-      };
-      const color = colors[data.category as keyof typeof colors] || colors.Uncategorized;
-      
-      return {
-        id: `${timerName}-${index}`,
-        position: [xPosition, yPosition, zPosition] as [number, number, number],
-        size,
-        color,
-        timerName,
-        totalTime: data.totalTime,
-        sessionCount: data.sessions.length,
-        creationDate: data.createdAt,
-        category: data.category
-      };
-    });
+      try {
+        // Safe position calculation
+        const daysFromWeekStart = differenceInDays(data.createdAt, currentWeekStart);
+        const xPosition = Math.max(-8, Math.min(8, (daysFromWeekStart / 7) * 8)); // X: creation date relative to week
+        const yPosition = Math.random() * 6 - 3; // Y: randomized for visual separation
+        const zPosition = Math.random() * 4 - 2; // Z: randomized depth
+        
+        // Safe size calculation
+        const timeInHours = Math.max(0, data.totalTime / 3600000);
+        const size = Math.max(0.3, Math.min(2, Math.log(timeInHours + 1) * 0.8));
+        
+        // Validate numeric values
+        if (!isFinite(xPosition) || !isFinite(yPosition) || !isFinite(zPosition) || !isFinite(size)) {
+          console.warn('🔍 BubbleChart3D - Invalid numeric values for timer:', timerName, {
+            xPosition, yPosition, zPosition, size, timeInHours
+          });
+          return null;
+        }
+        
+        // Color based on category
+        const colors = {
+          'Work': '#3b82f6',
+          'Personal': '#10b981',
+          'Study': '#f59e0b',
+          'Exercise': '#ef4444',
+          'Uncategorized': '#6b7280'
+        };
+        const color = colors[data.category as keyof typeof colors] || colors.Uncategorized;
+        
+        return {
+          id: `${timerName}-${index}`,
+          position: [xPosition, yPosition, zPosition] as [number, number, number],
+          size,
+          color,
+          timerName,
+          totalTime: data.totalTime,
+          sessionCount: data.sessions.length,
+          creationDate: data.createdAt,
+          category: data.category
+        };
+      } catch (error) {
+        console.error('🔍 BubbleChart3D - Error creating bubble for timer:', timerName, error);
+        return null;
+      }
+    }).filter(bubble => bubble !== null) as BubbleData[];
 
     console.log('🔍 BubbleChart3D - Generated bubbles:', bubbleData.length);
     return bubbleData;
@@ -198,12 +247,29 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
     onBubbleClick?.(bubble);
   };
 
+  // Error boundary fallback
+  if (!bubbles || bubbles.length === 0) {
+    return (
+      <motion.div 
+        className="h-[400px] w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg flex items-center justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="text-center text-white">
+          <p>No timer data available for this week</p>
+          <p className="text-sm mt-2 text-slate-300">Create some timers and log time to see the 3D visualization</p>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="h-[400px] w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg overflow-hidden"
+      className="h-[400px] w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg overflow-hidden relative"
     >
       <Canvas
         camera={{ position: [0, 5, 15], fov: 50 }}
@@ -219,6 +285,7 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
           <div>• Bubble size = Total time logged</div>
           <div>• X-axis = Timer creation date</div>
           <div>• Colors = Categories</div>
+          <div className="text-slate-300 mt-2">Generated {bubbles.length} bubbles</div>
         </div>
       </div>
     </motion.div>

@@ -1,8 +1,6 @@
-
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import React, { Component, ReactNode, ErrorInfo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertTriangle, Home, RotateCcw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -22,27 +20,34 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return {
+      hasError: true,
+      error
+    };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-    this.setState({ error, errorInfo });
-    
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    this.setState({
+      error,
+      errorInfo
+    });
+
     // Track error in analytics if available
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'exception', {
-        description: error.message,
-        fatal: false,
+    if (typeof window !== 'undefined' && (window as any).analytics) {
+      (window as any).analytics.track('error_boundary_triggered', {
+        error: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack
       });
     }
   }
 
-  handleRetry = () => {
+  handleRetry = (): void => {
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });
   };
 
-  handleGoHome = () => {
+  handleGoHome = (): void => {
     window.location.href = '/';
   };
 
@@ -53,48 +58,59 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
-          <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-destructive" />
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <div className="max-w-md w-full text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-8 h-8 text-destructive" />
               </div>
-              <CardTitle className="text-xl">Oops! Something went wrong</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground text-center">
-                We encountered an unexpected error. Don't worry, your data is safe.
+            </div>
+            
+            <div>
+              <h1 className="text-2xl font-bold text-foreground mb-2">
+                Something went wrong
+              </h1>
+              <p className="text-muted-foreground mb-4">
+                We encountered an unexpected error. This has been logged and our team will investigate.
               </p>
               
               {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="mt-4 p-3 bg-muted rounded-md text-xs">
-                  <summary className="cursor-pointer font-medium">Error Details</summary>
-                  <pre className="mt-2 whitespace-pre-wrap break-words">
+                <details className="text-left bg-muted p-4 rounded-lg mb-4">
+                  <summary className="cursor-pointer font-semibold text-sm mb-2">
+                    Error Details (Development)
+                  </summary>
+                  <pre className="text-xs text-destructive whitespace-pre-wrap overflow-auto">
                     {this.state.error.message}
-                    {this.state.errorInfo?.componentStack}
+                    {'\n\n'}
+                    {this.state.error.stack}
+                    {this.state.errorInfo?.componentStack && (
+                      '\n\nComponent Stack:' + this.state.errorInfo.componentStack
+                    )}
                   </pre>
                 </details>
               )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={this.handleRetry}
+                variant="default"
+                className="flex items-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Try Again
+              </Button>
               
-              <div className="flex gap-2 pt-4">
-                <Button 
-                  onClick={this.handleRetry} 
-                  className="flex-1"
-                  variant="outline"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Try Again
-                </Button>
-                <Button 
-                  onClick={this.handleGoHome} 
-                  className="flex-1"
-                >
-                  <Home className="h-4 w-4 mr-2" />
-                  Go Home
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              <Button
+                onClick={this.handleGoHome}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Home className="w-4 h-4" />
+                Go Home
+              </Button>
+            </div>
+          </div>
         </div>
       );
     }
