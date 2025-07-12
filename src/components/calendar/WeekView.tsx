@@ -13,6 +13,7 @@ import WeekDataSummary from './WeekDataSummary';
 import DateRangeSelector from './DateRangeSelector';
 import VisualizationErrorBoundary from './visualization/VisualizationErrorBoundary';
 import VisualizationContainer from './visualization/VisualizationContainer';
+import { useToast } from '@/hooks/use-toast';
 
 interface WeekData {
   date: Date;
@@ -28,6 +29,8 @@ interface WeekViewProps {
 }
 
 const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelectedDate }) => {
+  const { toast } = useToast();
+  
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => 
     startOfWeek(selectedDate || new Date())
   );
@@ -111,14 +114,40 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
     console.log('🔍 WeekView - Bubble clicked:', bubble);
   };
 
-  // Handle date range changes for visualization
+  // Handle date range changes for visualization only
   const handleVisualizationDateRangeChange = (newStartDate: Date, newEndDate: Date) => {
-    console.log('🔍 WeekView - Visualization date range changed:', {
+    console.log('🔍 WeekView - Visualization date range changed (pending):', {
       startDate: newStartDate.toISOString(),
       endDate: newEndDate.toISOString()
     });
     setVisualizationStartDate(newStartDate);
     setVisualizationEndDate(newEndDate);
+  };
+
+  // Handle applying date range to both visualization and weekly activity
+  const handleApplyDateRange = async (startDate: Date, endDate: Date) => {
+    console.log('🔍 WeekView - Applying date range to Weekly Activity:', {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    });
+
+    // Update visualization dates
+    setVisualizationStartDate(startDate);
+    setVisualizationEndDate(endDate);
+    
+    // Update weekly activity to show the start of the selected range
+    const newWeekStart = startOfWeek(startDate);
+    setCurrentWeekStart(newWeekStart);
+    setSelectedDate(startDate);
+
+    // Show success feedback
+    toast({
+      title: "Date range applied",
+      description: `Weekly Activity updated to ${format(startDate, 'MMM dd')} - ${format(endDate, 'MMM dd')}`,
+    });
+
+    // Small delay for UX feedback
+    await new Promise(resolve => setTimeout(resolve, 300));
   };
   
   return (
@@ -148,11 +177,12 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
           />
         </CardHeader>
         <CardContent>
-          {/* Date Range Selector for Visualization */}
+          {/* Date Range Selector for Visualization with Apply functionality */}
           <DateRangeSelector
             startDate={visualizationStartDate}
             endDate={visualizationEndDate}
             onDateRangeChange={handleVisualizationDateRangeChange}
+            onApplyDateRange={handleApplyDateRange}
             className="mb-4"
           />
 

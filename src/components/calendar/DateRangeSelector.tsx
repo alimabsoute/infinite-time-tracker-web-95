@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { format, subDays } from 'date-fns';
-import { CalendarIcon, X } from 'lucide-react';
+import { CalendarIcon, X, Check, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -11,6 +11,7 @@ interface DateRangeSelectorProps {
   startDate: Date;
   endDate: Date;
   onDateRangeChange: (startDate: Date, endDate: Date) => void;
+  onApplyDateRange?: (startDate: Date, endDate: Date) => void;
   className?: string;
 }
 
@@ -18,26 +19,66 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
   startDate,
   endDate,
   onDateRangeChange,
+  onApplyDateRange,
   className
 }) => {
   const [isStartOpen, setIsStartOpen] = React.useState(false);
   const [isEndOpen, setIsEndOpen] = React.useState(false);
+  const [isApplying, setIsApplying] = useState(false);
+  const [hasUnappliedChanges, setHasUnappliedChanges] = useState(false);
 
   const handleQuickSelect = (days: number) => {
     const end = new Date();
     const start = subDays(end, days - 1);
     onDateRangeChange(start, end);
+    setHasUnappliedChanges(true);
   };
 
   const resetToWeek = () => {
     const today = new Date();
     const weekStart = subDays(today, 6);
     onDateRangeChange(weekStart, today);
+    setHasUnappliedChanges(true);
+  };
+
+  const handleDateChange = (newStartDate: Date, newEndDate: Date) => {
+    onDateRangeChange(newStartDate, newEndDate);
+    setHasUnappliedChanges(true);
+  };
+
+  const handleApply = async () => {
+    if (!onApplyDateRange) return;
+    
+    setIsApplying(true);
+    try {
+      await onApplyDateRange(startDate, endDate);
+      setHasUnappliedChanges(false);
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
+  const resetToCurrentWeek = () => {
+    const today = new Date();
+    const weekStart = subDays(today, 6);
+    onDateRangeChange(weekStart, today);
+    if (onApplyDateRange) {
+      onApplyDateRange(weekStart, today);
+    }
+    setHasUnappliedChanges(false);
   };
 
   return (
     <div className={cn("flex flex-col gap-3 p-4 bg-muted/30 rounded-lg", className)}>
-      <h4 className="text-sm font-medium">Select Date Range</h4>
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-medium">Select Date Range</h4>
+        {hasUnappliedChanges && (
+          <div className="flex items-center gap-1 text-xs text-orange-600">
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+            Changes pending
+          </div>
+        )}
+      </div>
       
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-2">
@@ -58,7 +99,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
                 selected={startDate}
                 onSelect={(date) => {
                   if (date) {
-                    onDateRangeChange(date, endDate);
+                    handleDateChange(date, endDate);
                     setIsStartOpen(false);
                   }
                 }}
@@ -87,7 +128,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
                 selected={endDate}
                 onSelect={(date) => {
                   if (date) {
-                    onDateRangeChange(startDate, date);
+                    handleDateChange(startDate, date);
                     setIsEndOpen(false);
                   }
                 }}
@@ -143,6 +184,38 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
           90 days
         </Button>
       </div>
+
+      {onApplyDateRange && (
+        <div className="flex gap-2 pt-2 border-t border-border/30">
+          <Button
+            onClick={handleApply}
+            disabled={!hasUnappliedChanges || isApplying}
+            size="sm"
+            className="flex-1 h-8"
+          >
+            {isApplying ? (
+              <>
+                <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                Applying...
+              </>
+            ) : (
+              <>
+                <Check className="h-3 w-3 mr-1" />
+                Apply to Weekly Activity
+              </>
+            )}
+          </Button>
+          
+          <Button
+            variant="outline"
+            onClick={resetToCurrentWeek}
+            size="sm"
+            className="h-8"
+          >
+            <RefreshCw className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
