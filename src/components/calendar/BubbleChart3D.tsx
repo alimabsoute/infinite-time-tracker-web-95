@@ -2,6 +2,7 @@
 import React from 'react';
 import { Canvas } from '@react-three/fiber';
 import { motion } from 'framer-motion';
+import { addDays } from 'date-fns';
 import { TimerSessionWithTimer } from "../../types";
 import { useBubbleDataProcessor } from './visualization/BubbleDataProcessor';
 import BubbleScene3D from './visualization/BubbleScene3D';
@@ -18,10 +19,14 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
   currentWeekStart,
   onBubbleClick
 }) => {
-  // Process data using the dedicated hook
+  // Calculate the week end date (7 days from start)
+  const currentWeekEnd = addDays(currentWeekStart, 6);
+
+  // Process data using the dedicated hook with correct parameters
   const bubbles = useBubbleDataProcessor({
     sessions,
-    currentWeekStart
+    startDate: currentWeekStart,
+    endDate: currentWeekEnd
   });
 
   const handleBubbleClick = (bubble: any) => {
