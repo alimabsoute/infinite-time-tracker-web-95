@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../../types";
@@ -32,28 +32,78 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
   onError
 }) => {
   const [renderError, setRenderError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  const mountedRef = useRef(true);
 
   // Process sessions into bubble data with enhanced validation
   const bubbles = useBubbleDataProcessor({
     sessions,
     currentWeekStart,
-    onError
+    onError: (error) => {
+      console.error('🔍 BubbleChart3DEnhanced - Data processing error:', error);
+      if (mountedRef.current) {
+        setRenderError(error.message);
+        onError?.(error);
+      }
+    }
   });
+
+  // Timeout mechanism - fallback after 3 seconds if 3D doesn't load
+  useEffect(() => {
+    if (isLoading) {
+      timeoutRef.current = setTimeout(() => {
+        if (mountedRef.current && isLoading) {
+          console.log('🔍 BubbleChart3DEnhanced - 3D loading timeout, triggering fallback');
+          setRenderError('3D visualization loading timeout');
+          onError?.(new Error('3D visualization loading timeout - falling back to 2D'));
+        }
+      }, 3000);
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isLoading, onError]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Handle Canvas creation success
+  const handleCanvasCreated = ({ gl }: any) => {
+    if (mountedRef.current) {
+      console.log('🔍 BubbleChart3DEnhanced - Canvas created successfully');
+      setIsLoading(false);
+      gl.setSize(gl.domElement.clientWidth, gl.domElement.clientHeight);
+    }
+  };
 
   // Handle Canvas errors
   const handleCanvasError = (error: Error) => {
-    console.error('🔍 BubbleChart3DEnhanced - Canvas error:', error);
-    setRenderError(error.message);
-    onError?.(error);
+    if (mountedRef.current) {
+      console.error('🔍 BubbleChart3DEnhanced - Canvas error:', error);
+      setRenderError(error.message);
+      setIsLoading(false);
+      onError?.(error);
+    }
   };
 
   if (renderError) {
     return (
       <div className="h-[400px] flex items-center justify-center text-red-500 bg-red-50/50 rounded-lg">
         <div className="text-center">
-          <p className="font-medium">3D Rendering Error</p>
+          <p className="font-medium">3D Rendering Failed</p>
           <p className="text-sm mt-2">{renderError}</p>
-          <p className="text-xs mt-2 text-red-400">Falling back to 2D visualization...</p>
+          <p className="text-xs mt-2 text-red-400">Switching to 2D visualization...</p>
         </div>
       </div>
     );
@@ -79,14 +129,26 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
         transition={{ duration: 0.5 }}
         className="h-[400px] w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg overflow-hidden relative"
       >
+        {isLoading && (
+          <div className="absolute inset-0 bg-slate-900/80 flex items-center justify-center z-10">
+            <div className="text-white text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+              <p className="text-sm">Loading 3D visualization...</p>
+            </div>
+          </div>
+        )}
+        
         <Canvas
           camera={{ position: [0, 5, 15], fov: 50 }}
           style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
-          onCreated={({ gl }) => {
-            console.log('🔍 BubbleChart3DEnhanced - Canvas created successfully');
-            gl.setSize(gl.domElement.clientWidth, gl.domElement.clientHeight);
+          onCreated={handleCanvasCreated}
+          onError={handleCanvasError}
+          gl={{ 
+            preserveDrawingBuffer: true, 
+            antialias: true,
+            alpha: false,
+            powerPreference: "high-performance"
           }}
-          gl={{ preserveDrawingBuffer: true, antialias: true }}
         >
           <Safe3DScene bubbles={bubbles} onBubbleClick={onBubbleClick} />
         </Canvas>

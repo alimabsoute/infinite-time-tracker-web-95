@@ -10,7 +10,7 @@ import WeeklyNavigation from './WeeklyNavigation';
 import WeeklyStats from './WeeklyStats';
 import WeeklyAnalysis from './WeeklyAnalysis';
 import ErrorBoundary from '../ErrorBoundary';
-import BubbleChart3D from './BubbleChart3D';
+import VisualizationContainer from './visualization/VisualizationContainer';
 
 interface WeekData {
   date: Date;
@@ -92,6 +92,11 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
       setSelectedDate(data.date);
     }
   };
+
+  // Handle bubble click for visualization
+  const handleBubbleClick = (bubble: any) => {
+    console.log('🔍 WeekView - Bubble clicked:', bubble);
+  };
   
   return (
     <motion.div
@@ -103,7 +108,7 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-lg flex items-center gap-2">
             <Clock size={16} className="text-primary" /> 
-            Weekly Activity - 3D Bubble Visualization
+            Weekly Activity - Multi-Layer Visualization
           </CardTitle>
           <WeeklyNavigation
             currentWeekStart={currentWeekStart}
@@ -111,22 +116,20 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
           />
         </CardHeader>
         <CardContent>
-          {/* Direct 3D Bubble Chart */}
+          {/* Enhanced Multi-Layer Visualization Container */}
           <ErrorBoundary fallback={
-            <div className="h-[400px] flex items-center justify-center text-muted-foreground bg-red-100 rounded-lg">
+            <div className="h-[400px] flex items-center justify-center text-muted-foreground bg-yellow-50 rounded-lg">
               <div className="text-center">
-                <p className="text-red-600 font-medium">3D visualization failed to load</p>
-                <p className="text-red-500 text-sm mt-2">Falling back to basic view</p>
-                <p className="text-red-400 text-xs mt-1">Sessions available: {sessions.length}</p>
+                <p className="text-yellow-600 font-medium">All visualizations failed to load</p>
+                <p className="text-yellow-500 text-sm mt-2">Please refresh the page</p>
+                <p className="text-yellow-400 text-xs mt-1">Sessions available: {sessions.length}</p>
               </div>
             </div>
           }>
-            <BubbleChart3D
+            <VisualizationContainer
               sessions={sessions}
               currentWeekStart={currentWeekStart}
-              onBubbleClick={(bubble) => {
-                console.log('🔍 WeekView - Bubble clicked:', bubble.timerName);
-              }}
+              onBubbleClick={handleBubbleClick}
             />
           </ErrorBoundary>
           

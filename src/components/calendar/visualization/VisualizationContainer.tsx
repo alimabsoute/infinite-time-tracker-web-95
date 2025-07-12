@@ -24,6 +24,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
   const [currentMode, setCurrentMode] = useState<VisualizationMode>('3d');
   const [has3DSupport, setHas3DSupport] = useState(true);
   const [dataValidation, setDataValidation] = useState<any>(null);
+  const [fallbackHistory, setFallbackHistory] = useState<VisualizationMode[]>([]);
 
   console.log('🔍 VisualizationContainer - Initializing with:', {
     sessionsCount: sessions.length,
@@ -42,6 +43,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
     if (!webglSupported) {
       setHas3DSupport(false);
       setCurrentMode('2d');
+      setFallbackHistory(['3d']);
     }
   }, []);
 
@@ -51,35 +53,46 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
     setDataValidation(validation);
     
     console.log('🔍 VisualizationContainer - Data validation:', validation);
-    
-    // Auto-fallback to 2D if no valid data for 3D
-    if (!validation.hasValidData && currentMode === '3d') {
-      console.log('🔍 VisualizationContainer - Auto-falling back to 2D due to invalid data');
-      setCurrentMode('2d');
-    }
-  }, [sessions, currentWeekStart, currentMode]);
+  }, [sessions, currentWeekStart]);
 
   const handleVisualizationError = (error: Error, mode: VisualizationMode) => {
     console.error(`🔍 VisualizationContainer - ${mode} visualization error:`, error);
     
-    // Progressive fallback
-    if (mode === '3d' && has3DSupport) {
-      console.log('🔍 VisualizationContainer - Falling back from 3D to 2D');
+    // Track fallback history to prevent infinite loops
+    const newFallbackHistory = [...fallbackHistory, mode];
+    setFallbackHistory(newFallbackHistory);
+    
+    // Progressive fallback logic
+    if (mode === '3d' && !newFallbackHistory.includes('2d')) {
+      console.log('🔍 VisualizationContainer - Auto-falling back from 3D to 2D');
       setCurrentMode('2d');
-    } else if (mode === '2d') {
-      console.log('🔍 VisualizationContainer - Falling back from 2D to Bar');
+    } else if ((mode === '2d' || mode === '3d') && !newFallbackHistory.includes('bar')) {
+      console.log('🔍 VisualizationContainer - Auto-falling back to Bar Chart');
       setCurrentMode('bar');
+    } else {
+      console.log('🔍 VisualizationContainer - All fallbacks exhausted');
     }
+  };
+
+  // Manual mode selection with fallback tracking reset
+  const handleModeChange = (newMode: VisualizationMode) => {
+    console.log('🔍 VisualizationContainer - Manual mode change to:', newMode);
+    setCurrentMode(newMode);
+    setFallbackHistory([]); // Reset fallback history on manual selection
   };
 
   return (
     <Card className="glass-effect border border-border/30 shadow-lg">
-      <VisualizationHeader dataValidation={dataValidation} />
+      <VisualizationHeader 
+        dataValidation={dataValidation}
+        fallbackHistory={fallbackHistory}
+      />
       <CardContent>
         <VisualizationTabs
           currentMode={currentMode}
-          onModeChange={setCurrentMode}
+          onModeChange={handleModeChange}
           has3DSupport={has3DSupport}
+          fallbackHistory={fallbackHistory}
         >
           <VisualizationRenderer
             mode={currentMode}
@@ -95,6 +108,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
           currentMode={currentMode}
           has3DSupport={has3DSupport}
           dataValidation={dataValidation}
+          fallbackHistory={fallbackHistory}
         />
       </CardContent>
     </Card>
