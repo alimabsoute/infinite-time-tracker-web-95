@@ -16,7 +16,7 @@ interface BubbleData {
   totalTime: number;
   sessionCount: number;
   creationDate: Date;
-  category?: string;
+  category: string; // Made required instead of optional
 }
 
 interface BubbleChart3DEnhancedProps {
@@ -200,7 +200,7 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
             throw new Error(`Invalid size for timer: ${timerName}`);
           }
           
-          // Category-based colors
+          // Category-based colors - ensure category is always set
           const colors: Record<string, string> = {
             'Work': '#3b82f6',
             'Personal': '#10b981',
@@ -210,7 +210,8 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
             'Learning': '#06b6d4',
             'Uncategorized': '#6b7280'
           };
-          const color = colors[data.category] || colors.Uncategorized;
+          const category = data.category || 'Uncategorized';
+          const color = colors[category] || colors.Uncategorized;
           
           return {
             id: `${timerName}-${index}`,
@@ -221,7 +222,7 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
             totalTime: data.totalTime,
             sessionCount: data.sessions.length,
             creationDate: data.createdAt,
-            category: data.category
+            category // Now guaranteed to be a string
           };
         } catch (error) {
           console.error('🔍 BubbleChart3DEnhanced - Error creating bubble for timer:', timerName, error);
@@ -284,7 +285,6 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
             console.log('🔍 BubbleChart3DEnhanced - Canvas created successfully');
             gl.setSize(gl.domElement.clientWidth, gl.domElement.clientHeight);
           }}
-          onError={handleCanvasError}
           gl={{ preserveDrawingBuffer: true, antialias: true }}
         >
           <Safe3DScene bubbles={bubbles} onBubbleClick={onBubbleClick} />
