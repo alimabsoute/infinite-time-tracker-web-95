@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { subDays } from 'date-fns';
 import { TimerSessionWithTimer } from "../../../types";
 import DataValidator from './DataValidator';
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,6 +8,7 @@ import VisualizationHeader from './VisualizationHeader';
 import VisualizationTabs from './VisualizationTabs';
 import VisualizationRenderer from './VisualizationRenderer';
 import VisualizationDebugInfo from './VisualizationDebugInfo';
+import DateRangePicker from '../DateRangePicker';
 
 interface VisualizationContainerProps {
   sessions: TimerSessionWithTimer[];
@@ -25,10 +27,15 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
   const [has3DSupport, setHas3DSupport] = useState(true);
   const [dataValidation, setDataValidation] = useState<any>(null);
   const [fallbackHistory, setFallbackHistory] = useState<VisualizationMode[]>([]);
+  
+  // Date range state - default to past week
+  const [startDate, setStartDate] = useState(() => subDays(new Date(), 6));
+  const [endDate, setEndDate] = useState(() => new Date());
 
   console.log('🔍 VisualizationContainer - Initializing with:', {
     sessionsCount: sessions.length,
-    currentWeekStart: currentWeekStart.toISOString(),
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
     currentMode
   });
 
@@ -49,11 +56,11 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
 
   // Validate data on props change
   useEffect(() => {
-    const validation = DataValidator.validateSessions(sessions, currentWeekStart);
+    const validation = DataValidator.validateSessionsForDateRange(sessions, startDate, endDate);
     setDataValidation(validation);
     
     console.log('🔍 VisualizationContainer - Data validation:', validation);
-  }, [sessions, currentWeekStart]);
+  }, [sessions, startDate, endDate]);
 
   const handleVisualizationError = (error: Error, mode: VisualizationMode) => {
     console.error(`🔍 VisualizationContainer - ${mode} visualization error:`, error);
@@ -81,13 +88,35 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
     setFallbackHistory([]); // Reset fallback history on manual selection
   };
 
+  // Handle date range changes
+  const handleDateRangeChange = (newStartDate: Date, newEndDate: Date) => {
+    console.log('🔍 VisualizationContainer - Date range changed:', {
+      startDate: newStartDate.toISOString(),
+      endDate: newEndDate.toISOString()
+    });
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+    setFallbackHistory([]); // Reset fallback history on date change
+  };
+
   return (
     <Card className="glass-effect border border-border/30 shadow-lg">
       <VisualizationHeader 
         dataValidation={dataValidation}
         fallbackHistory={fallbackHistory}
+        dateRange={{ startDate, endDate }}
       />
       <CardContent>
+        {/* Date Range Picker */}
+        <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+          <h4 className="text-sm font-medium mb-2">Select Date Range</h4>
+          <DateRangePicker
+            startDate={startDate}
+            endDate={endDate}
+            onDateRangeChange={handleDateRangeChange}
+          />
+        </div>
+
         <VisualizationTabs
           currentMode={currentMode}
           onModeChange={handleModeChange}
@@ -97,7 +126,8 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
           <VisualizationRenderer
             mode={currentMode}
             sessions={sessions}
-            currentWeekStart={currentWeekStart}
+            startDate={startDate}
+            endDate={endDate}
             hasValidData={dataValidation?.hasValidData || false}
             onBubbleClick={onBubbleClick}
             onVisualizationError={handleVisualizationError}
@@ -109,6 +139,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
           has3DSupport={has3DSupport}
           dataValidation={dataValidation}
           fallbackHistory={fallbackHistory}
+          dateRange={{ startDate, endDate }}
         />
       </CardContent>
     </Card>

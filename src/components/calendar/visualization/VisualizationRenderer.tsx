@@ -10,7 +10,8 @@ type VisualizationMode = '3d' | '2d' | 'bar';
 interface VisualizationRendererProps {
   mode: VisualizationMode;
   sessions: TimerSessionWithTimer[];
-  currentWeekStart: Date;
+  startDate: Date;
+  endDate: Date;
   hasValidData: boolean;
   onBubbleClick?: (bubble: any) => void;
   onVisualizationError: (error: Error, mode: VisualizationMode) => void;
@@ -19,7 +20,8 @@ interface VisualizationRendererProps {
 export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
   mode,
   sessions,
-  currentWeekStart,
+  startDate,
+  endDate,
   hasValidData,
   onBubbleClick,
   onVisualizationError
@@ -28,7 +30,7 @@ export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
     return (
       <div className="h-[400px] flex items-center justify-center text-muted-foreground">
         <div className="text-center">
-          <p>No timer data available for this week</p>
+          <p>No timer data available for this date range</p>
           <p className="text-sm mt-2">Create some timers and log time to see visualizations</p>
           <p className="text-xs mt-4 text-slate-400">Sessions: {sessions.length}</p>
         </div>
@@ -42,7 +44,8 @@ export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
         return (
           <BubbleChart3DEnhanced
             sessions={sessions}
-            currentWeekStart={currentWeekStart}
+            startDate={startDate}
+            endDate={endDate}
             onBubbleClick={onBubbleClick}
             onError={(error) => onVisualizationError(error, '3d')}
           />
@@ -51,7 +54,8 @@ export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
         return (
           <Fallback2DChart
             sessions={sessions}
-            currentWeekStart={currentWeekStart}
+            startDate={startDate}
+            endDate={endDate}
             onBubbleClick={onBubbleClick}
             onError={(error) => onVisualizationError(error, '2d')}
           />
@@ -60,7 +64,8 @@ export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
         return (
           <FallbackBarChart
             sessions={sessions}
-            currentWeekStart={currentWeekStart}
+            startDate={startDate}
+            endDate={endDate}
             onBubbleClick={onBubbleClick}
           />
         );

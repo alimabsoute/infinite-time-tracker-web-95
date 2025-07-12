@@ -4,30 +4,20 @@ import { Canvas } from '@react-three/fiber';
 import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../../types";
 import Safe3DScene from './Safe3DScene';
-import { useBubbleDataProcessor } from './BubbleDataProcessor';
-
-interface BubbleData {
-  id: string;
-  position: [number, number, number];
-  size: number;
-  color: string;
-  timerName: string;
-  totalTime: number;
-  sessionCount: number;
-  creationDate: Date;
-  category: string;
-}
+import { useDateRangeDataProcessor, ProcessedData } from './DateRangeDataProcessor';
 
 interface BubbleChart3DEnhancedProps {
   sessions: TimerSessionWithTimer[];
-  currentWeekStart: Date;
-  onBubbleClick?: (bubble: BubbleData) => void;
+  startDate: Date;
+  endDate: Date;
+  onBubbleClick?: (bubble: ProcessedData) => void;
   onError?: (error: Error) => void;
 }
 
 export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
   sessions,
-  currentWeekStart,
+  startDate,
+  endDate,
   onBubbleClick,
   onError
 }) => {
@@ -37,9 +27,10 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
   const mountedRef = useRef(true);
 
   // Process sessions into bubble data with enhanced validation
-  const bubbles = useBubbleDataProcessor({
+  const bubbles = useDateRangeDataProcessor({
     sessions,
-    currentWeekStart,
+    startDate,
+    endDate,
     onError: (error) => {
       console.error('🔍 BubbleChart3DEnhanced - Data processing error:', error);
       if (mountedRef.current) {
@@ -87,7 +78,7 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
     }
   };
 
-  // Handle Canvas errors using try-catch instead of onError prop
+  // Handle Canvas errors
   const handleCanvasError = (error: Error) => {
     if (mountedRef.current) {
       console.error('🔍 BubbleChart3DEnhanced - Canvas error:', error);

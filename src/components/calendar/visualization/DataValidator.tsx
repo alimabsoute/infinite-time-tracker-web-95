@@ -1,23 +1,31 @@
-
 import { TimerSessionWithTimer } from "../../../types";
-import { startOfWeek, endOfWeek, isWithinInterval } from 'date-fns';
+import { isWithinInterval } from 'date-fns';
 
 export interface ValidationResult {
   hasValidData: boolean;
   validSessionsCount: number;
   timerGroupsCount: number;
-  weekSessions: TimerSessionWithTimer[];
+  dateRangeSessions: TimerSessionWithTimer[];
   timerGroups: Record<string, any>;
   errors: string[];
 }
 
 class DataValidator {
   static validateSessions(sessions: TimerSessionWithTimer[], currentWeekStart: Date): ValidationResult {
+    // Keep backward compatibility - default to 7 days from currentWeekStart
+    const endDate = new Date(currentWeekStart);
+    endDate.setDate(endDate.getDate() + 6);
+    
+    return this.validateSessionsForDateRange(sessions, currentWeekStart, endDate);
+  }
+
+  static validateSessionsForDateRange(sessions: TimerSessionWithTimer[], startDate: Date, endDate: Date): ValidationResult {
     const errors: string[] = [];
     
     console.log('🔍 DataValidator - Starting validation:', {
       totalSessions: sessions.length,
-      weekStart: currentWeekStart.toISOString()
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
     });
 
     // Basic validation
@@ -27,51 +35,50 @@ class DataValidator {
         hasValidData: false,
         validSessionsCount: 0,
         timerGroupsCount: 0,
-        weekSessions: [],
+        dateRangeSessions: [],
         timerGroups: {},
         errors
       };
     }
 
-    if (!currentWeekStart || !(currentWeekStart instanceof Date)) {
-      errors.push('Invalid week start date');
+    if (!startDate || !endDate || !(startDate instanceof Date) || !(endDate instanceof Date)) {
+      errors.push('Invalid date range');
       return {
         hasValidData: false,
         validSessionsCount: 0,
         timerGroupsCount: 0,
-        weekSessions: [],
+        dateRangeSessions: [],
         timerGroups: {},
         errors
       };
     }
 
-    // Filter sessions for current week
-    const weekStart = startOfWeek(currentWeekStart);
-    const weekEnd = endOfWeek(currentWeekStart);
+    // Filter sessions for date range
+    const rangeInterval = { start: startDate, end: endDate };
     
-    const weekSessions = sessions.filter(session => {
+    const dateRangeSessions = sessions.filter(session => {
       if (!session.start_time) return false;
       
       try {
         const sessionDate = new Date(session.start_time);
-        return isWithinInterval(sessionDate, { start: weekStart, end: weekEnd });
+        return isWithinInterval(sessionDate, rangeInterval);
       } catch (error) {
         console.warn('🔍 DataValidator - Invalid session date:', session.start_time);
         return false;
       }
     });
 
-    console.log('🔍 DataValidator - Week filtering:', {
-      weekStart: weekStart.toISOString(),
-      weekEnd: weekEnd.toISOString(),
-      weekSessions: weekSessions.length
+    console.log('🔍 DataValidator - Date range filtering:', {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      dateRangeSessions: dateRangeSessions.length
     });
 
     // Validate and group sessions by timer
     const timerGroups: Record<string, any> = {};
     let validSessionsCount = 0;
 
-    weekSessions.forEach(session => {
+    dateRangeSessions.forEach(session => {
       // Enhanced timer name extraction
       let timerName: string | undefined;
       let category = 'Uncategorized';
@@ -159,7 +166,7 @@ class DataValidator {
       hasValidData,
       validSessionsCount,
       timerGroupsCount,
-      weekSessions,
+      dateRangeSessions,
       timerGroups,
       errors
     };

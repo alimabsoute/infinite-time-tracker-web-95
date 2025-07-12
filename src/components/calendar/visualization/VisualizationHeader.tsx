@@ -1,80 +1,72 @@
 
 import React from 'react';
-import { CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { format } from 'date-fns';
+import { Database, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 
 interface VisualizationHeaderProps {
-  dataValidation?: any;
-  fallbackHistory?: string[];
+  dataValidation: any;
+  fallbackHistory: string[];
+  dateRange?: {
+    startDate: Date;
+    endDate: Date;
+  };
 }
 
 const VisualizationHeader: React.FC<VisualizationHeaderProps> = ({
   dataValidation,
-  fallbackHistory = []
+  fallbackHistory,
+  dateRange
 }) => {
-  const getStatusInfo = () => {
-    if (!dataValidation) {
-      return { icon: Info, color: 'bg-blue-500', text: 'Loading...', description: 'Preparing visualization data' };
-    }
-    
-    if (!dataValidation.hasValidData) {
-      return { 
-        icon: AlertTriangle, 
-        color: 'bg-yellow-500', 
-        text: 'No Data', 
-        description: 'No timer sessions found for visualization' 
-      };
-    }
-    
-    if (fallbackHistory.length > 0) {
-      return { 
-        icon: AlertTriangle, 
-        color: 'bg-orange-500', 
-        text: 'Fallback Active', 
-        description: `Using fallback after ${fallbackHistory.join(' → ')} failed` 
-      };
-    }
-    
-    return { 
-      icon: CheckCircle, 
-      color: 'bg-green-500', 
-      text: 'Ready', 
-      description: `${dataValidation.timerGroupsCount} timers visualized` 
-    };
-  };
-
-  const statusInfo = getStatusInfo();
-  const StatusIcon = statusInfo.icon;
-
+  const hasValidData = dataValidation?.hasValidData;
+  const validSessionsCount = dataValidation?.validSessionsCount || 0;
+  const timerGroupsCount = dataValidation?.timerGroupsCount || 0;
+  
   return (
-    <CardHeader className="pb-3">
+    <div className="p-4 border-b border-border/30">
       <div className="flex items-center justify-between">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Activity size={18} className="text-primary" />
-          Weekly Timer Visualization
-        </CardTitle>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold">Multi-Layer Visualization</h3>
+          {hasValidData ? (
+            <CheckCircle className="h-4 w-4 text-green-500" />
+          ) : (
+            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+          )}
+        </div>
         
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="flex items-center gap-1">
-            <StatusIcon size={12} className="text-current" />
-            {statusInfo.text}
-          </Badge>
+          {dateRange && (
+            <Badge variant="outline" className="text-xs">
+              {format(dateRange.startDate, 'MMM dd')} - {format(dateRange.endDate, 'MMM dd')}
+            </Badge>
+          )}
           
-          {dataValidation?.hasValidData && (
-            <Badge variant="secondary">
-              {dataValidation.validSessionsCount} sessions
+          {hasValidData && (
+            <>
+              <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                <Database className="h-3 w-3" />
+                {validSessionsCount} sessions
+              </Badge>
+              <Badge variant="secondary" className="text-xs">
+                {timerGroupsCount} timers
+              </Badge>
+            </>
+          )}
+          
+          {fallbackHistory.length > 0 && (
+            <Badge variant="destructive" className="text-xs">
+              Fallbacks: {fallbackHistory.length}
             </Badge>
           )}
         </div>
       </div>
       
-      {statusInfo.description && (
-        <p className="text-sm text-muted-foreground mt-1">
-          {statusInfo.description}
+      {!hasValidData && (
+        <p className="text-sm text-muted-foreground mt-2">
+          No timer data found for the selected date range. Try selecting a different period or create some timer sessions.
         </p>
       )}
-    </CardHeader>
+    </div>
   );
 };
 
