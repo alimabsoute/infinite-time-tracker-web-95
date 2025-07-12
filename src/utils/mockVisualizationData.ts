@@ -38,17 +38,7 @@ export const generateMockVisualizationData = (): TimerSessionWithTimer[] => {
       timers: {
         id: `mock-timer-${i % 25}`,
         name: timerName,
-        category,
-        user_id: 'mock-user',
-        created_at: sessionDate.toISOString(),
-        elapsed_time: 0,
-        is_running: false,
-        priority: Math.floor(Math.random() * 5) + 1,
-        tags: [],
-        deadline: null,
-        deleted_at: null,
-        deleted_by: null,
-        last_accessed_at: sessionDate.toISOString()
+        category
       }
     };
     
