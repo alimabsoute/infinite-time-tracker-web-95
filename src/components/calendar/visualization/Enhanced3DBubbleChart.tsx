@@ -60,9 +60,9 @@ const AnimatedBubble: React.FC<BubbleProps> = ({ position, size, color, timer, o
 };
 
 const AxisLines: React.FC = () => {
-  const xAxisPoints = [[-8, 0, 0], [8, 0, 0]];
-  const yAxisPoints = [[0, -6, 0], [0, 6, 0]];
-  const zAxisPoints = [[0, 0, -8], [0, 0, 8]];
+  const xAxisPoints: [number, number, number][] = [[-8, 0, 0], [8, 0, 0]];
+  const yAxisPoints: [number, number, number][] = [[0, -6, 0], [0, 6, 0]];
+  const zAxisPoints: [number, number, number][] = [[0, 0, -8], [0, 0, 8]];
 
   return (
     <>
