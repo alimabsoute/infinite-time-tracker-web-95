@@ -14,6 +14,20 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());
   const [categoryFilter, setCategoryFilter] = React.useState('all');
 
+  console.log('🔍 Calendar Page - Data summary:', {
+    timersCount: timers.length,
+    sessionsCount: sessions.length,
+    sessionsLoading,
+    selectedDate: selectedDate?.toISOString(),
+    sampleTimer: timers[0]?.name || 'No timers',
+    sampleSession: sessions[0] ? {
+      id: sessions[0].id,
+      timer_name: sessions[0].timers?.name || 'No name',
+      duration_ms: sessions[0].duration_ms,
+      start_time: sessions[0].start_time
+    } : 'No sessions'
+  });
+
   const handleMonthChange = (direction: 'prev' | 'next') => {
     const newMonth = new Date(currentMonth);
     if (direction === 'prev') {

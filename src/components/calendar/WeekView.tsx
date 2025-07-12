@@ -10,13 +10,13 @@ import WeeklyNavigation from './WeeklyNavigation';
 import WeeklyStats from './WeeklyStats';
 import WeeklyAnalysis from './WeeklyAnalysis';
 import ErrorBoundary from '../ErrorBoundary';
-import VisualizationContainer from './visualization/VisualizationContainer';
+import BubbleChart3D from './BubbleChart3D';
 
 interface WeekData {
   date: Date;
   day: string;
   totalHours: number;
-  timers: number; // Session count
+  timers: number;
 }
 
 interface WeekViewProps {
@@ -26,7 +26,6 @@ interface WeekViewProps {
 }
 
 const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelectedDate }) => {
-  // Initialize with the week containing the selected date
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => 
     startOfWeek(selectedDate || new Date())
   );
@@ -34,24 +33,11 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
   console.log('🔍 WeekView - Initializing with selectedDate:', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none');
   console.log('🔍 WeekView - Initial currentWeekStart:', format(currentWeekStart, 'yyyy-MM-dd'));
   console.log('🔍 WeekView - Total sessions available:', sessions.length);
-  
-  // Sample session data for debugging
-  if (sessions.length > 0) {
-    console.log('🔍 WeekView - Sample sessions:', sessions.slice(0, 3).map(s => ({
-      id: s.id,
-      start_time: s.start_time,
-      duration_ms: s.duration_ms,
-      timer_name_from_timers: s.timers?.name,
-      timer_name_direct: (s as any).timer_name,
-      session_structure: Object.keys(s)
-    })));
-  }
-  
+
   // Update currentWeekStart when selectedDate changes significantly
   useEffect(() => {
     if (selectedDate) {
       const selectedWeekStart = startOfWeek(selectedDate);
-      // Only update if we're viewing a different week
       if (!isSameDay(selectedWeekStart, currentWeekStart)) {
         console.log('🔍 WeekView - Updating week start from', format(currentWeekStart, 'yyyy-MM-dd'), 'to', format(selectedWeekStart, 'yyyy-MM-dd'));
         setCurrentWeekStart(selectedWeekStart);
@@ -59,37 +45,23 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
     }
   }, [selectedDate, currentWeekStart]);
 
-  // Generate week data based on current week start and sessions
+  // Generate week data
   const weekData = useMemo(() => {
     console.log('🔍 WeekView - Generating week data for week starting:', format(currentWeekStart, 'yyyy-MM-dd'));
-    console.log('🔍 WeekView - Processing', sessions.length, 'total sessions');
     
     const data = Array.from({ length: 7 }, (_, i) => {
       const date = addDays(currentWeekStart, i);
-      console.log(`🔍 WeekView - Processing day ${i + 1}: ${format(date, 'yyyy-MM-dd')}`);
-      
       const daySessions = getSessionsForDate(date, sessions);
       const totalTime = daySessions.reduce((total, session) => {
-        const duration = session.duration_ms || 0;
-        console.log(`  Session ${session.id}: ${duration}ms (${(duration / 60000).toFixed(1)}min)`);
-        return total + duration;
+        return total + (session.duration_ms || 0);
       }, 0);
       
-      const result = {
+      return {
         date,
         day: format(date, 'EEE'),
         totalHours: totalTime / 3600000,
         timers: daySessions.length
       };
-      
-      console.log(`🔍 WeekView - Day ${format(date, 'yyyy-MM-dd')} result:`, {
-        sessionsCount: daySessions.length,
-        totalTimeMs: totalTime,
-        totalHours: result.totalHours.toFixed(2),
-        hasData: totalTime > 0
-      });
-      
-      return result;
     });
     
     const totalWeekHours = data.reduce((sum, day) => sum + day.totalHours, 0);
@@ -97,13 +69,7 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
     
     console.log('🔍 WeekView - Week summary:', {
       totalWeekHours: totalWeekHours.toFixed(2),
-      daysWithData,
-      weekData: data.map(d => ({
-        day: d.day,
-        date: format(d.date, 'yyyy-MM-dd'),
-        hours: d.totalHours.toFixed(2),
-        sessions: d.timers
-      }))
+      daysWithData
     });
     
     return data;
@@ -137,7 +103,7 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-lg flex items-center gap-2">
             <Clock size={16} className="text-primary" /> 
-            Weekly Activity
+            Weekly Activity - 3D Bubble Visualization
           </CardTitle>
           <WeeklyNavigation
             currentWeekStart={currentWeekStart}
@@ -145,17 +111,17 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
           />
         </CardHeader>
         <CardContent>
-          {/* Enhanced Visualization Container with Multiple Fallbacks */}
+          {/* Direct 3D Bubble Chart */}
           <ErrorBoundary fallback={
             <div className="h-[400px] flex items-center justify-center text-muted-foreground bg-red-100 rounded-lg">
               <div className="text-center">
-                <p className="text-red-600 font-medium">Unable to load visualization</p>
-                <p className="text-red-500 text-sm mt-2">All visualization modes failed</p>
+                <p className="text-red-600 font-medium">3D visualization failed to load</p>
+                <p className="text-red-500 text-sm mt-2">Falling back to basic view</p>
                 <p className="text-red-400 text-xs mt-1">Sessions available: {sessions.length}</p>
               </div>
             </div>
-          }>            
-            <VisualizationContainer
+          }>
+            <BubbleChart3D
               sessions={sessions}
               currentWeekStart={currentWeekStart}
               onBubbleClick={(bubble) => {
@@ -173,7 +139,6 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
         </CardContent>
       </Card>
       
-      {/* Weekly Analysis Section */}
       <WeeklyAnalysis
         sessions={sessions}
         currentWeekStart={currentWeekStart}
