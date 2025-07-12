@@ -6,6 +6,10 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { Timer, TimerSessionWithTimer } from "../../../types";
 import Enhanced2DBubbleChart from './Enhanced2DBubbleChart';
 import Enhanced3DBubbleChart from './Enhanced3DBubbleChart';
+import RadialProgressChart from './RadialProgressChart';
+import PerformanceHeatmap from './PerformanceHeatmap';
+import NetworkGraph3D from './NetworkGraph3D';
+import ChartInsights from './ChartInsights';
 import TimerCategoryFilter from '../TimerCategoryFilter';
 import TimerChartLegend from '../TimerChartLegend';
 import TimerDetails from '../TimerDetails';
@@ -45,83 +49,140 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
 
   return (
     <div className="space-y-6">
-      {/* Summary Stats - Fixed at top */}
+      {/* Enhanced Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-blue-600">{totalSessions}</div>
-            <p className="text-sm text-gray-600">Total Sessions</p>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{totalSessions}</div>
+            <p className="text-sm text-blue-700 dark:text-blue-300">Total Sessions</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200 dark:border-green-800">
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">{(totalTime / (1000 * 60 * 60)).toFixed(1)}h</div>
-            <p className="text-sm text-gray-600">Total Time</p>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{(totalTime / (1000 * 60 * 60)).toFixed(1)}h</div>
+            <p className="text-sm text-green-700 dark:text-green-300">Total Time</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800">
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-orange-600">{(avgSessionTime / (1000 * 60)).toFixed(0)}m</div>
-            <p className="text-sm text-gray-600">Avg Session</p>
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{(avgSessionTime / (1000 * 60)).toFixed(0)}m</div>
+            <p className="text-sm text-orange-700 dark:text-orange-300">Avg Session</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-purple-200 dark:border-purple-800">
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-purple-600">{uniqueTimers}</div>
-            <p className="text-sm text-gray-600">Active Timers</p>
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{uniqueTimers}</div>
+            <p className="text-sm text-purple-700 dark:text-purple-300">Active Timers</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Resizable Layout */}
-      <div className="w-full" style={{ height: '600px' }}>
-        <Card className="h-full">
-          <CardHeader className="pb-2 flex-shrink-0">
+      {/* Main Visualization Area */}
+      <div className="w-full" style={{ height: '700px' }}>
+        <Card className="h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+          <CardHeader className="pb-2 flex-shrink-0 border-b border-border/50">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <CardTitle>Timer Performance Analysis</CardTitle>
+              <CardTitle className="text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Advanced Analytics Dashboard
+              </CardTitle>
               <TimerCategoryFilter 
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
               />
             </div>
           </CardHeader>
-          <CardContent className="flex-1 min-h-0">
-            <ResizablePanelGroup direction="horizontal" className="h-full min-h-[500px]">
+          <CardContent className="flex-1 min-h-0 p-4">
+            <ResizablePanelGroup direction="horizontal" className="h-full min-h-[600px]">
               {/* Main Chart Area */}
-              <ResizablePanel defaultSize={75} minSize={50}>
+              <ResizablePanel defaultSize={75} minSize={60}>
                 <div className="h-full pr-2 flex flex-col">
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-                    <TabsList className="mb-4 flex-shrink-0">
-                      <TabsTrigger value="3d">3D Interactive</TabsTrigger>
-                      <TabsTrigger value="2d">2D Chart</TabsTrigger>
+                    <TabsList className="mb-4 flex-shrink-0 bg-background/50 backdrop-blur-sm">
+                      <TabsTrigger value="3d" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                        3D Bubbles
+                      </TabsTrigger>
+                      <TabsTrigger value="2d" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                        2D Scatter
+                      </TabsTrigger>
+                      <TabsTrigger value="radial" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                        Radial Progress
+                      </TabsTrigger>
+                      <TabsTrigger value="heatmap" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                        Heatmap
+                      </TabsTrigger>
+                      <TabsTrigger value="network" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                        Network 3D
+                      </TabsTrigger>
                     </TabsList>
                     
                     <div className="flex-1 min-h-0">
                       <TabsContent value="3d" className="h-full mt-0">
                         <div className="h-full flex flex-col">
-                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                          <div className="flex-1 rounded-lg overflow-hidden" style={{ minHeight: '400px' }}>
                             <Enhanced3DBubbleChart 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
                               onBubbleClick={handleBubbleClick}
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-2 text-center flex-shrink-0">
-                            Click and drag to rotate • Scroll to zoom • Click bubbles for details • Reset button in top-right
+                          <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
+                            Interactive 3D bubble chart • Click and drag to rotate • Scroll to zoom • Click bubbles for details
                           </p>
                         </div>
                       </TabsContent>
                       
                       <TabsContent value="2d" className="h-full mt-0">
                         <div className="h-full flex flex-col">
-                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                          <div className="flex-1 rounded-lg overflow-hidden" style={{ minHeight: '400px' }}>
                             <Enhanced2DBubbleChart 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
                             />
                           </div>
-                          <p className="text-xs text-gray-500 mt-2 text-center flex-shrink-0">
-                            Bubble size represents number of sessions • Hover for details
+                          <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
+                            2D scatter plot • Bubble size represents session count • Hover for details
+                          </p>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="radial" className="h-full mt-0">
+                        <div className="h-full flex flex-col">
+                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                            <RadialProgressChart 
+                              sessions={sessions} 
+                              selectedCategory={selectedCategory}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
+                            Radial progress by category • Animated concentric rings show relative performance
+                          </p>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="heatmap" className="h-full mt-0">
+                        <div className="h-full flex flex-col">
+                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                            <PerformanceHeatmap 
+                              sessions={sessions} 
+                              selectedCategory={selectedCategory}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
+                            GitHub-style activity heatmap • 12 weeks of daily activity patterns
+                          </p>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="network" className="h-full mt-0">
+                        <div className="h-full flex flex-col">
+                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                            <NetworkGraph3D 
+                              sessions={sessions} 
+                              selectedCategory={selectedCategory}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
+                            3D network visualization • Connected nodes show category relationships
                           </p>
                         </div>
                       </TabsContent>
@@ -131,29 +192,44 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
               </ResizablePanel>
 
               {/* Resizable Handle */}
-              <ResizableHandle withHandle />
+              <ResizableHandle withHandle className="bg-border/50 hover:bg-border transition-colors" />
 
-              {/* Sidebar */}
+              {/* Enhanced Sidebar */}
               <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
                 <div className="pl-2 h-full flex flex-col">
                   <div className="flex-1 overflow-y-auto space-y-4">
                     <TimerChartLegend />
                     <TimerDetails timer={selectedTimer} />
                     
-                    {/* Additional info card */}
-                    <Card>
+                    {/* Smart Insights */}
+                    <ChartInsights 
+                      sessions={sessions}
+                      selectedCategory={selectedCategory}
+                    />
+                    
+                    {/* Enhanced Guide */}
+                    <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900 border-indigo-200 dark:border-indigo-800">
                       <CardHeader>
-                        <CardTitle className="text-sm">Visualization Guide</CardTitle>
+                        <CardTitle className="text-sm text-indigo-700 dark:text-indigo-300">Visualization Guide</CardTitle>
                       </CardHeader>
-                      <CardContent className="text-xs space-y-2">
+                      <CardContent className="text-xs space-y-2 text-indigo-600 dark:text-indigo-400">
                         <div>
-                          <strong>3D View:</strong> Interactive exploration with rotation and zoom
+                          <strong>3D Bubbles:</strong> Interactive sphere visualization with rotation and zoom
                         </div>
                         <div>
-                          <strong>2D View:</strong> Traditional scatter plot with proportional bubbles
+                          <strong>2D Scatter:</strong> Traditional bubble chart with hover details
                         </div>
                         <div>
-                          <strong>Resize:</strong> Drag the separator to expand chart area
+                          <strong>Radial Progress:</strong> Animated category performance rings
+                        </div>
+                        <div>
+                          <strong>Heatmap:</strong> Daily activity patterns over 12 weeks
+                        </div>
+                        <div>
+                          <strong>Network 3D:</strong> Relationship visualization between timers
+                        </div>
+                        <div className="pt-2 border-t border-indigo-200 dark:border-indigo-800">
+                          <strong>Tip:</strong> Drag the separator to expand chart area as needed
                         </div>
                       </CardContent>
                     </Card>
@@ -165,23 +241,39 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
         </Card>
       </div>
 
-      {/* About Section - Fixed at bottom */}
-      <Card>
+      {/* Enhanced About Section */}
+      <Card className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-slate-200 dark:border-slate-700">
         <CardHeader>
-          <CardTitle>About This Visualization</CardTitle>
+          <CardTitle className="text-xl text-slate-700 dark:text-slate-300">About These Visualizations</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="prose prose-sm max-w-none text-gray-600">
+          <div className="prose prose-sm max-w-none text-slate-600 dark:text-slate-400">
             <p>
-              This enhanced visualization shows your timer usage patterns with improved clarity and interactivity. 
-              Each bubble represents a timer with size proportional to the number of sessions and pastel colors for better visibility.
+              Our advanced analytics dashboard provides multiple perspectives on your productivity data with enhanced 
+              visual clarity, better color contrast, and intelligent insights.
             </p>
-            <ul className="mt-4 space-y-1">
-              <li><strong>2D Chart:</strong> Proper circular bubbles with relative sizing based on session count</li>
-              <li><strong>3D Chart:</strong> Enhanced with axis lines, arrows, and a reset button for easy navigation</li>
-              <li><strong>Resizable Layout:</strong> Drag the separator to expand the chart area as needed</li>
-              <li><strong>Pastel Colors:</strong> Improved visibility with transparent, easy-on-the-eyes colors</li>
-            </ul>
+            <div className="grid md:grid-cols-2 gap-6 mt-6">
+              <div>
+                <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Interactive Charts</h4>
+                <ul className="space-y-1 text-sm">
+                  <li><strong>3D Bubble Chart:</strong> Immersive sphere visualization with smooth interactions</li>
+                  <li><strong>2D Scatter Plot:</strong> Clear bubble chart with proportional sizing</li>
+                  <li><strong>Radial Progress:</strong> Animated concentric rings showing category performance</li>
+                  <li><strong>Activity Heatmap:</strong> GitHub-style calendar showing daily patterns</li>
+                  <li><strong>Network Graph:</strong> 3D relationship mapping between related timers</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Smart Features</h4>
+                <ul className="space-y-1 text-sm">
+                  <li><strong>Enhanced Colors:</strong> High-contrast pastels for better accessibility</li>
+                  <li><strong>Resizable Layout:</strong> Drag separator to customize view proportions</li>
+                  <li><strong>Smart Insights:</strong> AI-powered recommendations based on your patterns</li>
+                  <li><strong>Dynamic Filtering:</strong> Category-based filtering across all charts</li>
+                  <li><strong>Responsive Design:</strong> Optimized for all screen sizes</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
