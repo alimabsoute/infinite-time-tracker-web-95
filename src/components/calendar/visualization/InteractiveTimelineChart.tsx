@@ -1,8 +1,8 @@
+
 import React, { useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { format, parseISO, eachDayOfInterval, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { TimerSessionWithTimer } from '../../../types';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
 
@@ -107,113 +107,107 @@ const InteractiveTimelineChart: React.FC<InteractiveTimelineChartProps> = ({
 
   if (timelineData.length === 0) {
     return (
-      <Card className="h-[400px] flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <div className="text-center text-muted-foreground">
           <p>No timeline data available</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   const selectedDayData = selectedDay ? timelineData.find(d => d.date === selectedDay) : null;
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="text-lg">Interactive Activity Timeline</CardTitle>
-        <p className="text-sm text-muted-foreground">Click bars to see detailed session breakdown</p>
-      </CardHeader>
-      <CardContent className="h-full">
-        <div className="h-full flex flex-col">
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={timelineData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+    <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
+      <div className="h-full flex flex-col">
+        <div className="flex-1 min-h-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={timelineData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+              <XAxis 
+                dataKey="displayDate" 
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                interval={0}
+                tick={{ fontSize: 11 }}
+              />
+              <YAxis 
+                label={{ value: 'Hours', angle: -90, position: 'insideLeft' }}
+                tick={{ fontSize: 11 }}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar 
+                dataKey="totalHours" 
+                radius={[4, 4, 0, 0]}
+                onClick={handleBarClick}
+                style={{ cursor: 'pointer' }}
               >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis 
-                  dataKey="displayDate" 
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
-                  interval={0}
-                  tick={{ fontSize: 11 }}
-                />
-                <YAxis 
-                  label={{ value: 'Hours', angle: -90, position: 'insideLeft' }}
-                  tick={{ fontSize: 11 }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar 
-                  dataKey="totalHours" 
-                  radius={[4, 4, 0, 0]}
-                  onClick={handleBarClick}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {timelineData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.color}
-                      fillOpacity={selectedDay === entry.date ? 1 : 0.7}
-                      stroke={selectedDay === entry.date ? entry.color : 'none'}
-                      strokeWidth={selectedDay === entry.date ? 2 : 0}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          
-          {/* Selected Day Details */}
-          {selectedDayData && (
-            <div className="mt-4 p-4 bg-muted/30 rounded-lg border">
-              <h4 className="font-semibold mb-2">
-                {format(parseISO(selectedDayData.date), 'EEEE, MMMM dd, yyyy')}
-              </h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
-                <div className="text-center">
-                  <div className="text-lg font-bold text-primary">{selectedDayData.totalHours.toFixed(1)}h</div>
-                  <div className="text-xs text-muted-foreground">Total Time</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-secondary">{selectedDayData.sessionCount}</div>
-                  <div className="text-xs text-muted-foreground">Sessions</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-accent">{selectedDayData.uniqueTimers}</div>
-                  <div className="text-xs text-muted-foreground">Timers</div>
-                </div>
-                <div className="text-center">
-                  <Badge variant="outline" className="text-xs">
-                    {selectedDayData.dominantCategory}
-                  </Badge>
-                </div>
-              </div>
-              
-              {/* Session List */}
-              <div className="space-y-1 max-h-32 overflow-y-auto">
-                {selectedDayData.sessions.slice(0, 5).map((session, index) => (
-                  <div key={session.id} className="flex justify-between items-center text-xs">
-                    <span className="font-medium truncate">
-                      {session.timers?.name || 'Unknown Timer'}
-                    </span>
-                    <span className="text-muted-foreground">
-                      {((session.duration_ms || 0) / (1000 * 60)).toFixed(0)}min
-                    </span>
-                  </div>
+                {timelineData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.color}
+                    fillOpacity={selectedDay === entry.date ? 1 : 0.7}
+                    stroke={selectedDay === entry.date ? entry.color : 'none'}
+                    strokeWidth={selectedDay === entry.date ? 2 : 0}
+                  />
                 ))}
-                {selectedDayData.sessions.length > 5 && (
-                  <div className="text-xs text-muted-foreground text-center">
-                    +{selectedDayData.sessions.length - 5} more sessions
-                  </div>
-                )}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        
+        {/* Selected Day Details - Only show if there's space */}
+        {selectedDayData && (
+          <div className="mt-4 p-4 bg-muted/30 rounded-lg border flex-shrink-0">
+            <h4 className="font-semibold mb-2">
+              {format(parseISO(selectedDayData.date), 'EEEE, MMMM dd, yyyy')}
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+              <div className="text-center">
+                <div className="text-lg font-bold text-primary">{selectedDayData.totalHours.toFixed(1)}h</div>
+                <div className="text-xs text-muted-foreground">Total Time</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-secondary">{selectedDayData.sessionCount}</div>
+                <div className="text-xs text-muted-foreground">Sessions</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-accent">{selectedDayData.uniqueTimers}</div>
+                <div className="text-xs text-muted-foreground">Timers</div>
+              </div>
+              <div className="text-center">
+                <Badge variant="outline" className="text-xs">
+                  {selectedDayData.dominantCategory}
+                </Badge>
               </div>
             </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+            
+            {/* Session List */}
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              {selectedDayData.sessions.slice(0, 5).map((session, index) => (
+                <div key={session.id} className="flex justify-between items-center text-xs">
+                  <span className="font-medium truncate">
+                    {session.timers?.name || 'Unknown Timer'}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {((session.duration_ms || 0) / (1000 * 60)).toFixed(0)}min
+                  </span>
+                </div>
+              ))}
+              {selectedDayData.sessions.length > 5 && (
+                <div className="text-xs text-muted-foreground text-center">
+                  +{selectedDayData.sessions.length - 5} more sessions
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

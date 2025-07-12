@@ -58,7 +58,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       {/* Enhanced Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
@@ -87,26 +87,26 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
         </Card>
       </div>
 
-      {/* Main Visualization Area */}
-      <div className="w-full" style={{ height: '700px' }}>
-        <Card className="h-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-          <CardHeader className="pb-2 flex-shrink-0 border-b border-border/50">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <CardTitle className="text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Enhanced Analytics Dashboard
-              </CardTitle>
-              <TimerCategoryFilter 
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-              />
-            </div>
-          </CardHeader>
-          <CardContent className="flex-1 min-h-0 p-4">
-            <ResizablePanelGroup direction="horizontal" className="h-full min-h-[600px]">
+      {/* Main Visualization Area - Fixed Height Container */}
+      <Card className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        <CardHeader className="pb-4 border-b border-border/50">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <CardTitle className="text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Enhanced Analytics Dashboard
+            </CardTitle>
+            <TimerCategoryFilter 
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+          </div>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="h-[600px]">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
               {/* Main Chart Area */}
               <ResizablePanel defaultSize={75} minSize={60}>
-                <div className="h-full pr-2 flex flex-col">
-                  <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+                <div className="h-full pr-2">
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
                     <TabsList className="mb-4 flex-shrink-0 bg-background/50 backdrop-blur-sm">
                       <TabsTrigger value="3d" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                         3D Bubbles
@@ -128,7 +128,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                     <div className="flex-1 min-h-0">
                       <TabsContent value="3d" className="h-full mt-0">
                         <div className="h-full flex flex-col">
-                          <div className="flex-1 rounded-lg overflow-hidden" style={{ minHeight: '400px' }}>
+                          <div className="flex-1 min-h-0">
                             <Enhanced3DBubbleChart 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
@@ -143,7 +143,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                       
                       <TabsContent value="2d" className="h-full mt-0">
                         <div className="h-full flex flex-col">
-                          <div className="flex-1 rounded-lg overflow-hidden" style={{ minHeight: '400px' }}>
+                          <div className="flex-1 min-h-0">
                             <Enhanced2DBubbleChart 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
@@ -158,7 +158,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
 
                       <TabsContent value="timeline" className="h-full mt-0">
                         <div className="h-full flex flex-col">
-                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                          <div className="flex-1 min-h-0">
                             <InteractiveTimelineChart 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
@@ -172,7 +172,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
 
                       <TabsContent value="radar" className="h-full mt-0">
                         <div className="h-full flex flex-col">
-                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                          <div className="flex-1 min-h-0">
                             <CategoryRadarChart 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
@@ -186,7 +186,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
 
                       <TabsContent value="network" className="h-full mt-0">
                         <div className="h-full flex flex-col">
-                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                          <div className="flex-1 min-h-0">
                             <EnhancedNetworkGraph3D 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
@@ -242,9 +242,9 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                 </div>
               </ResizablePanel>
             </ResizablePanelGroup>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Enhanced Chart-Specific Insights */}
       <EnhancedChartInsights 

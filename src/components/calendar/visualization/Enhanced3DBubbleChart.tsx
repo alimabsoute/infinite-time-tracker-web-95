@@ -4,7 +4,6 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
 import { TimerSessionWithTimer } from '../../../types';
 import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Enhanced3DBubbleChartProps {
   sessions: TimerSessionWithTimer[];
@@ -137,7 +136,7 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
 
   if (canvasError) {
     return (
-      <Card className="h-[400px] flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <div className="text-center text-red-600">
           <p className="font-medium">3D Visualization Error</p>
           <p className="text-sm mt-2">{canvasError}</p>
@@ -148,64 +147,57 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
             Retry
           </button>
         </div>
-      </Card>
+      </div>
     );
   }
 
   if (bubbleData.length === 0) {
     return (
-      <Card className="h-[400px] flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <div className="text-center text-muted-foreground">
           <p>No data available for 3D visualization</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="text-lg">3D Activity Sphere</CardTitle>
-        <p className="text-sm text-muted-foreground">Interactive 3D bubble visualization</p>
-      </CardHeader>
-      <CardContent className="h-full">
-        <div className="h-full border rounded-lg overflow-hidden">
-          <Suspense fallback={
-            <div className="h-full flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          }>
-            <Canvas 
-              camera={{ position: [8, 6, 8], fov: 60 }}
-              onError={handleCanvasError}
-              gl={{ antialias: true, alpha: true }}
-            >
-              <ambientLight intensity={0.6} />
-              <pointLight position={[10, 10, 10]} intensity={0.8} />
-              <pointLight position={[-10, -10, -10]} intensity={0.3} />
-              
-              {bubbleData.map(bubble => (
-                <Bubble
-                  key={bubble.timerId}
-                  bubble={bubble}
-                  onClick={handleBubbleClick}
-                  isHovered={hoveredTimer === bubble.timerId}
-                  onHover={setHoveredTimer}
-                />
-              ))}
-              
-              <OrbitControls
-                enableZoom={true}
-                enablePan={true}
-                enableRotate={true}
-                minDistance={5}
-                maxDistance={20}
-              />
-            </Canvas>
-          </Suspense>
+    <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <Suspense fallback={
+        <div className="h-full flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </CardContent>
-    </Card>
+      }>
+        <Canvas 
+          camera={{ position: [8, 6, 8], fov: 60 }}
+          onError={handleCanvasError}
+          gl={{ antialias: true, alpha: true }}
+          className="h-full w-full"
+        >
+          <ambientLight intensity={0.6} />
+          <pointLight position={[10, 10, 10]} intensity={0.8} />
+          <pointLight position={[-10, -10, -10]} intensity={0.3} />
+          
+          {bubbleData.map(bubble => (
+            <Bubble
+              key={bubble.timerId}
+              bubble={bubble}
+              onClick={handleBubbleClick}
+              isHovered={hoveredTimer === bubble.timerId}
+              onHover={setHoveredTimer}
+            />
+          ))}
+          
+          <OrbitControls
+            enableZoom={true}
+            enablePan={true}
+            enableRotate={true}
+            minDistance={5}
+            maxDistance={20}
+          />
+        </Canvas>
+      </Suspense>
+    </div>
   );
 };
 

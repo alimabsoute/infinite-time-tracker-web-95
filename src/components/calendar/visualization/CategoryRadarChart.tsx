@@ -2,7 +2,6 @@
 import React, { useMemo, useState } from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
 import { TimerSessionWithTimer } from '../../../types';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface CategoryRadarChartProps {
   sessions: TimerSessionWithTimer[];
@@ -72,22 +71,18 @@ const CategoryRadarChart: React.FC<CategoryRadarChartProps> = ({ sessions, selec
 
   if (radarData.length === 0) {
     return (
-      <Card className="h-[400px] flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <div className="text-center text-muted-foreground">
           <p>No category data available for radar visualization</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="text-lg">Category Performance Radar</CardTitle>
-        <p className="text-sm text-muted-foreground">Multi-dimensional category analysis</p>
-      </CardHeader>
-      <CardContent className="h-full">
-        <div className="h-full">
+    <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
+      <div className="h-full flex flex-col">
+        <div className="flex-1 min-h-0">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={radarData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
               <PolarGrid />
@@ -135,7 +130,7 @@ const CategoryRadarChart: React.FC<CategoryRadarChartProps> = ({ sessions, selec
         </div>
         
         {/* Legend */}
-        <div className="mt-4 flex justify-center gap-6 text-xs">
+        <div className="mt-4 flex justify-center gap-6 text-xs flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-primary rounded-full"></div>
             <span>Time Volume</span>
@@ -149,8 +144,8 @@ const CategoryRadarChart: React.FC<CategoryRadarChartProps> = ({ sessions, selec
             <span>Efficiency</span>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

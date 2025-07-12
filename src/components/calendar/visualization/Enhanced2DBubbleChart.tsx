@@ -3,7 +3,6 @@ import React, { useMemo, useState } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { TimerSessionWithTimer } from '../../../types';
 import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Enhanced2DBubbleChartProps {
   sessions: TimerSessionWithTimer[];
@@ -79,69 +78,63 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
 
   if (chartData.length === 0) {
     return (
-      <Card className="h-[400px] flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <div className="text-center text-muted-foreground">
           <p>No data available for 2D scatter visualization</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="text-lg">2D Activity Scatter Chart</CardTitle>
-        <p className="text-sm text-muted-foreground">Bubble size represents session count</p>
-      </CardHeader>
-      <CardContent className="h-full">
-        <div className="h-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart
-              margin={{
-                top: 20,
-                right: 30,
-                bottom: 60,
-                left: 60,
-              }}
+    <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
+      <div className="h-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <ScatterChart
+            margin={{
+              top: 20,
+              right: 30,
+              bottom: 60,
+              left: 60,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+            <XAxis 
+              type="number" 
+              dataKey="x" 
+              name="Total Time"
+              label={{ value: 'Total Time (hours)', position: 'insideBottom', offset: -10 }}
+              tickFormatter={(value) => `${value.toFixed(1)}h`}
+            />
+            <YAxis 
+              type="number" 
+              dataKey="y" 
+              name="Avg Session Time"
+              label={{ value: 'Avg Session (minutes)', angle: -90, position: 'insideLeft' }}
+              tickFormatter={(value) => `${value.toFixed(0)}m`}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Scatter 
+              data={chartData}
+              onClick={(data) => onBubbleClick?.(data)}
             >
-              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-              <XAxis 
-                type="number" 
-                dataKey="x" 
-                name="Total Time"
-                label={{ value: 'Total Time (hours)', position: 'insideBottom', offset: -10 }}
-                tickFormatter={(value) => `${value.toFixed(1)}h`}
-              />
-              <YAxis 
-                type="number" 
-                dataKey="y" 
-                name="Avg Session Time"
-                label={{ value: 'Avg Session (minutes)', angle: -90, position: 'insideLeft' }}
-                tickFormatter={(value) => `${value.toFixed(0)}m`}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Scatter 
-                data={chartData}
-                onClick={(data) => onBubbleClick?.(data)}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.color}
-                    fillOpacity={hoveredTimer === entry.timerId ? 0.9 : 0.7}
-                    stroke={entry.color}
-                    strokeWidth={2}
-                    onMouseEnter={() => setHoveredTimer(entry.timerId)}
-                    onMouseLeave={() => setHoveredTimer(null)}
-                    style={{ cursor: 'pointer' }}
-                  />
-                ))}
-              </Scatter>
-            </ScatterChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
+              {chartData.map((entry, index) => (
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={entry.color}
+                  fillOpacity={hoveredTimer === entry.timerId ? 0.9 : 0.7}
+                  stroke={entry.color}
+                  strokeWidth={2}
+                  onMouseEnter={() => setHoveredTimer(entry.timerId)}
+                  onMouseLeave={() => setHoveredTimer(null)}
+                  style={{ cursor: 'pointer' }}
+                />
+              ))}
+            </Scatter>
+          </ScatterChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 };
 
