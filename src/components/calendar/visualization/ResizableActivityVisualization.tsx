@@ -17,18 +17,28 @@ interface ResizableActivityVisualizationProps {
 }
 
 const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationProps> = ({
-  sessions
+  filteredTimers,
+  sessions,
+  formatTime
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedTimer, setSelectedTimer] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<string>('3d');
 
+  console.log('🔍 ResizableActivityVisualization - Rendering with:', {
+    filteredTimersCount: filteredTimers.length,
+    sessionsCount: sessions.length,
+    selectedCategory,
+    activeTab
+  });
+
   const handleBubbleClick = (timer: any) => {
+    console.log('🔍 ResizableActivityVisualization - Timer selected:', timer);
     setSelectedTimer(timer);
   };
 
   // Calculate summary statistics
-  const totalSessions = sessions.filter(s => s.duration_ms).length;
+  const totalSessions = sessions.filter(s => s.duration_ms && s.duration_ms > 0).length;
   const totalTime = sessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
   const avgSessionTime = totalSessions > 0 ? totalTime / totalSessions : 0;
   const uniqueTimers = new Set(sessions.map(s => s.timer_id)).size;
@@ -64,82 +74,96 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
       </div>
 
       {/* Resizable Layout */}
-      <Card className="h-[500px]">
-        <CardHeader className="pb-2">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle>Timer Performance Analysis</CardTitle>
-            <TimerCategoryFilter 
-              selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
-            />
-          </div>
-        </CardHeader>
-        <CardContent className="h-[calc(100%-80px)]">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            {/* Main Chart Area */}
-            <ResizablePanel defaultSize={75} minSize={50}>
-              <div className="h-full pr-2">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="3d">3D Interactive</TabsTrigger>
-                    <TabsTrigger value="2d">2D Chart</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="3d" className="h-[calc(100%-60px)]">
-                    <Enhanced3DBubbleChart 
-                      sessions={sessions} 
-                      selectedCategory={selectedCategory}
-                      onBubbleClick={handleBubbleClick}
-                    />
-                    <p className="text-xs text-gray-500 mt-2 text-center">
-                      Click and drag to rotate • Scroll to zoom • Click bubbles for details • Reset button in top-right
-                    </p>
-                  </TabsContent>
-                  
-                  <TabsContent value="2d" className="h-[calc(100%-60px)]">
-                    <Enhanced2DBubbleChart 
-                      sessions={sessions} 
-                      selectedCategory={selectedCategory}
-                    />
-                    <p className="text-xs text-gray-500 mt-2 text-center">
-                      Bubble size represents number of sessions • Hover for details
-                    </p>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </ResizablePanel>
+      <div className="w-full" style={{ height: '600px' }}>
+        <Card className="h-full">
+          <CardHeader className="pb-2 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <CardTitle>Timer Performance Analysis</CardTitle>
+              <TimerCategoryFilter 
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            </div>
+          </CardHeader>
+          <CardContent className="flex-1 min-h-0">
+            <ResizablePanelGroup direction="horizontal" className="h-full min-h-[500px]">
+              {/* Main Chart Area */}
+              <ResizablePanel defaultSize={75} minSize={50}>
+                <div className="h-full pr-2 flex flex-col">
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+                    <TabsList className="mb-4 flex-shrink-0">
+                      <TabsTrigger value="3d">3D Interactive</TabsTrigger>
+                      <TabsTrigger value="2d">2D Chart</TabsTrigger>
+                    </TabsList>
+                    
+                    <div className="flex-1 min-h-0">
+                      <TabsContent value="3d" className="h-full mt-0">
+                        <div className="h-full flex flex-col">
+                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                            <Enhanced3DBubbleChart 
+                              sessions={sessions} 
+                              selectedCategory={selectedCategory}
+                              onBubbleClick={handleBubbleClick}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2 text-center flex-shrink-0">
+                            Click and drag to rotate • Scroll to zoom • Click bubbles for details • Reset button in top-right
+                          </p>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="2d" className="h-full mt-0">
+                        <div className="h-full flex flex-col">
+                          <div className="flex-1" style={{ minHeight: '400px' }}>
+                            <Enhanced2DBubbleChart 
+                              sessions={sessions} 
+                              selectedCategory={selectedCategory}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2 text-center flex-shrink-0">
+                            Bubble size represents number of sessions • Hover for details
+                          </p>
+                        </div>
+                      </TabsContent>
+                    </div>
+                  </Tabs>
+                </div>
+              </ResizablePanel>
 
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle />
+              {/* Resizable Handle */}
+              <ResizableHandle withHandle />
 
-            {/* Sidebar */}
-            <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
-              <div className="pl-2 h-full space-y-4 overflow-y-auto">
-                <TimerChartLegend />
-                <TimerDetails timer={selectedTimer} />
-                
-                {/* Additional info card */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Visualization Guide</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-xs space-y-2">
-                    <div>
-                      <strong>3D View:</strong> Interactive exploration with rotation and zoom
-                    </div>
-                    <div>
-                      <strong>2D View:</strong> Traditional scatter plot with proportional bubbles
-                    </div>
-                    <div>
-                      <strong>Resize:</strong> Drag the separator to expand chart area
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </CardContent>
-      </Card>
+              {/* Sidebar */}
+              <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
+                <div className="pl-2 h-full flex flex-col">
+                  <div className="flex-1 overflow-y-auto space-y-4">
+                    <TimerChartLegend />
+                    <TimerDetails timer={selectedTimer} />
+                    
+                    {/* Additional info card */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm">Visualization Guide</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-xs space-y-2">
+                        <div>
+                          <strong>3D View:</strong> Interactive exploration with rotation and zoom
+                        </div>
+                        <div>
+                          <strong>2D View:</strong> Traditional scatter plot with proportional bubbles
+                        </div>
+                        <div>
+                          <strong>Resize:</strong> Drag the separator to expand chart area
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* About Section - Fixed at bottom */}
       <Card>
