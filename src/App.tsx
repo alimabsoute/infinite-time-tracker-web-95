@@ -1,13 +1,14 @@
+
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import { QueryClient } from "./components/QueryClient";
 import { Toaster } from "@/components/ui/toaster";
-import { SubscriptionProvider } from "./context/SubscriptionContext";
+import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import FoodManufacturerDemo from "./pages/FoodManufacturerDemo";
 
