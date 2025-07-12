@@ -26,6 +26,9 @@
     --accent: 225 70% 60%;
     --accent-foreground: 210 40% 98%;
 
+    --hero-text: 200 85% 75%;
+    --hero-outline: 225 15% 15%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
@@ -66,6 +69,9 @@
 
     --accent: 225 70% 60%;
     --accent-foreground: 210 40% 98%;
+
+    --hero-text: 200 85% 75%;
+    --hero-outline: 225 15% 15%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
@@ -125,4 +131,58 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 60%);
+}
+
+/* Enhanced Hero Text Styling */
+.hero-title {
+  @apply font-orbitron font-black;
+  color: hsl(var(--hero-text));
+  text-shadow: 
+    0 0 10px hsl(var(--hero-text) / 0.3),
+    0 0 20px hsl(var(--hero-text) / 0.2),
+    0 0 30px hsl(var(--hero-text) / 0.1),
+    2px 2px 0px hsl(var(--hero-outline)),
+    -2px -2px 0px hsl(var(--hero-outline)),
+    2px -2px 0px hsl(var(--hero-outline)),
+    -2px 2px 0px hsl(var(--hero-outline)),
+    3px 3px 0px hsl(var(--hero-outline) / 0.8),
+    -3px -3px 0px hsl(var(--hero-outline) / 0.8);
+  filter: drop-shadow(0 4px 8px hsl(var(--hero-outline) / 0.3));
+}
+
+.hero-title-animated {
+  background: linear-gradient(
+    45deg,
+    hsl(var(--hero-text)),
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(var(--hero-text))
+  );
+  background-size: 400% 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hero-gradient 6s ease-in-out infinite;
+}
+
+@keyframes hero-gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-title {
+    text-shadow: 
+      0 0 5px hsl(var(--hero-text) / 0.3),
+      0 0 10px hsl(var(--hero-text) / 0.2),
+      1px 1px 0px hsl(var(--hero-outline)),
+      -1px -1px 0px hsl(var(--hero-outline)),
+      1px -1px 0px hsl(var(--hero-outline)),
+      -1px 1px 0px hsl(var(--hero-outline));
+  }
 }

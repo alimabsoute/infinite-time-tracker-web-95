@@ -51,16 +51,19 @@ const HeroTitle = () => {
           <PhynxTimerLogo width={96} height={96} className="text-primary" />
         </motion.div>
         <motion.h1 
-          className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
+          className="text-5xl md:text-7xl hero-title hero-title-animated"
           animate={{ 
-            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-            scale: [1, 1.02, 1]
+            scale: [1, 1.02, 1],
+            filter: [
+              "drop-shadow(0 4px 8px hsl(var(--hero-outline) / 0.3))",
+              "drop-shadow(0 6px 12px hsl(var(--hero-outline) / 0.4))",
+              "drop-shadow(0 4px 8px hsl(var(--hero-outline) / 0.3))"
+            ]
           }}
           transition={{ 
-            backgroundPosition: { duration: 5, repeat: Infinity },
-            scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+            scale: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+            filter: { duration: 4, repeat: Infinity, ease: "easeInOut" }
           }}
-          style={{ backgroundSize: "200% 200%" }}
         >
           PhynxTimer
         </motion.h1>
