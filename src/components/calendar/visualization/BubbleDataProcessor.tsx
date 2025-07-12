@@ -1,6 +1,6 @@
 
 import { useMemo } from 'react';
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, isWithinInterval } from 'date-fns';
 import { TimerSessionWithTimer } from "../../../types";
 
 interface BubbleData {
@@ -17,17 +17,23 @@ interface BubbleData {
 
 interface BubbleDataProcessorProps {
   sessions: TimerSessionWithTimer[];
-  currentWeekStart: Date;
+  startDate: Date;
+  endDate: Date;
   onError?: (error: Error) => void;
 }
 
 export const useBubbleDataProcessor = ({
   sessions,
-  currentWeekStart,
+  startDate,
+  endDate,
   onError
 }: BubbleDataProcessorProps): BubbleData[] => {
   return useMemo(() => {
-    console.log('🔍 BubbleDataProcessor - Processing sessions:', sessions.length);
+    console.log('🔍 BubbleDataProcessor - Processing sessions:', {
+      totalSessions: sessions.length,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    });
     
     try {
       if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
@@ -35,15 +41,31 @@ export const useBubbleDataProcessor = ({
         return [];
       }
 
-      if (!currentWeekStart || !(currentWeekStart instanceof Date)) {
-        console.log('🔍 BubbleDataProcessor - Invalid currentWeekStart');
+      if (!startDate || !endDate || !(startDate instanceof Date) || !(endDate instanceof Date)) {
+        console.log('🔍 BubbleDataProcessor - Invalid date range');
         return [];
       }
 
-      // Group sessions by timer with improved validation
+      // Filter sessions within the date range
+      const rangeInterval = { start: startDate, end: endDate };
+      const filteredSessions = sessions.filter(session => {
+        if (!session.start_time) return false;
+        
+        try {
+          const sessionDate = new Date(session.start_time);
+          return isWithinInterval(sessionDate, rangeInterval);
+        } catch (error) {
+          console.warn('🔍 BubbleDataProcessor - Invalid session date:', session.start_time);
+          return false;
+        }
+      });
+
+      console.log('🔍 BubbleDataProcessor - Filtered sessions:', filteredSessions.length);
+
+      // Group sessions by timer with enhanced validation
       const timerGroups: Record<string, any> = {};
 
-      sessions.forEach(session => {
+      filteredSessions.forEach(session => {
         try {
           // Extract timer name with proper fallback
           let timerName: string | undefined;
@@ -96,9 +118,10 @@ export const useBubbleDataProcessor = ({
       // Convert to bubble data
       const bubbleData: BubbleData[] = Object.entries(timerGroups).map(([timerName, data], index) => {
         try {
-          // Position calculation
-          const daysFromWeekStart = differenceInDays(data.createdAt, currentWeekStart);
-          const xPosition = Math.max(-8, Math.min(8, (daysFromWeekStart / 7) * 8));
+          // Position calculation based on date range
+          const totalDays = differenceInDays(endDate, startDate) || 1;
+          const daysFromStart = differenceInDays(data.createdAt, startDate);
+          const xPosition = Math.max(-8, Math.min(8, (daysFromStart / totalDays) * 16 - 8));
           const yPosition = Math.random() * 6 - 3;
           const zPosition = Math.random() * 4 - 2;
           
@@ -149,7 +172,7 @@ export const useBubbleDataProcessor = ({
       onError?.(error as Error);
       return [];
     }
-  }, [sessions, currentWeekStart, onError]);
+  }, [sessions, startDate, endDate, onError]);
 };
 
 export type { BubbleData };

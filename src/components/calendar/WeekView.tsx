@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { format, startOfWeek, addDays, subWeeks, addWeeks, isSameDay, subDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Info } from 'lucide-react';
+import { Clock, Info, TestTube } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../types";
 import { getSessionsForDate, formatTime } from "./CalendarUtils";
@@ -13,7 +13,9 @@ import WeekDataSummary from './WeekDataSummary';
 import DateRangeSelector from './DateRangeSelector';
 import VisualizationErrorBoundary from './visualization/VisualizationErrorBoundary';
 import VisualizationContainer from './visualization/VisualizationContainer';
+import VisualizationDemo from './VisualizationDemo';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 interface WeekData {
   date: Date;
@@ -30,6 +32,7 @@ interface WeekViewProps {
 
 const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelectedDate }) => {
   const { toast } = useToast();
+  const [showDemo, setShowDemo] = useState(false);
   
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => 
     startOfWeek(selectedDate || new Date())
@@ -162,6 +165,28 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
         currentWeekStart={currentWeekStart}
         sessions={sessions}
       />
+
+      {/* Demo Toggle */}
+      <Card className="border-2 border-green-200 bg-green-50/30">
+        <CardContent className="pt-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TestTube className="h-5 w-5 text-green-600" />
+              <span className="font-medium text-green-800">Fixed Implementation Demo</span>
+            </div>
+            <Button
+              onClick={() => setShowDemo(!showDemo)}
+              variant={showDemo ? "destructive" : "default"}
+              size="sm"
+            >
+              {showDemo ? "Hide Demo" : "Show Demo"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Demo Section */}
+      {showDemo && <VisualizationDemo sessions={sessions} />}
 
       <Card className="glass-effect mt-6 border border-border/30 shadow-lg transition-all duration-300 hover:shadow-xl">
         <CardHeader className="pb-2">
