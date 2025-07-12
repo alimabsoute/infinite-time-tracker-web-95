@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import CalendarHeader from "./CalendarHeader";
-import CalendarControls from "./CalendarControls";
+import DataAwareCalendarNavigation from "./DataAwareCalendarNavigation";
 import CalendarStats from "./CalendarStats";
 import ColorLegend from "./ColorLegend";
 import YearView from "./YearView";
@@ -59,12 +59,13 @@ const CalendarMainSection: React.FC<CalendarMainSectionProps> = ({
         onMonthChange={handleMonthChange} 
       />
       <CardContent className="p-4 pt-0">
-        <CalendarControls
+        <DataAwareCalendarNavigation
           currentMonth={currentMonth}
           calendarView={calendarView}
           toggleYearView={toggleYearView}
           goToToday={goToToday}
           setCurrentMonth={setCurrentMonth}
+          sessions={sessions}
         />
         
         <motion.div

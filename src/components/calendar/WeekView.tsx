@@ -6,9 +6,10 @@ import { Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../types";
 import { getSessionsForDate, formatTime } from "./CalendarUtils";
-import WeeklyNavigation from './WeeklyNavigation';
+import SmartWeekNavigation from './SmartWeekNavigation';
 import WeeklyStats from './WeeklyStats';
 import WeeklyAnalysis from './WeeklyAnalysis';
+import WeekDataSummary from './WeekDataSummary';
 import ErrorBoundary from '../ErrorBoundary';
 import VisualizationContainer from './visualization/VisualizationContainer';
 
@@ -85,6 +86,13 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
     setCurrentWeekStart(newWeekStart);
   };
 
+  // Handle smart navigation to a specific week with data
+  const handleJumpToDataWeek = (weekStart: Date) => {
+    console.log('🔍 WeekView - Jumping to data week:', format(weekStart, 'yyyy-MM-dd'));
+    setCurrentWeekStart(weekStart);
+    setSelectedDate(weekStart); // Also update the selected date
+  };
+
   // Handle bar/day click to update selected date
   const handleBarClick = (data: any) => {
     if (data && data.date) {
@@ -103,16 +111,25 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
+      className="space-y-4"
     >
+      {/* Week Data Summary */}
+      <WeekDataSummary
+        currentWeekStart={currentWeekStart}
+        sessions={sessions}
+      />
+
       <Card className="glass-effect mt-6 border border-border/30 shadow-lg transition-all duration-300 hover:shadow-xl">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center gap-2">
             <Clock size={16} className="text-primary" /> 
             Weekly Activity - Multi-Layer Visualization
           </CardTitle>
-          <WeeklyNavigation
+          <SmartWeekNavigation
             currentWeekStart={currentWeekStart}
             onNavigateWeek={navigateWeek}
+            sessions={sessions}
+            onJumpToDataWeek={handleJumpToDataWeek}
           />
         </CardHeader>
         <CardContent>

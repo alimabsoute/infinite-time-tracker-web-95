@@ -1,4 +1,3 @@
-
 import { Timer, TimerSession, TimerSessionWithTimer } from "../../types";
 import { isSameDay, parseISO, isValid, format } from "date-fns";
 
@@ -105,4 +104,17 @@ export const getTimersForDate = (date: Date | undefined, timers: Timer[]): Timer
 export const getAllTimersForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
   if (!date) return [];
   return getTimersWithDeadlinesForDate(date, timers);
+};
+
+export const getSessionsForDateRange = (
+  startDate: Date,
+  endDate: Date,
+  sessions: TimerSessionWithTimer[]
+): TimerSessionWithTimer[] => {
+  return sessions.filter(session => {
+    if (!session.start_time) return false;
+    
+    const sessionDate = new Date(session.start_time);
+    return sessionDate >= startDate && sessionDate <= endDate;
+  });
 };
