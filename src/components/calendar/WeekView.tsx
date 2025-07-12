@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { format, startOfWeek, addDays, subWeeks, addWeeks, isSameDay } from 'date-fns';
+import { format, startOfWeek, addDays, subWeeks, addWeeks, isSameDay, subDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -10,7 +10,8 @@ import SmartWeekNavigation from './SmartWeekNavigation';
 import WeeklyStats from './WeeklyStats';
 import WeeklyAnalysis from './WeeklyAnalysis';
 import WeekDataSummary from './WeekDataSummary';
-import ErrorBoundary from '../ErrorBoundary';
+import DateRangeSelector from './DateRangeSelector';
+import VisualizationErrorBoundary from './visualization/VisualizationErrorBoundary';
 import VisualizationContainer from './visualization/VisualizationContainer';
 
 interface WeekData {
@@ -30,6 +31,10 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => 
     startOfWeek(selectedDate || new Date())
   );
+  
+  // Date range state for visualization - default to past week
+  const [visualizationStartDate, setVisualizationStartDate] = useState(() => subDays(new Date(), 6));
+  const [visualizationEndDate, setVisualizationEndDate] = useState(() => new Date());
   
   console.log('🔍 WeekView - Initializing with selectedDate:', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none');
   console.log('🔍 WeekView - Initial currentWeekStart:', format(currentWeekStart, 'yyyy-MM-dd'));
@@ -76,7 +81,7 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
     return data;
   }, [currentWeekStart, sessions]);
   
-  // Navigate to previous/next week
+  // Navigate to previous/next week (independent of visualization)
   const navigateWeek = (direction: 'previous' | 'next') => {
     const newWeekStart = direction === 'previous' 
       ? subWeeks(currentWeekStart, 1) 
@@ -104,6 +109,16 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
   // Handle bubble click for visualization
   const handleBubbleClick = (bubble: any) => {
     console.log('🔍 WeekView - Bubble clicked:', bubble);
+  };
+
+  // Handle date range changes for visualization
+  const handleVisualizationDateRangeChange = (newStartDate: Date, newEndDate: Date) => {
+    console.log('🔍 WeekView - Visualization date range changed:', {
+      startDate: newStartDate.toISOString(),
+      endDate: newEndDate.toISOString()
+    });
+    setVisualizationStartDate(newStartDate);
+    setVisualizationEndDate(newEndDate);
   };
   
   return (
@@ -133,22 +148,33 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
           />
         </CardHeader>
         <CardContent>
+          {/* Date Range Selector for Visualization */}
+          <DateRangeSelector
+            startDate={visualizationStartDate}
+            endDate={visualizationEndDate}
+            onDateRangeChange={handleVisualizationDateRangeChange}
+            className="mb-4"
+          />
+
           {/* Enhanced Multi-Layer Visualization Container */}
-          <ErrorBoundary fallback={
-            <div className="h-[400px] flex items-center justify-center text-muted-foreground bg-yellow-50 rounded-lg">
-              <div className="text-center">
-                <p className="text-yellow-600 font-medium">All visualizations failed to load</p>
-                <p className="text-yellow-500 text-sm mt-2">Please refresh the page</p>
-                <p className="text-yellow-400 text-xs mt-1">Sessions available: {sessions.length}</p>
+          <VisualizationErrorBoundary 
+            fallback={
+              <div className="h-[400px] flex items-center justify-center text-muted-foreground bg-yellow-50 rounded-lg">
+                <div className="text-center">
+                  <p className="text-yellow-600 font-medium">All visualizations failed to load</p>
+                  <p className="text-yellow-500 text-sm mt-2">This might be due to browser compatibility issues</p>
+                  <p className="text-yellow-400 text-xs mt-1">Sessions available: {sessions.length}</p>
+                </div>
               </div>
-            </div>
-          }>
+            }
+          >
             <VisualizationContainer
               sessions={sessions}
-              currentWeekStart={currentWeekStart}
+              startDate={visualizationStartDate}
+              endDate={visualizationEndDate}
               onBubbleClick={handleBubbleClick}
             />
-          </ErrorBoundary>
+          </VisualizationErrorBoundary>
           
           <WeeklyStats
             weekData={weekData}

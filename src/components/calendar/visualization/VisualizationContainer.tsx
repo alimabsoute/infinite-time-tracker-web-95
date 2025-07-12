@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { subDays } from 'date-fns';
 import { TimerSessionWithTimer } from "../../../types";
 import DataValidator from './DataValidator';
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,11 +7,11 @@ import VisualizationHeader from './VisualizationHeader';
 import VisualizationTabs from './VisualizationTabs';
 import VisualizationRenderer from './VisualizationRenderer';
 import VisualizationDebugInfo from './VisualizationDebugInfo';
-import DateRangePicker from '../DateRangePicker';
 
 interface VisualizationContainerProps {
   sessions: TimerSessionWithTimer[];
-  currentWeekStart: Date;
+  startDate: Date;
+  endDate: Date;
   onBubbleClick?: (bubble: any) => void;
 }
 
@@ -20,17 +19,14 @@ type VisualizationMode = '3d' | '2d' | 'bar';
 
 const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
   sessions,
-  currentWeekStart,
+  startDate,
+  endDate,
   onBubbleClick
 }) => {
   const [currentMode, setCurrentMode] = useState<VisualizationMode>('3d');
   const [has3DSupport, setHas3DSupport] = useState(true);
   const [dataValidation, setDataValidation] = useState<any>(null);
   const [fallbackHistory, setFallbackHistory] = useState<VisualizationMode[]>([]);
-  
-  // Date range state - default to past week
-  const [startDate, setStartDate] = useState(() => subDays(new Date(), 6));
-  const [endDate, setEndDate] = useState(() => new Date());
 
   console.log('🔍 VisualizationContainer - Initializing with:', {
     sessionsCount: sessions.length,
@@ -88,17 +84,6 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
     setFallbackHistory([]); // Reset fallback history on manual selection
   };
 
-  // Handle date range changes
-  const handleDateRangeChange = (newStartDate: Date, newEndDate: Date) => {
-    console.log('🔍 VisualizationContainer - Date range changed:', {
-      startDate: newStartDate.toISOString(),
-      endDate: newEndDate.toISOString()
-    });
-    setStartDate(newStartDate);
-    setEndDate(newEndDate);
-    setFallbackHistory([]); // Reset fallback history on date change
-  };
-
   return (
     <Card className="glass-effect border border-border/30 shadow-lg">
       <VisualizationHeader 
@@ -107,16 +92,6 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
         dateRange={{ startDate, endDate }}
       />
       <CardContent>
-        {/* Date Range Picker */}
-        <div className="mb-4 p-3 bg-muted/30 rounded-lg">
-          <h4 className="text-sm font-medium mb-2">Select Date Range</h4>
-          <DateRangePicker
-            startDate={startDate}
-            endDate={endDate}
-            onDateRangeChange={handleDateRangeChange}
-          />
-        </div>
-
         <VisualizationTabs
           currentMode={currentMode}
           onModeChange={handleModeChange}
