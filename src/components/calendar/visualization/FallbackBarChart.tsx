@@ -3,43 +3,51 @@ import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { TimerSessionWithTimer } from "../../../types";
-import DataValidator from './DataValidator';
+import { useDateRangeDataProcessor } from './DateRangeDataProcessor';
 
 interface FallbackBarChartProps {
   sessions: TimerSessionWithTimer[];
-  currentWeekStart: Date;
+  startDate: Date;
+  endDate: Date;
   onBubbleClick?: (bubble: any) => void;
 }
 
 const FallbackBarChart: React.FC<FallbackBarChartProps> = ({
   sessions,
-  currentWeekStart,
+  startDate,
+  endDate,
   onBubbleClick
 }) => {
+  // Use the date range data processor
+  const processedData = useDateRangeDataProcessor({
+    sessions,
+    startDate,
+    endDate
+  });
+
   // Process data for bar chart
   const barData = useMemo(() => {
     console.log('🔍 FallbackBarChart - Processing data for bar chart');
     
-    const validation = DataValidator.validateSessions(sessions, currentWeekStart);
-    
-    if (!validation.hasValidData) {
+    if (!processedData || processedData.length === 0) {
       return [];
     }
 
-    const data = Object.entries(validation.timerGroups)
-      .map(([timerName, group]) => ({
-        name: timerName.length > 20 ? timerName.substring(0, 20) + '...' : timerName,
-        fullName: timerName,
-        hours: group.totalTime / 3600000,
-        sessions: group.sessions.length,
-        category: group.category
+    const data = processedData
+      .map((item) => ({
+        name: item.timerName.length > 20 ? item.timerName.substring(0, 20) + '...' : item.timerName,
+        fullName: item.timerName,
+        hours: item.totalTime / 3600000,
+        sessions: item.sessionCount,
+        category: item.category,
+        color: item.color
       }))
       .sort((a, b) => b.hours - a.hours) // Sort by hours descending
       .slice(0, 10); // Show top 10 timers
 
     console.log('🔍 FallbackBarChart - Generated bar data:', data.length);
     return data;
-  }, [sessions, currentWeekStart]);
+  }, [processedData]);
 
   const categoryColors: Record<string, string> = {
     'Work': '#3b82f6',
@@ -120,7 +128,7 @@ const FallbackBarChart: React.FC<FallbackBarChartProps> = ({
               {barData.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
-                  fill={categoryColors[entry.category] || categoryColors.Uncategorized}
+                  fill={entry.color}
                 />
               ))}
             </Bar>

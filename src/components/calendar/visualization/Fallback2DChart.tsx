@@ -4,69 +4,68 @@ import { motion } from 'framer-motion';
 import { Scatter, ScatterChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { differenceInDays } from 'date-fns';
 import { TimerSessionWithTimer } from "../../../types";
-import DataValidator from './DataValidator';
+import { useDateRangeDataProcessor } from './DateRangeDataProcessor';
 
 interface Fallback2DChartProps {
   sessions: TimerSessionWithTimer[];
-  currentWeekStart: Date;
+  startDate: Date;
+  endDate: Date;
   onBubbleClick?: (bubble: any) => void;
   onError?: (error: Error) => void;
 }
 
 const Fallback2DChart: React.FC<Fallback2DChartProps> = ({
   sessions,
-  currentWeekStart,
+  startDate,
+  endDate,
   onBubbleClick,
   onError
 }) => {
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
 
-  // Process data for 2D scatter plot
+  // Use the date range data processor
+  const processedData = useDateRangeDataProcessor({
+    sessions,
+    startDate,
+    endDate,
+    onError
+  });
+
+  // Convert processed data to scatter format
   const scatterData = useMemo(() => {
     try {
-      console.log('🔍 Fallback2DChart - Processing data for 2D visualization');
+      console.log('🔍 Fallback2DChart - Converting processed data to scatter format');
       
-      const validation = DataValidator.validateSessions(sessions, currentWeekStart);
-      
-      if (!validation.hasValidData) {
+      if (!processedData || processedData.length === 0) {
         return [];
       }
 
-      const data = Object.entries(validation.timerGroups).map(([timerName, group]) => {
-        const daysFromWeekStart = differenceInDays(group.createdAt, currentWeekStart);
-        const timeInHours = group.totalTime / 3600000;
-        
-        // Category-based colors
-        const colors: Record<string, string> = {
-          'Work': '#3b82f6',
-          'Personal': '#10b981',
-          'Study': '#f59e0b',
-          'Exercise': '#ef4444',
-          'Health': '#8b5cf6',
-          'Learning': '#06b6d4',
-          'Uncategorized': '#6b7280'
-        };
+      const data = processedData.map((item) => {
+        const totalDays = differenceInDays(endDate, startDate) || 1;
+        const daysFromStart = differenceInDays(item.creationDate, startDate);
+        const xPosition = Math.max(-3, Math.min(10, (daysFromStart / totalDays) * 13 - 3));
+        const timeInHours = item.totalTime / 3600000;
         
         return {
-          x: Math.max(-3, Math.min(10, daysFromWeekStart)), // Days from week start
-          y: timeInHours, // Hours logged
-          z: Math.max(20, Math.min(200, timeInHours * 50)), // Bubble size
-          timerName,
-          totalTime: group.totalTime,
-          sessionCount: group.sessions.length,
-          category: group.category,
-          color: colors[group.category] || colors.Uncategorized
+          x: xPosition,
+          y: timeInHours,
+          z: Math.max(20, Math.min(200, timeInHours * 50)),
+          timerName: item.timerName,
+          totalTime: item.totalTime,
+          sessionCount: item.sessionCount,
+          category: item.category,
+          color: item.color
         };
       });
 
       console.log('🔍 Fallback2DChart - Generated scatter data:', data.length);
       return data;
     } catch (error) {
-      console.error('🔍 Fallback2DChart - Data processing error:', error);
+      console.error('🔍 Fallback2DChart - Data conversion error:', error);
       onError?.(error as Error);
       return [];
     }
-  }, [sessions, currentWeekStart, onError]);
+  }, [processedData, startDate, endDate, onError]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -123,9 +122,9 @@ const Fallback2DChart: React.FC<Fallback2DChartProps> = ({
             <XAxis 
               type="number" 
               dataKey="x" 
-              name="Days from Week Start"
+              name="Days from Start"
               domain={[-3, 10]}
-              label={{ value: 'Days from Week Start', position: 'insideBottom', offset: -40 }}
+              label={{ value: 'Days from Start', position: 'insideBottom', offset: -40 }}
             />
             <YAxis 
               type="number" 
@@ -153,7 +152,7 @@ const Fallback2DChart: React.FC<Fallback2DChartProps> = ({
       {/* Legend */}
       <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm rounded-lg p-3 text-xs">
         <div className="font-semibold mb-2">2D Scatter Plot</div>
-        <div>• X-axis: Days from week start</div>
+        <div>• X-axis: Days from start</div>
         <div>• Y-axis: Hours logged</div>
         <div>• Size: Activity level</div>
         <div className="text-slate-600 mt-2">{scatterData.length} timers</div>
