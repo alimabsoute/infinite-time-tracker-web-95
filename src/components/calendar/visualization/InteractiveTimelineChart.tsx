@@ -1,9 +1,9 @@
-
 import React, { useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { format, parseISO, eachDayOfInterval, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
 import { TimerSessionWithTimer } from '../../../types';
-import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
 
 interface InteractiveTimelineChartProps {
