@@ -2,21 +2,16 @@
 import React from 'react';
 import { format, addDays } from 'date-fns';
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight, Boxes, LineChart as LineChartIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface WeeklyNavigationProps {
   currentWeekStart: Date;
   onNavigateWeek: (direction: 'previous' | 'next') => void;
-  chartType: 'bubble' | 'line';
-  onChartTypeChange: (type: 'bubble' | 'line') => void;
 }
 
 const WeeklyNavigation: React.FC<WeeklyNavigationProps> = ({
   currentWeekStart,
-  onNavigateWeek,
-  chartType,
-  onChartTypeChange
+  onNavigateWeek
 }) => {
   return (
     <div className="flex flex-row items-center justify-between pb-2">
@@ -40,24 +35,6 @@ const WeeklyNavigation: React.FC<WeeklyNavigationProps> = ({
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
-        <Tabs defaultValue={chartType} className="ml-2">
-          <TabsList className="h-8">
-            <TabsTrigger 
-              value="bubble" 
-              onClick={() => onChartTypeChange('bubble')}
-              className="px-2 h-7"
-            >
-              <Boxes className="h-3 w-3" />
-            </TabsTrigger>
-            <TabsTrigger 
-              value="line" 
-              onClick={() => onChartTypeChange('line')}
-              className="px-2 h-7"
-            >
-              <LineChartIcon className="h-3 w-3" />
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
       </div>
     </div>
   );

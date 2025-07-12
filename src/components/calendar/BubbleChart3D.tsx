@@ -164,26 +164,32 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
           return acc;
         }
 
-        // Get timer name from either timers.name or timer_name (backup)
+        // Get timer name from multiple possible sources
         let timerName: string;
         if (session.timers && session.timers.name) {
           timerName = session.timers.name;
         } else if ((session as any).timer_name) {
           timerName = (session as any).timer_name;
         } else {
-          console.warn('🔍 BubbleChart3D - Missing timer name in session:', session);
+          console.warn('🔍 BubbleChart3D - Missing timer name in session:', {
+            hasTimers: !!session.timers,
+            timerName: (session as any).timer_name,
+            sessionKeys: Object.keys(session)
+          });
           return acc;
         }
         
         console.log('🔍 BubbleChart3D - Processing session for timer:', timerName);
         if (!acc[timerName]) {
-          // Get category from either timers.category or direct property
+          // Get category from multiple possible sources
           let category = 'Uncategorized';
           if (session.timers && session.timers.category) {
             category = session.timers.category;
           } else if ((session as any).category) {
             category = (session as any).category;
           }
+          
+          console.log('🔍 BubbleChart3D - Creating new timer group:', { timerName, category });
           
           acc[timerName] = {
             sessions: [],
@@ -264,6 +270,7 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
 
   // Error boundary fallback
   if (!bubbles || bubbles.length === 0) {
+    console.log('🔍 BubbleChart3D - No bubbles to render. Sessions:', sessions.length, 'Bubbles:', bubbles.length);
     return (
       <motion.div 
         className="h-[400px] w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg flex items-center justify-center"
@@ -274,37 +281,56 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
         <div className="text-center text-white">
           <p>No timer data available for this week</p>
           <p className="text-sm mt-2 text-slate-300">Create some timers and log time to see the 3D visualization</p>
+          <p className="text-xs mt-4 text-slate-400">Debug: {sessions.length} sessions available</p>
         </div>
       </motion.div>
     );
   }
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="h-[400px] w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg overflow-hidden relative"
-    >
-      <Canvas
-        camera={{ position: [0, 5, 15], fov: 50 }}
-        style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
+  console.log('🔍 BubbleChart3D - Rendering with', bubbles.length, 'bubbles');
+
+  try {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="h-[400px] w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg overflow-hidden relative"
       >
-        <BubbleScene bubbles={bubbles} onBubbleClick={handleBubbleClick} />
-      </Canvas>
-      
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm rounded-lg p-3">
-        <div className="text-white text-xs space-y-1">
-          <div className="font-semibold mb-2">Legend</div>
-          <div>• Bubble size = Total time logged</div>
-          <div>• X-axis = Timer creation date</div>
-          <div>• Colors = Categories</div>
-          <div className="text-slate-300 mt-2">Generated {bubbles.length} bubbles</div>
+        <Canvas
+          camera={{ position: [0, 5, 15], fov: 50 }}
+          style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
+          onCreated={({ gl }) => {
+            console.log('🔍 BubbleChart3D - Canvas created successfully');
+            gl.setSize(gl.domElement.clientWidth, gl.domElement.clientHeight);
+          }}
+          onError={(error) => {
+            console.error('🔍 BubbleChart3D - Canvas error:', error);
+          }}
+        >
+          <BubbleScene bubbles={bubbles} onBubbleClick={handleBubbleClick} />
+        </Canvas>
+        
+        {/* Legend */}
+        <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm rounded-lg p-3">
+          <div className="text-white text-xs space-y-1">
+            <div className="font-semibold mb-2">Legend</div>
+            <div>• Bubble size = Total time logged</div>
+            <div>• X-axis = Timer creation date</div>
+            <div>• Colors = Categories</div>
+            <div className="text-slate-300 mt-2">Generated {bubbles.length} bubbles</div>
+          </div>
         </div>
+      </motion.div>
+    );
+  } catch (error) {
+    console.error('🔍 BubbleChart3D - Render error:', error);
+    return (
+      <div className="h-[400px] flex items-center justify-center text-red-500">
+        <p>Error rendering 3D chart: {error instanceof Error ? error.message : 'Unknown error'}</p>
       </div>
-    </motion.div>
-  );
+    );
+  }
 };
 
 export default BubbleChart3D;

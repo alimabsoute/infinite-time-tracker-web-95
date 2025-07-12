@@ -7,11 +7,12 @@ import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../types";
 import { getSessionsForDate, formatTime } from "./CalendarUtils";
 import WeeklyNavigation from './WeeklyNavigation';
-import WeeklyChart from './WeeklyChart';
+// Removed WeeklyChart import - only using bubble chart now
 import WeeklyStats from './WeeklyStats';
 import BubbleChart3D from './BubbleChart3D';
 import WeeklyAnalysis from './WeeklyAnalysis';
 import ErrorBoundary from '../ErrorBoundary';
+import BubbleChartDebugger from './BubbleChartDebugger';
 
 interface WeekData {
   date: Date;
@@ -31,8 +32,8 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => 
     startOfWeek(selectedDate || new Date())
   );
-  const [chartType, setChartType] = useState<'bubble' | 'line'>('bubble');
-  const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
+  // Remove chart type switching - only show bubble chart
+  // Removed hoveredDay state - not needed for bubble chart only
   
   console.log('🔍 WeekView - Initializing with selectedDate:', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none');
   console.log('🔍 WeekView - Initial currentWeekStart:', format(currentWeekStart, 'yyyy-MM-dd'));
@@ -44,7 +45,9 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
       id: s.id,
       start_time: s.start_time,
       duration_ms: s.duration_ms,
-      timer_name: s.timers?.name
+      timer_name_from_timers: s.timers?.name,
+      timer_name_direct: (s as any).timer_name,
+      session_structure: Object.keys(s)
     })));
   }
   
@@ -151,36 +154,31 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
           <WeeklyNavigation
             currentWeekStart={currentWeekStart}
             onNavigateWeek={navigateWeek}
-            chartType={chartType}
-            onChartTypeChange={setChartType}
           />
         </CardHeader>
         <CardContent>
+          {/* Debug Analysis */}
+          <BubbleChartDebugger 
+            sessions={sessions}
+            currentWeekStart={currentWeekStart}
+          />
+          
           <ErrorBoundary fallback={
-            <div className="h-[400px] flex items-center justify-center text-muted-foreground">
-              <p>Unable to load chart. Please try refreshing the page.</p>
+            <div className="h-[400px] flex items-center justify-center text-muted-foreground bg-red-100 rounded-lg">
+              <div className="text-center">
+                <p className="text-red-600 font-medium">Unable to load 3D bubble chart</p>
+                <p className="text-red-500 text-sm mt-2">Check console for detailed error logs</p>
+                <p className="text-red-400 text-xs mt-1">Sessions available: {sessions.length}</p>
+              </div>
             </div>
-          }>
-            {chartType === 'bubble' ? (
-              <BubbleChart3D
-                sessions={sessions}
-                currentWeekStart={currentWeekStart}
-                onBubbleClick={(bubble) => {
-                  console.log('🔍 WeekView - Bubble clicked:', bubble.timerName);
-                }}
-              />
-            ) : (
-              <WeeklyChart
-                weekData={weekData}
-                chartType={chartType as 'line'}
-                selectedDate={selectedDate}
-                averageHours={averageHours}
-                hoveredDay={hoveredDay}
-                onHoverDay={setHoveredDay}
-                onBarClick={handleBarClick}
-                formatTime={formatTime}
-              />
-            )}
+          }>            
+            <BubbleChart3D
+              sessions={sessions}
+              currentWeekStart={currentWeekStart}
+              onBubbleClick={(bubble) => {
+                console.log('🔍 WeekView - Bubble clicked:', bubble.timerName);
+              }}
+            />
           </ErrorBoundary>
           
           <WeeklyStats
