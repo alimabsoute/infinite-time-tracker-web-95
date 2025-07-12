@@ -3,13 +3,13 @@ import React from 'react';
 import { format, addDays } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight, BarChart as BarChartIcon, LineChart as LineChartIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Boxes, LineChart as LineChartIcon } from 'lucide-react';
 
 interface WeeklyNavigationProps {
   currentWeekStart: Date;
   onNavigateWeek: (direction: 'previous' | 'next') => void;
-  chartType: 'bar' | 'line';
-  onChartTypeChange: (type: 'bar' | 'line') => void;
+  chartType: 'bubble' | 'line';
+  onChartTypeChange: (type: 'bubble' | 'line') => void;
 }
 
 const WeeklyNavigation: React.FC<WeeklyNavigationProps> = ({
@@ -43,11 +43,11 @@ const WeeklyNavigation: React.FC<WeeklyNavigationProps> = ({
         <Tabs defaultValue={chartType} className="ml-2">
           <TabsList className="h-8">
             <TabsTrigger 
-              value="bar" 
-              onClick={() => onChartTypeChange('bar')}
+              value="bubble" 
+              onClick={() => onChartTypeChange('bubble')}
               className="px-2 h-7"
             >
-              <BarChartIcon className="h-3 w-3" />
+              <Boxes className="h-3 w-3" />
             </TabsTrigger>
             <TabsTrigger 
               value="line" 

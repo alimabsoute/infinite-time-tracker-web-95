@@ -9,6 +9,8 @@ import { getSessionsForDate, formatTime } from "./CalendarUtils";
 import WeeklyNavigation from './WeeklyNavigation';
 import WeeklyChart from './WeeklyChart';
 import WeeklyStats from './WeeklyStats';
+import BubbleChart3D from './BubbleChart3D';
+import WeeklyAnalysis from './WeeklyAnalysis';
 
 interface WeekData {
   date: Date;
@@ -28,7 +30,7 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => 
     startOfWeek(selectedDate || new Date())
   );
-  const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
+  const [chartType, setChartType] = useState<'bubble' | 'line'>('bubble');
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
   
   console.log('🔍 WeekView - Initializing with selectedDate:', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none');
@@ -153,16 +155,26 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
           />
         </CardHeader>
         <CardContent>
-          <WeeklyChart
-            weekData={weekData}
-            chartType={chartType}
-            selectedDate={selectedDate}
-            averageHours={averageHours}
-            hoveredDay={hoveredDay}
-            onHoverDay={setHoveredDay}
-            onBarClick={handleBarClick}
-            formatTime={formatTime}
-          />
+          {chartType === 'bubble' ? (
+            <BubbleChart3D
+              sessions={sessions}
+              currentWeekStart={currentWeekStart}
+              onBubbleClick={(bubble) => {
+                console.log('🔍 WeekView - Bubble clicked:', bubble.timerName);
+              }}
+            />
+          ) : (
+            <WeeklyChart
+              weekData={weekData}
+              chartType={chartType as 'line'}
+              selectedDate={selectedDate}
+              averageHours={averageHours}
+              hoveredDay={hoveredDay}
+              onHoverDay={setHoveredDay}
+              onBarClick={handleBarClick}
+              formatTime={formatTime}
+            />
+          )}
           
           <WeeklyStats
             weekData={weekData}
@@ -172,6 +184,12 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
           />
         </CardContent>
       </Card>
+      
+      {/* Weekly Analysis Section */}
+      <WeeklyAnalysis
+        sessions={sessions}
+        currentWeekStart={currentWeekStart}
+      />
     </motion.div>
   );
 };
