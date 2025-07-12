@@ -1,0 +1,85 @@
+
+import React from 'react';
+import { TimerSessionWithTimer } from "../../../types";
+import BubbleChart3DEnhanced from './BubbleChart3DEnhanced';
+import Fallback2DChart from './Fallback2DChart';
+import FallbackBarChart from './FallbackBarChart';
+
+type VisualizationMode = '3d' | '2d' | 'bar';
+
+interface VisualizationRendererProps {
+  mode: VisualizationMode;
+  sessions: TimerSessionWithTimer[];
+  currentWeekStart: Date;
+  hasValidData: boolean;
+  onBubbleClick?: (bubble: any) => void;
+  onVisualizationError: (error: Error, mode: VisualizationMode) => void;
+}
+
+export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
+  mode,
+  sessions,
+  currentWeekStart,
+  hasValidData,
+  onBubbleClick,
+  onVisualizationError
+}) => {
+  if (!hasValidData) {
+    return (
+      <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+        <div className="text-center">
+          <p>No timer data available for this week</p>
+          <p className="text-sm mt-2">Create some timers and log time to see visualizations</p>
+          <p className="text-xs mt-4 text-slate-400">Sessions: {sessions.length}</p>
+        </div>
+      </div>
+    );
+  }
+
+  try {
+    switch (mode) {
+      case '3d':
+        return (
+          <BubbleChart3DEnhanced
+            sessions={sessions}
+            currentWeekStart={currentWeekStart}
+            onBubbleClick={onBubbleClick}
+            onError={(error) => onVisualizationError(error, '3d')}
+          />
+        );
+      case '2d':
+        return (
+          <Fallback2DChart
+            sessions={sessions}
+            currentWeekStart={currentWeekStart}
+            onBubbleClick={onBubbleClick}
+            onError={(error) => onVisualizationError(error, '2d')}
+          />
+        );
+      case 'bar':
+        return (
+          <FallbackBarChart
+            sessions={sessions}
+            currentWeekStart={currentWeekStart}
+            onBubbleClick={onBubbleClick}
+          />
+        );
+      default:
+        return (
+          <div className="h-[400px] flex items-center justify-center text-red-500">
+            <p>Visualization mode not supported</p>
+          </div>
+        );
+    }
+  } catch (error) {
+    console.error('🔍 VisualizationRenderer - Render error:', error);
+    onVisualizationError(error as Error, mode);
+    return (
+      <div className="h-[400px] flex items-center justify-center text-red-500">
+        <p>Error rendering visualization</p>
+      </div>
+    );
+  }
+};
+
+export default VisualizationRenderer;

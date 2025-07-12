@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { OrbitControls, Text, gridHelper } from '@react-three/drei';
+import { OrbitControls, Text } from '@react-three/drei';
+import * as THREE from 'three';
 import SafeAnimatedBubble from './SafeAnimatedBubble';
 
 interface BubbleData {
@@ -47,8 +48,8 @@ export const Safe3DScene: React.FC<Safe3DSceneProps> = ({
       <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4f46e5" />
       <spotLight position={[0, 20, 0]} intensity={0.5} angle={Math.PI / 4} />
       
-      {/* Reference grid */}
-      <gridHelper args={[20, 20, '#333333', '#333333']} position={[0, -5, 0]} />
+      {/* Reference grid using primitive */}
+      <primitive object={new THREE.GridHelper(20, 20, '#333333', '#333333')} position={[0, -5, 0]} />
       
       {/* Render bubbles safely */}
       {bubbles.map((bubble) => (

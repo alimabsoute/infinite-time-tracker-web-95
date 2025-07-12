@@ -1,14 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../../types";
-import BubbleChart3DEnhanced from './BubbleChart3DEnhanced';
-import Fallback2DChart from './Fallback2DChart';
-import FallbackBarChart from './FallbackBarChart';
 import DataValidator from './DataValidator';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Box, BarChart3, CircleDot } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
+import VisualizationHeader from './VisualizationHeader';
+import VisualizationTabs from './VisualizationTabs';
+import VisualizationRenderer from './VisualizationRenderer';
+import VisualizationDebugInfo from './VisualizationDebugInfo';
 
 interface VisualizationContainerProps {
   sessions: TimerSessionWithTimer[];
@@ -74,112 +72,30 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
     }
   };
 
-  const renderVisualization = () => {
-    if (!dataValidation?.hasValidData) {
-      return (
-        <div className="h-[400px] flex items-center justify-center text-muted-foreground">
-          <div className="text-center">
-            <p>No timer data available for this week</p>
-            <p className="text-sm mt-2">Create some timers and log time to see visualizations</p>
-            <p className="text-xs mt-4 text-slate-400">Sessions: {sessions.length}</p>
-          </div>
-        </div>
-      );
-    }
-
-    try {
-      switch (currentMode) {
-        case '3d':
-          return (
-            <BubbleChart3DEnhanced
-              sessions={sessions}
-              currentWeekStart={currentWeekStart}
-              onBubbleClick={onBubbleClick}
-              onError={(error) => handleVisualizationError(error, '3d')}
-            />
-          );
-        case '2d':
-          return (
-            <Fallback2DChart
-              sessions={sessions}
-              currentWeekStart={currentWeekStart}
-              onBubbleClick={onBubbleClick}
-              onError={(error) => handleVisualizationError(error, '2d')}
-            />
-          );
-        case 'bar':
-          return (
-            <FallbackBarChart
-              sessions={sessions}
-              currentWeekStart={currentWeekStart}
-              onBubbleClick={onBubbleClick}
-            />
-          );
-        default:
-          return (
-            <div className="h-[400px] flex items-center justify-center text-red-500">
-              <p>Visualization mode not supported</p>
-            </div>
-          );
-      }
-    } catch (error) {
-      console.error('🔍 VisualizationContainer - Render error:', error);
-      handleVisualizationError(error as Error, currentMode);
-      return (
-        <div className="h-[400px] flex items-center justify-center text-red-500">
-          <p>Error rendering visualization</p>
-        </div>
-      );
-    }
-  };
-
   return (
     <Card className="glass-effect border border-border/30 shadow-lg">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Weekly Activity Visualization</span>
-          <div className="text-sm text-muted-foreground">
-            Data: {dataValidation?.validSessionsCount || 0} sessions
-          </div>
-        </CardTitle>
-      </CardHeader>
+      <VisualizationHeader dataValidation={dataValidation} />
       <CardContent>
-        <Tabs value={currentMode} onValueChange={(value) => setCurrentMode(value as VisualizationMode)}>
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="3d" disabled={!has3DSupport}>
-              <Box className="mr-2 h-4 w-4" />
-              3D Bubbles
-            </TabsTrigger>
-            <TabsTrigger value="2d">
-              <CircleDot className="mr-2 h-4 w-4" />
-              2D Scatter
-            </TabsTrigger>
-            <TabsTrigger value="bar">
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Bar Chart
-            </TabsTrigger>
-          </TabsList>
+        <VisualizationTabs
+          currentMode={currentMode}
+          onModeChange={setCurrentMode}
+          has3DSupport={has3DSupport}
+        >
+          <VisualizationRenderer
+            mode={currentMode}
+            sessions={sessions}
+            currentWeekStart={currentWeekStart}
+            hasValidData={dataValidation?.hasValidData || false}
+            onBubbleClick={onBubbleClick}
+            onVisualizationError={handleVisualizationError}
+          />
+        </VisualizationTabs>
 
-          <TabsContent value={currentMode} className="mt-0">
-            <motion.div
-              key={currentMode}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {renderVisualization()}
-            </motion.div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Debug Info */}
-        {process.env.NODE_ENV === 'development' && dataValidation && (
-          <div className="mt-4 p-3 bg-gray-100 rounded text-xs">
-            <strong>Debug:</strong> Mode: {currentMode}, 3D Support: {has3DSupport ? 'Yes' : 'No'}, 
-            Valid Sessions: {dataValidation.validSessionsCount}, 
-            Timer Groups: {dataValidation.timerGroupsCount}
-          </div>
-        )}
+        <VisualizationDebugInfo
+          currentMode={currentMode}
+          has3DSupport={has3DSupport}
+          dataValidation={dataValidation}
+        />
       </CardContent>
     </Card>
   );
