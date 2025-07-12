@@ -1,23 +1,8 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from "../contexts/AuthContext";
-import { toast } from "sonner";
-
-export interface TimerReportData {
-  id: string;
-  name: string;
-  category: string;
-  totalTime: string;
-  totalTimeMs: number;
-  status: 'Running' | 'Stopped' | 'Deleted';
-  createdDate: string;
-  deletedDate?: string;
-  deletedBy?: string;
-  priority: string;
-  deadlineDate: string;
-  tags: string;
-}
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { TimerReportData } from '../types/index';
 
 interface DbTimerRecord {
   id: string;
@@ -37,6 +22,7 @@ export const useTimerReports = () => {
   const [reportData, setReportData] = useState<TimerReportData[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const formatTime = (ms: number): string => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -56,21 +42,35 @@ export const useTimerReports = () => {
     const loadAllTimerData = async () => {
       try {
         setLoading(true);
+        console.log('🔍 useTimerReports - Starting data fetch for user:', user.id);
         
-        // Fetch ALL timers including deleted ones for reports
+        // Fetch ALL timers including deleted ones for comprehensive reports
         const { data, error } = await supabase
           .from('timers')
           .select('*')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error("Error loading timer report data:", error);
-          toast.error("Failed to load timer data");
+          console.error("❌ useTimerReports - Error loading timer data:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load timer data",
+            variant: "destructive",
+          });
           setReportData([]);
           return;
         }
 
-        // Transform data for reports
+        console.log(`✅ useTimerReports - Loaded ${data?.length || 0} timers`);
+
+        if (!data || data.length === 0) {
+          console.log('ℹ️ useTimerReports - No timer data found');
+          setReportData([]);
+          return;
+        }
+
+        // Transform data for reports with enhanced logging
         const transformedData: TimerReportData[] = data.map((timer: DbTimerRecord) => {
           let status: 'Running' | 'Stopped' | 'Deleted' = 'Stopped';
           
@@ -80,7 +80,7 @@ export const useTimerReports = () => {
             status = 'Running';
           }
 
-          return {
+          const reportItem: TimerReportData = {
             id: timer.id,
             name: timer.name,
             category: timer.category || 'Uncategorized',
@@ -89,24 +89,38 @@ export const useTimerReports = () => {
             status,
             createdDate: new Date(timer.created_at).toLocaleString(),
             deletedDate: timer.deleted_at ? new Date(timer.deleted_at).toLocaleString() : undefined,
-            deletedBy: timer.deleted_by || undefined,
             priority: timer.priority ? `Priority ${timer.priority}` : 'No Priority',
             deadlineDate: timer.deadline ? new Date(timer.deadline).toLocaleString() : 'No Deadline',
-            tags: timer.tags ? timer.tags.join(', ') : 'No Tags',
+            tags: timer.tags && timer.tags.length > 0 ? timer.tags.join(', ') : 'No Tags',
           };
+
+          console.log('🔍 useTimerReports - Transformed timer:', {
+            name: timer.name,
+            category: reportItem.category,
+            status: reportItem.status,
+            totalTime: reportItem.totalTime
+          });
+
+          return reportItem;
         });
 
+        console.log(`✅ useTimerReports - Transformed ${transformedData.length} timer records`);
         setReportData(transformedData);
       } catch (error) {
-        console.error("Error loading timer report data:", error);
-        toast.error("Failed to load timer data");
+        console.error("❌ useTimerReports - Unexpected error:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load timer data",
+          variant: "destructive",
+        });
+        setReportData([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadAllTimerData();
-  }, [user]);
+  }, [user, toast]);
 
   return {
     reportData,

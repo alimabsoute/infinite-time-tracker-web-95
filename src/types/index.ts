@@ -32,6 +32,21 @@ export type TimerSessionWithTimer = TimerSession & {
   } | null;
 };
 
+// Extended type for timer reports
+export interface TimerReportData {
+  id: string;
+  name: string;
+  category: string;
+  totalTime: string; // formatted time string
+  totalTimeMs: number; // raw milliseconds for calculations
+  status: 'Running' | 'Stopped' | 'Deleted';
+  createdDate: string;
+  deletedDate?: string;
+  priority: string;
+  deadlineDate: string;
+  tags: string;
+}
+
 export interface TimerChartData {
   name: string;
   time: number; // in milliseconds

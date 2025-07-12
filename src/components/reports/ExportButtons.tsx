@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { TimerReportData } from '../../hooks/useTimerReports';
+import { TimerReportData } from '../../types/index';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import PremiumBadge from '../premium/PremiumBadge';
 

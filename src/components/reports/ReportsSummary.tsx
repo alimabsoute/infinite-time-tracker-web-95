@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TimerReportData } from '../../hooks/useTimerReports';
+import { TimerReportData } from '../../types/index';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, Play, Pause, Calendar, Trash2, Crown } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';

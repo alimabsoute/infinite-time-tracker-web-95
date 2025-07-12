@@ -155,7 +155,7 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
       return [];
     }
 
-    // Group sessions by timer with comprehensive validation
+    // Group sessions by timer with comprehensive validation and error handling
     const timerGroups = sessions.reduce((acc, session) => {
       try {
         // Validate session structure
@@ -164,43 +164,75 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
           return acc;
         }
 
-        // Get timer name from multiple possible sources
-        let timerName: string;
-        if (session.timers && session.timers.name) {
+        // Enhanced timer name extraction with fallbacks
+        let timerName: string | undefined;
+        let category = 'Uncategorized';
+        
+        // Primary source: joined timer data
+        if (session.timers && typeof session.timers === 'object' && session.timers.name) {
           timerName = session.timers.name;
-        } else if ((session as any).timer_name) {
+          category = session.timers.category || 'Uncategorized';
+        }
+        // Fallback: direct properties (for different data structures)
+        else if ((session as any).timer_name) {
           timerName = (session as any).timer_name;
-        } else {
-          console.warn('🔍 BubbleChart3D - Missing timer name in session:', {
+          category = (session as any).timer_category || 'Uncategorized';
+        }
+        // Last resort: try to find timer name in various possible fields
+        else {
+          const possibleFields = ['name', 'timer', 'title'];
+          for (const field of possibleFields) {
+            if ((session as any)[field] && typeof (session as any)[field] === 'string') {
+              timerName = (session as any)[field];
+              break;
+            }
+          }
+        }
+        
+        // Skip sessions without valid timer names
+        if (!timerName || typeof timerName !== 'string' || timerName.trim() === '') {
+          console.warn('🔍 BubbleChart3D - Skipping session with invalid timer name:', {
+            sessionId: session.id,
             hasTimers: !!session.timers,
-            timerName: (session as any).timer_name,
-            sessionKeys: Object.keys(session)
+            timersKeys: session.timers ? Object.keys(session.timers) : 'none',
+            sessionKeys: Object.keys(session),
+            extractedName: timerName
           });
           return acc;
         }
         
         console.log('🔍 BubbleChart3D - Processing session for timer:', timerName);
+        
+        // Initialize timer group if it doesn't exist
         if (!acc[timerName]) {
-          // Get category from multiple possible sources
-          let category = 'Uncategorized';
-          if (session.timers && session.timers.category) {
-            category = session.timers.category;
-          } else if ((session as any).category) {
-            category = (session as any).category;
-          }
-          
           console.log('🔍 BubbleChart3D - Creating new timer group:', { timerName, category });
           
           acc[timerName] = {
             sessions: [],
             totalTime: 0,
             category,
-            createdAt: new Date(session.start_time)
+            createdAt: new Date(session.start_time),
+            timerId: session.timer_id || session.id
           };
         }
         
+        // Add session to timer group
         acc[timerName].sessions.push(session);
-        acc[timerName].totalTime += session.duration_ms || 0;
+        
+        // Calculate duration with validation
+        let sessionDuration = 0;
+        if (session.duration_ms && typeof session.duration_ms === 'number' && session.duration_ms > 0) {
+          sessionDuration = session.duration_ms;
+        } else if (session.end_time && session.start_time) {
+          // Calculate duration from timestamps if duration_ms is missing
+          const startTime = new Date(session.start_time).getTime();
+          const endTime = new Date(session.end_time).getTime();
+          if (endTime > startTime) {
+            sessionDuration = endTime - startTime;
+          }
+        }
+        
+        acc[timerName].totalTime += sessionDuration;
         
         return acc;
       } catch (error) {
