@@ -87,7 +87,7 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
     }
   };
 
-  // Handle Canvas errors
+  // Handle Canvas errors using try-catch instead of onError prop
   const handleCanvasError = (error: Error) => {
     if (mountedRef.current) {
       console.error('🔍 BubbleChart3DEnhanced - Canvas error:', error);
@@ -142,7 +142,6 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
           camera={{ position: [0, 5, 15], fov: 50 }}
           style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
           onCreated={handleCanvasCreated}
-          onError={handleCanvasError}
           gl={{ 
             preserveDrawingBuffer: true, 
             antialias: true,

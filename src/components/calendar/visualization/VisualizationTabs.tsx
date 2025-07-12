@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Box, Scatter, BarChart3, AlertCircle } from 'lucide-react';
+import { Box, ScatterChart, BarChart3, AlertCircle } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 
 type VisualizationMode = '3d' | '2d' | 'bar';
@@ -32,7 +32,7 @@ const VisualizationTabs: React.FC<VisualizationTabsProps> = ({
     {
       value: '2d' as const,
       label: '2D Scatter',
-      icon: Scatter,
+      icon: ScatterChart,
       disabled: false,
       failed: fallbackHistory.includes('2d')
     },
