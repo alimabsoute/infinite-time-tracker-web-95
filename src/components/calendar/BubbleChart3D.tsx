@@ -141,6 +141,8 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
   // Process sessions into bubble data
   const bubbles = useMemo(() => {
     console.log('🔍 BubbleChart3D - Processing sessions:', sessions.length);
+    console.log('🔍 BubbleChart3D - Sample session structure:', sessions.length > 0 ? sessions[0] : 'No sessions');
+    console.log('🔍 BubbleChart3D - Current week start:', currentWeekStart);
     
     // Validate input data
     if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
@@ -162,18 +164,31 @@ export const BubbleChart3D: React.FC<BubbleChart3DProps> = ({
           return acc;
         }
 
-        // Validate timer data
-        if (!session.timers || typeof session.timers !== 'object' || !session.timers.name) {
-          console.warn('🔍 BubbleChart3D - Missing or invalid timer data:', session.timers);
+        // Get timer name from either timers.name or timer_name (backup)
+        let timerName: string;
+        if (session.timers && session.timers.name) {
+          timerName = session.timers.name;
+        } else if ((session as any).timer_name) {
+          timerName = (session as any).timer_name;
+        } else {
+          console.warn('🔍 BubbleChart3D - Missing timer name in session:', session);
           return acc;
         }
         
-        const timerName = session.timers.name;
+        console.log('🔍 BubbleChart3D - Processing session for timer:', timerName);
         if (!acc[timerName]) {
+          // Get category from either timers.category or direct property
+          let category = 'Uncategorized';
+          if (session.timers && session.timers.category) {
+            category = session.timers.category;
+          } else if ((session as any).category) {
+            category = (session as any).category;
+          }
+          
           acc[timerName] = {
             sessions: [],
             totalTime: 0,
-            category: session.timers.category || 'Uncategorized',
+            category,
             createdAt: new Date(session.start_time)
           };
         }
