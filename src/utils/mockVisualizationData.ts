@@ -28,13 +28,14 @@ export const generateMockVisualizationData = (): TimerSessionWithTimer[] => {
     const endTime = new Date(sessionDate.getTime() + durationMs);
     
     const session: TimerSessionWithTimer = {
+      // TimerSession properties
       id: `mock-session-${i}`,
       timer_id: `mock-timer-${i % 25}`, // 25 unique timers
       user_id: 'mock-user',
       start_time: sessionDate.toISOString(),
       end_time: endTime.toISOString(),
       duration_ms: durationMs,
-      created_at: sessionDate.toISOString(),
+      // Added timers property
       timers: {
         id: `mock-timer-${i % 25}`,
         name: timerName,
