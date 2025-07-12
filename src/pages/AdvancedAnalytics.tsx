@@ -3,7 +3,7 @@ import React from 'react';
 import PageLayout from '../components/layout/PageLayout';
 import { useTimers } from '../hooks/useTimers';
 import { useTimerSessions } from '../hooks/useTimerSessions';
-import ActivityVisualization from '../components/calendar/ActivityVisualization';
+import DateRangeVisualizationController from '../components/calendar/visualization/DateRangeVisualizationController';
 import { formatTime } from '../components/calendar/CalendarUtils';
 
 const AdvancedAnalytics = () => {
@@ -44,7 +44,7 @@ const AdvancedAnalytics = () => {
       title="Advanced Analytics"
       description="Explore your productivity patterns with interactive visualizations and detailed insights"
     >
-      <ActivityVisualization
+      <DateRangeVisualizationController
         filteredTimers={timers}
         sessions={sessions}
         formatTime={formatTime}

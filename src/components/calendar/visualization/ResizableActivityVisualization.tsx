@@ -9,7 +9,7 @@ import Enhanced3DBubbleChart from './Enhanced3DBubbleChart';
 import InteractiveTimelineChart from './InteractiveTimelineChart';
 import CategoryRadarChart from './CategoryRadarChart';
 import NetworkGraph3D from './NetworkGraph3D';
-import ChartInsights from './ChartInsights';
+import EnhancedChartInsights from './EnhancedChartInsights';
 import TimerCategoryFilter from '../TimerCategoryFilter';
 import TimerChartLegend from '../TimerChartLegend';
 import TimerDetails from '../TimerDetails';
@@ -46,6 +46,16 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
   const totalTime = sessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
   const avgSessionTime = totalSessions > 0 ? totalTime / totalSessions : 0;
   const uniqueTimers = new Set(sessions.map(s => s.timer_id)).size;
+
+  // Get insights tab based on active visualization tab
+  const getInsightsTab = () => {
+    switch (activeTab) {
+      case 'timeline': return 'timeline';
+      case 'radar': return 'radar';
+      case 'network': return 'network';
+      default: return 'general';
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -137,10 +147,11 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                             <Enhanced2DBubbleChart 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
+                              onBubbleClick={handleBubbleClick}
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                            2D scatter plot • Bubble size represents session count • Hover for details
+                            2D scatter plot • Bubble size represents session count • Click bubbles for details
                           </p>
                         </div>
                       </TabsContent>
@@ -211,7 +222,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                           <strong>3D Bubbles:</strong> Interactive sphere visualization with rotation and zoom
                         </div>
                         <div>
-                          <strong>2D Scatter:</strong> Traditional bubble chart with hover details
+                          <strong>2D Scatter:</strong> Traditional bubble chart with click interactions
                         </div>
                         <div>
                           <strong>Timeline:</strong> Interactive daily activity bars with detailed breakdowns
@@ -235,10 +246,11 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
         </Card>
       </div>
 
-      {/* Smart Insights and Recommendations - Now directly below chart view */}
-      <ChartInsights 
+      {/* Enhanced Chart-Specific Insights */}
+      <EnhancedChartInsights 
         sessions={sessions}
         selectedCategory={selectedCategory}
+        activeTab={getInsightsTab()}
       />
 
       {/* Enhanced About Section */}
@@ -250,14 +262,14 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
           <div className="prose prose-sm max-w-none text-slate-600 dark:text-slate-400">
             <p>
               Our advanced analytics dashboard provides multiple perspectives on your productivity data with enhanced 
-              visual clarity, better color contrast, and intelligent insights.
+              visual clarity, better color contrast, and intelligent chart-specific insights.
             </p>
             <div className="grid md:grid-cols-2 gap-6 mt-6">
               <div>
                 <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Interactive Charts</h4>
                 <ul className="space-y-1 text-sm">
                   <li><strong>3D Bubble Chart:</strong> Immersive sphere visualization with smooth interactions</li>
-                  <li><strong>2D Scatter Plot:</strong> Clear bubble chart with proportional sizing</li>
+                  <li><strong>2D Scatter Plot:</strong> Clear bubble chart with click interactions and proportional sizing</li>
                   <li><strong>Interactive Timeline:</strong> Clickable daily activity bars with detailed breakdowns</li>
                   <li><strong>Category Radar:</strong> Multi-dimensional performance analysis with hover interactions</li>
                   <li><strong>Network Graph:</strong> 3D relationship mapping between related timers</li>
@@ -268,7 +280,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                 <ul className="space-y-1 text-sm">
                   <li><strong>Enhanced Colors:</strong> High-contrast pastels for better accessibility</li>
                   <li><strong>Resizable Layout:</strong> Drag separator to customize view proportions</li>
-                  <li><strong>Smart Insights:</strong> AI-powered recommendations based on your patterns</li>
+                  <li><strong>Chart-Specific Insights:</strong> Tailored analysis for each visualization type</li>
                   <li><strong>Dynamic Filtering:</strong> Category-based filtering across all charts</li>
                   <li><strong>Responsive Design:</strong> Optimized for all screen sizes</li>
                 </ul>
