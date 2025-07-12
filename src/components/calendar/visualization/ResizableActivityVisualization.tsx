@@ -8,7 +8,7 @@ import Enhanced2DBubbleChart from './Enhanced2DBubbleChart';
 import Enhanced3DBubbleChart from './Enhanced3DBubbleChart';
 import InteractiveTimelineChart from './InteractiveTimelineChart';
 import CategoryRadarChart from './CategoryRadarChart';
-import EnhancedNetworkGraph3D from './EnhancedNetworkGraph3D';
+import ConsolidatedNetworkGraph3D from './ConsolidatedNetworkGraph3D';
 import EnhancedChartInsights from './EnhancedChartInsights';
 import TimerCategoryFilter from '../TimerCategoryFilter';
 import TimerChartLegend from '../TimerChartLegend';
@@ -187,13 +187,13 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                       <TabsContent value="network" className="h-full mt-0">
                         <div className="h-full flex flex-col">
                           <div className="flex-1 min-h-0">
-                            <EnhancedNetworkGraph3D 
+                            <ConsolidatedNetworkGraph3D 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                            Enhanced 3D network with robust error handling • Connected nodes show category relationships
+                            Consolidated 3D network with robust error handling • Connected nodes show timer relationships and usage patterns
                           </p>
                         </div>
                       </TabsContent>
@@ -231,10 +231,10 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                           <strong>Radar Chart:</strong> Multi-metric category performance with enhanced interactivity
                         </div>
                         <div>
-                          <strong>Network 3D:</strong> Robust relationship visualization with comprehensive error boundaries
+                          <strong>Network 3D:</strong> Consolidated relationship visualization with comprehensive error boundaries
                         </div>
                         <div className="pt-2 border-t border-indigo-200 dark:border-indigo-800">
-                          <strong>New Features:</strong> Smart insights, enhanced colors, comprehensive date filtering
+                          <strong>Fixed Features:</strong> Robust error handling, improved positioning, consolidated codebase
                         </div>
                       </CardContent>
                     </Card>
