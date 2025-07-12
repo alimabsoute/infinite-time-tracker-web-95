@@ -135,18 +135,18 @@
 
 /* Enhanced Hero Text Styling */
 .hero-title {
-  @apply font-orbitron font-black;
+  @apply font-orbitron font-bold;
   color: hsl(var(--hero-text));
   text-shadow: 
     0 0 10px hsl(var(--hero-text) / 0.3),
     0 0 20px hsl(var(--hero-text) / 0.2),
     0 0 30px hsl(var(--hero-text) / 0.1),
-    2px 2px 0px hsl(var(--hero-outline)),
-    -2px -2px 0px hsl(var(--hero-outline)),
-    2px -2px 0px hsl(var(--hero-outline)),
-    -2px 2px 0px hsl(var(--hero-outline)),
-    3px 3px 0px hsl(var(--hero-outline) / 0.8),
-    -3px -3px 0px hsl(var(--hero-outline) / 0.8);
+    1.5px 1.5px 0px hsl(var(--hero-outline)),
+    -1.5px -1.5px 0px hsl(var(--hero-outline)),
+    1.5px -1.5px 0px hsl(var(--hero-outline)),
+    -1.5px 1.5px 0px hsl(var(--hero-outline)),
+    2px 2px 0px hsl(var(--hero-outline) / 0.8),
+    -2px -2px 0px hsl(var(--hero-outline) / 0.8);
   filter: drop-shadow(0 4px 8px hsl(var(--hero-outline) / 0.3));
 }
 

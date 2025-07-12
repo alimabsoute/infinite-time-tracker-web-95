@@ -35,7 +35,7 @@ const HeroTitle = () => {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2, duration: 0.8, type: "spring", bounce: 0.3 }}
-        className="inline-flex items-center gap-3 mb-6"
+        className="inline-flex items-center gap-6 mb-6"
       >
         <motion.div
           animate={{ 
@@ -48,7 +48,7 @@ const HeroTitle = () => {
             ease: "easeInOut"
           }}
         >
-          <PhynxTimerLogo width={96} height={96} className="text-primary" />
+          <PhynxTimerLogo width={120} height={120} className="text-primary" />
         </motion.div>
         <motion.h1 
           className="text-5xl md:text-7xl hero-title hero-title-animated"
