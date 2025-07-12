@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { TimerSessionWithTimer } from '../types';
+import { TimerSessionWithTimer } from '../types/index';
 
 export const useTimerSessions = () => {
   const [sessions, setSessions] = useState<TimerSessionWithTimer[]>([]);
