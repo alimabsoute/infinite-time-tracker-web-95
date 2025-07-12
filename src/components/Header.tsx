@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AnimatedNavButton } from "@/components/ui/animated-nav-button";
-import { Calendar, Home, Table, Crown, BarChart3 } from "lucide-react";
+import { Calendar, Home, Table, Crown, BarChart3, Activity } from "lucide-react";
 import PhynxTimerLogo from "./PhynxTimerLogo";
 import AuthHeader from "./AuthHeader";
 import { useAuth } from "@/contexts/AuthContext";
@@ -88,6 +88,16 @@ const Header = () => {
               >
                 <BarChart3 size={18} />
                 <span className="hidden sm:inline">Analytics</span>
+              </AnimatedNavButton>
+            </Link>
+            
+            <Link to="/advanced-analytics">
+              <AnimatedNavButton 
+                isActive={location.pathname === "/advanced-analytics"} 
+                className="gap-2 px-3 py-2"
+              >
+                <Activity size={18} />
+                <span className="hidden sm:inline">Advanced</span>
               </AnimatedNavButton>
             </Link>
             

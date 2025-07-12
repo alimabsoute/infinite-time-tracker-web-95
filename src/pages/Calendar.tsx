@@ -48,7 +48,7 @@ const Calendar = () => {
   return (
     <PageLayout 
       title="Calendar View"
-      description="Track your productivity patterns and analyze timer sessions over time"
+      description="View your timer sessions and productivity patterns in a traditional calendar format"
     >
       <CalendarContent
         currentMonth={currentMonth}

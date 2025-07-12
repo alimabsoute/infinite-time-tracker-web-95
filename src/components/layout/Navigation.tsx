@@ -10,7 +10,8 @@ import {
   User,
   LogOut,
   Settings,
-  TrendingUp
+  TrendingUp,
+  Activity
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import PhynxTimerLogo from '../PhynxTimerLogo';
@@ -33,6 +34,7 @@ const Navigation = () => {
     { path: '/active-timers', label: 'Active Timers', icon: Play },
     { path: '/insights', label: 'Insights', icon: BarChart3 },
     { path: '/analytics', label: 'Analytics', icon: TrendingUp },
+    { path: '/advanced-analytics', label: 'Advanced Analytics', icon: Activity },
     { path: '/calendar', label: 'Calendar', icon: Calendar },
     { path: '/reports', label: 'Reports', icon: FileText },
   ];

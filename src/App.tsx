@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import { AuthProvider } from "./contexts/AuthContext";
 import { QueryClient } from "./components/QueryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -23,6 +24,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/calendar" element={<Calendar />} />
+                <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/food-demo" element={<FoodManufacturerDemo />} />
