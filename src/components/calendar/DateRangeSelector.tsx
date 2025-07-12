@@ -71,7 +71,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
   return (
     <div className={cn("flex flex-col gap-3 p-4 bg-muted/30 rounded-lg", className)}>
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium">Select Date Range</h4>
+        <h4 className="text-sm font-medium text-foreground">Select Date Range for Visualization</h4>
         {hasUnappliedChanges && (
           <div className="flex items-center gap-1 text-xs text-orange-600">
             <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
@@ -87,7 +87,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs flex items-center gap-1"
+                className="text-xs flex items-center gap-1 hover:bg-accent"
               >
                 <CalendarIcon className="h-3 w-3" />
                 {format(startDate, 'MMM dd')}
@@ -116,7 +116,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs flex items-center gap-1"
+                className="text-xs flex items-center gap-1 hover:bg-accent"
               >
                 <CalendarIcon className="h-3 w-3" />
                 {format(endDate, 'MMM dd')}
@@ -143,7 +143,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
           variant="ghost"
           size="sm"
           onClick={resetToWeek}
-          className="text-xs h-7"
+          className="text-xs h-7 hover:bg-accent"
         >
           <X className="h-3 w-3 mr-1" />
           Reset
@@ -155,7 +155,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
           variant="outline"
           size="sm"
           onClick={() => handleQuickSelect(7)}
-          className="text-xs h-6 px-2"
+          className="text-xs h-6 px-2 hover:bg-accent"
         >
           7 days
         </Button>
@@ -163,7 +163,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
           variant="outline"
           size="sm"
           onClick={() => handleQuickSelect(14)}
-          className="text-xs h-6 px-2"
+          className="text-xs h-6 px-2 hover:bg-accent"
         >
           14 days
         </Button>
@@ -171,7 +171,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
           variant="outline"
           size="sm"
           onClick={() => handleQuickSelect(30)}
-          className="text-xs h-6 px-2"
+          className="text-xs h-6 px-2 hover:bg-accent"
         >
           30 days
         </Button>
@@ -179,7 +179,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
           variant="outline"
           size="sm"
           onClick={() => handleQuickSelect(90)}
-          className="text-xs h-6 px-2"
+          className="text-xs h-6 px-2 hover:bg-accent"
         >
           90 days
         </Button>
@@ -191,12 +191,12 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
             onClick={handleApply}
             disabled={!hasUnappliedChanges || isApplying}
             size="sm"
-            className="flex-1 h-8"
+            className="flex-1 h-8 bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {isApplying ? (
               <>
                 <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
-                Applying...
+                Applying to Weekly Activity...
               </>
             ) : (
               <>
@@ -210,7 +210,8 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
             variant="outline"
             onClick={resetToCurrentWeek}
             size="sm"
-            className="h-8"
+            className="h-8 hover:bg-accent"
+            title="Reset to current week"
           >
             <RefreshCw className="h-3 w-3" />
           </Button>

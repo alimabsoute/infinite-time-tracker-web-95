@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { format, startOfWeek, addDays, subWeeks, addWeeks, isSameDay, subDays } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from 'lucide-react';
+import { Clock, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../types";
 import { getSessionsForDate, formatTime } from "./CalendarUtils";
@@ -116,9 +116,9 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
 
   // Handle date range changes for visualization only
   const handleVisualizationDateRangeChange = (newStartDate: Date, newEndDate: Date) => {
-    console.log('🔍 WeekView - Visualization date range changed (pending):', {
-      startDate: newStartDate.toISOString(),
-      endDate: newEndDate.toISOString()
+    console.log('🔍 WeekView - Visualization date range changed:', {
+      startDate: format(newStartDate, 'yyyy-MM-dd'),
+      endDate: format(newEndDate, 'yyyy-MM-dd')
     });
     setVisualizationStartDate(newStartDate);
     setVisualizationEndDate(newEndDate);
@@ -127,8 +127,8 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
   // Handle applying date range to both visualization and weekly activity
   const handleApplyDateRange = async (startDate: Date, endDate: Date) => {
     console.log('🔍 WeekView - Applying date range to Weekly Activity:', {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString()
+      startDate: format(startDate, 'yyyy-MM-dd'),
+      endDate: format(endDate, 'yyyy-MM-dd')
     });
 
     // Update visualization dates
@@ -140,10 +140,10 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
     setCurrentWeekStart(newWeekStart);
     setSelectedDate(startDate);
 
-    // Show success feedback
+    // Show success feedback with enhanced messaging
     toast({
-      title: "Date range applied",
-      description: `Weekly Activity updated to ${format(startDate, 'MMM dd')} - ${format(endDate, 'MMM dd')}`,
+      title: "Date range applied successfully!",
+      description: `Weekly Activity now displays ${format(startDate, 'MMM dd')} - ${format(endDate, 'MMM dd')}. Both visualization and weekly chart are synchronized.`,
     });
 
     // Small delay for UX feedback
@@ -169,6 +169,17 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
             <Clock size={16} className="text-primary" /> 
             Weekly Activity - Multi-Layer Visualization
           </CardTitle>
+          <div className="flex items-start gap-2 p-2 bg-blue-50/50 rounded-lg border border-blue-200/50">
+            <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-blue-700">
+              <p className="font-medium">How it works:</p>
+              <p className="text-xs mt-1">
+                • The <strong>visualization below</strong> shows data for the selected date range<br/>
+                • The <strong>weekly chart</strong> shows data for the current week (use navigation arrows)<br/>
+                • Use the <strong>"Apply to Weekly Activity"</strong> button to sync both views
+              </p>
+            </div>
+          </div>
           <SmartWeekNavigation
             currentWeekStart={currentWeekStart}
             onNavigateWeek={navigateWeek}
