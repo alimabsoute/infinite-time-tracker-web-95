@@ -2,7 +2,6 @@
 import React from 'react';
 import PageLayout from '../components/layout/PageLayout';
 import CalendarContent from '../components/calendar/CalendarContent';
-import MockDataControls from '../components/reports/MockDataControls';
 import { useTimers } from '../hooks/useTimers';
 import { useTimerSessions } from '../hooks/useTimerSessions';
 
@@ -51,7 +50,6 @@ const Calendar = () => {
       title="Calendar View"
       description="Track your productivity patterns and analyze timer sessions over time"
     >
-      <MockDataControls />
       <CalendarContent
         currentMonth={currentMonth}
         handleMonthChange={handleMonthChange}
