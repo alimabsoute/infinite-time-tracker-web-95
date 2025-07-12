@@ -7,12 +7,10 @@ import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../types";
 import { getSessionsForDate, formatTime } from "./CalendarUtils";
 import WeeklyNavigation from './WeeklyNavigation';
-// Removed WeeklyChart import - only using bubble chart now
 import WeeklyStats from './WeeklyStats';
-import BubbleChart3D from './BubbleChart3D';
 import WeeklyAnalysis from './WeeklyAnalysis';
 import ErrorBoundary from '../ErrorBoundary';
-import BubbleChartDebugger from './BubbleChartDebugger';
+import VisualizationContainer from './visualization/VisualizationContainer';
 
 interface WeekData {
   date: Date;
@@ -32,8 +30,6 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => 
     startOfWeek(selectedDate || new Date())
   );
-  // Remove chart type switching - only show bubble chart
-  // Removed hoveredDay state - not needed for bubble chart only
   
   console.log('🔍 WeekView - Initializing with selectedDate:', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none');
   console.log('🔍 WeekView - Initial currentWeekStart:', format(currentWeekStart, 'yyyy-MM-dd'));
@@ -123,14 +119,6 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
     setCurrentWeekStart(newWeekStart);
   };
 
-  // Calculate average hours per day
-  const averageHours = useMemo(() => {
-    const totalHours = weekData.reduce((sum, day) => sum + day.totalHours, 0);
-    const avg = totalHours > 0 ? totalHours / 7 : 0;
-    console.log('🔍 WeekView - Average hours calculated:', avg.toFixed(2), 'from total:', totalHours.toFixed(2));
-    return avg;
-  }, [weekData]);
-  
   // Handle bar/day click to update selected date
   const handleBarClick = (data: any) => {
     if (data && data.date) {
@@ -157,22 +145,17 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
           />
         </CardHeader>
         <CardContent>
-          {/* Debug Analysis */}
-          <BubbleChartDebugger 
-            sessions={sessions}
-            currentWeekStart={currentWeekStart}
-          />
-          
+          {/* Enhanced Visualization Container with Multiple Fallbacks */}
           <ErrorBoundary fallback={
             <div className="h-[400px] flex items-center justify-center text-muted-foreground bg-red-100 rounded-lg">
               <div className="text-center">
-                <p className="text-red-600 font-medium">Unable to load 3D bubble chart</p>
-                <p className="text-red-500 text-sm mt-2">Check console for detailed error logs</p>
+                <p className="text-red-600 font-medium">Unable to load visualization</p>
+                <p className="text-red-500 text-sm mt-2">All visualization modes failed</p>
                 <p className="text-red-400 text-xs mt-1">Sessions available: {sessions.length}</p>
               </div>
             </div>
           }>            
-            <BubbleChart3D
+            <VisualizationContainer
               sessions={sessions}
               currentWeekStart={currentWeekStart}
               onBubbleClick={(bubble) => {
