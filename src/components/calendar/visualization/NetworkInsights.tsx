@@ -3,7 +3,7 @@ import React from 'react';
 import { TimerSessionWithTimer } from '../../../types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Network, Users, Link, Zap, GitBranch } from 'lucide-react';
+import { Network, Users, Link, GitBranch, Layers } from 'lucide-react';
 
 interface NetworkInsightsProps {
   sessions: TimerSessionWithTimer[];
@@ -19,152 +19,118 @@ const NetworkInsights: React.FC<NetworkInsightsProps> = ({ sessions, selectedCat
     );
 
     if (filteredSessions.length === 0) {
-      return {
-        insights: [],
-        recommendations: []
-      };
+      return { insights: [], recommendations: [] };
     }
-
-    // Group by timer and category
-    const timerGroups: { [key: string]: TimerSessionWithTimer[] } = {};
-    const categoryGroups: { [key: string]: string[] } = {};
-
-    filteredSessions.forEach(session => {
-      const timerId = session.timer_id;
-      const category = session.timers?.category || 'Uncategorized';
-      
-      if (!timerGroups[timerId]) {
-        timerGroups[timerId] = [];
-      }
-      timerGroups[timerId].push(session);
-
-      if (!categoryGroups[category]) {
-        categoryGroups[category] = [];
-      }
-      if (!categoryGroups[category].includes(timerId)) {
-        categoryGroups[category].push(timerId);
-      }
-    });
 
     const insights = [];
     const recommendations = [];
 
-    // Network connectivity analysis
-    const totalTimers = Object.keys(timerGroups).length;
-    const totalCategories = Object.keys(categoryGroups).length;
+    // Group by timers and categories
+    const timerGroups: { [key: string]: TimerSessionWithTimer[] } = {};
+    const categoryGroups: { [key: string]: TimerSessionWithTimer[] } = {};
     
-    insights.push({
-      icon: Network,
-      type: 'info',
-      title: 'Network Overview',
-      description: `${totalTimers} active timers across ${totalCategories} categories`
+    filteredSessions.forEach(session => {
+      const timerId = session.timer_id;
+      const category = session.timers!.category || 'Uncategorized';
+      
+      if (!timerGroups[timerId]) timerGroups[timerId] = [];
+      if (!categoryGroups[category]) categoryGroups[category] = [];
+      
+      timerGroups[timerId].push(session);
+      categoryGroups[category].push(session);
     });
 
-    // Category clustering analysis
-    const categoryConnections = Object.entries(categoryGroups).map(([category, timers]) => ({
-      category,
-      timerCount: timers.length,
-      totalSessions: timers.reduce((sum, timerId) => sum + (timerGroups[timerId]?.length || 0), 0)
-    })).sort((a, b) => b.timerCount - a.timerCount);
+    const timerCount = Object.keys(timerGroups).length;
+    const categoryCount = Object.keys(categoryGroups).length;
 
-    const mostConnectedCategory = categoryConnections[0];
-    if (mostConnectedCategory && mostConnectedCategory.timerCount > 1) {
+    // Network density analysis
+    if (timerCount >= 5 && categoryCount >= 3) {
       insights.push({
-        icon: Users,
+        icon: Network,
         type: 'positive',
-        title: 'Strong Category Network',
-        description: `${mostConnectedCategory.category} has ${mostConnectedCategory.timerCount} connected timers`
+        title: 'Rich Activity Network',
+        description: `${timerCount} timers across ${categoryCount} categories show diverse engagement`
       });
-    }
-
-    // Isolated vs Connected timers
-    const isolatedTimers = Object.entries(timerGroups).filter(([timerId, sessions]) => {
-      const category = sessions[0]?.timers?.category || 'Uncategorized';
-      return categoryGroups[category]?.length === 1;
-    });
-
-    if (isolatedTimers.length > 0) {
+    } else if (timerCount <= 2) {
       insights.push({
         icon: GitBranch,
         type: 'warning',
-        title: 'Isolated Activities',
-        description: `${isolatedTimers.length} timers in single-timer categories`
+        title: 'Limited Network',
+        description: `Only ${timerCount} active timers - consider expanding your activity range`
       });
-      
-      if (isolatedTimers.length > totalTimers * 0.4) {
-        recommendations.push({
-          title: 'Group Related Activities',
-          description: 'Consider organizing similar timers into shared categories for better insights.',
-          priority: 'medium'
-        });
-      }
+      recommendations.push({
+        title: 'Expand Activity Network',
+        description: 'Create timers for different types of activities to build a richer productivity network.',
+        priority: 'medium'
+      });
     }
 
-    // Network density analysis
-    const possibleConnections = totalCategories * (totalCategories - 1) / 2;
-    const actualConnections = categoryConnections.filter(cat => cat.timerCount > 1).length;
-    const networkDensity = totalCategories > 1 ? (actualConnections / totalCategories) * 100 : 0;
+    // Category clustering analysis
+    const categoryStats = Object.entries(categoryGroups).map(([category, sessions]) => ({
+      category,
+      timerCount: new Set(sessions.map(s => s.timer_id)).size,
+      totalTime: sessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0),
+      sessionCount: sessions.length
+    })).sort((a, b) => b.totalTime - a.totalTime);
 
-    if (networkDensity > 60) {
+    const dominantCategory = categoryStats[0];
+    if (dominantCategory && dominantCategory.timerCount >= 3) {
+      insights.push({
+        icon: Layers,
+        type: 'info',
+        title: 'Category Hub Detected',
+        description: `${dominantCategory.category} forms a major hub with ${dominantCategory.timerCount} connected timers`
+      });
+    }
+
+    // Connection strength analysis
+    const strongConnections = categoryStats.filter(cat => cat.timerCount >= 2 && cat.sessionCount >= 10);
+    if (strongConnections.length >= 2) {
       insights.push({
         icon: Link,
         type: 'positive',
-        title: 'Dense Network',
-        description: `High connectivity with ${networkDensity.toFixed(0)}% of categories well-connected`
+        title: 'Strong Category Connections',
+        description: `${strongConnections.length} categories show robust internal connections`
       });
-    } else if (networkDensity < 30 && totalCategories > 2) {
+    }
+
+    // Isolation detection
+    const isolatedTimers = Object.entries(timerGroups).filter(([, sessions]) => sessions.length < 3);
+    if (isolatedTimers.length > timerCount * 0.4) {
       insights.push({
-        icon: Link,
+        icon: Users,
         type: 'warning',
-        title: 'Sparse Network',
-        description: `Low connectivity - consider consolidating related activities`
+        title: 'Fragmented Network',
+        description: `${isolatedTimers.length} timers show weak connections - consider consolidation`
       });
       recommendations.push({
-        title: 'Strengthen Connections',
-        description: 'Add more timers to existing categories or merge similar categories.',
+        title: 'Strengthen Timer Connections',
+        description: 'Focus on building regular usage patterns for existing timers rather than creating new ones.',
+        priority: 'medium'
+      });
+    }
+
+    // Network balance assessment
+    const timeCentralization = dominantCategory.totalTime / filteredSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
+    if (timeCentralization > 0.6) {
+      insights.push({
+        icon: Network,
+        type: 'warning',
+        title: 'Centralized Network',
+        description: `${dominantCategory.category} dominates ${(timeCentralization * 100).toFixed(0)}% of network activity`
+      });
+      recommendations.push({
+        title: 'Distribute Network Load',
+        description: 'Consider balancing time across different categories for a more resilient productivity network.',
         priority: 'low'
       });
-    }
-
-    // Activity hub analysis
-    const sessionDistribution = Object.entries(timerGroups).map(([timerId, sessions]) => ({
-      timerId,
-      timerName: sessions[0]?.timers?.name || 'Unknown',
-      sessionCount: sessions.length,
-      category: sessions[0]?.timers?.category || 'Uncategorized'
-    })).sort((a, b) => b.sessionCount - a.sessionCount);
-
-    const topTimer = sessionDistribution[0];
-    if (topTimer && topTimer.sessionCount > sessionDistribution.length * 0.3) {
+    } else if (timeCentralization < 0.4 && categoryCount >= 3) {
       insights.push({
-        icon: Zap,
-        type: 'info',
-        title: 'Activity Hub',
-        description: `${topTimer.timerName} is your most active node with ${topTimer.sessionCount} sessions`
+        icon: Network,
+        type: 'positive',
+        title: 'Balanced Network',
+        description: 'Well-distributed activity across multiple categories creates network resilience'
       });
-    }
-
-    // Network balance
-    if (sessionDistribution.length > 3) {
-      const topThirdCount = Math.ceil(sessionDistribution.length / 3);
-      const topThirdSessions = sessionDistribution.slice(0, topThirdCount)
-        .reduce((sum, timer) => sum + timer.sessionCount, 0);
-      const totalSessions = sessionDistribution.reduce((sum, timer) => sum + timer.sessionCount, 0);
-      const concentration = (topThirdSessions / totalSessions) * 100;
-
-      if (concentration > 80) {
-        insights.push({
-          icon: GitBranch,
-          type: 'warning',
-          title: 'Concentrated Activity',
-          description: `${concentration.toFixed(0)}% of sessions in top ${topThirdCount} timers`
-        });
-        recommendations.push({
-          title: 'Distribute Activity',
-          description: 'Try to engage more with underutilized timers for a more balanced network.',
-          priority: 'low'
-        });
-      }
     }
 
     return { insights, recommendations };
@@ -192,7 +158,7 @@ const NetworkInsights: React.FC<NetworkInsightsProps> = ({ sessions, selectedCat
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          <p>Generate network data to see relationship insights</p>
+          <p>Create multiple connected timers to see network insights</p>
         </CardContent>
       </Card>
     );
@@ -206,7 +172,7 @@ const NetworkInsights: React.FC<NetworkInsightsProps> = ({ sessions, selectedCat
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Network className="h-5 w-5" />
-              Network Relationship Insights
+              Network Structure Insights
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -236,7 +202,7 @@ const NetworkInsights: React.FC<NetworkInsightsProps> = ({ sessions, selectedCat
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="h-5 w-5" />
+              <GitBranch className="h-5 w-5" />
               Network Optimization
             </CardTitle>
           </CardHeader>

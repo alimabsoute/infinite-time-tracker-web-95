@@ -8,7 +8,7 @@ import Enhanced2DBubbleChart from './Enhanced2DBubbleChart';
 import Enhanced3DBubbleChart from './Enhanced3DBubbleChart';
 import InteractiveTimelineChart from './InteractiveTimelineChart';
 import CategoryRadarChart from './CategoryRadarChart';
-import NetworkGraph3D from './NetworkGraph3D';
+import EnhancedNetworkGraph3D from './EnhancedNetworkGraph3D';
 import EnhancedChartInsights from './EnhancedChartInsights';
 import TimerCategoryFilter from '../TimerCategoryFilter';
 import TimerChartLegend from '../TimerChartLegend';
@@ -93,7 +93,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
           <CardHeader className="pb-2 flex-shrink-0 border-b border-border/50">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <CardTitle className="text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Advanced Analytics Dashboard
+                Enhanced Analytics Dashboard
               </CardTitle>
               <TimerCategoryFilter 
                 selectedCategory={selectedCategory}
@@ -136,7 +136,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                            Interactive 3D bubble chart • Click and drag to rotate • Scroll to zoom • Click bubbles for details
+                            Enhanced 3D bubble chart with unique timer colors • Click and drag to rotate • Scroll to zoom • Click bubbles for details
                           </p>
                         </div>
                       </TabsContent>
@@ -151,7 +151,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                            2D scatter plot • Bubble size represents session count • Click bubbles for details
+                            Enhanced 2D scatter plot with unique timer colors • Bubble size represents session count • Click bubbles for details
                           </p>
                         </div>
                       </TabsContent>
@@ -165,7 +165,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                            Interactive timeline • Click bars to see session details • Hover for quick info
+                            Interactive timeline with enhanced date range support • Click bars to see session details • Hover for quick info
                           </p>
                         </div>
                       </TabsContent>
@@ -179,7 +179,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                            Category performance radar • Interactive segments show time, sessions, and efficiency
+                            Enhanced category performance radar with improved interactivity • Shows time, sessions, and efficiency metrics
                           </p>
                         </div>
                       </TabsContent>
@@ -187,13 +187,13 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                       <TabsContent value="network" className="h-full mt-0">
                         <div className="h-full flex flex-col">
                           <div className="flex-1" style={{ minHeight: '400px' }}>
-                            <NetworkGraph3D 
+                            <EnhancedNetworkGraph3D 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                            3D network visualization • Connected nodes show category relationships
+                            Enhanced 3D network with robust error handling • Connected nodes show category relationships
                           </p>
                         </div>
                       </TabsContent>
@@ -215,26 +215,26 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                     {/* Enhanced Guide */}
                     <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900 border-indigo-200 dark:border-indigo-800">
                       <CardHeader>
-                        <CardTitle className="text-sm text-indigo-700 dark:text-indigo-300">Visualization Guide</CardTitle>
+                        <CardTitle className="text-sm text-indigo-700 dark:text-indigo-300">Enhanced Visualization Guide</CardTitle>
                       </CardHeader>
                       <CardContent className="text-xs space-y-2 text-indigo-600 dark:text-indigo-400">
                         <div>
-                          <strong>3D Bubbles:</strong> Interactive sphere visualization with rotation and zoom
+                          <strong>3D Bubbles:</strong> Enhanced sphere visualization with unique timer colors and error handling
                         </div>
                         <div>
-                          <strong>2D Scatter:</strong> Traditional bubble chart with click interactions
+                          <strong>2D Scatter:</strong> Improved bubble chart with better color differentiation
                         </div>
                         <div>
-                          <strong>Timeline:</strong> Interactive daily activity bars with detailed breakdowns
+                          <strong>Timeline:</strong> Interactive daily activity bars with comprehensive date range support
                         </div>
                         <div>
-                          <strong>Radar Chart:</strong> Multi-metric category performance visualization
+                          <strong>Radar Chart:</strong> Multi-metric category performance with enhanced interactivity
                         </div>
                         <div>
-                          <strong>Network 3D:</strong> Relationship visualization between timers
+                          <strong>Network 3D:</strong> Robust relationship visualization with comprehensive error boundaries
                         </div>
                         <div className="pt-2 border-t border-indigo-200 dark:border-indigo-800">
-                          <strong>Tip:</strong> Drag the separator to expand chart area as needed
+                          <strong>New Features:</strong> Smart insights, enhanced colors, comprehensive date filtering
                         </div>
                       </CardContent>
                     </Card>
@@ -252,43 +252,6 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
         selectedCategory={selectedCategory}
         activeTab={getInsightsTab()}
       />
-
-      {/* Enhanced About Section */}
-      <Card className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-slate-200 dark:border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-xl text-slate-700 dark:text-slate-300">About These Visualizations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="prose prose-sm max-w-none text-slate-600 dark:text-slate-400">
-            <p>
-              Our advanced analytics dashboard provides multiple perspectives on your productivity data with enhanced 
-              visual clarity, better color contrast, and intelligent chart-specific insights.
-            </p>
-            <div className="grid md:grid-cols-2 gap-6 mt-6">
-              <div>
-                <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Interactive Charts</h4>
-                <ul className="space-y-1 text-sm">
-                  <li><strong>3D Bubble Chart:</strong> Immersive sphere visualization with smooth interactions</li>
-                  <li><strong>2D Scatter Plot:</strong> Clear bubble chart with click interactions and proportional sizing</li>
-                  <li><strong>Interactive Timeline:</strong> Clickable daily activity bars with detailed breakdowns</li>
-                  <li><strong>Category Radar:</strong> Multi-dimensional performance analysis with hover interactions</li>
-                  <li><strong>Network Graph:</strong> 3D relationship mapping between related timers</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Smart Features</h4>
-                <ul className="space-y-1 text-sm">
-                  <li><strong>Enhanced Colors:</strong> High-contrast pastels for better accessibility</li>
-                  <li><strong>Resizable Layout:</strong> Drag separator to customize view proportions</li>
-                  <li><strong>Chart-Specific Insights:</strong> Tailored analysis for each visualization type</li>
-                  <li><strong>Dynamic Filtering:</strong> Category-based filtering across all charts</li>
-                  <li><strong>Responsive Design:</strong> Optimized for all screen sizes</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

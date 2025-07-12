@@ -3,8 +3,8 @@ import React from 'react';
 import { TimerSessionWithTimer } from '../../../types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, TrendingUp, TrendingDown, Clock, Activity } from 'lucide-react';
-import { format, parseISO, startOfDay, differenceInDays } from 'date-fns';
+import { TrendingUp, TrendingDown, Calendar, Clock, Zap } from 'lucide-react';
+import { format, parseISO, differenceInDays, isWeekend } from 'date-fns';
 
 interface TimelineInsightsProps {
   sessions: TimerSessionWithTimer[];
@@ -16,97 +16,134 @@ const TimelineInsights: React.FC<TimelineInsightsProps> = ({ sessions, selectedC
     const filteredSessions = sessions.filter(session => 
       session.duration_ms && 
       session.timers &&
+      session.start_time &&
       (!selectedCategory || selectedCategory === 'all' || session.timers.category === selectedCategory)
     );
 
     if (filteredSessions.length === 0) {
-      return {
-        insights: [],
-        recommendations: []
-      };
+      return { insights: [], recommendations: [] };
     }
 
-    // Group sessions by day
-    const dailyData: { [key: string]: { sessions: TimerSessionWithTimer[]; totalTime: number } } = {};
-    filteredSessions.forEach(session => {
-      const day = format(startOfDay(parseISO(session.start_time)), 'yyyy-MM-dd');
-      if (!dailyData[day]) {
-        dailyData[day] = { sessions: [], totalTime: 0 };
-      }
-      dailyData[day].sessions.push(session);
-      dailyData[day].totalTime += session.duration_ms || 0;
-    });
-
-    const dailyEntries = Object.entries(dailyData).sort(([a], [b]) => a.localeCompare(b));
     const insights = [];
     const recommendations = [];
 
-    // Activity consistency analysis
-    const activeDays = dailyEntries.length;
-    const avgDailyTime = dailyEntries.reduce((sum, [, data]) => sum + data.totalTime, 0) / activeDays;
-    const totalDays = differenceInDays(new Date(), parseISO(dailyEntries[0]?.[0] || new Date().toISOString())) + 1;
-    const consistencyRate = (activeDays / totalDays) * 100;
+    // Group sessions by day
+    const dayGroups: { [key: string]: TimerSessionWithTimer[] } = {};
+    filteredSessions.forEach(session => {
+      try {
+        const sessionDate = parseISO(session.start_time!);
+        const dayKey = format(sessionDate, 'yyyy-MM-dd');
+        if (!dayGroups[dayKey]) dayGroups[dayKey] = [];
+        dayGroups[dayKey].push(session);
+      } catch (error) {
+        console.warn('Invalid session date:', session.start_time);
+      }
+    });
 
-    if (consistencyRate > 70) {
+    const dailyTotals = Object.entries(dayGroups).map(([day, sessions]) => ({
+      day,
+      date: parseISO(day),
+      totalTime: sessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0),
+      sessionCount: sessions.length
+    })).sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    // Consistency analysis
+    const avgDailyTime = dailyTotals.reduce((sum, d) => sum + d.totalTime, 0) / dailyTotals.length;
+    const consistentDays = dailyTotals.filter(d => Math.abs(d.totalTime - avgDailyTime) < avgDailyTime * 0.3).length;
+    const consistencyRate = consistentDays / dailyTotals.length;
+
+    if (consistencyRate > 0.7) {
       insights.push({
         icon: TrendingUp,
         type: 'positive',
-        title: 'High Consistency',
-        description: `Active ${consistencyRate.toFixed(0)}% of days with ${(avgDailyTime / (1000 * 60 * 60)).toFixed(1)}h average`
+        title: 'Consistent Daily Pattern',
+        description: `${(consistencyRate * 100).toFixed(0)}% of days show consistent activity levels`
       });
-    } else if (consistencyRate < 40) {
+    } else if (consistencyRate < 0.4) {
       insights.push({
         icon: TrendingDown,
         type: 'warning',
-        title: 'Inconsistent Activity',
-        description: `Only active ${consistencyRate.toFixed(0)}% of days - room for improvement`
+        title: 'Irregular Activity Pattern',
+        description: `Only ${(consistencyRate * 100).toFixed(0)}% of days are consistent - consider establishing routine`
       });
       recommendations.push({
-        title: 'Build Daily Habits',
-        description: 'Try setting a small daily goal (15-30 minutes) to build consistency.',
+        title: 'Establish Daily Routine',
+        description: 'Try to maintain similar activity levels each day for better habit formation.',
         priority: 'high'
       });
     }
 
-    // Peak activity analysis
-    const bestDay = dailyEntries.reduce((best, [day, data]) => 
-      data.totalTime > best.totalTime ? { day, ...data } : best, 
-      { day: '', totalTime: 0, sessions: [] }
-    );
-
-    if (bestDay.totalTime > 0) {
+    // Peak day analysis
+    const sortedDays = [...dailyTotals].sort((a, b) => b.totalTime - a.totalTime);
+    const peakDay = sortedDays[0];
+    if (peakDay && peakDay.totalTime > avgDailyTime * 1.5) {
+      const dayName = format(peakDay.date, 'EEEE');
       insights.push({
-        icon: Activity,
+        icon: Zap,
         type: 'info',
-        title: 'Peak Performance',
-        description: `Best day: ${(bestDay.totalTime / (1000 * 60 * 60)).toFixed(1)}h across ${bestDay.sessions.length} sessions`
+        title: 'Peak Performance Day',
+        description: `${dayName} shows exceptional activity with ${(peakDay.totalTime / (1000 * 60 * 60)).toFixed(1)} hours`
       });
     }
 
-    // Weekly pattern analysis
-    const recentDays = dailyEntries.slice(-7);
-    const recentAvg = recentDays.reduce((sum, [, data]) => sum + data.totalTime, 0) / recentDays.length;
-    const overallAvg = avgDailyTime;
+    // Weekend vs weekday analysis
+    const weekdaySessions = dailyTotals.filter(d => !isWeekend(d.date));
+    const weekendSessions = dailyTotals.filter(d => isWeekend(d.date));
+    
+    if (weekdaySessions.length > 0 && weekendSessions.length > 0) {
+      const weekdayAvg = weekdaySessions.reduce((sum, d) => sum + d.totalTime, 0) / weekdaySessions.length;
+      const weekendAvg = weekendSessions.reduce((sum, d) => sum + d.totalTime, 0) / weekendSessions.length;
+      
+      if (weekendAvg > weekdayAvg * 1.3) {
+        insights.push({
+          icon: Calendar,
+          type: 'info',
+          title: 'Weekend Warrior',
+          description: 'Weekend activity is 30% higher than weekdays'
+        });
+        recommendations.push({
+          title: 'Balance Weekday Activity',
+          description: 'Consider increasing weekday focus time to maintain momentum.',
+          priority: 'medium'
+        });
+      } else if (weekdayAvg > weekendAvg * 1.5) {
+        insights.push({
+          icon: Clock,
+          type: 'positive',
+          title: 'Strong Weekday Focus',
+          description: 'Consistent weekday productivity with good work-life balance'
+        });
+      }
+    }
 
-    if (recentAvg > overallAvg * 1.2) {
-      insights.push({
-        icon: TrendingUp,
-        type: 'positive',
-        title: 'Recent Improvement',
-        description: 'Last week shows 20% increase in daily activity'
-      });
-    } else if (recentAvg < overallAvg * 0.8) {
-      insights.push({
-        icon: TrendingDown,
-        type: 'warning',
-        title: 'Recent Decline',
-        description: 'Activity has decreased in recent days'
-      });
-      recommendations.push({
-        title: 'Reengage Your Routine',
-        description: 'Consider reviewing what worked well in your most productive periods.',
-        priority: 'medium'
-      });
+    // Recent trend analysis
+    if (dailyTotals.length >= 7) {
+      const recentDays = dailyTotals.slice(-3);
+      const earlierDays = dailyTotals.slice(-7, -3);
+      
+      const recentAvg = recentDays.reduce((sum, d) => sum + d.totalTime, 0) / recentDays.length;
+      const earlierAvg = earlierDays.reduce((sum, d) => sum + d.totalTime, 0) / earlierDays.length;
+      
+      if (recentAvg > earlierAvg * 1.2) {
+        insights.push({
+          icon: TrendingUp,
+          type: 'positive',
+          title: 'Improving Trend',
+          description: 'Activity increased 20% in recent days'
+        });
+      } else if (recentAvg < earlierAvg * 0.8) {
+        insights.push({
+          icon: TrendingDown,
+          type: 'warning',
+          title: 'Declining Activity',
+          description: 'Recent activity down 20% from earlier period'
+        });
+        recommendations.push({
+          title: 'Revitalize Your Routine',
+          description: 'Consider what might be affecting your recent productivity and adjust accordingly.',
+          priority: 'medium'
+        });
+      }
     }
 
     return { insights, recommendations };
@@ -134,7 +171,7 @@ const TimelineInsights: React.FC<TimelineInsightsProps> = ({ sessions, selectedC
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          <p>Generate timeline data to see activity pattern insights</p>
+          <p>Generate timeline data to see temporal insights</p>
         </CardContent>
       </Card>
     );
@@ -148,7 +185,7 @@ const TimelineInsights: React.FC<TimelineInsightsProps> = ({ sessions, selectedC
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Timeline Insights
+              Timeline Pattern Insights
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -179,7 +216,7 @@ const TimelineInsights: React.FC<TimelineInsightsProps> = ({ sessions, selectedC
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              Activity Recommendations
+              Temporal Optimization
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">

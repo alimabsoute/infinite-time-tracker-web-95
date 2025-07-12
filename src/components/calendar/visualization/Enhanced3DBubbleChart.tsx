@@ -1,12 +1,10 @@
 
-import React, { useRef, useState, Suspense } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
 import { TimerSessionWithTimer } from '../../../types';
-import AnimatedBubble from './BubbleAnimations';
-import AxisSystem from './AxisSystem';
-import { useBubbleMetrics } from './BubbleMetrics';
-import ChartControls from './ChartControls';
+import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Enhanced3DBubbleChartProps {
   sessions: TimerSessionWithTimer[];
@@ -14,45 +12,132 @@ interface Enhanced3DBubbleChartProps {
   onBubbleClick?: (timer: any) => void;
 }
 
-const LoadingFallback: React.FC = () => (
-  <Html center>
-    <div className="flex items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-    </div>
-  </Html>
-);
+interface BubbleData {
+  position: [number, number, number];
+  size: number;
+  color: string;
+  timerId: string;
+  name: string;
+  category: string;
+  totalTime: number;
+  sessionCount: number;
+  sessions: TimerSessionWithTimer[];
+}
+
+const Bubble = ({ bubble, onClick, isHovered, onHover }: { 
+  bubble: BubbleData; 
+  onClick: (bubble: BubbleData) => void;
+  isHovered: boolean;
+  onHover: (timerId: string | null) => void;
+}) => {
+  return (
+    <group position={bubble.position}>
+      <mesh
+        onClick={() => onClick(bubble)}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          onHover(bubble.timerId);
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          onHover(null);
+          document.body.style.cursor = 'auto';
+        }}
+      >
+        <sphereGeometry args={[bubble.size, 32, 32]} />
+        <meshPhongMaterial 
+          color={bubble.color} 
+          transparent 
+          opacity={isHovered ? 0.9 : 0.7}
+          shininess={100}
+        />
+      </mesh>
+      
+      {isHovered && (
+        <Html center>
+          <div className="bg-background/95 backdrop-blur-sm border rounded-lg p-3 text-xs min-w-32 pointer-events-none shadow-lg">
+            <div className="font-semibold text-foreground">{bubble.name}</div>
+            <div className="text-muted-foreground">{bubble.category}</div>
+            <div className="mt-2 space-y-1">
+              <div>{bubble.sessionCount} sessions</div>
+              <div>{(bubble.totalTime / (1000 * 60 * 60)).toFixed(1)}h total</div>
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
 
 const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({ 
   sessions, 
-  selectedCategory, 
-  onBubbleClick = () => {} 
+  selectedCategory,
+  onBubbleClick 
 }) => {
-  const controlsRef = useRef<any>();
-  const [cameraKey, setCameraKey] = useState(0);
+  const [hoveredTimer, setHoveredTimer] = useState<string | null>(null);
   const [canvasError, setCanvasError] = useState<string | null>(null);
 
-  console.log('🔍 Enhanced3DBubbleChart - Rendering with:', {
-    sessionsCount: sessions.length,
-    selectedCategory
-  });
+  const bubbleData = useMemo(() => {
+    const filteredSessions = sessions.filter(session => 
+      session.duration_ms && 
+      session.timers &&
+      (!selectedCategory || selectedCategory === 'all' || session.timers.category === selectedCategory)
+    );
 
-  const bubbles = useBubbleMetrics({ sessions, selectedCategory });
+    const timerGroups: { [key: string]: TimerSessionWithTimer[] } = {};
+    filteredSessions.forEach(session => {
+      const timerId = session.timer_id;
+      if (!timerGroups[timerId]) {
+        timerGroups[timerId] = [];
+      }
+      timerGroups[timerId].push(session);
+    });
 
-  const resetCamera = () => {
-    if (controlsRef.current) {
-      controlsRef.current.reset();
-    }
-    setCameraKey(prev => prev + 1);
-  };
+    const bubbles: BubbleData[] = Object.entries(timerGroups).map(([timerId, timerSessions], index) => {
+      const totalTime = timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
+      const sessionCount = timerSessions.length;
+      const timer = timerSessions[0].timers;
+      
+      const colors = getProcessedTimerColors(timerId);
+      
+      // 3D positioning in sphere formation  
+      const totalBubbles = Object.keys(timerGroups).length;
+      const phi = Math.acos(-1 + (2 * index) / Math.max(totalBubbles, 1));
+      const theta = Math.sqrt(Math.max(totalBubbles, 1) * Math.PI) * phi;
+      const radius = 6;
+      
+      const x = radius * Math.cos(theta) * Math.sin(phi);
+      const y = radius * Math.sin(theta) * Math.sin(phi);
+      const z = radius * Math.cos(phi);
+      
+      return {
+        position: [x, y, z] as [number, number, number],
+        size: Math.max(0.3, Math.min(1.5, sessionCount / 8)),
+        color: colors.primaryBorder,
+        timerId,
+        name: timer?.name || 'Unknown Timer',
+        category: timer?.category || 'Uncategorized',
+        totalTime,
+        sessionCount,
+        sessions: timerSessions
+      };
+    });
+
+    return bubbles;
+  }, [sessions, selectedCategory]);
 
   const handleCanvasError = (error: any) => {
-    console.error('🔍 Enhanced3DBubbleChart - Canvas error:', error);
-    setCanvasError('Failed to initialize 3D canvas. Please try refreshing the page.');
+    console.error('3D Canvas error:', error);
+    setCanvasError('Failed to initialize 3D visualization');
+  };
+
+  const handleBubbleClick = (bubble: BubbleData) => {
+    onBubbleClick?.(bubble);
   };
 
   if (canvasError) {
     return (
-      <div className="h-[400px] w-full bg-red-50 rounded-lg flex items-center justify-center border border-red-200">
+      <Card className="h-[400px] flex items-center justify-center">
         <div className="text-center text-red-600">
           <p className="font-medium">3D Visualization Error</p>
           <p className="text-sm mt-2">{canvasError}</p>
@@ -63,71 +148,64 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
             Retry
           </button>
         </div>
-      </div>
+      </Card>
     );
   }
 
-  if (bubbles.length === 0) {
+  if (bubbleData.length === 0) {
     return (
-      <div className="h-[400px] w-full bg-gray-50 rounded-lg flex items-center justify-center">
-        <div className="text-center text-gray-500">
-          <p>No timer data available for 3D visualization</p>
-          <p className="text-sm mt-2">Create timers and log sessions to see the bubble chart</p>
-          <p className="text-xs mt-2 text-gray-400">
-            Sessions: {sessions.length} | Category: {selectedCategory || 'all'}
-          </p>
+      <Card className="h-[400px] flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <p>No data available for 3D visualization</p>
         </div>
-      </div>
+      </Card>
     );
   }
-
-  console.log('🔍 Enhanced3DBubbleChart - Rendering canvas with', bubbles.length, 'bubbles');
 
   return (
-    <div className="relative w-full border border-gray-200 rounded-lg overflow-hidden" style={{ height: '400px' }}>
-      <Canvas 
-        key={cameraKey}
-        camera={{ position: [8, 6, 8], fov: 60 }}
-        style={{ 
-          background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-          width: '100%',
-          height: '100%'
-        }}
-        onError={handleCanvasError}
-        gl={{ antialias: true, alpha: true }}
-      >
-        <Suspense fallback={<LoadingFallback />}>
-          <ambientLight intensity={0.6} />
-          <pointLight position={[10, 10, 10]} intensity={0.8} />
-          <pointLight position={[-10, -10, -10]} intensity={0.3} />
-          
-          <AxisSystem />
-          
-          {bubbles.map((bubble, index) => (
-            <AnimatedBubble
-              key={`bubble-${index}-${bubble.timer.timerId || index}`}
-              position={bubble.position}
-              size={bubble.size}
-              color={bubble.color}
-              timer={bubble.timer}
-              onClick={onBubbleClick}
-            />
-          ))}
-          
-          <OrbitControls
-            ref={controlsRef}
-            enableZoom={true}
-            enablePan={true}
-            enableRotate={true}
-            minDistance={3}
-            maxDistance={20}
-            target={[0, 0, 0]}
-          />
-        </Suspense>
-      </Canvas>
-      
-      <ChartControls onResetCamera={resetCamera} />
-    </div>
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle className="text-lg">3D Activity Sphere</CardTitle>
+        <p className="text-sm text-muted-foreground">Interactive 3D bubble visualization</p>
+      </CardHeader>
+      <CardContent className="h-full">
+        <div className="h-full border rounded-lg overflow-hidden">
+          <Suspense fallback={
+            <div className="h-full flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          }>
+            <Canvas 
+              camera={{ position: [8, 6, 8], fov: 60 }}
+              onError={handleCanvasError}
+              gl={{ antialias: true, alpha: true }}
+            >
+              <ambientLight intensity={0.6} />
+              <pointLight position={[10, 10, 10]} intensity={0.8} />
+              <pointLight position={[-10, -10, -10]} intensity={0.3} />
+              
+              {bubbleData.map(bubble => (
+                <Bubble
+                  key={bubble.timerId}
+                  bubble={bubble}
+                  onClick={handleBubbleClick}
+                  isHovered={hoveredTimer === bubble.timerId}
+                  onHover={setHoveredTimer}
+                />
+              ))}
+              
+              <OrbitControls
+                enableZoom={true}
+                enablePan={true}
+                enableRotate={true}
+                minDistance={5}
+                maxDistance={20}
+              />
+            </Canvas>
+          </Suspense>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

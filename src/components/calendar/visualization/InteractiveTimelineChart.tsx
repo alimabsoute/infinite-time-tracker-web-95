@@ -1,151 +1,213 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { format, parseISO, eachDayOfInterval, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
 import { TimerSessionWithTimer } from '../../../types';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format, parseISO, startOfDay, eachDayOfInterval, subDays } from 'date-fns';
+import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ui/card";
+import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
 
 interface InteractiveTimelineChartProps {
   sessions: TimerSessionWithTimer[];
   selectedCategory?: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
-const InteractiveTimelineChart: React.FC<InteractiveTimelineChartProps> = ({ sessions, selectedCategory }) => {
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const [hoveredSession, setHoveredSession] = useState<any | null>(null);
+const InteractiveTimelineChart: React.FC<InteractiveTimelineChartProps> = ({ 
+  sessions, 
+  selectedCategory,
+  startDate,
+  endDate 
+}) => {
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const timelineData = useMemo(() => {
-    const endDate = new Date();
-    const startDate = subDays(endDate, 30); // Last 30 days
-    const days = eachDayOfInterval({ start: startDate, end: endDate });
-
     const filteredSessions = sessions.filter(session => 
       session.duration_ms && 
       session.timers &&
+      session.start_time &&
       (!selectedCategory || selectedCategory === 'all' || session.timers.category === selectedCategory)
     );
 
-    return days.map(day => {
-      const dayStart = startOfDay(day);
-      const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
-      
-      const daySessions = filteredSessions.filter(session => {
-        const sessionDate = parseISO(session.start_time);
-        return sessionDate >= dayStart && sessionDate < dayEnd;
-      });
+    if (filteredSessions.length === 0) return [];
 
-      const totalTime = daySessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
-      const categories = [...new Set(daySessions.map(s => s.timers?.category || 'Uncategorized'))];
-      
-      return {
-        date: day,
-        sessions: daySessions,
-        totalTime: totalTime / (1000 * 60 * 60), // Convert to hours
-        categories,
-        sessionCount: daySessions.length
-      };
-    }).filter(day => day.sessionCount > 0);
+    // Group sessions by day
+    const dayGroups: { [key: string]: TimerSessionWithTimer[] } = {};
+    
+    filteredSessions.forEach(session => {
+      try {
+        const sessionDate = parseISO(session.start_time!);
+        const dayKey = format(sessionDate, 'yyyy-MM-dd');
+        
+        if (!dayGroups[dayKey]) {
+          dayGroups[dayKey] = [];
+        }
+        dayGroups[dayKey].push(session);
+      } catch (error) {
+        console.warn('Invalid session date:', session.start_time);
+      }
+    });
+
+    // Create timeline data
+    return Object.entries(dayGroups)
+      .map(([dayKey, daySessions]) => {
+        const totalTime = daySessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
+        const sessionCount = daySessions.length;
+        const uniqueTimers = new Set(daySessions.map(s => s.timer_id)).size;
+        
+        // Get dominant category color
+        const categoryTimes: { [key: string]: number } = {};
+        daySessions.forEach(session => {
+          const category = session.timers?.category || 'Uncategorized';
+          categoryTimes[category] = (categoryTimes[category] || 0) + (session.duration_ms || 0);
+        });
+        
+        const dominantCategory = Object.entries(categoryTimes)
+          .sort(([,a], [,b]) => b - a)[0]?.[0] || 'Uncategorized';
+        
+        // Use first timer's color as representative
+        const firstTimerId = daySessions[0]?.timer_id;
+        const colors = firstTimerId ? getProcessedTimerColors(firstTimerId) : { primaryBorder: '#3b82f6' };
+        
+        return {
+          date: dayKey,
+          displayDate: format(parseISO(dayKey), 'MMM dd'),
+          totalHours: totalTime / (1000 * 60 * 60),
+          sessionCount,
+          uniqueTimers,
+          dominantCategory,
+          color: colors.primaryBorder,
+          sessions: daySessions
+        };
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
   }, [sessions, selectedCategory]);
 
-  const maxTime = Math.max(...timelineData.map(d => d.totalTime), 1);
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-background/95 backdrop-blur-sm p-4 border border-border rounded-lg shadow-lg">
+          <p className="font-semibold text-lg text-foreground mb-2">{format(parseISO(data.date), 'EEEE, MMM dd')}</p>
+          <div className="space-y-1 text-sm">
+            <p><span className="font-medium">Total Time:</span> {data.totalHours.toFixed(1)} hours</p>
+            <p><span className="font-medium">Sessions:</span> {data.sessionCount}</p>
+            <p><span className="font-medium">Unique Timers:</span> {data.uniqueTimers}</p>
+            <p><span className="font-medium">Primary Category:</span> {data.dominantCategory}</p>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
-  const getColorForCategory = (category: string) => {
-    const colors = {
-      'Work': 'hsl(210, 70%, 60%)',
-      'Personal': 'hsl(140, 70%, 60%)',
-      'Study': 'hsl(45, 70%, 60%)',
-      'Exercise': 'hsl(0, 70%, 60%)',
-      'Health': 'hsl(280, 70%, 60%)',
-      'Uncategorized': 'hsl(0, 0%, 60%)'
-    };
-    return colors[category as keyof typeof colors] || 'hsl(200, 70%, 60%)';
+  const handleBarClick = (data: any) => {
+    setSelectedDay(selectedDay === data.date ? null : data.date);
   };
 
   if (timelineData.length === 0) {
     return (
       <Card className="h-[400px] flex items-center justify-center">
         <div className="text-center text-muted-foreground">
-          <p>No data available for interactive timeline</p>
+          <p>No timeline data available</p>
         </div>
       </Card>
     );
   }
 
+  const selectedDayData = selectedDay ? timelineData.find(d => d.date === selectedDay) : null;
+
   return (
-    <Card className="h-[400px]">
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-lg">Interactive Activity Timeline</CardTitle>
-        <p className="text-sm text-muted-foreground">Click on bars to see details • Hover for quick info</p>
+        <p className="text-sm text-muted-foreground">Click bars to see detailed session breakdown</p>
       </CardHeader>
       <CardContent className="h-full">
-        <div className="h-full flex">
-          <div className="flex-1 overflow-x-auto">
-            <div className="flex items-end h-64 gap-1 min-w-max px-4">
-              {timelineData.map((day, index) => (
-                <div 
-                  key={index}
-                  className="relative flex flex-col items-center cursor-pointer group"
-                  onClick={() => setSelectedDay(selectedDay?.getTime() === day.date.getTime() ? null : day.date)}
-                  onMouseEnter={() => setHoveredSession(day)}
-                  onMouseLeave={() => setHoveredSession(null)}
+        <div className="h-full flex flex-col">
+          <div className="flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={timelineData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis 
+                  dataKey="displayDate" 
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                  interval={0}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis 
+                  label={{ value: 'Hours', angle: -90, position: 'insideLeft' }}
+                  tick={{ fontSize: 11 }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar 
+                  dataKey="totalHours" 
+                  radius={[4, 4, 0, 0]}
+                  onClick={handleBarClick}
+                  style={{ cursor: 'pointer' }}
                 >
-                  <div className="relative">
-                    <div
-                      className={`w-6 bg-gradient-to-t from-blue-500 to-blue-300 rounded-t transition-all duration-200 hover:scale-110 ${
-                        selectedDay?.getTime() === day.date.getTime() ? 'ring-2 ring-blue-400 scale-110' : ''
-                      }`}
-                      style={{ 
-                        height: `${Math.max(4, (day.totalTime / maxTime) * 200)}px`,
-                        background: day.categories.length === 1 
-                          ? getColorForCategory(day.categories[0])
-                          : 'linear-gradient(to top, hsl(210, 70%, 60%), hsl(140, 70%, 60%))'
-                      }}
+                  {timelineData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.color}
+                      fillOpacity={selectedDay === entry.date ? 1 : 0.7}
+                      stroke={selectedDay === entry.date ? entry.color : 'none'}
+                      strokeWidth={selectedDay === entry.date ? 2 : 0}
                     />
-                    
-                    {hoveredSession?.date.getTime() === day.date.getTime() && (
-                      <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-background border rounded-lg p-2 text-xs min-w-32 z-10 shadow-lg">
-                        <div className="font-medium">{format(day.date, 'MMM d')}</div>
-                        <div className="text-muted-foreground">{day.totalTime.toFixed(1)}h total</div>
-                        <div className="text-muted-foreground">{day.sessionCount} sessions</div>
-                        <div className="mt-1">
-                          {day.categories.map(cat => (
-                            <div key={cat} className="text-xs" style={{ color: getColorForCategory(cat) }}>
-                              {cat}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="text-xs text-muted-foreground mt-1 transform -rotate-45 origin-left">
-                    {format(day.date, 'M/d')}
-                  </div>
-                </div>
-              ))}
-            </div>
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
           
-          {selectedDay && (
-            <div className="w-64 pl-4 border-l">
-              <div className="h-full overflow-y-auto">
-                <h4 className="font-medium mb-3">{format(selectedDay, 'MMMM d, yyyy')}</h4>
-                {timelineData
-                  .find(d => d.date.getTime() === selectedDay.getTime())
-                  ?.sessions.map((session, idx) => (
-                    <div key={idx} className="mb-2 p-2 rounded bg-muted/30">
-                      <div className="font-medium text-sm">{session.timers?.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {((session.duration_ms || 0) / (1000 * 60)).toFixed(0)} minutes
-                      </div>
-                      <div 
-                        className="text-xs mt-1"
-                        style={{ color: getColorForCategory(session.timers?.category || 'Uncategorized') }}
-                      >
-                        {session.timers?.category || 'Uncategorized'}
-                      </div>
-                    </div>
-                  ))
-                }
+          {/* Selected Day Details */}
+          {selectedDayData && (
+            <div className="mt-4 p-4 bg-muted/30 rounded-lg border">
+              <h4 className="font-semibold mb-2">
+                {format(parseISO(selectedDayData.date), 'EEEE, MMMM dd, yyyy')}
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-primary">{selectedDayData.totalHours.toFixed(1)}h</div>
+                  <div className="text-xs text-muted-foreground">Total Time</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-secondary">{selectedDayData.sessionCount}</div>
+                  <div className="text-xs text-muted-foreground">Sessions</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-bold text-accent">{selectedDayData.uniqueTimers}</div>
+                  <div className="text-xs text-muted-foreground">Timers</div>
+                </div>
+                <div className="text-center">
+                  <Badge variant="outline" className="text-xs">
+                    {selectedDayData.dominantCategory}
+                  </Badge>
+                </div>
+              </div>
+              
+              {/* Session List */}
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {selectedDayData.sessions.slice(0, 5).map((session, index) => (
+                  <div key={session.id} className="flex justify-between items-center text-xs">
+                    <span className="font-medium truncate">
+                      {session.timers?.name || 'Unknown Timer'}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {((session.duration_ms || 0) / (1000 * 60)).toFixed(0)}min
+                    </span>
+                  </div>
+                ))}
+                {selectedDayData.sessions.length > 5 && (
+                  <div className="text-xs text-muted-foreground text-center">
+                    +{selectedDayData.sessions.length - 5} more sessions
+                  </div>
+                )}
               </div>
             </div>
           )}
