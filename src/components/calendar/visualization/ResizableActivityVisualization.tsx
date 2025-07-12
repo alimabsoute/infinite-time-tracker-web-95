@@ -6,8 +6,8 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { Timer, TimerSessionWithTimer } from "../../../types";
 import Enhanced2DBubbleChart from './Enhanced2DBubbleChart';
 import Enhanced3DBubbleChart from './Enhanced3DBubbleChart';
-import RadialProgressChart from './RadialProgressChart';
-import PerformanceHeatmap from './PerformanceHeatmap';
+import InteractiveTimelineChart from './InteractiveTimelineChart';
+import CategoryRadarChart from './CategoryRadarChart';
 import NetworkGraph3D from './NetworkGraph3D';
 import ChartInsights from './ChartInsights';
 import TimerCategoryFilter from '../TimerCategoryFilter';
@@ -104,11 +104,11 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                       <TabsTrigger value="2d" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                         2D Scatter
                       </TabsTrigger>
-                      <TabsTrigger value="radial" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                        Radial Progress
+                      <TabsTrigger value="timeline" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                        Timeline
                       </TabsTrigger>
-                      <TabsTrigger value="heatmap" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                        Heatmap
+                      <TabsTrigger value="radar" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                        Radar Chart
                       </TabsTrigger>
                       <TabsTrigger value="network" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                         Network 3D
@@ -145,30 +145,30 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                         </div>
                       </TabsContent>
 
-                      <TabsContent value="radial" className="h-full mt-0">
+                      <TabsContent value="timeline" className="h-full mt-0">
                         <div className="h-full flex flex-col">
                           <div className="flex-1" style={{ minHeight: '400px' }}>
-                            <RadialProgressChart 
+                            <InteractiveTimelineChart 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                            Radial progress by category • Animated concentric rings show relative performance
+                            Interactive timeline • Click bars to see session details • Hover for quick info
                           </p>
                         </div>
                       </TabsContent>
 
-                      <TabsContent value="heatmap" className="h-full mt-0">
+                      <TabsContent value="radar" className="h-full mt-0">
                         <div className="h-full flex flex-col">
                           <div className="flex-1" style={{ minHeight: '400px' }}>
-                            <PerformanceHeatmap 
+                            <CategoryRadarChart 
                               sessions={sessions} 
                               selectedCategory={selectedCategory}
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                            GitHub-style activity heatmap • 12 weeks of daily activity patterns
+                            Category performance radar • Interactive segments show time, sessions, and efficiency
                           </p>
                         </div>
                       </TabsContent>
@@ -201,12 +201,6 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                     <TimerChartLegend />
                     <TimerDetails timer={selectedTimer} />
                     
-                    {/* Smart Insights */}
-                    <ChartInsights 
-                      sessions={sessions}
-                      selectedCategory={selectedCategory}
-                    />
-                    
                     {/* Enhanced Guide */}
                     <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900 border-indigo-200 dark:border-indigo-800">
                       <CardHeader>
@@ -220,10 +214,10 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                           <strong>2D Scatter:</strong> Traditional bubble chart with hover details
                         </div>
                         <div>
-                          <strong>Radial Progress:</strong> Animated category performance rings
+                          <strong>Timeline:</strong> Interactive daily activity bars with detailed breakdowns
                         </div>
                         <div>
-                          <strong>Heatmap:</strong> Daily activity patterns over 12 weeks
+                          <strong>Radar Chart:</strong> Multi-metric category performance visualization
                         </div>
                         <div>
                           <strong>Network 3D:</strong> Relationship visualization between timers
@@ -240,6 +234,12 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
           </CardContent>
         </Card>
       </div>
+
+      {/* Smart Insights and Recommendations - Now directly below chart view */}
+      <ChartInsights 
+        sessions={sessions}
+        selectedCategory={selectedCategory}
+      />
 
       {/* Enhanced About Section */}
       <Card className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-slate-200 dark:border-slate-700">
@@ -258,8 +258,8 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
                 <ul className="space-y-1 text-sm">
                   <li><strong>3D Bubble Chart:</strong> Immersive sphere visualization with smooth interactions</li>
                   <li><strong>2D Scatter Plot:</strong> Clear bubble chart with proportional sizing</li>
-                  <li><strong>Radial Progress:</strong> Animated concentric rings showing category performance</li>
-                  <li><strong>Activity Heatmap:</strong> GitHub-style calendar showing daily patterns</li>
+                  <li><strong>Interactive Timeline:</strong> Clickable daily activity bars with detailed breakdowns</li>
+                  <li><strong>Category Radar:</strong> Multi-dimensional performance analysis with hover interactions</li>
                   <li><strong>Network Graph:</strong> 3D relationship mapping between related timers</li>
                 </ul>
               </div>
