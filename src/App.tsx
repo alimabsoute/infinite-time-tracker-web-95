@@ -1,85 +1,37 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { SubscriptionProvider } from "./contexts/SubscriptionContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import ErrorBoundary from "./components/ErrorBoundary";
-import Index from "./pages/Index";
-import Insights from "./pages/Insights";
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
-import Analytics from "./pages/Analytics";
-import ActiveTimers from "./pages/ActiveTimers";
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Profile from "./pages/Profile";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
-import Help from "./pages/Help";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import FacebookLaunchImagePage from "./pages/FacebookLaunchImage";
-import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
+import { AuthProvider } from "./context/AuthContext";
+import { QueryClient } from "./components/QueryClient";
+import { Toaster } from "@/components/ui/toaster";
+import { SubscriptionProvider } from "./context/SubscriptionContext";
+import ErrorBoundary from "./components/ErrorBoundary";
+import FoodManufacturerDemo from "./pages/FoodManufacturerDemo";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 3,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
-});
-
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <SubscriptionProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+function App() {
+  return (
+    <BrowserRouter>
+      <ErrorBoundary>
+        <QueryClient>
+          <AuthProvider>
+            <SubscriptionProvider>
+              <Toaster />
               <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/help" element={<Help />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/facebook-launch-image" element={<FacebookLaunchImagePage />} />
-                
-                {/* Protected routes */}
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/dashboard" element={<Index />} />
-                  <Route path="/active-timers" element={<ActiveTimers />} />
-                  <Route path="/insights" element={<Insights />} />
-                  <Route path="/calendar" element={<Calendar />} />
-                  <Route path="/reports" element={<Reports />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/profile" element={<Profile />} />
-                </Route>
-                
-                {/* Handle old "/goals" route redirecting to "/analytics" */}
-                <Route path="/goals" element={<Navigate to="/analytics" replace />} />
-                <Route path="/index" element={<Navigate to="/dashboard" replace />} />
-                
-                {/* Catch-all route */}
-                <Route path="*" element={<NotFound />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/food-demo" element={<FoodManufacturerDemo />} />
               </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </SubscriptionProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+            </SubscriptionProvider>
+          </AuthProvider>
+        </QueryClient>
+      </ErrorBoundary>
+    </BrowserRouter>
+  );
+}
 
 export default App;
