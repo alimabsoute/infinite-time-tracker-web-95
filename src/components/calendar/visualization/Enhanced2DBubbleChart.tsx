@@ -22,6 +22,7 @@ interface BubbleDataPoint {
   sessionCount: number;
   color: string;
   sessions: TimerSessionWithTimer[];
+  isRunning: boolean;
 }
 
 const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({ 
@@ -32,21 +33,53 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
   const [activePoint, setActivePoint] = useState<string | null>(null);
 
   const chartData = useMemo(() => {
-    console.log('🔍 Enhanced2DBubbleChart - Processing sessions:', sessions.length);
+    console.log('🔍 Enhanced2DBubbleChart - Processing sessions:', {
+      totalSessions: sessions.length,
+      selectedCategory,
+      sampleSessions: sessions.slice(0, 3).map(s => ({
+        id: s.id,
+        timer_id: s.timer_id,
+        duration_ms: s.duration_ms,
+        timer_name: s.timers?.name,
+        category: s.timers?.category,
+        isVirtual: s.id.startsWith('virtual-')
+      }))
+    });
     
-    // More lenient filtering - accept sessions with any duration > 0
+    // More inclusive filtering - accept sessions with any positive duration
     const filteredSessions = sessions.filter(session => {
       const hasDuration = session.duration_ms && session.duration_ms > 0;
-      const hasTimer = session.timers && session.timer_id;
+      const hasTimer = session.timers && session.timer_id && session.timers.name;
       const matchesCategory = !selectedCategory || selectedCategory === 'all' || session.timers?.category === selectedCategory;
       
-      return hasDuration && hasTimer && matchesCategory;
+      const isValid = hasDuration && hasTimer && matchesCategory;
+      
+      if (!isValid) {
+        console.log('🔍 Enhanced2DBubbleChart - Filtered out session:', {
+          sessionId: session.id,
+          hasDuration,
+          hasTimer,
+          matchesCategory,
+          duration_ms: session.duration_ms,
+          timer_name: session.timers?.name
+        });
+      }
+      
+      return isValid;
     });
 
-    console.log('🔍 Enhanced2DBubbleChart - Filtered sessions:', filteredSessions.length);
+    console.log('🔍 Enhanced2DBubbleChart - After filtering:', {
+      originalCount: sessions.length,
+      filteredCount: filteredSessions.length,
+      filteredOutCount: sessions.length - filteredSessions.length
+    });
 
-    if (filteredSessions.length === 0) return [];
+    if (filteredSessions.length === 0) {
+      console.log('🔍 Enhanced2DBubbleChart - No valid sessions after filtering');
+      return [];
+    }
 
+    // Group sessions by timer
     const timerGroups: { [key: string]: TimerSessionWithTimer[] } = {};
     filteredSessions.forEach(session => {
       const timerId = session.timer_id;
@@ -56,11 +89,24 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       timerGroups[timerId].push(session);
     });
 
+    console.log('🔍 Enhanced2DBubbleChart - Timer groups:', {
+      groupCount: Object.keys(timerGroups).length,
+      groups: Object.entries(timerGroups).map(([id, sessions]) => ({
+        timerId: id,
+        sessionCount: sessions.length,
+        timerName: sessions[0]?.timers?.name,
+        totalDuration: sessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0)
+      }))
+    });
+
     const bubbleData = Object.entries(timerGroups).map(([timerId, timerSessions]) => {
       const totalTime = timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
       const sessionCount = timerSessions.length;
       const avgSessionTime = totalTime / sessionCount;
       const timer = timerSessions[0].timers;
+      
+      // Check if any session is a running timer (virtual session)
+      const isRunning = timerSessions.some(s => s.id.startsWith('virtual-'));
       
       // Safe color processing with fallback
       let colors;
@@ -81,14 +127,29 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
         totalHours: (totalTime / (1000 * 60 * 60)).toFixed(1),
         avgMinutes: (avgSessionTime / (1000 * 60)).toFixed(1),
         sessionCount,
-        color: colors.primaryBorder,
-        sessions: timerSessions
+        color: isRunning ? `hsl(120, 70%, 50%)` : colors.primaryBorder, // Green for running timers
+        sessions: timerSessions,
+        isRunning
       };
+      
+      console.log('🔍 Enhanced2DBubbleChart - Created bubble data point:', {
+        timerId,
+        timerName: dataPoint.name,
+        totalHours: dataPoint.totalHours,
+        sessionCount: dataPoint.sessionCount,
+        isRunning: dataPoint.isRunning,
+        color: dataPoint.color
+      });
       
       return dataPoint;
     });
 
-    console.log('🔍 Enhanced2DBubbleChart - Generated bubbles:', bubbleData.length);
+    console.log('🔍 Enhanced2DBubbleChart - Generated bubble data:', {
+      count: bubbleData.length,
+      runningCount: bubbleData.filter(b => b.isRunning).length,
+      stoppedCount: bubbleData.filter(b => !b.isRunning).length
+    });
+    
     return bubbleData;
   }, [sessions, selectedCategory]);
 
@@ -97,12 +158,17 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       const data = payload[0].payload as BubbleDataPoint;
       return (
         <div className="bg-background/95 backdrop-blur-sm p-4 border border-border rounded-lg shadow-lg">
-          <p className="font-semibold text-lg text-foreground">{data.name}</p>
+          <p className="font-semibold text-lg text-foreground">
+            {data.name} {data.isRunning && <span className="text-green-500">(Running)</span>}
+          </p>
           <p className="text-sm text-muted-foreground mb-2">{data.category}</p>
           <div className="space-y-1 text-sm">
             <p><span className="font-medium">Total Time:</span> {data.totalHours} hours</p>
             <p><span className="font-medium">Avg Session:</span> {data.avgMinutes} minutes</p>
             <p><span className="font-medium">Sessions:</span> {data.sessionCount}</p>
+            {data.isRunning && (
+              <p className="text-green-600 font-medium">Currently Active</p>
+            )}
           </div>
         </div>
       );
@@ -123,6 +189,9 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
         <div className="text-center text-muted-foreground">
           <p>No data available for 2D bubble visualization</p>
           <p className="text-sm mt-2">Sessions processed: {sessions.length}</p>
+          <p className="text-xs mt-1">
+            Valid sessions: {sessions.filter(s => s.duration_ms && s.duration_ms > 0 && s.timers?.name).length}
+          </p>
         </div>
       </div>
     );
@@ -179,7 +248,7 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
                   fill={entry.color}
                   fillOpacity={activePoint === entry.timerId ? 0.9 : 0.7}
                   stroke={entry.color}
-                  strokeWidth={2}
+                  strokeWidth={entry.isRunning ? 3 : 2}
                   onMouseEnter={() => setActivePoint(entry.timerId)}
                   onMouseLeave={() => setActivePoint(null)}
                   style={{ cursor: 'pointer' }}
@@ -188,6 +257,20 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
             </Scatter>
           </ComposedChart>
         </ResponsiveContainer>
+      </div>
+      
+      {/* Legend showing running vs stopped timers */}
+      <div className="absolute bottom-6 right-6 bg-background/80 backdrop-blur-sm rounded-lg p-2 text-xs">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <span>Running ({chartData.filter(d => d.isRunning).length})</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+            <span>Stopped ({chartData.filter(d => !d.isRunning).length})</span>
+          </div>
+        </div>
       </div>
     </div>
   );
