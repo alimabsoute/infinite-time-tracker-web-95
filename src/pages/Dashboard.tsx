@@ -19,6 +19,12 @@ const Dashboard = () => {
   } = useTimers();
   const { sessions, loading: sessionsLoading } = useTimerSessions();
 
+  // Create a wrapper function that matches the expected signature
+  const handleCreateTimer = () => {
+    // Create a timer with a default name - the user can rename it afterward
+    addTimer('New Timer');
+  };
+
   if (sessionsLoading) {
     return (
       <PageLayout 
@@ -73,7 +79,7 @@ const Dashboard = () => {
           onUpdatePriority={updatePriority}
           onReorder={reorderTimers}
           newTimerId={null}
-          onCreateTimer={addTimer}
+          onCreateTimer={handleCreateTimer}
         />
       </div>
     </PageLayout>
