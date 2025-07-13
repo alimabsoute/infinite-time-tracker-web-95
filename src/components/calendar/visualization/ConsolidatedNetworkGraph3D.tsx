@@ -1,10 +1,11 @@
 
 import React, { useState, useRef, useMemo, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { OrbitControls, Text, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { TimerSessionWithTimer } from '../../../types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import WebGLContextManager from './WebGLContextManager';
 
 interface ConsolidatedNetworkGraph3DProps {
   sessions: TimerSessionWithTimer[];
@@ -49,8 +50,16 @@ const AnimatedNode = ({ node, isHovered, onHover }: {
     <group position={node.position}>
       <mesh
         ref={meshRef}
-        onPointerOver={() => onHover(node)}
-        onPointerOut={() => onHover(null)}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          onHover(node);
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation();
+          onHover(null);
+          document.body.style.cursor = 'auto';
+        }}
       >
         <sphereGeometry args={[node.size, 16, 16]} />
         <meshLambertMaterial 
@@ -88,11 +97,6 @@ const AnimatedNode = ({ node, isHovered, onHover }: {
 };
 
 const NetworkEdge = ({ edge }: { edge: NetworkEdge }) => {
-  const points = React.useMemo(() => [
-    new THREE.Vector3(...edge.sourcePos),
-    new THREE.Vector3(...edge.targetPos)
-  ], [edge.sourcePos, edge.targetPos]);
-
   return (
     <line>
       <bufferGeometry>
@@ -115,14 +119,52 @@ const NetworkEdge = ({ edge }: { edge: NetworkEdge }) => {
   );
 };
 
+const Scene3D: React.FC<{ nodes: NetworkNode[]; edges: NetworkEdge[]; hoveredNode: NetworkNode | null; setHoveredNode: (node: NetworkNode | null) => void }> = ({
+  nodes,
+  edges,
+  hoveredNode,
+  setHoveredNode
+}) => {
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <pointLight position={[10, 10, 10]} intensity={0.6} />
+      <pointLight position={[-10, -10, -10]} intensity={0.3} />
+      <pointLight position={[0, 10, -10]} intensity={0.4} />
+      
+      {edges.map((edge, index) => (
+        <NetworkEdge key={`edge-${edge.source}-${edge.target}-${index}`} edge={edge} />
+      ))}
+      
+      {nodes.map(node => (
+        <AnimatedNode 
+          key={node.id} 
+          node={node} 
+          isHovered={hoveredNode?.id === node.id}
+          onHover={setHoveredNode}
+        />
+      ))}
+      
+      <OrbitControls
+        enableZoom={true}
+        enablePan={true}
+        enableRotate={true}
+        minDistance={6}
+        maxDistance={25}
+        autoRotate={!hoveredNode}
+        autoRotateSpeed={0.3}
+      />
+    </>
+  );
+};
+
 const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({ 
   sessions, 
   selectedCategory,
   isStandalone = false 
 }) => {
   const [hoveredNode, setHoveredNode] = useState<NetworkNode | null>(null);
-  const [canvasError, setCanvasError] = useState<string | null>(null);
-  const controlsRef = useRef<any>();
+  const [webglError, setWebglError] = useState<string | null>(null);
 
   console.log('🔍 ConsolidatedNetworkGraph3D - Processing:', {
     sessionsCount: sessions.length,
@@ -132,19 +174,13 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
 
   const { nodes, edges } = useMemo(() => {
     try {
-      // Filter sessions with comprehensive validation
+      // More lenient filtering - accept sessions with any duration > 0
       const validSessions = sessions.filter(session => {
-        const hasValidData = session.duration_ms && 
-                           session.duration_ms > 0 && 
-                           session.timers && 
-                           session.timer_id &&
-                           session.timers.name;
+        const hasDuration = session.duration_ms && session.duration_ms > 0;
+        const hasTimer = session.timers && session.timer_id && session.timers.name;
+        const matchesCategory = !selectedCategory || selectedCategory === 'all' || session.timers?.category === selectedCategory;
         
-        const matchesCategory = !selectedCategory || 
-                              selectedCategory === 'all' || 
-                              session.timers.category === selectedCategory;
-        
-        return hasValidData && matchesCategory;
+        return hasDuration && hasTimer && matchesCategory;
       });
 
       console.log('🔍 ConsolidatedNetworkGraph3D - Valid sessions:', validSessions.length);
@@ -153,16 +189,14 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
         return { nodes: [], edges: [] };
       }
 
-      // Group sessions by timer with enhanced validation
+      // Group sessions by timer
       const timerGroups: { [key: string]: TimerSessionWithTimer[] } = {};
       validSessions.forEach(session => {
         const timerId = session.timer_id;
-        if (timerId && session.timers) {
-          if (!timerGroups[timerId]) {
-            timerGroups[timerId] = [];
-          }
-          timerGroups[timerId].push(session);
+        if (!timerGroups[timerId]) {
+          timerGroups[timerId] = [];
         }
+        timerGroups[timerId].push(session);
       });
 
       const timerEntries = Object.entries(timerGroups);
@@ -172,7 +206,7 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
         return { nodes: [], edges: [] };
       }
 
-      // Create nodes with enhanced positioning algorithm
+      // Create nodes with proper 3D positioning
       const nodeList: NetworkNode[] = timerEntries.map(([timerId, timerSessions], index) => {
         const timer = timerSessions[0]?.timers;
         if (!timer) {
@@ -183,25 +217,23 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
         const totalTime = timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
         const sessionCount = timerSessions.length;
         
-        // Enhanced 3D positioning with validation using Fibonacci sphere
+        // Improved 3D positioning using spherical coordinates
         const totalNodes = timerEntries.length;
         const radius = Math.max(4, Math.min(8, totalNodes * 0.6));
         
-        // Fibonacci sphere distribution for better spacing
-        const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-        const y = 1 - (index / Math.max(totalNodes - 1, 1)) * 2;
-        const radiusAtY = Math.sqrt(1 - y * y);
-        const theta = goldenAngle * index;
+        // Use spherical coordinates for better distribution
+        const phi = Math.acos(1 - 2 * index / totalNodes); // Polar angle
+        const theta = Math.PI * (1 + Math.sqrt(5)) * index; // Azimuthal angle (golden ratio)
         
-        const x = Math.cos(theta) * radiusAtY * radius;
-        const z = Math.sin(theta) * radiusAtY * radius;
-        const yPos = y * radius;
+        const x = radius * Math.sin(phi) * Math.cos(theta);
+        const y = radius * Math.sin(phi) * Math.sin(theta);
+        const z = radius * Math.cos(phi);
         
-        // Validate all position values
+        // Validate position values
         const position: [number, number, number] = [
-          isFinite(x) ? x : 0,
-          isFinite(yPos) ? yPos : 0,
-          isFinite(z) ? z : 0
+          isFinite(x) ? x : Math.random() * 4 - 2,
+          isFinite(y) ? y : Math.random() * 4 - 2,
+          isFinite(z) ? z : Math.random() * 4 - 2
         ];
 
         return {
@@ -216,10 +248,9 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
         };
       }).filter(Boolean) as NetworkNode[];
 
-      // Create edges with improved relationship logic
+      // Create edges based on category and usage patterns
       const edgeList: NetworkEdge[] = [];
       
-      // Create edges based on category similarity and usage patterns
       nodeList.forEach((nodeA, indexA) => {
         nodeList.forEach((nodeB, indexB) => {
           if (indexA < indexB) { // Avoid duplicate edges
@@ -259,34 +290,37 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
       return { nodes: nodeList, edges: edgeList };
     } catch (error) {
       console.error('🔍 ConsolidatedNetworkGraph3D - Data processing error:', error);
-      setCanvasError('Failed to process network data');
+      setWebglError('Failed to process network data');
       return { nodes: [], edges: [] };
     }
   }, [sessions, selectedCategory]);
 
-  const handleCanvasError = (error: any) => {
-    console.error('🔍 ConsolidatedNetworkGraph3D - Canvas error:', error);
-    setCanvasError('Failed to initialize 3D visualization');
+  const handleContextLost = () => {
+    setWebglError('WebGL context was lost');
   };
 
-  const handleRetry = () => {
-    setCanvasError(null);
+  const handleContextRestored = () => {
+    setWebglError(null);
     setHoveredNode(null);
   };
 
-  if (canvasError) {
+  const fallbackContent = (
+    <div className="h-full flex items-center justify-center">
+      <div className="text-center text-muted-foreground space-y-2">
+        <p className="font-medium">3D Visualization Unavailable</p>
+        <p className="text-sm">WebGL is not supported or has encountered an error</p>
+        <p className="text-xs">Sessions: {sessions.length}, Nodes: {nodes.length}</p>
+      </div>
+    </div>
+  );
+
+  if (webglError) {
     return (
       <div className={isStandalone ? "h-[400px]" : "h-full"}>
         <Card className="h-full flex items-center justify-center border-destructive/20 bg-destructive/5">
           <div className="text-center space-y-4 p-6">
             <div className="text-destructive font-medium">3D Network Error</div>
-            <p className="text-sm text-muted-foreground">{canvasError}</p>
-            <button 
-              onClick={handleRetry}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded text-sm hover:bg-primary/90 transition-colors"
-            >
-              Retry Visualization
-            </button>
+            <p className="text-sm text-muted-foreground">{webglError}</p>
           </div>
         </Card>
       </div>
@@ -300,6 +334,7 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
           <div className="text-center text-muted-foreground space-y-2">
             <p className="font-medium">No Network Data</p>
             <p className="text-sm">No timer relationships found for the selected period</p>
+            <p className="text-xs">Sessions processed: {sessions.length}</p>
           </div>
         </Card>
       </div>
@@ -313,41 +348,18 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       }>
-        <Canvas 
-          camera={{ position: [12, 10, 12], fov: 60 }}
-          onError={handleCanvasError}
-          gl={{ antialias: true, alpha: true }}
-          className="h-full w-full"
+        <WebGLContextManager
+          onContextLost={handleContextLost}
+          onContextRestored={handleContextRestored}
+          fallback={fallbackContent}
         >
-          <ambientLight intensity={0.4} />
-          <pointLight position={[10, 10, 10]} intensity={0.6} />
-          <pointLight position={[-10, -10, -10]} intensity={0.3} />
-          <pointLight position={[0, 10, -10]} intensity={0.4} />
-          
-          {edges.map((edge, index) => (
-            <NetworkEdge key={`edge-${edge.source}-${edge.target}-${index}`} edge={edge} />
-          ))}
-          
-          {nodes.map(node => (
-            <AnimatedNode 
-              key={node.id} 
-              node={node} 
-              isHovered={hoveredNode?.id === node.id}
-              onHover={setHoveredNode}
-            />
-          ))}
-          
-          <OrbitControls
-            ref={controlsRef}
-            enableZoom={true}
-            enablePan={true}
-            enableRotate={true}
-            minDistance={6}
-            maxDistance={25}
-            autoRotate={!hoveredNode}
-            autoRotateSpeed={0.3}
+          <Scene3D 
+            nodes={nodes}
+            edges={edges}
+            hoveredNode={hoveredNode}
+            setHoveredNode={setHoveredNode}
           />
-        </Canvas>
+        </WebGLContextManager>
       </Suspense>
     </div>
   );

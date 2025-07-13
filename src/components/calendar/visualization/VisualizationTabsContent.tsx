@@ -23,6 +23,12 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
   setActiveTab,
   onBubbleClick
 }) => {
+  console.log('🔍 VisualizationTabsContent - Rendering with:', {
+    sessionsCount: sessions.length,
+    selectedCategory,
+    activeTab
+  });
+
   return (
     <div className="h-full pr-2">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
@@ -31,7 +37,7 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
             3D Bubbles
           </TabsTrigger>
           <TabsTrigger value="2d" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            2D Scatter
+            2D Bubbles
           </TabsTrigger>
           <TabsTrigger value="timeline" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             Timeline
@@ -55,7 +61,7 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                Enhanced 3D bubble chart with unique timer colors • Click and drag to rotate • Scroll to zoom • Click bubbles for details
+                Enhanced 3D bubble chart with WebGL error handling • Click and drag to rotate • Scroll to zoom • Click bubbles for details
               </p>
             </div>
           </TabsContent>
@@ -70,7 +76,7 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                Enhanced 2D scatter plot with unique timer colors • Bubble size represents session count • Click bubbles for details
+                Fixed 2D bubble chart with proper bubble rendering • Bubble size represents session count • Click bubbles for details
               </p>
             </div>
           </TabsContent>
@@ -112,7 +118,7 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
-                Consolidated 3D network with robust error handling • Connected nodes show timer relationships and usage patterns
+                Fixed 3D network with WebGL context management • Connected nodes show timer relationships and usage patterns
               </p>
             </div>
           </TabsContent>

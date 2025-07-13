@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState } from 'react';
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { ComposedChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { TimerSessionWithTimer } from '../../../types';
 import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
 
@@ -10,10 +10,10 @@ interface Enhanced2DBubbleChartProps {
   onBubbleClick?: (timer: any) => void;
 }
 
-interface ChartDataPoint {
+interface BubbleDataPoint {
   x: number;
   y: number;
-  z: number;
+  size: number;
   timerId: string;
   name: string;
   category: string;
@@ -32,11 +32,18 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
   const [activePoint, setActivePoint] = useState<string | null>(null);
 
   const chartData = useMemo(() => {
-    const filteredSessions = sessions.filter(session => 
-      session.duration_ms && 
-      session.timers &&
-      (!selectedCategory || selectedCategory === 'all' || session.timers.category === selectedCategory)
-    );
+    console.log('🔍 Enhanced2DBubbleChart - Processing sessions:', sessions.length);
+    
+    // More lenient filtering - accept sessions with any duration > 0
+    const filteredSessions = sessions.filter(session => {
+      const hasDuration = session.duration_ms && session.duration_ms > 0;
+      const hasTimer = session.timers && session.timer_id;
+      const matchesCategory = !selectedCategory || selectedCategory === 'all' || session.timers?.category === selectedCategory;
+      
+      return hasDuration && hasTimer && matchesCategory;
+    });
+
+    console.log('🔍 Enhanced2DBubbleChart - Filtered sessions:', filteredSessions.length);
 
     if (filteredSessions.length === 0) return [];
 
@@ -49,18 +56,25 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       timerGroups[timerId].push(session);
     });
 
-    return Object.entries(timerGroups).map(([timerId, timerSessions]) => {
+    const bubbleData = Object.entries(timerGroups).map(([timerId, timerSessions]) => {
       const totalTime = timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
       const sessionCount = timerSessions.length;
       const avgSessionTime = totalTime / sessionCount;
       const timer = timerSessions[0].timers;
       
-      const colors = getProcessedTimerColors(timerId);
+      // Safe color processing with fallback
+      let colors;
+      try {
+        colors = getProcessedTimerColors(timerId);
+      } catch (error) {
+        console.warn('🔍 Enhanced2DBubbleChart - Color processing failed for timer:', timerId, error);
+        colors = { primaryBorder: `hsl(${Math.random() * 360}, 65%, 55%)` };
+      }
       
-      const dataPoint: ChartDataPoint = {
+      const dataPoint: BubbleDataPoint = {
         x: totalTime / (1000 * 60 * 60), // Total hours
         y: avgSessionTime / (1000 * 60), // Avg session minutes
-        z: Math.max(100, sessionCount * 20), // Bubble size
+        size: Math.max(50, Math.min(500, sessionCount * 25)), // Bubble size (50-500)
         timerId,
         name: timer?.name || 'Unknown Timer',
         category: timer?.category || 'Uncategorized',
@@ -73,11 +87,14 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       
       return dataPoint;
     });
+
+    console.log('🔍 Enhanced2DBubbleChart - Generated bubbles:', bubbleData.length);
+    return bubbleData;
   }, [sessions, selectedCategory]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload as ChartDataPoint;
+      const data = payload[0].payload as BubbleDataPoint;
       return (
         <div className="bg-background/95 backdrop-blur-sm p-4 border border-border rounded-lg shadow-lg">
           <p className="font-semibold text-lg text-foreground">{data.name}</p>
@@ -95,6 +112,7 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
 
   const handleDotClick = (data: any) => {
     if (data && data.payload) {
+      console.log('🔍 Enhanced2DBubbleChart - Bubble clicked:', data.payload.name);
       onBubbleClick?.(data.payload);
     }
   };
@@ -103,7 +121,8 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center text-muted-foreground">
-          <p>No data available for 2D scatter visualization</p>
+          <p>No data available for 2D bubble visualization</p>
+          <p className="text-sm mt-2">Sessions processed: {sessions.length}</p>
         </div>
       </div>
     );
@@ -113,7 +132,7 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
     <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
       <div className="h-full">
         <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart
+          <ComposedChart
             margin={{
               top: 20,
               right: 30,
@@ -151,7 +170,7 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
             />
             <Tooltip content={<CustomTooltip />} />
             <Scatter 
-              data={chartData}
+              dataKey="size"
               onClick={handleDotClick}
             >
               {chartData.map((entry, index) => (
@@ -161,14 +180,13 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
                   fillOpacity={activePoint === entry.timerId ? 0.9 : 0.7}
                   stroke={entry.color}
                   strokeWidth={2}
-                  r={Math.sqrt(entry.z / Math.PI)}
                   onMouseEnter={() => setActivePoint(entry.timerId)}
                   onMouseLeave={() => setActivePoint(null)}
                   style={{ cursor: 'pointer' }}
                 />
               ))}
             </Scatter>
-          </ScatterChart>
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
     </div>
