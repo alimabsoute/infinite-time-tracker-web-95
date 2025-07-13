@@ -1,10 +1,13 @@
 
-import React, { useState, useMemo, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
+import React, { useState, useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
 import { TimerSessionWithTimer } from '../../../types';
 import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
-import AxisSystem from './AxisSystem';
+import SafeCanvas3D from './SafeCanvas3D';
+import SafeText3D from './SafeText3D';
+import GeometryValidator from './GeometryValidator';
+import Visualization3DErrorBoundary from './Visualization3DErrorBoundary';
 
 interface Enhanced3DBubbleChartProps {
   sessions: TimerSessionWithTimer[];
@@ -26,36 +29,53 @@ interface BubbleData {
   isRunning: boolean;
 }
 
-const Bubble = ({ bubble, onClick, isHovered, onHover }: { 
+const SafeBubble = ({ bubble, onClick, isHovered, onHover }: { 
   bubble: BubbleData; 
   onClick: (bubble: BubbleData) => void;
   isHovered: boolean;
   onHover: (timerId: string | null) => void;
 }) => {
+  const meshRef = useRef<any>(null);
+  
+  useFrame((state) => {
+    if (meshRef.current && !isHovered) {
+      try {
+        const floatOffset = Math.sin(state.clock.elapsedTime + bubble.position[0]) * 0.1;
+        meshRef.current.position.y = bubble.position[1] + floatOffset;
+        meshRef.current.rotation.y += 0.005;
+      } catch (error) {
+        console.warn('🔍 SafeBubble - Animation error:', error);
+      }
+    }
+  });
+
   return (
     <group position={bubble.position}>
-      <mesh
-        onClick={() => onClick(bubble)}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          onHover(bubble.timerId);
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={() => {
-          onHover(null);
-          document.body.style.cursor = 'auto';
-        }}
-      >
-        <sphereGeometry args={[bubble.size, 32, 32]} />
-        <meshPhongMaterial 
-          color={bubble.color} 
-          transparent 
-          opacity={isHovered ? 0.9 : 0.8}
-          shininess={bubble.isRunning ? 150 : 100}
-          emissive={bubble.isRunning ? bubble.color : '#000000'}
-          emissiveIntensity={bubble.isRunning ? 0.1 : 0}
-        />
-      </mesh>
+      <GeometryValidator>
+        <mesh
+          ref={meshRef}
+          onClick={() => onClick(bubble)}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            onHover(bubble.timerId);
+            document.body.style.cursor = 'pointer';
+          }}
+          onPointerOut={() => {
+            onHover(null);
+            document.body.style.cursor = 'auto';
+          }}
+        >
+          <sphereGeometry args={[bubble.size, 32, 32]} />
+          <meshPhongMaterial 
+            color={bubble.color} 
+            transparent 
+            opacity={isHovered ? 0.9 : 0.8}
+            shininess={bubble.isRunning ? 150 : 100}
+            emissive={bubble.isRunning ? bubble.color : '#000000'}
+            emissiveIntensity={bubble.isRunning ? 0.1 : 0}
+          />
+        </mesh>
+      </GeometryValidator>
       
       {isHovered && (
         <Html center>
@@ -79,13 +99,66 @@ const Bubble = ({ bubble, onClick, isHovered, onHover }: {
   );
 };
 
+const Safe3DScene: React.FC<{ bubbleData: BubbleData[]; hoveredTimer: string | null; setHoveredTimer: (id: string | null) => void; handleBubbleClick: (bubble: BubbleData) => void }> = ({
+  bubbleData,
+  hoveredTimer,
+  setHoveredTimer,
+  handleBubbleClick
+}) => {
+  return (
+    <>
+      <ambientLight intensity={0.6} />
+      <pointLight position={[10, 10, 10]} intensity={0.8} />
+      <pointLight position={[-10, -10, -10]} intensity={0.3} />
+      
+      {bubbleData.map(bubble => (
+        <SafeBubble
+          key={bubble.timerId}
+          bubble={bubble}
+          onClick={handleBubbleClick}
+          isHovered={hoveredTimer === bubble.timerId}
+          onHover={setHoveredTimer}
+        />
+      ))}
+      
+      <SafeText3D
+        position={[0, -4, 0]}
+        fontSize={0.3}
+        color="gray"
+        anchorX="center"
+        anchorY="middle"
+      >
+        Total Time →
+      </SafeText3D>
+      
+      <SafeText3D
+        position={[-5, 0, 0]}
+        fontSize={0.3}
+        color="gray"
+        anchorX="center"
+        anchorY="middle"
+        rotation={[0, 0, Math.PI / 2]}
+      >
+        Avg Session Time →
+      </SafeText3D>
+      
+      <OrbitControls
+        enableZoom={true}
+        enablePan={true}
+        enableRotate={true}
+        minDistance={8}
+        maxDistance={25}
+      />
+    </>
+  );
+};
+
 const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({ 
   sessions, 
   selectedCategory,
   onBubbleClick 
 }) => {
   const [hoveredTimer, setHoveredTimer] = useState<string | null>(null);
-  const [canvasError, setCanvasError] = useState<string | null>(null);
 
   const bubbleData = useMemo(() => {
     console.log('🔍 Enhanced3DBubbleChart - Processing sessions:', {
@@ -201,86 +274,43 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
     return bubbles;
   }, [sessions, selectedCategory]);
 
-  const handleCanvasError = (error: any) => {
-    console.error('🔍 Enhanced3DBubbleChart - 3D Canvas error:', error);
-    setCanvasError('Failed to initialize 3D visualization');
-  };
-
   const handleBubbleClick = (bubble: BubbleData) => {
     console.log('🔍 Enhanced3DBubbleChart - Bubble clicked:', bubble.name);
     onBubbleClick?.(bubble);
   };
 
-  if (canvasError) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center text-red-600">
-          <p className="font-medium">3D Visualization Error</p>
-          <p className="text-sm mt-2">{canvasError}</p>
-          <button 
-            onClick={() => setCanvasError(null)}
-            className="mt-3 px-4 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-          >
-            Retry
-          </button>
-        </div>
+  const fallbackContent = (
+    <div className="h-full flex items-center justify-center">
+      <div className="text-center text-muted-foreground">
+        <p>3D visualization unavailable</p>
+        <p className="text-sm mt-2">Sessions processed: {sessions.length}</p>
+        <p className="text-xs mt-1">
+          Valid sessions: {sessions.filter(s => s.duration_ms && s.duration_ms > 0 && s.timers?.name).length}
+        </p>
       </div>
-    );
-  }
+    </div>
+  );
 
   if (bubbleData.length === 0) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center text-muted-foreground">
-          <p>No data available for 3D visualization</p>
-          <p className="text-sm mt-2">Sessions processed: {sessions.length}</p>
-          <p className="text-xs mt-1">
-            Valid sessions: {sessions.filter(s => s.duration_ms && s.duration_ms > 0 && s.timers?.name).length}
-          </p>
-        </div>
-      </div>
-    );
+    return fallbackContent;
   }
 
   return (
     <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 relative">
-      <Suspense fallback={
-        <div className="h-full flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      }>
-        <Canvas 
+      <Visualization3DErrorBoundary fallback={fallbackContent}>
+        <SafeCanvas3D
           camera={{ position: [12, 8, 12], fov: 60 }}
-          onError={handleCanvasError}
-          gl={{ antialias: true, alpha: true }}
           className="h-full w-full"
+          fallback={fallbackContent}
         >
-          <ambientLight intensity={0.6} />
-          <pointLight position={[10, 10, 10]} intensity={0.8} />
-          <pointLight position={[-10, -10, -10]} intensity={0.3} />
-          
-          {/* Add the proper 3D axis system */}
-          <AxisSystem />
-          
-          {bubbleData.map(bubble => (
-            <Bubble
-              key={bubble.timerId}
-              bubble={bubble}
-              onClick={handleBubbleClick}
-              isHovered={hoveredTimer === bubble.timerId}
-              onHover={setHoveredTimer}
-            />
-          ))}
-          
-          <OrbitControls
-            enableZoom={true}
-            enablePan={true}
-            enableRotate={true}
-            minDistance={8}
-            maxDistance={25}
+          <Safe3DScene 
+            bubbleData={bubbleData}
+            hoveredTimer={hoveredTimer}
+            setHoveredTimer={setHoveredTimer}
+            handleBubbleClick={handleBubbleClick}
           />
-        </Canvas>
-      </Suspense>
+        </SafeCanvas3D>
+      </Visualization3DErrorBoundary>
       
       {/* Legend showing running vs stopped timers */}
       <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-2 text-xs">

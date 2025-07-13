@@ -1,11 +1,14 @@
 
 import React, { useState, useRef, useMemo, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { OrbitControls, Text, Html } from '@react-three/drei';
+import { OrbitControls, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { TimerSessionWithTimer } from '../../../types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import WebGLContextManager from './WebGLContextManager';
+import SafeCanvas3D from './SafeCanvas3D';
+import SafeText3D from './SafeText3D';
+import GeometryValidator from './GeometryValidator';
+import Visualization3DErrorBoundary from './Visualization3DErrorBoundary';
 
 interface ConsolidatedNetworkGraph3DProps {
   sessions: TimerSessionWithTimer[];
@@ -41,33 +44,39 @@ const AnimatedNode = ({ node, isHovered, onHover }: {
   
   useFrame((state) => {
     if (meshRef.current && !isHovered) {
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
-      meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.1;
+      try {
+        meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
+        meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.1;
+      } catch (error) {
+        console.warn('🔍 AnimatedNode - Animation error:', error);
+      }
     }
   });
 
   return (
     <group position={node.position}>
-      <mesh
-        ref={meshRef}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          onHover(node);
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={(e) => {
-          e.stopPropagation();
-          onHover(null);
-          document.body.style.cursor = 'auto';
-        }}
-      >
-        <sphereGeometry args={[node.size, 16, 16]} />
-        <meshLambertMaterial 
-          color={node.color} 
-          transparent 
-          opacity={isHovered ? 0.9 : 0.8} 
-        />
-      </mesh>
+      <GeometryValidator>
+        <mesh
+          ref={meshRef}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            onHover(node);
+            document.body.style.cursor = 'pointer';
+          }}
+          onPointerOut={(e) => {
+            e.stopPropagation();
+            onHover(null);
+            document.body.style.cursor = 'auto';
+          }}
+        >
+          <sphereGeometry args={[node.size, 16, 16]} />
+          <meshLambertMaterial 
+            color={node.color} 
+            transparent 
+            opacity={isHovered ? 0.9 : 0.8} 
+          />
+        </mesh>
+      </GeometryValidator>
       
       {isHovered && (
         <Html center distanceFactor={10}>
@@ -82,7 +91,7 @@ const AnimatedNode = ({ node, isHovered, onHover }: {
         </Html>
       )}
       
-      <Text
+      <SafeText3D
         position={[0, -(node.size + 0.4), 0]}
         fontSize={0.15}
         color="hsl(var(--foreground))"
@@ -91,32 +100,37 @@ const AnimatedNode = ({ node, isHovered, onHover }: {
         maxWidth={2}
       >
         {node.name.slice(0, 12)}
-      </Text>
+      </SafeText3D>
     </group>
   );
 };
 
 const NetworkEdge = ({ edge }: { edge: NetworkEdge }) => {
-  return (
-    <line>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={2}
-          array={new Float32Array([
-            ...edge.sourcePos,
-            ...edge.targetPos
-          ])}
-          itemSize={3}
+  try {
+    return (
+      <line>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={2}
+            array={new Float32Array([
+              ...edge.sourcePos,
+              ...edge.targetPos
+            ])}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial 
+          color="hsl(var(--muted-foreground))" 
+          transparent 
+          opacity={Math.max(0.15, Math.min(0.7, edge.strength * 0.8))}
         />
-      </bufferGeometry>
-      <lineBasicMaterial 
-        color="hsl(var(--muted-foreground))" 
-        transparent 
-        opacity={Math.max(0.15, Math.min(0.7, edge.strength * 0.8))}
-      />
-    </line>
-  );
+      </line>
+    );
+  } catch (error) {
+    console.warn('🔍 NetworkEdge - Render error:', error);
+    return null;
+  }
 };
 
 const Scene3D: React.FC<{ nodes: NetworkNode[]; edges: NetworkEdge[]; hoveredNode: NetworkNode | null; setHoveredNode: (node: NetworkNode | null) => void }> = ({
@@ -126,7 +140,7 @@ const Scene3D: React.FC<{ nodes: NetworkNode[]; edges: NetworkEdge[]; hoveredNod
   setHoveredNode
 }) => {
   return (
-    <>
+    <Visualization3DErrorBoundary>
       <ambientLight intensity={0.4} />
       <pointLight position={[10, 10, 10]} intensity={0.6} />
       <pointLight position={[-10, -10, -10]} intensity={0.3} />
@@ -154,7 +168,7 @@ const Scene3D: React.FC<{ nodes: NetworkNode[]; edges: NetworkEdge[]; hoveredNod
         autoRotate={!hoveredNode}
         autoRotateSpeed={0.3}
       />
-    </>
+    </Visualization3DErrorBoundary>
   );
 };
 
@@ -164,7 +178,6 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
   isStandalone = false 
 }) => {
   const [hoveredNode, setHoveredNode] = useState<NetworkNode | null>(null);
-  const [webglError, setWebglError] = useState<string | null>(null);
 
   console.log('🔍 ConsolidatedNetworkGraph3D - Processing:', {
     sessionsCount: sessions.length,
@@ -290,42 +303,19 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
       return { nodes: nodeList, edges: edgeList };
     } catch (error) {
       console.error('🔍 ConsolidatedNetworkGraph3D - Data processing error:', error);
-      setWebglError('Failed to process network data');
       return { nodes: [], edges: [] };
     }
   }, [sessions, selectedCategory]);
 
-  const handleContextLost = () => {
-    setWebglError('WebGL context was lost');
-  };
-
-  const handleContextRestored = () => {
-    setWebglError(null);
-    setHoveredNode(null);
-  };
-
   const fallbackContent = (
     <div className="h-full flex items-center justify-center">
       <div className="text-center text-muted-foreground space-y-2">
-        <p className="font-medium">3D Visualization Unavailable</p>
-        <p className="text-sm">WebGL is not supported or has encountered an error</p>
+        <p className="font-medium">3D Network Unavailable</p>
+        <p className="text-sm">Falling back to 2D visualization</p>
         <p className="text-xs">Sessions: {sessions.length}, Nodes: {nodes.length}</p>
       </div>
     </div>
   );
-
-  if (webglError) {
-    return (
-      <div className={isStandalone ? "h-[400px]" : "h-full"}>
-        <Card className="h-full flex items-center justify-center border-destructive/20 bg-destructive/5">
-          <div className="text-center space-y-4 p-6">
-            <div className="text-destructive font-medium">3D Network Error</div>
-            <p className="text-sm text-muted-foreground">{webglError}</p>
-          </div>
-        </Card>
-      </div>
-    );
-  }
 
   if (nodes.length === 0) {
     return (
@@ -343,14 +333,10 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
 
   const content = (
     <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-background to-muted/20">
-      <Suspense fallback={
-        <div className="h-full flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      }>
-        <WebGLContextManager
-          onContextLost={handleContextLost}
-          onContextRestored={handleContextRestored}
+      <Visualization3DErrorBoundary fallback={fallbackContent}>
+        <SafeCanvas3D
+          camera={{ position: [12, 8, 12], fov: 60 }}
+          className="h-full w-full"
           fallback={fallbackContent}
         >
           <Scene3D 
@@ -359,8 +345,8 @@ const ConsolidatedNetworkGraph3D: React.FC<ConsolidatedNetworkGraph3DProps> = ({
             hoveredNode={hoveredNode}
             setHoveredNode={setHoveredNode}
           />
-        </WebGLContextManager>
-      </Suspense>
+        </SafeCanvas3D>
+      </Visualization3DErrorBoundary>
     </div>
   );
 
