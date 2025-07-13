@@ -1,13 +1,10 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Timer, TimerSessionWithTimer } from "../../../types";
-import TimerCategoryFilter from '../TimerCategoryFilter';
-import EnhancedChartInsights from './EnhancedChartInsights';
-import ActivitySummaryStats from './ActivitySummaryStats';
+import React, { useState, useCallback } from 'react';
+import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
+import { Timer, TimerSessionWithTimer } from '../../../types';
 import VisualizationTabsContent from './VisualizationTabsContent';
 import VisualizationSidebarContent from './VisualizationSidebarContent';
+import EnhancedChartInsights from './EnhancedChartInsights';
 
 interface ResizableActivityVisualizationProps {
   filteredTimers: Timer[];
@@ -21,8 +18,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
   formatTime
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedTimer, setSelectedTimer] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('3d');
+  const [activeTab, setActiveTab] = useState<string>('treemap'); // Changed default from 'network' to 'treemap'
 
   console.log('🔍 ResizableActivityVisualization - Rendering with:', {
     filteredTimersCount: filteredTimers.length,
@@ -31,71 +27,59 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
     activeTab
   });
 
-  const handleBubbleClick = (timer: any) => {
-    console.log('🔍 ResizableActivityVisualization - Timer selected:', timer);
-    setSelectedTimer(timer);
-  };
+  // Get unique categories from sessions
+  const categories = ['all', ...new Set(
+    sessions
+      .map(session => session.timers?.category)
+      .filter(Boolean)
+      .sort()
+  )];
 
-  // Get insights tab based on active visualization tab
-  const getInsightsTab = () => {
-    switch (activeTab) {
-      case 'timeline': return 'timeline';
-      case 'radar': return 'radar';
-      case 'network': return 'network';
-      default: return 'general';
-    }
-  };
+  const handleBubbleClick = useCallback((timer: any) => {
+    console.log('🔍 ResizableActivityVisualization - Bubble clicked:', timer);
+  }, []);
 
   return (
-    <div className="w-full space-y-6">
-      {/* Enhanced Summary Stats */}
-      <ActivitySummaryStats sessions={sessions} />
-
-      {/* Main Visualization Area - Fixed Height Container */}
-      <Card className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <CardHeader className="pb-4 border-b border-border/50">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle className="text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Enhanced Analytics Dashboard
-            </CardTitle>
-            <TimerCategoryFilter 
+    <div className="h-[600px] w-full border rounded-lg overflow-hidden bg-background">
+      <PanelGroup direction="horizontal" className="h-full">
+        {/* Main Visualization Panel */}
+        <Panel defaultSize={75} minSize={60}>
+          <div className="h-full flex flex-col">
+            <VisualizationTabsContent
+              sessions={sessions}
               selectedCategory={selectedCategory}
-              onCategoryChange={setSelectedCategory}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              onBubbleClick={handleBubbleClick}
             />
           </div>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="h-[600px]">
-            <ResizablePanelGroup direction="horizontal" className="h-full">
-              {/* Main Chart Area */}
-              <ResizablePanel defaultSize={75} minSize={60}>
-                <VisualizationTabsContent
-                  sessions={sessions}
-                  selectedCategory={selectedCategory}
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  onBubbleClick={handleBubbleClick}
-                />
-              </ResizablePanel>
+        </Panel>
 
-              {/* Resizable Handle */}
-              <ResizableHandle withHandle className="bg-border/50 hover:bg-border transition-colors" />
-
-              {/* Enhanced Sidebar */}
-              <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
-                <VisualizationSidebarContent selectedTimer={selectedTimer} />
-              </ResizablePanel>
-            </ResizablePanelGroup>
+        {/* Resize Handle */}
+        <PanelResizeHandle className="w-2 bg-border hover:bg-border/80 transition-colors" />
+        
+        {/* Sidebar Panel */}
+        <Panel defaultSize={25} minSize={20} maxSize={40}>
+          <div className="h-full flex flex-col">
+            <VisualizationSidebarContent
+              sessions={sessions}
+              categories={categories}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              formatTime={formatTime}
+            />
+            
+            {/* Enhanced Insights Section */}
+            <div className="flex-1 min-h-0 p-3 overflow-auto">
+              <EnhancedChartInsights
+                sessions={sessions}
+                selectedCategory={selectedCategory}
+                activeTab={activeTab}
+              />
+            </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Enhanced Chart-Specific Insights */}
-      <EnhancedChartInsights 
-        sessions={sessions}
-        selectedCategory={selectedCategory}
-        activeTab={getInsightsTab()}
-      />
+        </Panel>
+      </PanelGroup>
     </div>
   );
 };
