@@ -12,6 +12,7 @@ interface VisualizationSidebarContentProps {
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
   formatTime: (ms: number) => string;
+  selectedTimer: any | null;
 }
 
 const VisualizationSidebarContent: React.FC<VisualizationSidebarContentProps> = ({
@@ -19,8 +20,11 @@ const VisualizationSidebarContent: React.FC<VisualizationSidebarContentProps> = 
   categories,
   selectedCategory,
   setSelectedCategory,
-  formatTime
+  formatTime,
+  selectedTimer
 }) => {
+  console.log('🔍 VisualizationSidebarContent - Selected timer:', selectedTimer);
+
   return (
     <div className="pl-2 h-full flex flex-col">
       <div className="flex-1 overflow-y-auto space-y-4">
@@ -46,7 +50,7 @@ const VisualizationSidebarContent: React.FC<VisualizationSidebarContentProps> = 
         </Card>
 
         <TimerChartLegend />
-        <TimerDetails timer={null} />
+        <TimerDetails timer={selectedTimer} />
         
         {/* Enhanced Guide */}
         <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900 border-indigo-200 dark:border-indigo-800">

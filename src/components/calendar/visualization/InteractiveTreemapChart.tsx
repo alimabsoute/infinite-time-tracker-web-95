@@ -11,12 +11,14 @@ interface InteractiveTreemapChartProps {
   sessions: TimerSessionWithTimer[];
   selectedCategory?: string;
   isStandalone?: boolean;
+  onBubbleClick?: (timer: any) => void;
 }
 
 const InteractiveTreemapChart: React.FC<InteractiveTreemapChartProps> = ({
   sessions,
   selectedCategory,
-  isStandalone = false
+  isStandalone = false,
+  onBubbleClick
 }) => {
   const [hoveredNode, setHoveredNode] = useState<TreemapNodeData | null>(null);
   const [selectedNode, setSelectedNode] = useState<TreemapNodeData | null>(null);
@@ -26,7 +28,8 @@ const InteractiveTreemapChart: React.FC<InteractiveTreemapChartProps> = ({
     sessionsCount: sessions.length,
     selectedCategory,
     viewMode,
-    isStandalone
+    isStandalone,
+    hasClickHandler: !!onBubbleClick
   });
 
   // Process data into treemap format
@@ -44,7 +47,21 @@ const InteractiveTreemapChart: React.FC<InteractiveTreemapChartProps> = ({
     } else {
       setSelectedNode(node);
     }
-  }, [selectedNode]);
+
+    // Call the bubble click handler if provided
+    if (onBubbleClick && node.data) {
+      console.log('🔍 InteractiveTreemapChart - Node clicked, calling onBubbleClick:', node);
+      onBubbleClick({
+        id: node.id,
+        name: node.name,
+        totalTime: node.value,
+        sessionCount: node.data.sessionCount || 0,
+        avgSessionTime: node.data.avgSessionTime || 0,
+        category: node.data.category || 'Uncategorized',
+        isRunning: node.data.isRunning || false
+      });
+    }
+  }, [selectedNode, onBubbleClick]);
 
   const handleViewModeToggle = useCallback(() => {
     setViewMode(prev => prev === 'category' ? 'timer' : 'category');

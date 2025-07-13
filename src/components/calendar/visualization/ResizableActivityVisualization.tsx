@@ -18,13 +18,15 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
   formatTime
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<string>('treemap'); // Changed default from 'network' to 'treemap'
+  const [activeTab, setActiveTab] = useState<string>('treemap');
+  const [selectedTimer, setSelectedTimer] = useState<any | null>(null);
 
   console.log('🔍 ResizableActivityVisualization - Rendering with:', {
     filteredTimersCount: filteredTimers.length,
     sessionsCount: sessions.length,
     selectedCategory,
-    activeTab
+    activeTab,
+    selectedTimer: selectedTimer ? { id: selectedTimer.id, name: selectedTimer.name } : null
   });
 
   // Get unique categories from sessions
@@ -37,6 +39,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
 
   const handleBubbleClick = useCallback((timer: any) => {
     console.log('🔍 ResizableActivityVisualization - Bubble clicked:', timer);
+    setSelectedTimer(timer);
   }, []);
 
   return (
@@ -67,6 +70,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
               formatTime={formatTime}
+              selectedTimer={selectedTimer}
             />
             
             {/* Enhanced Insights Section */}

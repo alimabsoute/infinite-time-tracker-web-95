@@ -26,7 +26,8 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
   console.log('🔍 VisualizationTabsContent - Rendering with:', {
     sessionsCount: sessions.length,
     selectedCategory,
-    activeTab
+    activeTab,
+    hasClickHandler: !!onBubbleClick
   });
 
   return (
@@ -57,6 +58,7 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
                 <InteractiveTreemapChart 
                   sessions={sessions} 
                   selectedCategory={selectedCategory}
+                  onBubbleClick={onBubbleClick}
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2 text-center flex-shrink-0">
