@@ -83,7 +83,7 @@ const Index = () => {
         />
       </div>
       
-      {/* Confetti Animation */}
+      {/* Enhanced Confetti Animation */}
       {confettiTrigger && (
         <ConfettiAnimation
           x={confettiTrigger.x}
@@ -92,7 +92,7 @@ const Index = () => {
         />
       )}
       
-      {/* Celebration Animations */}
+      {/* Enhanced Celebration Animations */}
       {celebrationTrigger.type && (
         <CelebrationAnimations
           type={celebrationTrigger.type}

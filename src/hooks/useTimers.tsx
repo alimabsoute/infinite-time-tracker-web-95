@@ -12,7 +12,7 @@ import { useTimerRealtime } from "./useTimerRealtime";
 
 export const useTimers = () => {
   const [confettiTrigger, setConfettiTrigger] = useState<{ x: number; y: number; id: string } | null>(null);
-  const [celebrationTrigger, setCelebrationTrigger] = useState<{ type: 'fireworks' | 'sparkles' | null }>({ type: null });
+  const [celebrationTrigger, setCelebrationTrigger] = useState<{ type: 'fireworks' | 'sparkles' | 'balloons' | 'animals' | null }>({ type: null });
   const confettiTimeoutRef = useRef<NodeJS.Timeout>();
   const celebrationTimeoutRef = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
