@@ -21,14 +21,14 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
   const [activeAnimations, setActiveAnimations] = useState<Set<string>>(new Set());
   const animationTimeoutRef = useRef<NodeJS.Timeout>();
 
-  console.log('🎭 EnhancedAnimationManager - Render state:', {
+  console.log('🎭 OPTIMIZED EnhancedAnimationManager - Render state:', {
     confettiTrigger: !!confettiTrigger,
     celebrationTrigger: celebrationTrigger.type,
     activeAnimations: Array.from(activeAnimations)
   });
 
   const handleConfettiComplete = useCallback(() => {
-    console.log('🎉 Confetti animation completed');
+    console.log('🎉 OPTIMIZED Confetti animation completed');
     setActiveAnimations(prev => {
       const next = new Set(prev);
       next.delete('confetti');
@@ -38,7 +38,7 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
   }, [onConfettiComplete]);
 
   const handleCelebrationComplete = useCallback(() => {
-    console.log('🎊 Celebration animation completed');
+    console.log('🎊 OPTIMIZED Celebration animation completed');
     setActiveAnimations(prev => {
       const next = new Set(prev);
       next.delete('celebration');
@@ -47,23 +47,40 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
     onCelebrationComplete();
   }, [onCelebrationComplete]);
 
-  // Track active animations
+  // OPTIMIZED: Smart animation management to prevent overlapping animations
   React.useEffect(() => {
     if (confettiTrigger) {
+      // Clear any existing animation timeout
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+      
       setActiveAnimations(prev => new Set(prev).add('confetti'));
+      
+      // Set a timeout to automatically clean up if callback fails
+      animationTimeoutRef.current = setTimeout(() => {
+        console.log('⚠️ Confetti animation timeout - force cleanup');
+        handleConfettiComplete();
+      }, 4000);
     }
-  }, [confettiTrigger]);
+  }, [confettiTrigger, handleConfettiComplete]);
 
   React.useEffect(() => {
     if (celebrationTrigger.type) {
       setActiveAnimations(prev => new Set(prev).add('celebration'));
+      
+      // Set a timeout to automatically clean up if callback fails
+      animationTimeoutRef.current = setTimeout(() => {
+        console.log('⚠️ Celebration animation timeout - force cleanup');
+        handleCelebrationComplete();
+      }, 3500);
     }
-  }, [celebrationTrigger.type]);
+  }, [celebrationTrigger.type, handleCelebrationComplete]);
 
   // Debug logging
   React.useEffect(() => {
     if (confettiTrigger || celebrationTrigger.type) {
-      console.log('🎨 Starting ENHANCED animation sequence:', {
+      console.log('🎨 Starting OPTIMIZED animation sequence:', {
         confetti: !!confettiTrigger,
         celebration: celebrationTrigger.type,
         position: confettiTrigger ? { x: confettiTrigger.x, y: confettiTrigger.y } : null
@@ -71,9 +88,18 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
     }
   }, [confettiTrigger, celebrationTrigger.type]);
 
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
-      {/* Enhanced Confetti Animation */}
+      {/* Optimized Confetti Animation */}
       {confettiTrigger && (
         <ConfettiAnimation
           x={confettiTrigger.x}
@@ -82,7 +108,7 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
         />
       )}
       
-      {/* Enhanced Celebration Animations */}
+      {/* Optimized Celebration Animations */}
       {celebrationTrigger.type && (
         <CelebrationAnimations
           type={celebrationTrigger.type}

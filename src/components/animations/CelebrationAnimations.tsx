@@ -36,7 +36,7 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
   const startTimeRef = useRef<number>();
 
   useEffect(() => {
-    console.log('🎆 Starting enhanced celebration animation:', type);
+    console.log('🎆 Starting OPTIMIZED celebration animation:', type);
     
     if (isAnimatingRef.current) {
       console.log('⚠️ Animation already running, skipping');
@@ -49,98 +49,96 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
     const newParticles: Particle[] = [];
     
     if (type === 'fireworks') {
-      // Enhanced fireworks with more burst positions and particles
+      // OPTIMIZED: Reduced burst positions from 5 to 3 and particles per burst from 35 to 20
       const burstPositions = [
-        { x: window.innerWidth * 0.15, y: window.innerHeight * 0.25 },
-        { x: window.innerWidth * 0.85, y: window.innerHeight * 0.3 },
-        { x: window.innerWidth * 0.5, y: window.innerHeight * 0.15 },
-        { x: window.innerWidth * 0.3, y: window.innerHeight * 0.4 },
-        { x: window.innerWidth * 0.7, y: window.innerHeight * 0.35 },
+        { x: window.innerWidth * 0.2, y: window.innerHeight * 0.3 },
+        { x: window.innerWidth * 0.8, y: window.innerHeight * 0.35 },
+        { x: window.innerWidth * 0.5, y: window.innerHeight * 0.2 },
       ];
 
       burstPositions.forEach((pos, burstIndex) => {
-        for (let i = 0; i < 35; i++) { // Increased from 20 to 35 particles per burst
-          const angle = (Math.PI * 2 * i) / 35;
-          const speed = Math.random() * 12 + 6; // Increased speed
+        for (let i = 0; i < 20; i++) {
+          const angle = (Math.PI * 2 * i) / 20;
+          const speed = Math.random() * 10 + 5; // Slightly reduced speed
           newParticles.push({
-            id: burstIndex * 35 + i,
+            id: burstIndex * 20 + i,
             x: pos.x,
             y: pos.y,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             rotation: Math.random() * 360,
-            rotationSpeed: (Math.random() - 0.5) * 15,
+            rotationSpeed: (Math.random() - 0.5) * 12,
             color: vibrantColors[Math.floor(Math.random() * vibrantColors.length)],
-            size: Math.random() * 8 + 6, // Larger particles
+            size: Math.random() * 6 + 4, // Smaller particles (4-10px)
             opacity: 1,
             life: 1,
-            trail: [], // Initialize trail for fireworks
+            trail: [], // OPTIMIZED: Simplified trail system
             type: 'firework',
           });
         }
       });
     } else if (type === 'sparkles') {
-      // Enhanced sparkles
-      for (let i = 0; i < 60; i++) { // Increased count
+      // OPTIMIZED: Reduced from 60 to 25 sparkles
+      for (let i = 0; i < 25; i++) {
         newParticles.push({
           id: i,
           x: Math.random() * window.innerWidth,
           y: Math.random() * window.innerHeight,
-          vx: (Math.random() - 0.5) * 6,
-          vy: (Math.random() - 0.5) * 6,
+          vx: (Math.random() - 0.5) * 4, // Reduced velocity
+          vy: (Math.random() - 0.5) * 4,
           rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 20,
+          rotationSpeed: (Math.random() - 0.5) * 15,
           color: vibrantColors[Math.floor(Math.random() * vibrantColors.length)],
-          size: Math.random() * 12 + 8, // Larger sparkles
+          size: Math.random() * 8 + 6, // Smaller sparkles (6-14px)
           opacity: 1,
           life: 1,
           type: 'sparkle',
         });
       }
     } else if (type === 'balloons') {
-      // New balloon animation
-      for (let i = 0; i < 15; i++) {
+      // OPTIMIZED: Reduced from 15 to 8 balloons
+      for (let i = 0; i < 8; i++) {
         newParticles.push({
           id: i,
           x: Math.random() * window.innerWidth,
           y: window.innerHeight + 50,
-          vx: (Math.random() - 0.5) * 2,
-          vy: -Math.random() * 3 - 2, // Float upward
-          rotation: Math.random() * 20 - 10, // Slight sway
-          rotationSpeed: (Math.random() - 0.5) * 2,
+          vx: (Math.random() - 0.5) * 1.5, // Reduced horizontal movement
+          vy: -Math.random() * 2.5 - 1.5, // Reduced float speed
+          rotation: Math.random() * 15 - 7.5, // Reduced sway
+          rotationSpeed: (Math.random() - 0.5) * 1.5,
           color: vibrantColors[Math.floor(Math.random() * vibrantColors.length)],
-          size: Math.random() * 30 + 25, // Large balloons
+          size: Math.random() * 20 + 20, // Smaller balloons (20-40px)
           opacity: 1,
           life: 1,
           type: 'balloon',
-          floatSpeed: Math.random() * 2 + 1,
+          floatSpeed: Math.random() * 1.5 + 0.8,
         });
       }
     } else if (type === 'animals') {
-      // New stuffed animal animation
+      // OPTIMIZED: Reduced from 8 to 5 animals
       const animalTypes: Array<'bear' | 'cat' | 'dog' | 'rabbit'> = ['bear', 'cat', 'dog', 'rabbit'];
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 5; i++) {
         newParticles.push({
           id: i,
-          x: Math.random() * (window.innerWidth - 100) + 50,
-          y: window.innerHeight * 0.7 + Math.random() * 100,
-          vx: (Math.random() - 0.5) * 4,
-          vy: -Math.random() * 8 - 4, // Initial bounce
+          x: Math.random() * (window.innerWidth - 80) + 40,
+          y: window.innerHeight * 0.7 + Math.random() * 80,
+          vx: (Math.random() - 0.5) * 3, // Reduced movement
+          vy: -Math.random() * 6 - 3, // Reduced bounce
           rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 10,
+          rotationSpeed: (Math.random() - 0.5) * 8,
           color: vibrantColors[Math.floor(Math.random() * vibrantColors.length)],
-          size: Math.random() * 20 + 30, // Large animals
+          size: Math.random() * 15 + 25, // Smaller animals (25-40px)
           opacity: 1,
           life: 1,
           type: 'animal',
           animalType: animalTypes[Math.floor(Math.random() * animalTypes.length)],
-          bounceHeight: Math.random() * 200 + 100,
+          bounceHeight: Math.random() * 150 + 80,
         });
       }
     }
 
     setParticles(newParticles);
-    console.log('✨ Created', newParticles.length, 'enhanced celebration particles');
+    console.log('✨ Created', newParticles.length, 'OPTIMIZED celebration particles');
 
     const animate = () => {
       if (!isAnimatingRef.current) return;
@@ -148,9 +146,9 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
       const currentTime = Date.now();
       const elapsed = currentTime - (startTimeRef.current || 0);
       
-      // Extended duration to 4 seconds
-      if (elapsed > 4000) {
-        console.log('⏰ Enhanced celebration animation timeout reached');
+      // OPTIMIZED: Reduced duration from 4s to 2.5s
+      if (elapsed > 2500) {
+        console.log('⏰ Optimized celebration animation timeout reached');
         cleanup();
         return;
       }
@@ -160,50 +158,46 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
           let newParticle = { ...particle };
           
           if (particle.type === 'firework') {
-            // Add trail effect for fireworks
-            if (newParticle.trail) {
-              newParticle.trail.push({ x: particle.x, y: particle.y, opacity: particle.opacity });
-              if (newParticle.trail.length > 8) {
-                newParticle.trail.shift();
-              }
-              // Fade trail
+            // OPTIMIZED: Simplified trail system for better performance
+            if (newParticle.trail && newParticle.trail.length > 0) {
+              newParticle.trail = newParticle.trail.slice(-4); // Keep only last 4 trail points
               newParticle.trail = newParticle.trail.map((t, index) => ({
                 ...t,
-                opacity: t.opacity * (index / newParticle.trail!.length) * 0.8
+                opacity: t.opacity * 0.7 // Faster trail fade
               }));
             }
             
             newParticle.x += particle.vx;
             newParticle.y += particle.vy;
-            newParticle.vy += 0.4; // Gravity
-            newParticle.opacity -= 0.006;
+            newParticle.vy += 0.35; // Slightly reduced gravity
+            newParticle.opacity -= 0.008; // Faster fade
           } else if (particle.type === 'balloon') {
             newParticle.x += particle.vx;
             newParticle.y += particle.vy * (particle.floatSpeed || 1);
             newParticle.rotation += particle.rotationSpeed;
-            newParticle.opacity = particle.y < -100 ? 0 : particle.opacity;
+            newParticle.opacity = particle.y < -80 ? 0 : particle.opacity; // Earlier fade boundary
           } else if (particle.type === 'animal') {
-            newParticle.x += particle.vx * 0.5;
+            newParticle.x += particle.vx * 0.4; // Reduced movement
             newParticle.y += particle.vy;
-            newParticle.vy += 0.6; // Gravity for bouncing
+            newParticle.vy += 0.5; // Reduced gravity
             
-            // Bounce logic
+            // Simplified bounce logic
             if (newParticle.y > window.innerHeight * 0.7 && newParticle.vy > 0) {
-              newParticle.vy = -Math.abs(newParticle.vy) * 0.7; // Bounce with energy loss
+              newParticle.vy = -Math.abs(newParticle.vy) * 0.6; // Reduced bounce energy
               newParticle.y = window.innerHeight * 0.7;
             }
             
             newParticle.rotation += particle.rotationSpeed;
-            newParticle.opacity -= 0.003;
+            newParticle.opacity -= 0.005; // Faster fade
           } else {
-            // Default sparkle behavior
+            // Default sparkle behavior - optimized
             newParticle.x += particle.vx;
             newParticle.y += particle.vy;
             newParticle.rotation += particle.rotationSpeed;
-            newParticle.opacity -= 0.005;
+            newParticle.opacity -= 0.007; // Faster fade
           }
           
-          newParticle.life -= 0.005;
+          newParticle.life -= 0.008; // Faster life decay
           return newParticle;
         }).filter(particle => particle.opacity > 0 && particle.life > 0)
       );
@@ -212,7 +206,7 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
     };
 
     const cleanup = () => {
-      console.log('🧹 Cleaning up enhanced celebration animation');
+      console.log('🧹 Cleaning up OPTIMIZED celebration animation');
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = undefined;
@@ -227,7 +221,7 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
     };
 
     animationRef.current = requestAnimationFrame(animate);
-    timeoutRef.current = setTimeout(cleanup, 4500);
+    timeoutRef.current = setTimeout(cleanup, 3000); // Cleanup after 3s
 
     return cleanup;
   }, [type, onComplete]);
@@ -248,22 +242,22 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
     if (particle.type === 'firework') {
       return (
         <div key={particle.id}>
-          {/* Render trail */}
-          {particle.trail?.map((trailPoint, index) => (
+          {/* OPTIMIZED: Simplified trail rendering */}
+          {particle.trail?.slice(-3).map((trailPoint, index) => (
             <div
               key={`${particle.id}-trail-${index}`}
               style={{
                 position: 'absolute',
                 left: trailPoint.x,
                 top: trailPoint.y,
-                width: particle.size * 0.6,
-                height: particle.size * 0.6,
+                width: particle.size * 0.5,
+                height: particle.size * 0.5,
                 backgroundColor: particle.color,
                 borderRadius: '50%',
                 opacity: trailPoint.opacity,
                 pointerEvents: 'none',
                 zIndex: 9999,
-                boxShadow: `0 0 ${particle.size}px ${particle.color}`,
+                // OPTIMIZED: Removed heavy box-shadow for performance
               }}
             />
           ))}
@@ -273,7 +267,7 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
               ...baseStyle,
               backgroundColor: particle.color,
               borderRadius: '50%',
-              boxShadow: `0 0 ${particle.size * 2}px ${particle.color}`,
+              // OPTIMIZED: Removed glow effect for performance
             }}
           />
         </div>
@@ -287,7 +281,7 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
               ...baseStyle,
               background: `radial-gradient(circle at 30% 30%, ${particle.color}, ${particle.color}dd)`,
               borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+              // OPTIMIZED: Removed heavy filter for performance
             }}
           />
           {/* String */}
@@ -297,7 +291,7 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
               left: particle.x + particle.size / 2,
               top: particle.y + particle.size,
               width: 1,
-              height: 30,
+              height: 20, // Shorter string
               backgroundColor: '#666',
               opacity: particle.opacity,
               pointerEvents: 'none',
@@ -324,14 +318,14 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+            // OPTIMIZED: Removed heavy filter for performance
           }}
         >
           {animalShapes[particle.animalType || 'bear']}
         </div>
       );
     } else {
-      // Sparkles
+      // Sparkles - optimized
       return (
         <div
           key={particle.id}
@@ -339,7 +333,7 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
             ...baseStyle,
             background: particle.color,
             clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
-            filter: `drop-shadow(0 0 ${particle.size}px ${particle.color})`,
+            // OPTIMIZED: Removed heavy filter for performance
           }}
         />
       );
