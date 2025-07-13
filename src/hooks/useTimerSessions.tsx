@@ -60,11 +60,11 @@ export const useTimerSessions = () => {
         } : null
       });
 
-      let processedSessions = sessionData || [];
+      let processedSessions: TimerSessionWithTimer[] = sessionData || [];
 
       // Create virtual sessions for running timers
       if (runningTimers && runningTimers.length > 0) {
-        const virtualSessions = runningTimers.map(timer => {
+        const virtualSessions: TimerSessionWithTimer[] = runningTimers.map(timer => {
           const now = new Date();
           const startTime = new Date(timer.created_at || now);
           const currentDuration = timer.elapsed_time || 0; // This is already in milliseconds
@@ -83,7 +83,7 @@ export const useTimerSessions = () => {
             start_time: startTime.toISOString(),
             end_time: null, // Running timer has no end time
             duration_ms: currentDuration, // Use elapsed time as current duration
-            created_at: startTime.toISOString(),
+            created_at: startTime.toISOString(), // Add required created_at field
             timers: {
               id: timer.id,
               name: timer.name,
@@ -106,8 +106,8 @@ export const useTimerSessions = () => {
         processedSessions = [...virtualSessions, ...processedSessions];
       }
 
-      // Process all sessions to ensure proper duration calculation
-      const finalSessions = processedSessions.map(session => {
+      // Process all sessions to ensure proper duration calculation and add missing fields
+      const finalSessions: TimerSessionWithTimer[] = processedSessions.map(session => {
         let calculatedDuration = session.duration_ms;
 
         // If duration_ms is null/undefined, try to calculate from start/end times
@@ -126,7 +126,8 @@ export const useTimerSessions = () => {
 
         return {
           ...session,
-          duration_ms: calculatedDuration
+          duration_ms: calculatedDuration,
+          created_at: session.created_at || session.start_time // Ensure created_at is present
         };
       });
 

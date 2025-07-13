@@ -21,6 +21,7 @@ export interface TimerSession {
   start_time: string; // ISO string
   end_time?: string; // ISO string
   duration_ms?: number;
+  created_at: string; // ISO string - added to match database
 }
 
 // Type for sessions joined with timer info

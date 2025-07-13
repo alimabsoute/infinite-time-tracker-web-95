@@ -19,8 +19,8 @@ const AdvancedAnalytics = () => {
     // Timer analysis
     timerBreakdown: {
       total: timers.length,
-      running: timers.filter(t => t.is_running).length,
-      stopped: timers.filter(t => !t.is_running).length,
+      running: timers.filter(t => t.isRunning).length,
+      stopped: timers.filter(t => !t.isRunning).length,
       withCategories: timers.filter(t => t.category).length,
       categories: [...new Set(timers.map(t => t.category).filter(Boolean))]
     },
@@ -54,8 +54,8 @@ const AdvancedAnalytics = () => {
       id: timers[0].id,
       name: timers[0].name,
       category: timers[0].category,
-      is_running: timers[0].is_running,
-      elapsed_time: timers[0].elapsed_time
+      isRunning: timers[0].isRunning,
+      elapsedTime: timers[0].elapsedTime
     } : null,
     
     sampleSession: sessions[0] ? {
@@ -111,7 +111,7 @@ const AdvancedAnalytics = () => {
           <div>
             <div className="text-muted-foreground">Running Timers</div>
             <div className="font-medium text-green-600">
-              {timers.filter(t => t.is_running).length}
+              {timers.filter(t => t.isRunning).length}
             </div>
           </div>
           <div>
