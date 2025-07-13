@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { differenceInDays, isWithinInterval } from 'date-fns';
 import { TimerSessionWithTimer } from "../../../types";
@@ -234,5 +233,3 @@ export const useDateRangeDataProcessor = ({
     }
   }, [sessions, startDate, endDate, onError]);
 };
-
-export type { ProcessedData };
