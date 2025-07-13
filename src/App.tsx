@@ -8,6 +8,7 @@ import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
+import Landing from "./pages/Landing";
 import { AuthProvider } from "./contexts/AuthContext";
 import { QueryClient } from "./components/QueryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -25,6 +26,7 @@ function App() {
               <Toaster />
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/landing" element={<Landing />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/active-timers" element={<ActiveTimers />} />
                 <Route path="/calendar" element={<Calendar />} />
