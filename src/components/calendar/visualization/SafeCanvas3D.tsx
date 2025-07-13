@@ -47,19 +47,21 @@ const SafeCanvas3D: React.FC<SafeCanvas3DProps> = ({
     // Enhanced WebGL support check
     try {
       const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      const webglContext = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       
-      if (!gl) {
+      if (!webglContext) {
         console.warn('🔍 SafeCanvas3D - WebGL not supported');
         setIsWebGLSupported(false);
         setCanvasError('WebGL is not supported in this browser');
         return;
       }
 
-      // Test for essential WebGL features
-      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-      if (debugInfo) {
-        console.log('🔍 SafeCanvas3D - GPU:', gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL));
+      // Test for essential WebGL features with proper type checking
+      if ('getExtension' in webglContext) {
+        const debugInfo = webglContext.getExtension('WEBGL_debug_renderer_info');
+        if (debugInfo && 'getParameter' in webglContext) {
+          console.log('🔍 SafeCanvas3D - GPU:', webglContext.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL));
+        }
       }
 
       setIsReady(true);

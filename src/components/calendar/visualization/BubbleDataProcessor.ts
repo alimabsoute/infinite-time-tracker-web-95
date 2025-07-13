@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { TimerSessionWithTimer } from '../../../types';
 
-export interface BubbleData {
+export interface BubbleDataPoint {
   id: string;
   position: [number, number, number];
   size: number;
@@ -22,6 +22,8 @@ export interface BubbleData {
   x: number;
   y: number;
 }
+
+export interface BubbleData extends BubbleDataPoint {}
 
 interface BubbleDataProcessorProps {
   sessions: TimerSessionWithTimer[];
@@ -139,7 +141,7 @@ export const useBubbleDataProcessor = ({
             avgSessionTime: Math.max(1000, avgSessionTime), // Minimum 1 second
             sessions: validSessions,
             isRunning: Boolean(isRunning),
-            creationDate: timer?.created_at ? new Date(timer.created_at) : new Date()
+            creationDate: new Date() // Use current date as fallback
           };
         } catch (error) {
           console.warn('🔍 BubbleDataProcessor - Timer stats calculation error:', error);
@@ -237,6 +239,69 @@ export const useBubbleDataProcessor = ({
       return [];
     }
   }, [sessions, startDate, endDate, onError]);
+};
+
+// Export a simple processing function for 2D charts
+export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCategory?: string): BubbleDataPoint[] => {
+  try {
+    if (!Array.isArray(sessions) || sessions.length === 0) {
+      return [];
+    }
+
+    // Filter by category if specified
+    const filteredSessions = selectedCategory && selectedCategory !== 'all'
+      ? sessions.filter(s => s.timers?.category === selectedCategory)
+      : sessions;
+
+    // Group by timer
+    const timerGroups: { [key: string]: TimerSessionWithTimer[] } = {};
+    
+    filteredSessions.forEach(session => {
+      if (session.timer_id && session.duration_ms && session.duration_ms > 0) {
+        if (!timerGroups[session.timer_id]) {
+          timerGroups[session.timer_id] = [];
+        }
+        timerGroups[session.timer_id].push(session);
+      }
+    });
+
+    // Process each timer group
+    return Object.entries(timerGroups).map(([timerId, timerSessions], index) => {
+      const totalTime = timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
+      const sessionCount = timerSessions.length;
+      const avgSessionTime = totalTime / sessionCount;
+      const timer = timerSessions[0]?.timers;
+      const isRunning = timerSessions.some(s => s.id.startsWith('virtual-'));
+
+      const totalHours = totalTime / (1000 * 60 * 60);
+      const avgMinutes = avgSessionTime / (1000 * 60);
+      const size = Math.max(500, Math.min(8000, totalTime / 1000)); // Size in pixels for 2D
+
+      return {
+        id: `${timerId}-${index}`,
+        position: [0, 0, 0] as [number, number, number],
+        size: size,
+        color: isRunning ? 'rgba(34, 197, 94, 0.7)' : 'rgba(255, 182, 193, 0.7)',
+        timerName: timer?.name || 'Unknown Timer',
+        totalTime: totalTime,
+        sessionCount: sessionCount,
+        creationDate: new Date(),
+        category: timer?.category || 'Uncategorized',
+        isRunning: isRunning,
+        timerId: timerId,
+        name: timer?.name || 'Unknown Timer',
+        totalHours: totalHours.toFixed(1),
+        avgMinutes: avgMinutes.toFixed(1),
+        avgSessionTime: avgSessionTime,
+        sessions: timerSessions,
+        x: totalHours,
+        y: avgMinutes
+      };
+    });
+  } catch (error) {
+    console.error('🔍 processBubbleData - Error:', error);
+    return [];
+  }
 };
 
 export default useBubbleDataProcessor;

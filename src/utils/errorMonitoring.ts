@@ -1,3 +1,4 @@
+
 interface ErrorContext {
   component?: string;
   action?: string;
@@ -6,6 +7,7 @@ interface ErrorContext {
   timestamp?: string;
   userAgent?: string;
   url?: string;
+  severity?: 'low' | 'medium' | 'high' | 'critical';
   additionalData?: Record<string, any>;
 }
 
@@ -81,7 +83,7 @@ class ErrorMonitoringService {
         userAgent: navigator.userAgent,
         url: window.location.href
       },
-      severity: this.categorizeErrorSeverity(error, context),
+      severity: context.severity || this.categorizeErrorSeverity(error, context),
       category: this.categorizeError(error),
       resolved: false,
       timestamp: new Date().toISOString()
