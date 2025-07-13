@@ -67,7 +67,7 @@ const Header = () => {
                 className="gap-2 px-3 py-2"
               >
                 <PhynxTimerLogo width={32} height={32} className="text-current opacity-70" />
-                <span className="hidden sm:inline">Timers</span>
+                <span className="hidden sm:inline">Dashboard</span>
               </AnimatedNavButton>
             </Link>
             
