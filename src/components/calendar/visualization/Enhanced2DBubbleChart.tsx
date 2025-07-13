@@ -85,9 +85,10 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       // Check if any session is a running timer (virtual session)
       const isRunning = timerSessions.some(s => s.id.startsWith('virtual-'));
       
-      // Calculate bubble size based on total time - make it much more dramatic
+      // Calculate bubble size - DRAMATICALLY increased scaling
       const hoursLogged = totalTime / (1000 * 60 * 60);
-      const bubbleSize = Math.max(100, Math.min(2000, hoursLogged * 300 + sessionCount * 50));
+      // Minimum size 500, maximum size 8000, much more aggressive scaling
+      const bubbleSize = Math.max(500, Math.min(8000, hoursLogged * 1200 + sessionCount * 200));
       
       // Use light pastel colors with transparency
       let color = PASTEL_COLORS[index % PASTEL_COLORS.length];
@@ -100,7 +101,7 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       const dataPoint: BubbleDataPoint = {
         x: totalTime / (1000 * 60 * 60), // Total hours
         y: avgSessionTime / (1000 * 60), // Avg session minutes
-        size: bubbleSize, // Much larger size range
+        size: bubbleSize, // MUCH larger size range (500-8000)
         timerId,
         name: timer?.name || 'Unknown Timer',
         category: timer?.category || 'Uncategorized',
@@ -112,7 +113,7 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
         isRunning
       };
       
-      console.log('🔍 Enhanced2DBubbleChart - Created bubble:', {
+      console.log('🔍 Enhanced2DBubbleChart - Created bubble with LARGE size:', {
         name: dataPoint.name,
         totalHours: dataPoint.totalHours,
         sessionCount: dataPoint.sessionCount,
@@ -233,7 +234,7 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       
       {/* Enhanced Legend */}
       <div className="absolute bottom-6 right-6 bg-background/90 backdrop-blur-sm rounded-lg p-3 text-xs shadow-lg">
-        <div className="font-semibold mb-2">2D Bubble Chart</div>
+        <div className="font-semibold mb-2">2D Bubble Chart - LARGE Bubbles</div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-green-500/70"></div>
@@ -244,7 +245,7 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
             <span>Stopped ({chartData.filter(d => !d.isRunning).length})</span>
           </div>
           <div className="mt-2 pt-2 border-t border-border/50">
-            <div>• Size = Total time logged</div>
+            <div>• Size = Total time (500-8000px)</div>
             <div>• Colors = Light pastels</div>
             <div>• Position = Time vs Sessions</div>
           </div>
