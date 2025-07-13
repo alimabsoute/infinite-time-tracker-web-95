@@ -44,7 +44,7 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-2">Active Timers</h3>
           <p className="text-3xl font-bold text-orange-600">
-            {timers.filter(timer => timer.is_running).length}
+            {timers.filter(timer => timer.isRunning).length}
           </p>
         </div>
       </div>
@@ -61,11 +61,11 @@ const Dashboard = () => {
               )}
               <div className="mt-2">
                 <span className={`inline-block px-2 py-1 rounded-full text-xs ${
-                  timer.is_running 
+                  timer.isRunning 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-gray-100 text-gray-800'
                 }`}>
-                  {timer.is_running ? 'Running' : 'Stopped'}
+                  {timer.isRunning ? 'Running' : 'Stopped'}
                 </span>
               </div>
             </div>
