@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AnimatedNavButton } from "@/components/ui/animated-nav-button";
-import { Calendar, Home, Table, Crown, BarChart3, Activity } from "lucide-react";
+import { Calendar, Home, Table, Crown, BarChart3, Activity, Play } from "lucide-react";
 import PhynxTimerLogo from "./PhynxTimerLogo";
 import AuthHeader from "./AuthHeader";
 import { useAuth } from "@/contexts/AuthContext";
@@ -68,6 +68,16 @@ const Header = () => {
               >
                 <PhynxTimerLogo width={32} height={32} className="text-current opacity-70" />
                 <span className="hidden sm:inline">Dashboard</span>
+              </AnimatedNavButton>
+            </Link>
+            
+            <Link to="/active-timers">
+              <AnimatedNavButton 
+                isActive={location.pathname === "/active-timers"} 
+                className="gap-2 px-3 py-2"
+              >
+                <Play size={18} />
+                <span className="hidden sm:inline">Active</span>
               </AnimatedNavButton>
             </Link>
             

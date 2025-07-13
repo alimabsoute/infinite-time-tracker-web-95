@@ -3,9 +3,20 @@ import React from 'react';
 import PageLayout from '../components/layout/PageLayout';
 import { useTimers } from '../hooks/useTimers';
 import { useTimerSessions } from '../hooks/useTimerSessions';
+import TimerList from '../components/TimerList';
 
 const Dashboard = () => {
-  const { timers } = useTimers();
+  const { 
+    timers, 
+    toggleTimer, 
+    resetTimer, 
+    deleteTimer, 
+    renameTimer, 
+    updateDeadline, 
+    updatePriority, 
+    reorderTimers,
+    addTimer 
+  } = useTimers();
   const { sessions, loading: sessionsLoading } = useTimerSessions();
 
   if (sessionsLoading) {
@@ -29,8 +40,8 @@ const Dashboard = () => {
       title="Dashboard"
       description="Overview of your timers and recent activity"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Quick Stats */}
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-2">Total Timers</h3>
           <p className="text-3xl font-bold text-blue-600">{timers.length}</p>
@@ -49,28 +60,21 @@ const Dashboard = () => {
         </div>
       </div>
       
-      {/* Recent Activity */}
+      {/* All Timers - The Round Clocks */}
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">Recent Timers</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {timers.slice(0, 6).map((timer) => (
-            <div key={timer.id} className="bg-white rounded-lg shadow p-4">
-              <h4 className="font-medium">{timer.name}</h4>
-              {timer.category && (
-                <p className="text-sm text-gray-600">{timer.category}</p>
-              )}
-              <div className="mt-2">
-                <span className={`inline-block px-2 py-1 rounded-full text-xs ${
-                  timer.isRunning 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {timer.isRunning ? 'Running' : 'Stopped'}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <h3 className="text-xl font-semibold mb-6">All Timers</h3>
+        <TimerList
+          timers={timers}
+          onToggle={toggleTimer}
+          onReset={resetTimer}
+          onDelete={deleteTimer}
+          onRename={renameTimer}
+          onUpdateDeadline={updateDeadline}
+          onUpdatePriority={updatePriority}
+          onReorder={reorderTimers}
+          newTimerId={null}
+          onCreateTimer={addTimer}
+        />
       </div>
     </PageLayout>
   );
