@@ -8,7 +8,7 @@ interface UseTimerActionsProps {
   timers: Timer[];
   setTimers: React.Dispatch<React.SetStateAction<Timer[]>>;
   setConfettiTrigger: React.Dispatch<React.SetStateAction<{ x: number; y: number; id: string } | null>>;
-  setCelebrationTrigger: React.Dispatch<React.SetStateAction<{ type: 'fireworks' | 'sparkles' | null }>>;
+  setCelebrationTrigger: React.Dispatch<React.SetStateAction<{ type: 'fireworks' | 'sparkles' | 'balloons' | 'animals' | null }>>;
   clearConfettiTrigger: () => void;
 }
 

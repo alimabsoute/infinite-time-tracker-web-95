@@ -27,7 +27,7 @@ export const useTimerCreation = ({
   const { createSession, endSession } = useSessionManager();
 
   const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
-    console.log('🚀 Starting enhanced addTimer function with name:', name);
+    console.log('🚀 Starting SUPER ENHANCED addTimer function with name:', name);
     
     if (!user) {
       console.error("❌ No user found");
@@ -153,39 +153,59 @@ export const useTimerCreation = ({
         }))
       ]);
       
-      console.log('🎊 Triggering enhanced celebration animations...');
+      console.log('🎊 Triggering SUPER ENHANCED celebration animations...');
       clearConfettiTrigger();
       
-      // Trigger enhanced confetti animation at center of screen
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
+      // Trigger MASSIVE confetti animation at center of screen with slight randomization
+      const centerX = window.innerWidth / 2 + (Math.random() - 0.5) * 200;
+      const centerY = window.innerHeight / 2 + (Math.random() - 0.5) * 100;
+      console.log('🎉 Setting confetti trigger at:', { x: centerX, y: centerY });
       setConfettiTrigger({ x: centerX, y: centerY, id: newTimer.id });
       
-      // Enhanced celebration variety - randomly choose from all 4 types
-      const celebrationTypes: Array<'fireworks' | 'sparkles' | 'balloons' | 'animals'> = 
-        ['fireworks', 'sparkles', 'balloons', 'animals'];
-      const randomCelebration = celebrationTypes[Math.floor(Math.random() * celebrationTypes.length)];
+      // Enhanced celebration variety with weighted randomization for more variety
+      const celebrationTypes: Array<'fireworks' | 'sparkles' | 'balloons' | 'animals'> = [
+        'fireworks', 'fireworks', // Higher weight for fireworks
+        'sparkles', 'sparkles',   // Higher weight for sparkles
+        'balloons', 
+        'animals'
+      ];
+      const randomIndex = Math.floor(Math.random() * celebrationTypes.length);
+      const randomCelebration = celebrationTypes[randomIndex];
       
-      console.log('🎭 Selected celebration type:', randomCelebration);
+      console.log('🎭 Selected ENHANCED celebration type:', randomCelebration, 'from', celebrationTypes.length, 'options');
       setCelebrationTrigger({ type: randomCelebration });
       
-      // Enhanced success messages based on celebration type
+      // Enhanced success messages with more variety
       const celebrationMessages = {
-        fireworks: "Timer created with a spectacular fireworks display! 🎆",
-        sparkles: "Timer created with magical sparkles! ✨",
-        balloons: "Timer created with floating balloons! 🎈",
-        animals: "Timer created with dancing stuffed animals! 🧸"
+        fireworks: "🎆 Timer created with SPECTACULAR fireworks display!",
+        sparkles: "✨ Timer created with MAGICAL sparkles everywhere!",
+        balloons: "🎈 Timer created with FLOATING rainbow balloons!",
+        animals: "🧸 Timer created with DANCING stuffed animals!"
+      };
+      
+      const celebrationDescriptions = {
+        fireworks: "Watch the sky light up with colorful bursts!",
+        sparkles: "Shimmering magic fills your screen!",
+        balloons: "Colorful balloons float up to celebrate!",
+        animals: "Cute stuffed animals dance with joy!"
       };
       
       if (runningTimers.length > 0) {
         toast.success(celebrationMessages[randomCelebration], {
-          description: `${runningTimers.length} other timer${runningTimers.length > 1 ? 's' : ''} paused automatically`
+          description: `${celebrationDescriptions[randomCelebration]} ${runningTimers.length} other timer${runningTimers.length > 1 ? 's' : ''} paused automatically.`
         });
       } else {
-        toast.success(celebrationMessages[randomCelebration]);
+        toast.success(celebrationMessages[randomCelebration], {
+          description: celebrationDescriptions[randomCelebration]
+        });
       }
       
-      console.log('✅ Enhanced timer creation completed successfully with ID:', newTimer.id);
+      console.log('✅ SUPER ENHANCED timer creation completed successfully with ID:', newTimer.id);
+      console.log('🎨 Animation state set:', {
+        confetti: { x: centerX, y: centerY, id: newTimer.id },
+        celebration: randomCelebration
+      });
+      
       return newTimer.id;
     } catch (error) {
       console.error("❌ Unexpected error in addTimer:", error);

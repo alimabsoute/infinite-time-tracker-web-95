@@ -14,7 +14,7 @@ interface BubbleProps {
 const AnimatedBubble: React.FC<BubbleProps> = ({ position, size, color, timer, onClick }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   
-  console.log('🔍 AnimatedBubble - Rendering bubble:', {
+  console.log('🔍 AnimatedBubble - Rendering ENHANCED bubble:', {
     position,
     size,
     color,
@@ -24,18 +24,21 @@ const AnimatedBubble: React.FC<BubbleProps> = ({ position, size, color, timer, o
   useFrame((state) => {
     if (meshRef.current && position && typeof position[0] === 'number') {
       try {
-        const floatOffset = Math.sin(state.clock.elapsedTime + position[0]) * 0.1;
+        const floatOffset = Math.sin(state.clock.elapsedTime + position[0]) * 0.15; // Enhanced float
+        const pulseScale = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.05; // Add pulse effect
+        
         meshRef.current.position.y = position[1] + floatOffset;
-        meshRef.current.rotation.y = state.clock.elapsedTime * 0.2;
+        meshRef.current.rotation.y = state.clock.elapsedTime * 0.3; // Faster rotation
+        meshRef.current.scale.setScalar(pulseScale);
       } catch (error) {
-        console.error('🔍 AnimatedBubble - Animation error:', error);
+        console.error('🔍 AnimatedBubble - Enhanced animation error:', error);
       }
     }
   });
 
   const handleClick = (event: any) => {
     event.stopPropagation();
-    console.log('🔍 AnimatedBubble - Bubble clicked:', timer?.name || 'Unknown');
+    console.log('🔍 AnimatedBubble - ENHANCED bubble clicked:', timer?.name || 'Unknown');
     onClick(timer);
   };
 
@@ -67,12 +70,14 @@ const AnimatedBubble: React.FC<BubbleProps> = ({ position, size, color, timer, o
       onPointerOver={handlePointerOver}
       onPointerOut={handlePointerOut}
     >
-      <sphereGeometry args={[size, 16, 16]} />
+      <sphereGeometry args={[size, 20, 20]} />
       <meshPhongMaterial 
         color={color} 
         transparent 
-        opacity={0.8}
-        shininess={100}
+        opacity={0.85}
+        shininess={150}
+        emissive={color}
+        emissiveIntensity={0.1}
       />
     </mesh>
   );

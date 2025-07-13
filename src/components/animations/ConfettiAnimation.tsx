@@ -38,7 +38,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
   const startTimeRef = useRef<number>();
 
   useEffect(() => {
-    console.log('🎉 Enhanced Confetti animation starting at:', { x, y });
+    console.log('🎉 ENHANCED Confetti animation starting at:', { x, y });
     
     if (isAnimatingRef.current) {
       console.log('⚠️ Animation already running, skipping');
@@ -48,26 +48,26 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
     isAnimatingRef.current = true;
     startTimeRef.current = Date.now();
 
-    // Create larger confetti burst with more particles
+    // Create MASSIVE confetti burst with way more particles
     const newPieces: ConfettiPiece[] = [];
-    for (let i = 0; i < 80; i++) { // Increased from 40 to 80
+    for (let i = 0; i < 150; i++) { // Increased from 80 to 150 particles!
       newPieces.push({
         id: i,
         x: x,
         y: y,
-        vx: (Math.random() - 0.5) * 20, // Increased spread
-        vy: Math.random() * -18 - 6, // Increased initial velocity
+        vx: (Math.random() - 0.5) * 25, // Increased spread even more
+        vy: Math.random() * -22 - 8, // Increased initial velocity
         rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 20,
+        rotationSpeed: (Math.random() - 0.5) * 25,
         color: vibrantColors[Math.floor(Math.random() * vibrantColors.length)],
         shape: ['circle', 'square', 'triangle', 'star', 'heart'][Math.floor(Math.random() * 5)] as any,
-        size: Math.random() * 16 + 8, // Increased size range (8-24px)
+        size: Math.random() * 20 + 10, // Increased size range (10-30px)
         opacity: 1,
-        gravity: 0.3 + Math.random() * 0.3, // Variable gravity
+        gravity: 0.25 + Math.random() * 0.35, // Variable gravity
       });
     }
     setPieces(newPieces);
-    console.log('✨ Created', newPieces.length, 'enhanced confetti pieces');
+    console.log('✨ Created', newPieces.length, 'MASSIVE enhanced confetti pieces');
 
     const animate = () => {
       if (!isAnimatingRef.current) return;
@@ -75,9 +75,9 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
       const currentTime = Date.now();
       const elapsed = currentTime - (startTimeRef.current || 0);
       
-      // Extended duration to 5 seconds
-      if (elapsed > 5000) {
-        console.log('⏰ Enhanced animation timeout reached');
+      // Extended duration to 6 seconds for longer celebration
+      if (elapsed > 6000) {
+        console.log('⏰ Enhanced confetti animation timeout reached');
         cleanup();
         return;
       }
@@ -89,15 +89,15 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
           y: piece.y + piece.vy,
           vy: piece.vy + piece.gravity,
           rotation: piece.rotation + piece.rotationSpeed,
-          opacity: Math.max(0, piece.opacity - 0.004), // Slower fade
-        })).filter(piece => piece.opacity > 0 && piece.y < window.innerHeight + 50)
+          opacity: Math.max(0, piece.opacity - 0.003), // Even slower fade
+        })).filter(piece => piece.opacity > 0 && piece.y < window.innerHeight + 100)
       );
       
       animationRef.current = requestAnimationFrame(animate);
     };
 
     const cleanup = () => {
-      console.log('🧹 Cleaning up enhanced confetti animation');
+      console.log('🧹 Cleaning up ENHANCED confetti animation');
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = undefined;
@@ -112,7 +112,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
     };
 
     animationRef.current = requestAnimationFrame(animate);
-    timeoutRef.current = setTimeout(cleanup, 6000);
+    timeoutRef.current = setTimeout(cleanup, 7000);
 
     return cleanup;
   }, [x, y, onComplete]);
@@ -128,7 +128,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
       transform: `rotate(${piece.rotation}deg)`,
       pointerEvents: 'none' as const,
       zIndex: 10000,
-      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))',
+      filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.3))', // Enhanced shadow
     };
 
     switch (piece.shape) {
@@ -138,6 +138,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
             ...baseStyle, 
             backgroundColor: piece.color,
             borderRadius: '50%',
+            boxShadow: `0 0 ${piece.size / 2}px ${piece.color}40`, // Glow effect
           }} />
         );
       case 'square':
@@ -145,6 +146,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
           <div key={piece.id} style={{ 
             ...baseStyle, 
             backgroundColor: piece.color,
+            boxShadow: `0 0 ${piece.size / 2}px ${piece.color}40`, // Glow effect
           }} />
         );
       case 'triangle':
@@ -159,6 +161,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
               borderBottom: `${piece.size}px solid ${piece.color}`,
               width: 0,
               height: 0,
+              filter: `${baseStyle.filter} drop-shadow(0 0 ${piece.size / 3}px ${piece.color}60)`,
             }}
           />
         );
@@ -170,6 +173,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
               ...baseStyle,
               background: piece.color,
               clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+              filter: `${baseStyle.filter} drop-shadow(0 0 ${piece.size / 2}px ${piece.color}60)`,
             }}
           />
         );
@@ -182,6 +186,7 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
               background: piece.color,
               clipPath: 'path("M12,21.35l-1.45-1.32C5.4,15.36,2,12.28,2,8.5 C2,5.42,4.42,3,7.5,3c1.74,0,3.41,0.81,4.5,2.09C13.09,3.81,14.76,3,16.5,3 C19.58,3,22,5.42,22,8.5c0,3.78-3.4,6.86-8.55,11.54L12,21.35z")',
               transform: `${baseStyle.transform} scale(0.8)`,
+              filter: `${baseStyle.filter} drop-shadow(0 0 ${piece.size / 2}px ${piece.color}60)`,
             }}
           />
         );

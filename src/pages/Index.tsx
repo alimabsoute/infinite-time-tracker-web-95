@@ -4,8 +4,7 @@ import { useTimers } from "../hooks/useTimers";
 import PageLayout from "../components/layout/PageLayout";
 import TimerList from "../components/TimerList";
 import CreateTimerForm from "../components/CreateTimerForm";
-import ConfettiAnimation from "../components/animations/ConfettiAnimation";
-import CelebrationAnimations from "../components/animations/CelebrationAnimations";
+import EnhancedAnimationManager from "../components/animations/EnhancedAnimationManager";
 import TimerLimitIndicator from "../components/premium/TimerLimitIndicator";
 import RunningTimerLimitIndicator from "../components/premium/RunningTimerLimitIndicator";
 
@@ -29,11 +28,26 @@ const Index = () => {
   
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
+  // Enhanced debug logging
+  React.useEffect(() => {
+    if (confettiTrigger || celebrationTrigger.type) {
+      console.log('🚀 Index - Animation triggers active:', {
+        confetti: !!confettiTrigger,
+        celebration: celebrationTrigger.type,
+        timersCount: timers.length
+      });
+    }
+  }, [confettiTrigger, celebrationTrigger.type, timers.length]);
+
   const handleAddTimer = async (name: string) => {
+    console.log('🎯 Index - Creating timer with name:', name);
     const id = await addTimer(name);
     if (id) {
       setNewTimerId(id);
       setTimeout(() => setNewTimerId(null), 3000);
+      console.log('✅ Index - Timer created successfully with ID:', id);
+    } else {
+      console.error('❌ Index - Failed to create timer');
     }
   };
 
@@ -83,22 +97,13 @@ const Index = () => {
         />
       </div>
       
-      {/* Enhanced Confetti Animation */}
-      {confettiTrigger && (
-        <ConfettiAnimation
-          x={confettiTrigger.x}
-          y={confettiTrigger.y}
-          onComplete={clearConfettiTrigger}
-        />
-      )}
-      
-      {/* Enhanced Celebration Animations */}
-      {celebrationTrigger.type && (
-        <CelebrationAnimations
-          type={celebrationTrigger.type}
-          onComplete={clearCelebrationTrigger}
-        />
-      )}
+      {/* Enhanced Animation Manager - Centralized control */}
+      <EnhancedAnimationManager
+        confettiTrigger={confettiTrigger}
+        celebrationTrigger={celebrationTrigger}
+        onConfettiComplete={clearConfettiTrigger}
+        onCelebrationComplete={clearCelebrationTrigger}
+      />
     </PageLayout>
   );
 };

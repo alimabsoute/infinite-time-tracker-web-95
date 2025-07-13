@@ -5,8 +5,7 @@ import { useTimers } from '../hooks/useTimers';
 import { useTimerSessions } from '../hooks/useTimerSessions';
 import TimerList from '../components/TimerList';
 import CreateTimerForm from '../components/CreateTimerForm';
-import ConfettiAnimation from '../components/animations/ConfettiAnimation';
-import CelebrationAnimations from '../components/animations/CelebrationAnimations';
+import EnhancedAnimationManager from '../components/animations/EnhancedAnimationManager';
 
 const Dashboard = () => {
   const { 
@@ -27,12 +26,27 @@ const Dashboard = () => {
   const { sessions, loading: sessionsLoading } = useTimerSessions();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
+  // Enhanced debug logging
+  React.useEffect(() => {
+    if (confettiTrigger || celebrationTrigger.type) {
+      console.log('🚀 Dashboard - Animation triggers active:', {
+        confetti: !!confettiTrigger,
+        celebration: celebrationTrigger.type,
+        timersCount: timers.length
+      });
+    }
+  }, [confettiTrigger, celebrationTrigger.type, timers.length]);
+
   // Create a wrapper function that matches the expected signature
   const handleCreateTimer = async (name: string) => {
+    console.log('🎯 Dashboard - Creating timer with name:', name);
     const id = await addTimer(name);
     if (id) {
       setNewTimerId(id);
       setTimeout(() => setNewTimerId(null), 3000);
+      console.log('✅ Dashboard - Timer created successfully with ID:', id);
+    } else {
+      console.error('❌ Dashboard - Failed to create timer');
     }
   };
 
@@ -100,22 +114,13 @@ const Dashboard = () => {
         currentTimerCount={timers.length}
       />
 
-      {/* Enhanced Confetti Animation */}
-      {confettiTrigger && (
-        <ConfettiAnimation
-          x={confettiTrigger.x}
-          y={confettiTrigger.y}
-          onComplete={clearConfettiTrigger}
-        />
-      )}
-      
-      {/* Enhanced Celebration Animations */}
-      {celebrationTrigger.type && (
-        <CelebrationAnimations
-          type={celebrationTrigger.type}
-          onComplete={clearCelebrationTrigger}
-        />
-      )}
+      {/* Enhanced Animation Manager - Centralized control */}
+      <EnhancedAnimationManager
+        confettiTrigger={confettiTrigger}
+        celebrationTrigger={celebrationTrigger}
+        onConfettiComplete={clearConfettiTrigger}
+        onCelebrationComplete={clearCelebrationTrigger}
+      />
     </PageLayout>
   );
 };
