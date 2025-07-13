@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ComposedChart, Scatter, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from 'recharts';
+import { ComposedChart, Scatter, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell, Tooltip } from 'recharts';
 import { BubbleDataPoint } from './BubbleDataProcessor';
 import { BubbleTooltip } from './BubbleTooltip';
 
