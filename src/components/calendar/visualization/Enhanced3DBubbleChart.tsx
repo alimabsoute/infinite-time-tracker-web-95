@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Html } from '@react-three/drei';
 import { TimerSessionWithTimer } from '../../../types';
 import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
+import AxisSystem from './AxisSystem';
 
 interface Enhanced3DBubbleChartProps {
   sessions: TimerSessionWithTimer[];
@@ -20,6 +21,7 @@ interface BubbleData {
   category: string;
   totalTime: number;
   sessionCount: number;
+  avgSessionTime: number;
   sessions: TimerSessionWithTimer[];
 }
 
@@ -60,6 +62,7 @@ const Bubble = ({ bubble, onClick, isHovered, onHover }: {
             <div className="mt-2 space-y-1">
               <div>{bubble.sessionCount} sessions</div>
               <div>{(bubble.totalTime / (1000 * 60 * 60)).toFixed(1)}h total</div>
+              <div>{(bubble.avgSessionTime / (1000 * 60)).toFixed(0)}m avg</div>
             </div>
           </div>
         </Html>
@@ -83,6 +86,8 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
       (!selectedCategory || selectedCategory === 'all' || session.timers.category === selectedCategory)
     );
 
+    if (filteredSessions.length === 0) return [];
+
     const timerGroups: { [key: string]: TimerSessionWithTimer[] } = {};
     filteredSessions.forEach(session => {
       const timerId = session.timer_id;
@@ -92,33 +97,49 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
       timerGroups[timerId].push(session);
     });
 
-    const bubbles: BubbleData[] = Object.entries(timerGroups).map(([timerId, timerSessions], index) => {
+    const timerStats = Object.entries(timerGroups).map(([timerId, timerSessions]) => {
       const totalTime = timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
       const sessionCount = timerSessions.length;
+      const avgSessionTime = totalTime / sessionCount;
       const timer = timerSessions[0].timers;
       
-      const colors = getProcessedTimerColors(timerId);
-      
-      // 3D positioning in sphere formation  
-      const totalBubbles = Object.keys(timerGroups).length;
-      const phi = Math.acos(-1 + (2 * index) / Math.max(totalBubbles, 1));
-      const theta = Math.sqrt(Math.max(totalBubbles, 1) * Math.PI) * phi;
-      const radius = 6;
-      
-      const x = radius * Math.cos(theta) * Math.sin(phi);
-      const y = radius * Math.sin(theta) * Math.sin(phi);
-      const z = radius * Math.cos(phi);
-      
       return {
-        position: [x, y, z] as [number, number, number],
-        size: Math.max(0.3, Math.min(1.5, sessionCount / 8)),
-        color: colors.primaryBorder,
         timerId,
         name: timer?.name || 'Unknown Timer',
         category: timer?.category || 'Uncategorized',
         totalTime,
         sessionCount,
+        avgSessionTime,
         sessions: timerSessions
+      };
+    });
+
+    if (timerStats.length === 0) return [];
+
+    // Calculate ranges for proper 3D positioning
+    const maxTotalTime = Math.max(...timerStats.map(t => t.totalTime));
+    const maxSessionCount = Math.max(...timerStats.map(t => t.sessionCount));
+    const maxAvgTime = Math.max(...timerStats.map(t => t.avgSessionTime));
+
+    const bubbles: BubbleData[] = timerStats.map((timer) => {
+      const colors = getProcessedTimerColors(timer.timerId);
+      
+      // Proper 3D positioning based on metrics
+      const x = ((timer.totalTime / maxTotalTime) * 10) - 5; // Total time on X-axis (-5 to 5)
+      const y = ((timer.avgSessionTime / maxAvgTime) * 6) - 3; // Avg session time on Y-axis (-3 to 3)
+      const z = ((timer.sessionCount / maxSessionCount) * 6) - 3; // Session count on Z-axis (-3 to 3)
+      
+      return {
+        position: [x, y, z] as [number, number, number],
+        size: Math.max(0.3, Math.min(1.2, Math.log(timer.sessionCount + 1) * 0.4)),
+        color: colors.primaryBorder,
+        timerId: timer.timerId,
+        name: timer.name,
+        category: timer.category,
+        totalTime: timer.totalTime,
+        sessionCount: timer.sessionCount,
+        avgSessionTime: timer.avgSessionTime,
+        sessions: timer.sessions
       };
     });
 
@@ -169,7 +190,7 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
         </div>
       }>
         <Canvas 
-          camera={{ position: [8, 6, 8], fov: 60 }}
+          camera={{ position: [12, 8, 12], fov: 60 }}
           onError={handleCanvasError}
           gl={{ antialias: true, alpha: true }}
           className="h-full w-full"
@@ -177,6 +198,9 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
           <ambientLight intensity={0.6} />
           <pointLight position={[10, 10, 10]} intensity={0.8} />
           <pointLight position={[-10, -10, -10]} intensity={0.3} />
+          
+          {/* Add the proper 3D axis system */}
+          <AxisSystem />
           
           {bubbleData.map(bubble => (
             <Bubble
@@ -192,8 +216,8 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
             enableZoom={true}
             enablePan={true}
             enableRotate={true}
-            minDistance={5}
-            maxDistance={20}
+            minDistance={8}
+            maxDistance={25}
           />
         </Canvas>
       </Suspense>

@@ -10,12 +10,26 @@ interface Enhanced2DBubbleChartProps {
   onBubbleClick?: (timer: any) => void;
 }
 
+interface ChartDataPoint {
+  x: number;
+  y: number;
+  z: number;
+  timerId: string;
+  name: string;
+  category: string;
+  totalHours: string;
+  avgMinutes: string;
+  sessionCount: number;
+  color: string;
+  sessions: TimerSessionWithTimer[];
+}
+
 const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({ 
   sessions, 
   selectedCategory,
   onBubbleClick 
 }) => {
-  const [hoveredTimer, setHoveredTimer] = useState<string | null>(null);
+  const [activePoint, setActivePoint] = useState<string | null>(null);
 
   const chartData = useMemo(() => {
     const filteredSessions = sessions.filter(session => 
@@ -23,6 +37,8 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       session.timers &&
       (!selectedCategory || selectedCategory === 'all' || session.timers.category === selectedCategory)
     );
+
+    if (filteredSessions.length === 0) return [];
 
     const timerGroups: { [key: string]: TimerSessionWithTimer[] } = {};
     filteredSessions.forEach(session => {
@@ -41,10 +57,10 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       
       const colors = getProcessedTimerColors(timerId);
       
-      return {
-        x: totalTime / (1000 * 60 * 60),
-        y: avgSessionTime / (1000 * 60),
-        z: Math.max(50, sessionCount * 15),
+      const dataPoint: ChartDataPoint = {
+        x: totalTime / (1000 * 60 * 60), // Total hours
+        y: avgSessionTime / (1000 * 60), // Avg session minutes
+        z: Math.max(100, sessionCount * 20), // Bubble size
         timerId,
         name: timer?.name || 'Unknown Timer',
         category: timer?.category || 'Uncategorized',
@@ -52,15 +68,16 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
         avgMinutes: (avgSessionTime / (1000 * 60)).toFixed(1),
         sessionCount,
         color: colors.primaryBorder,
-        backgroundColor: colors.backgroundFill,
         sessions: timerSessions
       };
+      
+      return dataPoint;
     });
   }, [sessions, selectedCategory]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
+      const data = payload[0].payload as ChartDataPoint;
       return (
         <div className="bg-background/95 backdrop-blur-sm p-4 border border-border rounded-lg shadow-lg">
           <p className="font-semibold text-lg text-foreground">{data.name}</p>
@@ -74,6 +91,12 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
       );
     }
     return null;
+  };
+
+  const handleDotClick = (data: any) => {
+    if (data && data.payload) {
+      onBubbleClick?.(data.payload);
+    }
   };
 
   if (chartData.length === 0) {
@@ -97,36 +120,50 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
               bottom: 60,
               left: 60,
             }}
+            data={chartData}
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
             <XAxis 
               type="number" 
               dataKey="x" 
               name="Total Time"
-              label={{ value: 'Total Time (hours)', position: 'insideBottom', offset: -10 }}
+              domain={['dataMin', 'dataMax']}
+              label={{ 
+                value: 'Total Time (hours)', 
+                position: 'insideBottom', 
+                offset: -20,
+                style: { textAnchor: 'middle' }
+              }}
               tickFormatter={(value) => `${value.toFixed(1)}h`}
             />
             <YAxis 
               type="number" 
               dataKey="y" 
               name="Avg Session Time"
-              label={{ value: 'Avg Session (minutes)', angle: -90, position: 'insideLeft' }}
+              domain={['dataMin', 'dataMax']}
+              label={{ 
+                value: 'Avg Session (minutes)', 
+                angle: -90, 
+                position: 'insideLeft',
+                style: { textAnchor: 'middle' }
+              }}
               tickFormatter={(value) => `${value.toFixed(0)}m`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Scatter 
               data={chartData}
-              onClick={(data) => onBubbleClick?.(data)}
+              onClick={handleDotClick}
             >
               {chartData.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
                   fill={entry.color}
-                  fillOpacity={hoveredTimer === entry.timerId ? 0.9 : 0.7}
+                  fillOpacity={activePoint === entry.timerId ? 0.9 : 0.7}
                   stroke={entry.color}
                   strokeWidth={2}
-                  onMouseEnter={() => setHoveredTimer(entry.timerId)}
-                  onMouseLeave={() => setHoveredTimer(null)}
+                  r={Math.sqrt(entry.z / Math.PI)}
+                  onMouseEnter={() => setActivePoint(entry.timerId)}
+                  onMouseLeave={() => setActivePoint(null)}
                   style={{ cursor: 'pointer' }}
                 />
               ))}
