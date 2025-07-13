@@ -4,13 +4,13 @@ import { Canvas } from '@react-three/fiber';
 import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../../types";
 import Safe3DScene from './Safe3DScene';
-import { useDateRangeDataProcessor, ProcessedData } from './DateRangeDataProcessor';
+import { useBubbleDataProcessor, BubbleData } from './BubbleDataProcessor';
 
 interface BubbleChart3DEnhancedProps {
   sessions: TimerSessionWithTimer[];
   startDate: Date;
   endDate: Date;
-  onBubbleClick?: (bubble: ProcessedData) => void;
+  onBubbleClick?: (bubble: BubbleData) => void;
   onError?: (error: Error) => void;
 }
 
@@ -27,7 +27,7 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
   const mountedRef = useRef(true);
 
   // Process sessions into bubble data with enhanced validation
-  const bubbles = useDateRangeDataProcessor({
+  const bubbles = useBubbleDataProcessor({
     sessions,
     startDate,
     endDate,

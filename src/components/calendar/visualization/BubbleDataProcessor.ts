@@ -376,5 +376,3 @@ export const processBubbleData = (
 
   return bubbleData;
 };
-
-export type { BubbleData };
