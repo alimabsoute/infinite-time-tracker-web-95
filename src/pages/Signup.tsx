@@ -22,7 +22,7 @@ const Signup = () => {
     try {
       setIsLoading(true);
       await signUp(email, password);
-      navigate('/login');
+      navigate('/dashboard');
     } catch (error) {
       // Error is handled in the AuthContext
       setIsLoading(false);
@@ -48,9 +48,9 @@ const Signup = () => {
               <TimerIcon size={24} className="text-primary" />
             </div>
           </div>
-          <CardTitle className="text-2xl text-center">Create Account</CardTitle>
+          <CardTitle className="text-2xl text-center">PhynxTimer</CardTitle>
           <CardDescription className="text-center">
-            Sign up to start tracking your time
+            Create your account to start tracking your time
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -115,9 +115,6 @@ const Signup = () => {
                   required
                   disabled={isLoading || isGoogleLoading}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Password must be at least 6 characters long
-                </p>
               </div>
               <Button className="w-full" type="submit" disabled={isLoading || isGoogleLoading}>
                 {isLoading ? "Creating account..." : "Sign Up"}
