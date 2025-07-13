@@ -14,9 +14,9 @@ const Home = () => {
     );
   }
 
-  // Redirect authenticated users to the main app
+  // If user is authenticated, redirect to dashboard instead of calendar
   if (user) {
-    return <Navigate to="/calendar" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Redirect unauthenticated users to landing page

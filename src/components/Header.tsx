@@ -30,7 +30,7 @@ const Header = () => {
     <header className="bg-background/60 backdrop-blur-md sticky top-0 z-30 w-full border-b border-border">
       <div className="container flex h-16 items-center justify-between px-4 max-w-5xl mx-auto">
         <div className="flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <PhynxTimerLogo width={64} height={64} className="text-primary" />
             <span className="text-xl font-semibold">PhynxTimer</span>
           </Link>
