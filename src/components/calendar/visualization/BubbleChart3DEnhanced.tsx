@@ -102,11 +102,11 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
 
   if (!bubbles || bubbles.length === 0) {
     return (
-      <div className="h-[400px] w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg flex items-center justify-center">
-        <div className="text-center text-white">
+      <div className="h-[400px] w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/20 dark:to-slate-900/20 rounded-lg flex items-center justify-center">
+        <div className="text-center text-foreground">
           <p>No timer data available for 3D visualization</p>
-          <p className="text-sm mt-2 text-slate-300">Create timers and log sessions to see the bubble chart</p>
-          <p className="text-xs mt-4 text-slate-400">Sessions available: {sessions.length}</p>
+          <p className="text-sm mt-2 text-muted-foreground">Create timers and log sessions to see the bubble chart</p>
+          <p className="text-xs mt-4 text-muted-foreground">Sessions available: {sessions.length}</p>
         </div>
       </div>
     );
@@ -118,12 +118,12 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="h-[400px] w-full bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg overflow-hidden relative"
+        className="h-[400px] w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/10 dark:to-slate-900/10 rounded-lg overflow-hidden relative"
       >
         {isLoading && (
-          <div className="absolute inset-0 bg-slate-900/80 flex items-center justify-center z-10">
-            <div className="text-white text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+          <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-10">
+            <div className="text-foreground text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
               <p className="text-sm">Loading 3D visualization...</p>
             </div>
           </div>
@@ -131,12 +131,12 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
         
         <Canvas
           camera={{ position: [0, 5, 15], fov: 50 }}
-          style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}
+          style={{ background: 'transparent' }}
           onCreated={handleCanvasCreated}
           gl={{ 
             preserveDrawingBuffer: true, 
             antialias: true,
-            alpha: false,
+            alpha: true,
             powerPreference: "high-performance"
           }}
         >
@@ -144,13 +144,13 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
         </Canvas>
         
         {/* Enhanced legend */}
-        <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm rounded-lg p-3">
-          <div className="text-white text-xs space-y-1">
+        <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 border shadow-lg">
+          <div className="text-foreground text-xs space-y-1">
             <div className="font-semibold mb-2">3D Bubble Chart</div>
             <div>• Size = Total time logged</div>
             <div>• Position = Creation timeline</div>
             <div>• Colors = Categories</div>
-            <div className="text-slate-300 mt-2">{bubbles.length} timers visualized</div>
+            <div className="text-muted-foreground mt-2">{bubbles.length} timers visualized</div>
           </div>
         </div>
       </motion.div>

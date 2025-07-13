@@ -136,7 +136,7 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
   }
 
   return (
-    <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 relative">
+    <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-background to-muted/20 relative">
       <Visualization3DErrorBoundary fallback={fallbackContent}>
         <SafeCanvas3D
           camera={{ position: [15, 10, 15], fov: 60 }}
@@ -145,7 +145,7 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
           shadows
           gl={{ 
             antialias: true, 
-            alpha: false,
+            alpha: true,
             powerPreference: "high-performance" 
           }}
         >
@@ -160,7 +160,7 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
       </Visualization3DErrorBoundary>
       
       {/* Enhanced control panel */}
-      <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+      <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
         <div className="flex flex-col gap-2 text-xs">
           <div className="font-semibold mb-1">3D Controls</div>
           <label className="flex items-center gap-2 cursor-pointer">
@@ -194,7 +194,7 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
       </div>
       
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+      <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border">
         <div className="text-xs space-y-1">
           <div className="font-semibold mb-2">Enhanced 3D Bubble Chart</div>
           <div className="flex items-center gap-2">
