@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
 import { motion } from 'framer-motion';
 import { TimerSessionWithTimer } from "../../../types";
+import SafeCanvas3D from './SafeCanvas3D';
 import Safe3DScene from './Safe3DScene';
 import { useBubbleDataProcessor, BubbleData } from './BubbleDataProcessor';
 
@@ -21,35 +21,42 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
   onBubbleClick,
   onError
 }) => {
-  const [renderError, setRenderError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [renderState, setRenderState] = useState<'loading' | 'ready' | 'error' | 'fallback'>('loading');
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const timeoutRef = useRef<NodeJS.Timeout>();
   const mountedRef = useRef(true);
 
-  // Process sessions into bubble data with enhanced validation
+  console.log('🔍 BubbleChart3DEnhanced - Initializing with:', {
+    sessionsCount: sessions.length,
+    dateRange: { startDate: startDate.toISOString(), endDate: endDate.toISOString() }
+  });
+
+  // Process sessions into bubble data
   const bubbles = useBubbleDataProcessor({
     sessions,
     startDate,
     endDate,
     onError: (error) => {
-      console.error('🔍 BubbleChart3DEnhanced - Data processing error:', error);
+      console.error('❌ BubbleChart3DEnhanced - Data processing error:', error);
       if (mountedRef.current) {
-        setRenderError(error.message);
+        setRenderState('error');
+        setErrorMessage(error.message);
         onError?.(error);
       }
     }
   });
 
-  // Timeout mechanism - fallback after 3 seconds if 3D doesn't load
+  // Timeout mechanism for fallback
   useEffect(() => {
-    if (isLoading) {
+    if (renderState === 'loading') {
       timeoutRef.current = setTimeout(() => {
-        if (mountedRef.current && isLoading) {
-          console.log('🔍 BubbleChart3DEnhanced - 3D loading timeout, triggering fallback');
-          setRenderError('3D visualization loading timeout');
-          onError?.(new Error('3D visualization loading timeout - falling back to 2D'));
+        if (mountedRef.current && renderState === 'loading') {
+          console.log('⏰ BubbleChart3DEnhanced - Loading timeout, switching to fallback');
+          setRenderState('fallback');
+          setErrorMessage('3D loading timeout');
+          onError?.(new Error('3D visualization loading timeout'));
         }
-      }, 3000);
+      }, 5000); // Increased timeout to 5 seconds
     }
 
     return () => {
@@ -57,7 +64,7 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [isLoading, onError]);
+  }, [renderState, onError]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -69,46 +76,61 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
     };
   }, []);
 
-  // Handle Canvas creation success
-  const handleCanvasCreated = ({ gl }: any) => {
+  // Handle successful Canvas creation
+  const handleCanvasCreated = (state: any) => {
     if (mountedRef.current) {
-      console.log('🔍 BubbleChart3DEnhanced - Canvas created successfully');
-      setIsLoading(false);
-      gl.setSize(gl.domElement.clientWidth, gl.domElement.clientHeight);
+      console.log('✅ BubbleChart3DEnhanced - Canvas created successfully');
+      setRenderState('ready');
     }
   };
 
   // Handle Canvas errors
   const handleCanvasError = (error: Error) => {
     if (mountedRef.current) {
-      console.error('🔍 BubbleChart3DEnhanced - Canvas error:', error);
-      setRenderError(error.message);
-      setIsLoading(false);
+      console.error('❌ BubbleChart3DEnhanced - Canvas error:', error);
+      setRenderState('fallback');
+      setErrorMessage(error.message);
       onError?.(error);
     }
   };
 
-  if (renderError) {
+  console.log('🔍 BubbleChart3DEnhanced - Current state:', {
+    renderState,
+    bubblesCount: bubbles?.length || 0,
+    errorMessage
+  });
+
+  // Error state
+  if (renderState === 'error' || renderState === 'fallback') {
     return (
-      <div className="h-[400px] flex items-center justify-center text-red-500 bg-red-50/50 rounded-lg">
-        <div className="text-center">
-          <p className="font-medium">3D Rendering Failed</p>
-          <p className="text-sm mt-2">{renderError}</p>
-          <p className="text-xs mt-2 text-red-400">Switching to 2D visualization...</p>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="h-[400px] flex items-center justify-center text-muted-foreground bg-muted/10 rounded-lg border"
+      >
+        <div className="text-center space-y-3">
+          <p className="font-medium">3D Visualization Unavailable</p>
+          <p className="text-sm">{errorMessage || 'Switching to 2D mode'}</p>
+          <p className="text-xs">Sessions: {sessions.length} | Bubbles: {bubbles?.length || 0}</p>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
+  // No data state
   if (!bubbles || bubbles.length === 0) {
     return (
-      <div className="h-[400px] w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/20 dark:to-slate-900/20 rounded-lg flex items-center justify-center">
-        <div className="text-center text-foreground">
-          <p>No timer data available for 3D visualization</p>
-          <p className="text-sm mt-2 text-muted-foreground">Create timers and log sessions to see the bubble chart</p>
-          <p className="text-xs mt-4 text-muted-foreground">Sessions available: {sessions.length}</p>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="h-[400px] w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/20 dark:to-slate-900/20 rounded-lg flex items-center justify-center"
+      >
+        <div className="text-center text-foreground space-y-2">
+          <p className="font-medium">No timer data available</p>
+          <p className="text-sm text-muted-foreground">Create timers and log sessions to see the 3D visualization</p>
+          <p className="text-xs text-muted-foreground">Sessions available: {sessions.length}</p>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -120,19 +142,25 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
         transition={{ duration: 0.5 }}
         className="h-[400px] w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/10 dark:to-slate-900/10 rounded-lg overflow-hidden relative"
       >
-        {isLoading && (
+        {/* Loading overlay */}
+        {renderState === 'loading' && (
           <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-10">
-            <div className="text-foreground text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <div className="text-foreground text-center space-y-2">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
               <p className="text-sm">Loading 3D visualization...</p>
+              <p className="text-xs text-muted-foreground">Processing {bubbles.length} timers</p>
             </div>
           </div>
         )}
         
-        <Canvas
+        <SafeCanvas3D
           camera={{ position: [0, 5, 15], fov: 50 }}
-          style={{ background: 'transparent' }}
           onCreated={handleCanvasCreated}
+          fallback={
+            <div className="h-full flex items-center justify-center">
+              <p className="text-muted-foreground">3D rendering failed - fallback mode</p>
+            </div>
+          }
           gl={{ 
             preserveDrawingBuffer: true, 
             antialias: true,
@@ -141,22 +169,25 @@ export const BubbleChart3DEnhanced: React.FC<BubbleChart3DEnhancedProps> = ({
           }}
         >
           <Safe3DScene bubbles={bubbles} onBubbleClick={onBubbleClick} />
-        </Canvas>
+        </SafeCanvas3D>
         
-        {/* Enhanced legend */}
+        {/* Enhanced info panel */}
         <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 border shadow-lg">
           <div className="text-foreground text-xs space-y-1">
-            <div className="font-semibold mb-2">3D Bubble Chart</div>
-            <div>• Size = Total time logged</div>
-            <div>• Position = Creation timeline</div>
-            <div>• Colors = Categories</div>
-            <div className="text-muted-foreground mt-2">{bubbles.length} timers visualized</div>
+            <div className="font-semibold mb-2">Enhanced 3D Bubble Chart</div>
+            <div>• Bubble size = Total time logged</div>
+            <div>• Position = Timeline distribution</div>
+            <div>• Colors = Timer categories</div>
+            <div className="text-muted-foreground mt-2">
+              {bubbles.length} timers visualized
+              {renderState === 'ready' && ' • 3D Ready'}
+            </div>
           </div>
         </div>
       </motion.div>
     );
   } catch (error) {
-    console.error('🔍 BubbleChart3DEnhanced - Render error:', error);
+    console.error('❌ BubbleChart3DEnhanced - Render error:', error);
     handleCanvasError(error as Error);
     return null;
   }
