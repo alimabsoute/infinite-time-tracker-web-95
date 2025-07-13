@@ -18,9 +18,6 @@ interface QueryClientProps {
 }
 
 export const QueryClient: React.FC<QueryClientProps> = ({ children }) => {
-  console.log('🔍 QueryClient - Rendering with React:', !!React);
-  console.log('🔍 QueryClient - useEffect available:', !!React.useEffect);
-  
   return (
     <QueryClientProvider client={queryClient}>
       {children}
