@@ -4,6 +4,7 @@ import PageLayout from '../components/layout/PageLayout';
 import { useTimers } from '../hooks/useTimers';
 import { useTimerSessions } from '../hooks/useTimerSessions';
 import TimerList from '../components/TimerList';
+import CreateTimerForm from '../components/CreateTimerForm';
 
 const Dashboard = () => {
   const { 
@@ -20,9 +21,8 @@ const Dashboard = () => {
   const { sessions, loading: sessionsLoading } = useTimerSessions();
 
   // Create a wrapper function that matches the expected signature
-  const handleCreateTimer = () => {
-    // Create a timer with a default name - the user can rename it afterward
-    addTimer('New Timer');
+  const handleCreateTimer = async (name: string) => {
+    await addTimer(name);
   };
 
   if (sessionsLoading) {
@@ -79,9 +79,15 @@ const Dashboard = () => {
           onUpdatePriority={updatePriority}
           onReorder={reorderTimers}
           newTimerId={null}
-          onCreateTimer={handleCreateTimer}
+          onCreateTimer={() => handleCreateTimer("New Timer")}
         />
       </div>
+
+      {/* Floating Create Timer Button */}
+      <CreateTimerForm 
+        onAddTimer={handleCreateTimer}
+        currentTimerCount={timers.length}
+      />
     </PageLayout>
   );
 };
