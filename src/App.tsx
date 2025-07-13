@@ -21,9 +21,12 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import FoodManufacturerDemo from "./pages/FoodManufacturerDemo";
 
 function App() {
+  console.log('🔍 App - React version:', React.version);
+  console.log('🔍 App - Starting application render');
+  
   return (
-    <BrowserRouter>
-      <ErrorBoundary>
+    <ErrorBoundary>
+      <BrowserRouter>
         <QueryClient>
           <AuthProvider>
             <SubscriptionProvider>
@@ -46,8 +49,8 @@ function App() {
             </SubscriptionProvider>
           </AuthProvider>
         </QueryClient>
-      </ErrorBoundary>
-    </BrowserRouter>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
