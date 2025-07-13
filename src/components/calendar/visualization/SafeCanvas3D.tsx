@@ -10,6 +10,8 @@ interface SafeCanvas3DProps {
   className?: string;
   onCreated?: (state: any) => void;
   fallback?: React.ReactNode;
+  shadows?: boolean;
+  gl?: any;
 }
 
 const SafeCanvas3D: React.FC<SafeCanvas3DProps> = ({
@@ -18,7 +20,15 @@ const SafeCanvas3D: React.FC<SafeCanvas3DProps> = ({
   style,
   className,
   onCreated,
-  fallback
+  fallback,
+  shadows = false,
+  gl = { 
+    antialias: true, 
+    alpha: true,
+    preserveDrawingBuffer: false,
+    powerPreference: "high-performance",
+    failIfMajorPerformanceCaveat: false
+  }
 }) => {
   const [canvasError, setCanvasError] = useState<string | null>(null);
   const [isWebGLSupported, setIsWebGLSupported] = useState(true);
@@ -84,13 +94,8 @@ const SafeCanvas3D: React.FC<SafeCanvas3DProps> = ({
         className={className}
         onCreated={handleCreated}
         onError={handleCanvasError}
-        gl={{ 
-          antialias: true, 
-          alpha: true,
-          preserveDrawingBuffer: false,
-          powerPreference: "high-performance",
-          failIfMajorPerformanceCaveat: false
-        }}
+        shadows={shadows}
+        gl={gl}
       >
         <Suspense fallback={null}>
           {children}
