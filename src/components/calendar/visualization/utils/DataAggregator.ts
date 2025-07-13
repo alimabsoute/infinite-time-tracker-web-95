@@ -31,6 +31,11 @@ export const aggregateTimerData = (
       // Get color
       const color = getCategoryColor(data.category, data.isRunning);
       
+      // Calculate additional metrics for compatibility
+      const avgSessionTime = data.totalTime / data.sessions.length;
+      const totalHours = (data.totalTime / (1000 * 60 * 60)).toFixed(1);
+      const avgMinutes = (avgSessionTime / (1000 * 60)).toFixed(1);
+      
       const processedItem: ProcessedData = {
         id: `${timerName}-${index}`,
         position,
@@ -41,7 +46,17 @@ export const aggregateTimerData = (
         sessionCount: data.sessions.length,
         creationDate: data.createdAt,
         category: data.category,
-        isRunning: data.isRunning
+        isRunning: data.isRunning,
+        // Additional properties for compatibility with BubbleData
+        timerId: timerName, // Use timerName as timerId for consistency
+        name: timerName,
+        totalHours,
+        avgMinutes,
+        avgSessionTime,
+        sessions: data.sessions,
+        // 2D chart specific properties
+        x: data.totalTime / (1000 * 60 * 60), // Total hours for X axis
+        y: avgSessionTime / (1000 * 60) // Avg session minutes for Y axis
       };
       
       console.log('🔍 DataAggregator - Created processed data:', {
