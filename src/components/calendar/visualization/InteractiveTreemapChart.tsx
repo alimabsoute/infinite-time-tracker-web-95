@@ -49,16 +49,20 @@ const InteractiveTreemapChart: React.FC<InteractiveTreemapChartProps> = ({
     }
 
     // Call the bubble click handler if provided
-    if (onBubbleClick && node.data) {
+    if (onBubbleClick) {
       console.log('🔍 InteractiveTreemapChart - Node clicked, calling onBubbleClick:', node);
+      const totalHours = (node.value / (1000 * 60 * 60)).toFixed(1);
+      const avgSessionTime = node.sessions > 0 ? (node.value / node.sessions / (1000 * 60)).toFixed(0) : '0';
+      
       onBubbleClick({
         id: node.id,
         name: node.name,
         totalTime: node.value,
-        sessionCount: node.data.sessionCount || 0,
-        avgSessionTime: node.data.avgSessionTime || 0,
-        category: node.data.category || 'Uncategorized',
-        isRunning: node.data.isRunning || false
+        totalHours: totalHours,
+        sessionCount: node.sessions,
+        avgSessionTime: parseFloat(avgSessionTime),
+        category: node.category || 'Uncategorized',
+        isRunning: false // Treemap shows historical data, so nothing is currently running
       });
     }
   }, [selectedNode, onBubbleClick]);
