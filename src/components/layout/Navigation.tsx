@@ -11,9 +11,11 @@ import {
   LogOut,
   Settings,
   TrendingUp,
-  Activity
+  Activity,
+  Crown
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSubscription } from '../../contexts/SubscriptionContext';
 import PhynxTimerLogo from '../PhynxTimerLogo';
 import {
   DropdownMenu,
@@ -28,6 +30,7 @@ import { Button } from '../ui/button';
 const Navigation = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { subscribed, createCheckoutSession } = useSubscription();
 
   const navigationItems = [
     { path: '/dashboard', label: 'Dashboard', icon: Timer },
@@ -52,6 +55,17 @@ const Navigation = () => {
       return user.email.charAt(0).toUpperCase();
     }
     return 'U';
+  };
+
+  const handleUpgradeClick = async () => {
+    try {
+      const url = await createCheckoutSession();
+      if (url) {
+        window.open(url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+    }
   };
 
   return (
@@ -90,6 +104,17 @@ const Navigation = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Upgrade to Pro Button */}
+            {!subscribed && (
+              <Button 
+                onClick={handleUpgradeClick}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2"
+              >
+                <Crown className="w-4 h-4" />
+                <span>Upgrade to Pro</span>
+              </Button>
+            )}
+            
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -102,12 +127,12 @@ const Navigation = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
-                <div className="flex flex-col space-y-1 p-2">
-                  <p className="text-sm font-medium leading-none">{user?.email}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    Free Account
-                  </p>
-                </div>
+                 <div className="flex flex-col space-y-1 p-2">
+                   <p className="text-sm font-medium leading-none">{user?.email}</p>
+                   <p className="text-xs leading-none text-muted-foreground">
+                     {subscribed ? 'Pro Account' : 'Free Account'}
+                   </p>
+                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/profile" className="cursor-pointer">
@@ -154,6 +179,17 @@ const Navigation = () => {
               </Link>
             );
           })}
+          
+          {/* Mobile Upgrade Button */}
+          {!subscribed && (
+            <Button 
+              onClick={handleUpgradeClick}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors flex items-center space-x-1"
+            >
+              <Crown className="w-4 h-4" />
+              <span>Upgrade</span>
+            </Button>
+          )}
         </div>
       </div>
     </nav>
