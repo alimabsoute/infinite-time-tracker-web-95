@@ -69,19 +69,19 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-white shadow-sm border-b border-gray-200" key={`nav-${Date.now()}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Far LEFT: Logo and text */}
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between h-16 bg-red-50 border border-red-200">
+          {/* Far LEFT: Logo and text - DEBUGGING: RED background */}
+          <div className="flex items-center space-x-2 bg-blue-50 border border-blue-200 px-2 py-1 min-w-0 shrink-0">
             <Link to="/dashboard" className="flex items-center space-x-2">
               <PhynxTimerLogo className="h-16 w-16" width={64} height={64} />
               <span className="text-xl font-bold text-gray-900">PhynxTimer</span>
             </Link>
           </div>
           
-          {/* CENTER: Navigation items */}
-          <div className="hidden md:flex items-center justify-center flex-1">
+          {/* CENTER: Navigation items - DEBUGGING: GREEN background */}
+          <div className="hidden md:flex items-center justify-center flex-1 bg-green-50 border border-green-200 mx-4 py-1">
             <div className="flex space-x-1">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
@@ -107,8 +107,8 @@ const Navigation = () => {
             </div>
           </div>
 
-          {/* Far RIGHT: Actions */}
-          <div className="flex items-center space-x-4">
+          {/* Far RIGHT: Actions - DEBUGGING: YELLOW background */}
+          <div className="flex items-center space-x-4 bg-yellow-50 border border-yellow-200 px-2 py-1 min-w-0 shrink-0">
             {/* Upgrade to Pro Button */}
             {!subscribed && (
               <Button 
