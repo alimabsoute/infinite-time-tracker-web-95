@@ -19,19 +19,20 @@ const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps
     <div className="fixed bottom-8 right-8 z-50" key={`create-timer-${Date.now()}`}>
       <Button
         onClick={handleAddTimer}
-        className="relative h-16 w-16 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border-4 border-white/20 backdrop-blur-sm overflow-hidden group"
+        className="relative h-16 w-16 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border-4 border-white/10 backdrop-blur-sm overflow-hidden group"
         size="icon"
         style={{ zIndex: 9999 }}
       >
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/60 via-red-500/70 to-purple-600/60 animate-pulse" />
-        <div className="absolute inset-0 bg-gradient-to-tr from-red-400/40 via-purple-400/50 to-red-500/40 animate-[pulse_2s_ease-in-out_infinite_reverse]" />
+        {/* Multi-color flowing gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-300/20 via-purple-300/25 via-blue-300/20 via-cyan-300/25 via-teal-300/20 via-emerald-300/25 via-lime-300/20 via-yellow-300/25 via-orange-300/20 via-red-300/25 to-pink-300/20 animate-[pulse_8s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-200/15 via-indigo-200/20 via-purple-200/15 via-fuchsia-200/20 via-rose-200/15 via-orange-200/20 via-amber-200/15 via-lime-200/20 via-green-200/15 via-teal-200/20 to-blue-200/15 animate-[pulse_12s_ease-in-out_infinite_reverse]" />
+        <div className="absolute inset-0 bg-gradient-to-bl from-violet-200/10 via-sky-200/15 via-emerald-200/10 via-yellow-200/15 via-rose-200/10 via-cyan-200/15 to-violet-200/10 animate-[pulse_10s_ease-in-out_infinite]" />
         
         {/* Plus icon */}
         <Plus size={28} className="relative z-10 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-200" />
         
-        {/* Outer glow effect */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500/30 to-red-500/30 blur-xl animate-pulse" />
+        {/* Outer flowing glow effect */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/10 via-pink-400/15 via-blue-400/10 to-cyan-400/15 blur-xl animate-[pulse_15s_ease-in-out_infinite]" />
       </Button>
     </div>
   );
