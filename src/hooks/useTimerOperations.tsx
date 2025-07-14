@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useNotifications } from './useNotifications';
 import { useSessionManager } from './useSessionManager';
+import { useTimerStateValidator } from './useTimerStateValidator';
 import { toast } from 'sonner';
 
 interface UseTimerOperationsProps {
@@ -17,6 +18,7 @@ export const useTimerOperations = ({ timers, setTimers }: UseTimerOperationsProp
   const { canStartTimer, getRunningTimerLimit } = useSubscription();
   const { notifyTimerCompletion } = useNotifications();
   const { createSession, endSession } = useSessionManager();
+  const { fixDatabaseInconsistencies } = useTimerStateValidator();
 
   const toggleTimer = useCallback(async (id: string) => {
     if (!user) return;
@@ -38,6 +40,9 @@ export const useTimerOperations = ({ timers, setTimers }: UseTimerOperationsProp
           });
           return;
         }
+
+        // Ensure database consistency before starting timer
+        await fixDatabaseInconsistencies(id);
 
         // Starting timer
         const sessionId = await createSession(id, now);

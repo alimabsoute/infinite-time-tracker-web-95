@@ -5,8 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useSessionManager } from './useSessionManager';
-import { useTimerPersistence } from './useTimerPersistence';
-import { useTimerDatabaseCleanup } from './useTimerDatabaseCleanup';
+import { useTimerPersistenceFixed } from './useTimerPersistenceFixed';
+import { useTimerStateValidator } from './useTimerStateValidator';
 import { toast } from 'sonner';
 
 interface UseTimerCreationProps {
@@ -27,8 +27,8 @@ export const useTimerCreation = ({
   const { user } = useAuth();
   const { canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit } = useSubscription();
   const { createSession, endSession } = useSessionManager();
-  const { clearTimerState, saveTimerState } = useTimerPersistence();
-  const { auditDatabaseState, ensureSingleRunningTimer } = useTimerDatabaseCleanup();
+  const { clearTimerState, saveTimerState } = useTimerPersistenceFixed();
+  const { fixDatabaseInconsistencies, validateDatabaseConsistency } = useTimerStateValidator();
 
   const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
     console.log('🚀 Starting SUPER ENHANCED addTimer function with name:', name);
@@ -63,10 +63,10 @@ export const useTimerCreation = ({
     try {
       console.log('🔍 [TIMER CREATION] Phase 1: Database state audit');
       // PHASE 1: Audit current database state
-      const preAudit = await auditDatabaseState();
+      const preAudit = await validateDatabaseConsistency();
       if (preAudit) {
         console.log('📊 [TIMER CREATION] Pre-creation database state:', {
-          runningInDB: preAudit.runningTimers.length,
+          runningInDB: preAudit.runningCount,
           runningInUI: runningTimers.length,
           hasConflict: preAudit.hasMultipleRunning
         });
@@ -87,16 +87,14 @@ export const useTimerCreation = ({
 
       // PHASE 2: Clean up database state BEFORE creating new timer
       console.log('🛑 [TIMER CREATION] Phase 2a: Ensuring database consistency');
-      const cleanupResult = await ensureSingleRunningTimer();
-      if (!cleanupResult.success) {
-        console.error('❌ [TIMER CREATION] Database cleanup failed:', cleanupResult.error);
+      const cleanupResult = await fixDatabaseInconsistencies();
+      if (!cleanupResult) {
+        console.error('❌ [TIMER CREATION] Database cleanup failed');
         toast.error("Failed to create timer - database cleanup failed");
         return "";
       }
       
-      if (cleanupResult.changesMade) {
-        console.log('✅ [TIMER CREATION] Database cleanup completed, stopped', cleanupResult.stoppedCount, 'timers');
-      }
+      console.log('✅ [TIMER CREATION] Database cleanup completed');
       
       // End all running sessions for UI timers
       console.log('⏹️ [TIMER CREATION] Phase 2b: Ending UI timer sessions');
@@ -180,19 +178,20 @@ export const useTimerCreation = ({
       console.log('✅ [TIMER CREATION] Atomic update completed - only new timer is running');
 
       // PHASE 6: Verify database state
-      const postCreationAudit = await auditDatabaseState();
+      const postCreationAudit = await validateDatabaseConsistency();
       if (postCreationAudit) {
+        const runningTimers = postCreationAudit.timers.filter(t => t.is_running);
         console.log('📊 [TIMER CREATION] Post-creation database state:', {
-          runningCount: postCreationAudit.runningTimers.length,
-          runningTimerIds: postCreationAudit.runningTimers.map(t => t.id),
-          newTimerIsRunning: postCreationAudit.runningTimers.some(t => t.id === newTimer.id)
+          runningCount: runningTimers.length,
+          runningTimerIds: runningTimers.map(t => t.id),
+          newTimerIsRunning: runningTimers.some(t => t.id === newTimer.id)
         });
         
-        if (postCreationAudit.runningTimers.length !== 1) {
-          console.warn('⚠️ [TIMER CREATION] WARNING: Expected 1 running timer, found:', postCreationAudit.runningTimers.length);
+        if (runningTimers.length !== 1) {
+          console.warn('⚠️ [TIMER CREATION] WARNING: Expected 1 running timer, found:', runningTimers.length);
         }
         
-        if (!postCreationAudit.runningTimers.some(t => t.id === newTimer.id)) {
+        if (!runningTimers.some(t => t.id === newTimer.id)) {
           console.error('❌ [TIMER CREATION] CRITICAL: New timer is not running in database!');
         }
       }
@@ -292,7 +291,7 @@ export const useTimerCreation = ({
       toast.error("Failed to create timer");
       return "";
     }
-  }, [user, timers, clearConfettiTrigger, canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit, setTimers, setConfettiTrigger, setCelebrationTrigger, createSession, endSession, auditDatabaseState, ensureSingleRunningTimer]);
+  }, [user, timers, clearConfettiTrigger, canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit, setTimers, setConfettiTrigger, setCelebrationTrigger, createSession, endSession, validateDatabaseConsistency, fixDatabaseInconsistencies, clearTimerState, saveTimerState]);
 
   return {
     addTimer

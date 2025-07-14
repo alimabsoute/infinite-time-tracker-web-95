@@ -6,8 +6,9 @@ import { useTimerState } from "./useTimerState";
 import { useTimerActions } from "./useTimerActions";
 import { useTimerRealtime } from "./useTimerRealtime";
 import { useTimerAnimations } from "./useTimerAnimations";
-import { useTimerEffects } from "./useTimerEffects";
-import { useTimerBrowserEvents } from "./useTimerBrowserEvents";
+import { useTimerEffectsFixed } from "./useTimerEffectsFixed";
+import { useTimerBrowserEventsFixed } from "./useTimerBrowserEventsFixed";
+import { useTimerMonitoring } from "./useTimerMonitoring";
 
 export const useTimers = () => {
   const { user } = useAuth();
@@ -26,11 +27,11 @@ export const useTimers = () => {
     clearCelebrationTrigger
   } = useTimerAnimations();
 
-  // Timer effects (auto-save, timer updates, cleanup)
-  const { isPageVisibleRef } = useTimerEffects({ timers, setTimers, timersRef });
+  // Timer effects (auto-save, timer updates, cleanup) - FIXED VERSION
+  const { isPageVisibleRef } = useTimerEffectsFixed({ timers, setTimers, timersRef });
 
-  // Browser events handling (visibility, focus, blur, etc.)
-  useTimerBrowserEvents({ timersRef, setTimers, isPageVisibleRef });
+  // Browser events handling (visibility, focus, blur, etc.) - FIXED VERSION
+  useTimerBrowserEventsFixed({ timersRef, setTimers, isPageVisibleRef });
 
   // Update notification data for running timers
   useEffect(() => {
@@ -50,6 +51,9 @@ export const useTimers = () => {
 
   // Real-time updates
   useTimerRealtime({ timers, setTimers });
+  
+  // Monitoring and debugging
+  useTimerMonitoring(timers);
 
   return {
     timers,
