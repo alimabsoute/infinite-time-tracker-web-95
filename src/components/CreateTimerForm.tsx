@@ -27,46 +27,12 @@ const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps
             handleAddTimer();
           }
         }}
-        className="relative h-16 w-16 rounded-full cursor-pointer transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-white/20 overflow-hidden group animate-pulse-glow"
-        style={{ 
-          zIndex: 9999,
-          backgroundImage: `url('/lovable-uploads/e4b39c63-d261-4756-9c9a-b26aaf39d02f.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          boxShadow: `
-            0 0 30px rgba(255, 255, 255, 0.1),
-            0 0 60px rgba(255, 255, 255, 0.05),
-            inset 0 0 0 2px rgba(255, 255, 255, 0.1)
-          `
-        }}
+        className="h-16 w-16 bg-blue-500 rounded-full cursor-pointer transition-all duration-300 hover:scale-110 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-500/20 flex items-center justify-center"
+        style={{ zIndex: 9999 }}
       >
-        {/* Inner content area with slight transparency */}
-        <div className="absolute inset-1 rounded-full bg-black/5 backdrop-blur-sm flex items-center justify-center">
-          <Plus 
-            size={28} 
-            className="text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-200 relative z-10" 
-          />
-        </div>
-        
-        {/* Outer glow effect */}
-        <div 
-          className="absolute -inset-2 rounded-full opacity-30 blur-lg"
-          style={{
-            background: `conic-gradient(
-              from 0deg,
-              hsl(330, 70%, 60%) 0%,
-              hsl(300, 70%, 60%) 12.5%,
-              hsl(270, 70%, 60%) 25%,
-              hsl(240, 70%, 60%) 37.5%,
-              hsl(210, 70%, 60%) 50%,
-              hsl(180, 70%, 60%) 62.5%,
-              hsl(150, 70%, 60%) 75%,
-              hsl(120, 70%, 60%) 87.5%,
-              hsl(330, 70%, 60%) 100%
-            )`,
-            animation: 'spin 8s linear infinite reverse'
-          }}
+        <Plus 
+          size={28} 
+          className="text-white" 
         />
       </div>
     </div>
