@@ -28,28 +28,17 @@ const Header = () => {
 
   return (
     <header className="bg-background/60 backdrop-blur-md sticky top-0 z-30 w-full border-b border-border">
-      <div className="container flex h-16 items-center justify-between px-4 max-w-5xl mx-auto">
-        <div className="flex items-center gap-4">
+      <div className="container flex h-16 items-center px-4 max-w-5xl mx-auto">
+        {/* Logo section - moved further left */}
+        <div className="flex items-center gap-2 mr-8">
           <Link to="/landing" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <PhynxTimerLogo width={64} height={64} className="text-primary" />
             <span className="text-xl font-semibold">PhynxTimer</span>
           </Link>
-          
-          {/* Upgrade Button - only show if user is logged in and not subscribed */}
-          {user && !subscribed && (
-            <Button
-              onClick={handleUpgradeClick}
-              size="sm"
-              className="ml-2 upgrade-btn-animated"
-            >
-              <Crown className="mr-1 h-4 w-4" />
-              <span className="hidden sm:inline">Upgrade to Pro</span>
-              <span className="sm:hidden">Pro</span>
-            </Button>
-          )}
         </div>
         
-        <div className="flex items-center gap-4">
+        {/* Navigation and Actions */}
+        <div className="flex-1 flex items-center justify-between">
           <nav className="flex items-center gap-3">
             <Link to="/landing">
               <AnimatedNavButton 
@@ -130,10 +119,24 @@ const Header = () => {
                 <span className="hidden sm:inline">Reports</span>
               </AnimatedNavButton>
             </Link>
+            
+            {/* Orange Upgrade to Pro link - positioned after Reports */}
+            {user && !subscribed && (
+              <button
+                onClick={handleUpgradeClick}
+                className="flex items-center gap-2 px-3 py-2 text-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/20 rounded-lg transition-colors font-medium"
+              >
+                <Crown size={18} />
+                <span className="hidden sm:inline">Upgrade to Pro</span>
+                <span className="sm:hidden">Pro</span>
+              </button>
+            )}
           </nav>
           
           {/* Auth Header with logout functionality */}
-          <AuthHeader />
+          <div className="flex items-center">
+            <AuthHeader />
+          </div>
         </div>
       </div>
     </header>
