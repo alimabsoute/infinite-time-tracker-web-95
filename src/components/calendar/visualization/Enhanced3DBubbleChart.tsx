@@ -29,9 +29,24 @@ const Enhanced3DBubbleChart: React.FC<Enhanced3DBubbleChartProps> = ({
     } : 'Using current week'
   });
 
-  // Default to current week if no dates provided
-  const defaultStartDate = startDate || new Date();
-  const defaultEndDate = endDate || addDays(defaultStartDate, 7);
+  // Calculate date range from session data if no dates provided
+  let defaultStartDate = startDate;
+  let defaultEndDate = endDate;
+  
+  if (!startDate || !endDate) {
+    if (sessions.length > 0) {
+      const sessionDates = sessions.map(session => new Date(session.start_time));
+      const minDate = new Date(Math.min(...sessionDates.map(d => d.getTime())));
+      const maxDate = new Date(Math.max(...sessionDates.map(d => d.getTime())));
+      
+      defaultStartDate = startDate || minDate;
+      defaultEndDate = endDate || addDays(maxDate, 1); // Include the last day
+    } else {
+      // Fallback to current week if no sessions
+      defaultStartDate = startDate || new Date();
+      defaultEndDate = endDate || addDays(defaultStartDate, 7);
+    }
+  }
 
   const handleBubbleClick = (bubble: BubbleData) => {
     console.log('🔍 Enhanced3DBubbleChart - Bubble clicked:', bubble.timerName);
