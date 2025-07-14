@@ -8,17 +8,30 @@ import { TimerSessionWithTimer } from '../types/index';
 export const useTimerSessions = () => {
   const [sessions, setSessions] = useState<TimerSessionWithTimer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
   const fetchSessions = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('🔍 useTimerSessions - No user, skipping fetch');
+      setLoading(false);
+      return;
+    }
 
+    console.log('🔍 useTimerSessions - Starting fetch for user:', user.id);
+    
     try {
       setLoading(true);
+      setError(null);
+
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout after 10 seconds')), 10000);
+      });
       
-      // Fetch timer sessions with timer data
-      const { data: sessionData, error: sessionError } = await supabase
+      // Create fetch promises with timeout
+      const fetchSessionsPromise = supabase
         .from('timer_sessions')
         .select(`
           *,
@@ -31,16 +44,33 @@ export const useTimerSessions = () => {
         .eq('user_id', user.id)
         .order('start_time', { ascending: false });
 
-      if (sessionError) throw sessionError;
-
-      // Fetch running timers to calculate their current duration
-      const { data: runningTimers, error: timersError } = await supabase
+      const fetchRunningTimersPromise = supabase
         .from('timers')
         .select('id, name, category, elapsed_time, created_at')
         .eq('user_id', user.id)
         .eq('is_running', true);
 
-      if (timersError) throw timersError;
+      console.log('🔍 useTimerSessions - Making database queries...');
+
+      // Execute both queries with timeout
+      const [sessionsResult, runningTimersResult] = await Promise.race([
+        Promise.all([fetchSessionsPromise, fetchRunningTimersPromise]),
+        timeoutPromise
+      ]) as [any, any];
+
+      const { data: sessionData, error: sessionError } = sessionsResult;
+      const { data: runningTimers, error: timersError } = runningTimersResult;
+
+      if (sessionError) {
+        console.error('🔍 useTimerSessions - Session query error:', sessionError);
+        throw sessionError;
+      }
+      if (timersError) {
+        console.error('🔍 useTimerSessions - Running timers query error:', timersError);
+        throw timersError;
+      }
+
+      console.log('🔍 useTimerSessions - Database queries completed successfully');
 
       console.log('🔍 useTimerSessions - Raw data:', {
         sessionsCount: sessionData?.length || 0,
@@ -145,25 +175,54 @@ export const useTimerSessions = () => {
       });
 
       setSessions(finalSessions);
+      console.log('🔍 useTimerSessions - Successfully loaded sessions');
     } catch (error) {
       console.error('🔍 useTimerSessions - Error fetching sessions:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch timer sessions",
-        variant: "destructive",
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
+      
+      // Don't show toast for timeout errors, just log them
+      if (!errorMessage.includes('timeout')) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch timer sessions",
+          variant: "destructive",
+        });
+      }
+      
+      // Set empty sessions array so dashboard can still load
+      setSessions([]);
     } finally {
       setLoading(false);
+      console.log('🔍 useTimerSessions - Fetch complete');
     }
   };
 
   useEffect(() => {
-    fetchSessions();
+    console.log('🔍 useTimerSessions - useEffect triggered, user:', user?.id || 'none');
+    
+    // Set a maximum loading time of 15 seconds
+    const loadingTimeout = setTimeout(() => {
+      if (loading) {
+        console.log('🔍 useTimerSessions - Loading timeout reached, forcing completion');
+        setLoading(false);
+        setError('Loading timeout - dashboard will show with limited data');
+      }
+    }, 15000);
+
+    fetchSessions().finally(() => {
+      clearTimeout(loadingTimeout);
+    });
+
+    return () => {
+      clearTimeout(loadingTimeout);
+    };
   }, [user]);
 
   return {
     sessions,
     loading,
+    error,
     refetch: fetchSessions,
   };
 };

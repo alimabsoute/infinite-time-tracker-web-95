@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import PageLayout from '../components/layout/PageLayout';
 import { useTimers } from '../hooks/useTimers';
 import { useTimerSessions } from '../hooks/useTimerSessions';
+import { useAuth } from '../contexts/AuthContext';
 import TimerList from '../components/TimerList';
 import CreateTimerForm from '../components/CreateTimerForm';
 import EnhancedAnimationManager from '../components/animations/EnhancedAnimationManager';
@@ -12,6 +13,7 @@ import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitI
 const Dashboard = () => {
   console.log('🔥 Dashboard - Component mounting/rendering');
   
+  const { user } = useAuth();
   const { 
     timers, 
     toggleTimer, 
@@ -27,14 +29,16 @@ const Dashboard = () => {
     clearConfettiTrigger,
     clearCelebrationTrigger,
   } = useTimers();
-  const { sessions, loading: sessionsLoading } = useTimerSessions();
+  const { sessions, loading: sessionsLoading, error: sessionsError } = useTimerSessions();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
   console.log('📊 Dashboard - Current state:', { 
     timersCount: timers.length, 
     sessionsCount: sessions.length, 
     sessionsLoading,
-    newTimerId 
+    sessionsError,
+    newTimerId,
+    user: user?.id || 'none'
   });
 
   // Enhanced debug logging
@@ -61,21 +65,8 @@ const Dashboard = () => {
     }
   };
 
-  if (sessionsLoading) {
-    return (
-      <PageLayout 
-        title="Dashboard"
-        description="Overview of your timers and recent activity"
-      >
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading dashboard...</p>
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
+  // Always render dashboard - don't block on sessions loading
+  console.log('📊 Dashboard - Always rendering dashboard, sessions loading will not block');
 
   return (
     <PageLayout 
