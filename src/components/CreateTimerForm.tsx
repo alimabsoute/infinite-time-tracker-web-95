@@ -30,18 +30,10 @@ const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps
         className="relative h-16 w-16 rounded-full cursor-pointer transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-white/20 overflow-hidden group animate-pulse-glow"
         style={{ 
           zIndex: 9999,
-          background: `conic-gradient(
-            from 0deg,
-            hsl(330, 70%, 60%) 0%,
-            hsl(300, 70%, 60%) 12.5%,
-            hsl(270, 70%, 60%) 25%,
-            hsl(240, 70%, 60%) 37.5%,
-            hsl(210, 70%, 60%) 50%,
-            hsl(180, 70%, 60%) 62.5%,
-            hsl(150, 70%, 60%) 75%,
-            hsl(120, 70%, 60%) 87.5%,
-            hsl(330, 70%, 60%) 100%
-          )`,
+          backgroundImage: `url('/lovable-uploads/e4b39c63-d261-4756-9c9a-b26aaf39d02f.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
           boxShadow: `
             0 0 30px rgba(255, 255, 255, 0.1),
             0 0 60px rgba(255, 255, 255, 0.05),
