@@ -27,7 +27,7 @@ const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps
             handleAddTimer();
           }
         }}
-        className="relative h-16 w-16 rounded-full cursor-pointer transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-white/20 overflow-hidden group"
+        className="relative h-16 w-16 rounded-full cursor-pointer transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-white/20 overflow-hidden group animate-pulse-glow"
         style={{ 
           zIndex: 9999,
           background: `conic-gradient(
@@ -42,7 +42,6 @@ const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps
             hsl(120, 70%, 60%) 87.5%,
             hsl(330, 70%, 60%) 100%
           )`,
-          animation: 'spin 8s linear infinite',
           boxShadow: `
             0 0 30px rgba(255, 255, 255, 0.1),
             0 0 60px rgba(255, 255, 255, 0.05),
@@ -51,7 +50,7 @@ const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps
         }}
       >
         {/* Inner content area with slight transparency */}
-        <div className="absolute inset-1 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center">
+        <div className="absolute inset-1 rounded-full bg-black/5 backdrop-blur-sm flex items-center justify-center">
           <Plus 
             size={28} 
             className="text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-200 relative z-10" 
