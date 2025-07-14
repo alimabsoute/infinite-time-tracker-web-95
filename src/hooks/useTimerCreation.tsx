@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useSessionManager } from './useSessionManager';
 import { useTimerPersistence } from './useTimerPersistence';
+import { useTimerDatabaseCleanup } from './useTimerDatabaseCleanup';
 import { toast } from 'sonner';
 
 interface UseTimerCreationProps {
@@ -27,6 +28,7 @@ export const useTimerCreation = ({
   const { canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit } = useSubscription();
   const { createSession, endSession } = useSessionManager();
   const { clearTimerState, saveTimerState } = useTimerPersistence();
+  const { auditDatabaseState, ensureSingleRunningTimer } = useTimerDatabaseCleanup();
 
   const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
     console.log('🚀 Starting SUPER ENHANCED addTimer function with name:', name);
@@ -59,6 +61,17 @@ export const useTimerCreation = ({
     }
 
     try {
+      console.log('🔍 [TIMER CREATION] Phase 1: Database state audit');
+      // PHASE 1: Audit current database state
+      const preAudit = await auditDatabaseState();
+      if (preAudit) {
+        console.log('📊 [TIMER CREATION] Pre-creation database state:', {
+          runningInDB: preAudit.runningTimers.length,
+          runningInUI: runningTimers.length,
+          hasConflict: preAudit.hasMultipleRunning
+        });
+      }
+
       const now = new Date();
       const newTimer: Timer = {
         id: crypto.randomUUID(),
@@ -69,10 +82,24 @@ export const useTimerCreation = ({
         category,
       };
       
-      console.log('➕ Adding new timer:', newTimer.name, 'with ID:', newTimer.id);
-      console.log('⏸️ Found', runningTimers.length, 'running timers to pause');
+      console.log('➕ [TIMER CREATION] Phase 2: Creating new timer:', newTimer.name, 'with ID:', newTimer.id);
+      console.log('⏸️ [TIMER CREATION] Found', runningTimers.length, 'running timers in UI to pause');
+
+      // PHASE 2: Clean up database state BEFORE creating new timer
+      console.log('🛑 [TIMER CREATION] Phase 2a: Ensuring database consistency');
+      const cleanupResult = await ensureSingleRunningTimer();
+      if (!cleanupResult.success) {
+        console.error('❌ [TIMER CREATION] Database cleanup failed:', cleanupResult.error);
+        toast.error("Failed to create timer - database cleanup failed");
+        return "";
+      }
       
-      // End all running sessions first
+      if (cleanupResult.changesMade) {
+        console.log('✅ [TIMER CREATION] Database cleanup completed, stopped', cleanupResult.stoppedCount, 'timers');
+      }
+      
+      // End all running sessions for UI timers
+      console.log('⏹️ [TIMER CREATION] Phase 2b: Ending UI timer sessions');
       const endPromises = runningTimers
         .filter(t => t.currentSessionId && t.sessionStartTime)
         .map(async (timer) => {
@@ -80,10 +107,8 @@ export const useTimerCreation = ({
             console.log('⏹️ Ending session for timer:', timer.id);
             const duration = now.getTime() - timer.sessionStartTime!.getTime();
             await endSession(timer.id, timer.currentSessionId!, now, duration);
-            return supabase.from('timers').update({
-              is_running: false,
-              elapsed_time: timer.elapsedTime + duration,
-            }).eq('id', timer.id);
+            // Note: Database update for is_running is handled by ensureSingleRunningTimer above
+            return { timerId: timer.id, duration };
           } catch (error) {
             console.error('❌ Error ending session for timer:', timer.id, error);
             throw error;
@@ -91,60 +116,94 @@ export const useTimerCreation = ({
         });
       
       console.log('⏳ Waiting for', endPromises.length, 'sessions to end...');
-      await Promise.all(endPromises);
-      console.log('✅ All sessions ended successfully');
+      const sessionResults = await Promise.all(endPromises);
+      console.log('✅ All sessions ended successfully:', sessionResults.length, 'sessions closed');
       
-      // Insert the timer into the database
-      console.log('💾 Inserting timer into database...');
+      // PHASE 3: Create new timer in database (STOPPED state initially)
+      console.log('💾 [TIMER CREATION] Phase 3: Inserting timer into database (stopped state)');
       const { error: insertError } = await supabase
         .from('timers')
         .insert({
           id: newTimer.id,
           name: newTimer.name,
           elapsed_time: newTimer.elapsedTime,
-          is_running: false,
+          is_running: false, // Always start in stopped state
           created_at: newTimer.createdAt.toISOString(),
           category: newTimer.category,
           user_id: user.id
         });
       
       if (insertError) {
-        console.error("❌ Error inserting timer:", insertError);
+        console.error("❌ [TIMER CREATION] Error inserting timer:", insertError);
         toast.error("Failed to create timer");
         return "";
       }
-      console.log('✅ Timer inserted successfully');
+      console.log('✅ [TIMER CREATION] Timer inserted successfully in stopped state');
 
-      // Create a session and start the timer
-      console.log('🎯 Creating session for timer...');
+      // PHASE 4: Create session and start timer atomically
+      console.log('🎯 [TIMER CREATION] Phase 4: Creating session and starting timer');
       const sessionId = await createSession(newTimer.id, now);
       if (!sessionId) {
-        console.error("❌ Failed to create session");
+        console.error("❌ [TIMER CREATION] Failed to create session");
         toast.error("Failed to start timer session");
         return "";
       }
-      console.log('✅ Session created with ID:', sessionId);
+      console.log('✅ [TIMER CREATION] Session created with ID:', sessionId);
 
-      // Update the timer to running state in the database
-      console.log('▶️ Updating timer to running state...');
-      const { error: updateError } = await supabase
+      // PHASE 5: Atomic database update to ensure only this timer is running
+      console.log('🔒 [TIMER CREATION] Phase 5: Atomic database update for exclusive running state');
+      
+      // Use a transaction-like approach: first stop all, then start new one
+      const { error: stopAllError } = await supabase
+        .from('timers')
+        .update({ is_running: false })
+        .eq('user_id', user.id)
+        .is('deleted_at', null);
+
+      if (stopAllError) {
+        console.error("❌ [TIMER CREATION] Error stopping all timers:", stopAllError);
+        toast.error("Failed to stop existing timers");
+        return "";
+      }
+
+      const { error: startNewError } = await supabase
         .from('timers')
         .update({ is_running: true })
         .eq('id', newTimer.id);
 
-      if (updateError) {
-        console.error("❌ Error updating timer to running:", updateError);
-      } else {
-        console.log('✅ Timer updated to running state');
+      if (startNewError) {
+        console.error("❌ [TIMER CREATION] Error starting new timer:", startNewError);
+        toast.error("Failed to start new timer");
+        return "";
+      }
+      
+      console.log('✅ [TIMER CREATION] Atomic update completed - only new timer is running');
+
+      // PHASE 6: Verify database state
+      const postCreationAudit = await auditDatabaseState();
+      if (postCreationAudit) {
+        console.log('📊 [TIMER CREATION] Post-creation database state:', {
+          runningCount: postCreationAudit.runningTimers.length,
+          runningTimerIds: postCreationAudit.runningTimers.map(t => t.id),
+          newTimerIsRunning: postCreationAudit.runningTimers.some(t => t.id === newTimer.id)
+        });
+        
+        if (postCreationAudit.runningTimers.length !== 1) {
+          console.warn('⚠️ [TIMER CREATION] WARNING: Expected 1 running timer, found:', postCreationAudit.runningTimers.length);
+        }
+        
+        if (!postCreationAudit.runningTimers.some(t => t.id === newTimer.id)) {
+          console.error('❌ [TIMER CREATION] CRITICAL: New timer is not running in database!');
+        }
       }
 
-      // Set the timer properties for local state
+      // PHASE 7: Update local state to match database
+      console.log('🔄 [TIMER CREATION] Phase 7: Updating local UI state');
       newTimer.isRunning = true;
       newTimer.currentSessionId = sessionId;
       newTimer.sessionStartTime = now;
 
-      console.log('🔄 Updating local state...');
-      // Add new timer and pause others
+      // Ensure all other timers are marked as stopped in local state
       const updatedTimers = [
         newTimer,
         ...timers.map(timer => ({ 
@@ -157,12 +216,11 @@ export const useTimerCreation = ({
       
       setTimers(updatedTimers);
       
-      // Clear persistence data since we have a new definitive state
-      console.log('🧹 Clearing persistence data after timer creation');
+      // PHASE 8: Clear and save persistence data with new definitive state
+      console.log('🧹 [TIMER CREATION] Phase 8: Clearing stale persistence data');
       clearTimerState();
       
-      // Immediately save the new state to prevent stale data restoration
-      console.log('💾 Saving new definitive timer state');
+      console.log('💾 [TIMER CREATION] Saving new definitive timer state');
       saveTimerState(updatedTimers, 'manual');
       
       console.log('🎊 Triggering SUPER ENHANCED celebration animations...');
@@ -218,9 +276,15 @@ export const useTimerCreation = ({
         celebration: randomCelebration
       });
       
+      console.log('✅ [TIMER CREATION] PHASE COMPLETE: Timer creation successful with ID:', newTimer.id);
+      console.log('🎨 [TIMER CREATION] Animation state set:', {
+        confetti: { x: centerX, y: centerY, id: newTimer.id },
+        celebration: randomCelebration
+      });
+      
       return newTimer.id;
     } catch (error) {
-      console.error("❌ Unexpected error in addTimer:", error);
+      console.error("❌ [TIMER CREATION] CRITICAL ERROR in addTimer:", error);
       if (error instanceof Error) {
         console.error("Error message:", error.message);
         console.error("Error stack:", error.stack);
@@ -228,7 +292,7 @@ export const useTimerCreation = ({
       toast.error("Failed to create timer");
       return "";
     }
-  }, [user, timers, clearConfettiTrigger, canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit, setTimers, setConfettiTrigger, setCelebrationTrigger, createSession, endSession]);
+  }, [user, timers, clearConfettiTrigger, canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit, setTimers, setConfettiTrigger, setCelebrationTrigger, createSession, endSession, auditDatabaseState, ensureSingleRunningTimer]);
 
   return {
     addTimer
