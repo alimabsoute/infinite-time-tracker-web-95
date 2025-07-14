@@ -4,7 +4,6 @@ import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
 import { Timer, TimerSessionWithTimer } from '../../../types';
 import VisualizationTabsContent from './VisualizationTabsContent';
 import VisualizationSidebarContent from './VisualizationSidebarContent';
-import EnhancedChartInsights from './EnhancedChartInsights';
 
 interface ResizableActivityVisualizationProps {
   filteredTimers: Timer[];
@@ -63,7 +62,7 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
         
         {/* Sidebar Panel */}
         <Panel defaultSize={25} minSize={20} maxSize={40}>
-          <div className="h-full flex flex-col">
+          <div className="h-full">
             <VisualizationSidebarContent
               sessions={sessions}
               categories={categories}
@@ -72,15 +71,6 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
               formatTime={formatTime}
               selectedTimer={selectedTimer}
             />
-            
-            {/* Enhanced Insights Section */}
-            <div className="flex-1 min-h-0 p-3 overflow-auto">
-              <EnhancedChartInsights
-                sessions={sessions}
-                selectedCategory={selectedCategory}
-                activeTab={activeTab}
-              />
-            </div>
           </div>
         </Panel>
       </PanelGroup>
