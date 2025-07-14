@@ -144,26 +144,40 @@ export const useTimerPersistence = () => {
     }
   }, []);
 
+  // Restore elapsed time for timers based on saved data with validation
   const restoreTimerElapsedTime = useCallback((timers: Timer[], persistenceData: TimerPersistenceData): Timer[] => {
+    console.log('🔄 Restoring timer elapsed time from persistence data');
+    console.log('📊 Persistence data:', persistenceData);
+    
     const currentTime = Date.now();
+    const timeSinceSnapshot = currentTime - persistenceData.timestamp;
+    console.log('⏰ Time since snapshot:', timeSinceSnapshot, 'ms');
+    
+    // Don't restore if data is too old (more than 1 hour)
+    if (timeSinceSnapshot > 3600000) {
+      console.log('⚠️ Persistence data too old, skipping restoration');
+      return timers;
+    }
     
     return timers.map(timer => {
       const savedTimer = persistenceData.timers.find(saved => saved.id === timer.id);
       
-      if (!savedTimer || !timer.isRunning) {
+      if (!savedTimer || !savedTimer.isRunning) {
+        return timer;
+      }
+
+      // Only restore if the timer is currently marked as running in local state
+      // This prevents restoring paused timers that shouldn't be running
+      if (!timer.isRunning) {
+        console.log(`⚠️ Skipping restoration for timer ${timer.name} - not currently running`);
         return timer;
       }
 
       // Calculate time elapsed since the snapshot
-      const timeSinceSnapshot = currentTime - savedTimer.snapshotTime;
-      const restoredElapsedTime = savedTimer.elapsedTime + timeSinceSnapshot;
+      const additionalTime = currentTime - savedTimer.snapshotTime;
+      const restoredElapsedTime = savedTimer.elapsedTime + additionalTime;
 
-      console.log(`⏰ Restoring timer ${timer.id}:`, {
-        savedElapsed: Math.round(savedTimer.elapsedTime / 1000) + 's',
-        timeSinceSnapshot: Math.round(timeSinceSnapshot / 1000) + 's',
-        newElapsed: Math.round(restoredElapsedTime / 1000) + 's',
-        reason: persistenceData.reason
-      });
+      console.log(`⏱️ Timer ${timer.name}: ${savedTimer.elapsedTime} + ${additionalTime} = ${restoredElapsedTime}`);
 
       return {
         ...timer,

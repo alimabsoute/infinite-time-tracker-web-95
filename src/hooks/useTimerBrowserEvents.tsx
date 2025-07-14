@@ -3,6 +3,8 @@ import { useCallback } from 'react';
 import { Timer } from '../types';
 import { useBrowserEvents } from './useBrowserEvents';
 import { useTimerPersistenceEnhanced } from './useTimerPersistenceEnhanced';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '../contexts/AuthContext';
 
 interface UseTimerBrowserEventsProps {
   timersRef: React.MutableRefObject<Timer[]>;
@@ -15,6 +17,7 @@ export const useTimerBrowserEvents = ({
   setTimers, 
   isPageVisibleRef 
 }: UseTimerBrowserEventsProps) => {
+  const { user } = useAuth();
   const {
     enhancedSaveTimerState,
     loadTimerState,
@@ -71,25 +74,73 @@ export const useTimerBrowserEvents = ({
       batchSyncTimers(timersRef.current, true);
     }, [enhancedSaveTimerState, batchSyncTimers, timersRef]),
 
-    onPageShow: useCallback(() => {
+    onPageShow: useCallback(async () => {
       console.log('👁️ Page show - restoring timer state');
+      if (!user) return;
+      
       const persistenceData = loadTimerState();
-      if (persistenceData) {
-        setTimers(prevTimers => {
-          const restoredTimers = restoreTimerElapsedTime(prevTimers, persistenceData);
-          batchSyncTimers(restoredTimers, true);
-          return restoredTimers;
-        });
+      if (persistenceData && persistenceData.timers.length > 0) {
+        console.log('🔄 Validating timer state against database...');
+        
+        // Get current database state to validate against
+        const { data: dbTimers } = await supabase
+          .from('timers')
+          .select('id, is_running')
+          .eq('user_id', user.id);
+        
+        if (dbTimers) {
+          const dbRunningTimers = new Set(dbTimers.filter(t => t.is_running).map(t => t.id));
+          
+          // Only restore timers that are actually running in the database
+          const validTimers = persistenceData.timers.filter(timer => 
+            dbRunningTimers.has(timer.id)
+          );
+          
+          if (validTimers.length > 0) {
+            console.log('🔄 Restoring validated timer state');
+            const validatedPersistenceData = { ...persistenceData, timers: validTimers };
+            setTimers(prevTimers => {
+              const restoredTimers = restoreTimerElapsedTime(prevTimers, validatedPersistenceData);
+              batchSyncTimers(restoredTimers, true);
+              return restoredTimers;
+            });
+          } else {
+            console.log('⚠️ No valid timer states to restore');
+          }
+        }
       }
-    }, [loadTimerState, restoreTimerElapsedTime, batchSyncTimers, setTimers]),
+    }, [loadTimerState, restoreTimerElapsedTime, batchSyncTimers, setTimers, user]),
 
-    onFocus: useCallback(() => {
+    onFocus: useCallback(async () => {
       console.log('🎯 Window focus - checking for timer state');
+      if (!user) return;
+      
       const persistenceData = loadTimerState();
-      if (persistenceData) {
-        setTimers(prevTimers => restoreTimerElapsedTime(prevTimers, persistenceData));
+      if (persistenceData && persistenceData.timers.length > 0) {
+        console.log('🔄 Validating timer state against database on focus...');
+        
+        // Get current database state to validate against
+        const { data: dbTimers } = await supabase
+          .from('timers')
+          .select('id, is_running')
+          .eq('user_id', user.id);
+        
+        if (dbTimers) {
+          const dbRunningTimers = new Set(dbTimers.filter(t => t.is_running).map(t => t.id));
+          
+          // Only restore timers that are actually running in the database
+          const validTimers = persistenceData.timers.filter(timer => 
+            dbRunningTimers.has(timer.id)
+          );
+          
+          if (validTimers.length > 0) {
+            console.log('🔄 Restoring validated timer state on focus');
+            const validatedPersistenceData = { ...persistenceData, timers: validTimers };
+            setTimers(prevTimers => restoreTimerElapsedTime(prevTimers, validatedPersistenceData));
+          }
+        }
       }
-    }, [loadTimerState, restoreTimerElapsedTime, setTimers]),
+    }, [loadTimerState, restoreTimerElapsedTime, setTimers, user]),
 
     onBlur: useCallback(() => {
       console.log('😴 Window blur - saving timer state');

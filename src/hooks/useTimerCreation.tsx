@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useSessionManager } from './useSessionManager';
+import { useTimerPersistence } from './useTimerPersistence';
 import { toast } from 'sonner';
 
 interface UseTimerCreationProps {
@@ -25,6 +26,7 @@ export const useTimerCreation = ({
   const { user } = useAuth();
   const { canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit } = useSubscription();
   const { createSession, endSession } = useSessionManager();
+  const { clearTimerState, saveTimerState } = useTimerPersistence();
 
   const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
     console.log('🚀 Starting SUPER ENHANCED addTimer function with name:', name);
@@ -143,15 +145,25 @@ export const useTimerCreation = ({
 
       console.log('🔄 Updating local state...');
       // Add new timer and pause others
-      setTimers((prev) => [
+      const updatedTimers = [
         newTimer,
-        ...prev.map(timer => ({ 
+        ...timers.map(timer => ({ 
           ...timer, 
           isRunning: false, 
           currentSessionId: undefined, 
           sessionStartTime: undefined 
         }))
-      ]);
+      ];
+      
+      setTimers(updatedTimers);
+      
+      // Clear persistence data since we have a new definitive state
+      console.log('🧹 Clearing persistence data after timer creation');
+      clearTimerState();
+      
+      // Immediately save the new state to prevent stale data restoration
+      console.log('💾 Saving new definitive timer state');
+      saveTimerState(updatedTimers, 'manual');
       
       console.log('🎊 Triggering SUPER ENHANCED celebration animations...');
       clearConfettiTrigger();
