@@ -71,14 +71,18 @@ const Navigation = () => {
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center space-x-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Far LEFT: Logo and text */}
+          <div className="flex items-center space-x-2">
             <Link to="/dashboard" className="flex items-center space-x-2">
               <PhynxTimerLogo className="h-16 w-16" width={64} height={64} />
               <span className="text-xl font-bold text-gray-900">PhynxTimer</span>
             </Link>
-            
-            <div className="hidden md:flex space-x-1">
+          </div>
+          
+          {/* CENTER: Navigation items */}
+          <div className="hidden md:flex items-center justify-center flex-1">
+            <div className="flex space-x-1">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -103,6 +107,7 @@ const Navigation = () => {
             </div>
           </div>
 
+          {/* Far RIGHT: Actions */}
           <div className="flex items-center space-x-4">
             {/* Upgrade to Pro Button */}
             {!subscribed && (
