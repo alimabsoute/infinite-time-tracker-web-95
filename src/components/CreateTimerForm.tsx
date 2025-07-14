@@ -1,5 +1,4 @@
 
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 interface CreateTimerFormProps {
@@ -17,31 +16,68 @@ const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps
 
   return (
     <div className="fixed bottom-8 right-8 z-50" key={`create-timer-${Date.now()}`}>
-      <Button
+      <div
         onClick={handleAddTimer}
-        className="relative h-16 w-16 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border-4 border-white/10 backdrop-blur-sm overflow-hidden group !bg-transparent"
-        size="icon"
+        role="button"
+        tabIndex={0}
+        aria-label="Create new timer"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleAddTimer();
+          }
+        }}
+        className="relative h-16 w-16 rounded-full cursor-pointer transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-4 focus:ring-white/20 overflow-hidden group"
         style={{ 
           zIndex: 9999,
-          background: 'transparent'
+          background: `conic-gradient(
+            from 0deg,
+            hsl(330, 70%, 60%) 0%,
+            hsl(300, 70%, 60%) 12.5%,
+            hsl(270, 70%, 60%) 25%,
+            hsl(240, 70%, 60%) 37.5%,
+            hsl(210, 70%, 60%) 50%,
+            hsl(180, 70%, 60%) 62.5%,
+            hsl(150, 70%, 60%) 75%,
+            hsl(120, 70%, 60%) 87.5%,
+            hsl(330, 70%, 60%) 100%
+          )`,
+          animation: 'spin 8s linear infinite',
+          boxShadow: `
+            0 0 30px rgba(255, 255, 255, 0.1),
+            0 0 60px rgba(255, 255, 255, 0.05),
+            inset 0 0 0 2px rgba(255, 255, 255, 0.1)
+          `
         }}
       >
-        {/* Multi-color flowing gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-300/20 via-purple-300/25 via-blue-300/20 via-cyan-300/25 via-teal-300/20 via-emerald-300/25 via-lime-300/20 via-yellow-300/25 via-orange-300/20 via-red-300/25 to-pink-300/20 animate-[pulse_8s_ease-in-out_infinite]" />
-        <div className="absolute inset-0 bg-gradient-to-tr from-blue-200/15 via-indigo-200/20 via-purple-200/15 via-fuchsia-200/20 via-rose-200/15 via-orange-200/20 via-amber-200/15 via-lime-200/20 via-green-200/15 via-teal-200/20 to-blue-200/15 animate-[pulse_12s_ease-in-out_infinite_reverse]" />
-        <div className="absolute inset-0 bg-gradient-to-bl from-violet-200/10 via-sky-200/15 via-emerald-200/10 via-yellow-200/15 via-rose-200/10 via-cyan-200/15 to-violet-200/10 animate-[pulse_10s_ease-in-out_infinite]" />
-        
-        {/* Plus icon */}
-        <Plus size={28} className="relative z-10 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-200" />
-        
-        {/* Outer flowing glow effect */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/10 via-pink-400/15 via-blue-400/10 to-cyan-400/15 blur-xl animate-[pulse_15s_ease-in-out_infinite]" />
-        
-        {/* Debug indicator to verify it's rendering */}
-        <div className="absolute -top-8 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded opacity-50">
-          BUTTON
+        {/* Inner content area with slight transparency */}
+        <div className="absolute inset-1 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center">
+          <Plus 
+            size={28} 
+            className="text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-200 relative z-10" 
+          />
         </div>
-      </Button>
+        
+        {/* Outer glow effect */}
+        <div 
+          className="absolute -inset-2 rounded-full opacity-30 blur-lg"
+          style={{
+            background: `conic-gradient(
+              from 0deg,
+              hsl(330, 70%, 60%) 0%,
+              hsl(300, 70%, 60%) 12.5%,
+              hsl(270, 70%, 60%) 25%,
+              hsl(240, 70%, 60%) 37.5%,
+              hsl(210, 70%, 60%) 50%,
+              hsl(180, 70%, 60%) 62.5%,
+              hsl(150, 70%, 60%) 75%,
+              hsl(120, 70%, 60%) 87.5%,
+              hsl(330, 70%, 60%) 100%
+            )`,
+            animation: 'spin 8s linear infinite reverse'
+          }}
+        />
+      </div>
     </div>
   );
 };
