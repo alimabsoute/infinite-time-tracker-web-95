@@ -6,6 +6,8 @@ import { useTimerSessions } from '../hooks/useTimerSessions';
 import TimerList from '../components/TimerList';
 import CreateTimerForm from '../components/CreateTimerForm';
 import EnhancedAnimationManager from '../components/animations/EnhancedAnimationManager';
+import TimerLimitIndicator from '../components/premium/TimerLimitIndicator';
+import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitIndicator';
 
 const Dashboard = () => {
   const { 
@@ -71,6 +73,12 @@ const Dashboard = () => {
       title="Dashboard"
       description="Overview of your timers and recent activity"
     >
+      {/* Timer Limit Indicators */}
+      <div className="mb-6 space-y-4">
+        <TimerLimitIndicator currentCount={timers.length} />
+        <RunningTimerLimitIndicator currentRunningCount={timers.filter(timer => timer.isRunning).length} />
+      </div>
+
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
