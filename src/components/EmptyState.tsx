@@ -16,6 +16,10 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   onCreateTimer, 
   showCreateButton = true 
 }) => {
+  console.log('📋 EmptyState - Rendering for type:', type, { 
+    hasCreateFunction: !!onCreateTimer, 
+    showCreateButton 
+  });
   const getEmptyStateContent = () => {
     switch (type) {
       case "timers":

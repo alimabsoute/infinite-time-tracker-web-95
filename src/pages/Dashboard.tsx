@@ -10,6 +10,8 @@ import TimerLimitIndicator from '../components/premium/TimerLimitIndicator';
 import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitIndicator';
 
 const Dashboard = () => {
+  console.log('🔥 Dashboard - Component mounting/rendering');
+  
   const { 
     timers, 
     toggleTimer, 
@@ -27,6 +29,13 @@ const Dashboard = () => {
   } = useTimers();
   const { sessions, loading: sessionsLoading } = useTimerSessions();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
+
+  console.log('📊 Dashboard - Current state:', { 
+    timersCount: timers.length, 
+    sessionsCount: sessions.length, 
+    sessionsLoading,
+    newTimerId 
+  });
 
   // Enhanced debug logging
   React.useEffect(() => {
