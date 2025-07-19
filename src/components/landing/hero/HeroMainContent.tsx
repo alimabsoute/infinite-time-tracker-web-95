@@ -63,9 +63,6 @@ const HeroMainContent = () => {
             <Button 
               size="lg" 
               className="bg-primary text-primary-foreground hover:bg-primary/90 text-2xl px-12 py-8 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 glow-primary"
-              style={{
-                boxShadow: "0 0 40px rgba(var(--primary-rgb), 0.4), 0 0 80px rgba(var(--primary-rgb), 0.2)"
-              }}
             >
               Start for Free
               <ArrowRight className="ml-3 h-7 w-7" />
@@ -77,10 +74,7 @@ const HeroMainContent = () => {
           <Button 
             variant="outline" 
             size="lg"
-            className="text-2xl px-12 py-8 rounded-2xl border-2 hover:bg-accent/10 transition-all duration-300 glow-secondary"
-            style={{
-              boxShadow: "0 0 30px rgba(255, 255, 255, 0.2), 0 0 60px rgba(255, 255, 255, 0.1)"
-            }}
+            className="text-2xl px-12 py-8 rounded-2xl border-4 border-white/60 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 hover:border-white/80 transition-all duration-300 glow-secondary"
           >
             <Play className="mr-3 h-7 w-7" />
             Watch Demo
