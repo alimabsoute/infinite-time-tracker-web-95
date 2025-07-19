@@ -4,6 +4,7 @@ import { Timer } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useRunningTimerPersistence } from './useRunningTimerPersistence';
+import { useTimerPersistenceEnhanced } from './useTimerPersistenceEnhanced';
 import { useTimerSync } from './useTimerSync';
 import { toast } from 'sonner';
 
@@ -12,6 +13,12 @@ export const useTimerState = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { saveRunningTimers, loadRunningTimers, clearRunningTimers } = useRunningTimerPersistence();
+  const { 
+    saveEnhancedTimerState, 
+    loadEnhancedTimerState, 
+    clearEnhancedTimerState,
+    restoreEnhancedTimerElapsedTime 
+  } = useTimerPersistenceEnhanced();
   const { batchSyncTimers } = useTimerSync();
 
   // Refs for tracking state
@@ -29,6 +36,7 @@ export const useTimerState = () => {
       setTimers([]);
       setLoading(false);
       clearRunningTimers();
+      clearEnhancedTimerState();
       hasLoadedRef.current = false;
       return;
     }
@@ -42,7 +50,7 @@ export const useTimerState = () => {
     const loadTimers = async () => {
       try {
         setLoading(true);
-        console.log('🔄 Loading timers from database...');
+        console.log('🔄 Loading timers from database with enhanced restoration...');
         
         const { data, error } = await supabase
           .from('timers')
@@ -57,19 +65,44 @@ export const useTimerState = () => {
           return;
         }
 
-        // CRITICAL: Load persisted running timer IDs BEFORE processing database data
+        // Load enhanced persistence data FIRST
+        const enhancedPersistenceData = loadEnhancedTimerState();
         const persistedRunningIds = loadRunningTimers();
-        console.log('🔒 IGNORING database running states, using local persistence only');
+        
+        console.log('🔒 ENHANCED LOADING: Using local persistence for running states');
         console.log(`📋 Persisted running timer IDs:`, persistedRunningIds);
         
+        const currentTime = Date.now();
+        
         const processedTimers = data.map(timer => {
-          // COMPLETELY IGNORE database is_running field
           const shouldBeRunning = persistedRunningIds.includes(timer.id);
+          
+          // For running timers, calculate current elapsed time using session data
+          let calculatedElapsedTime = timer.elapsed_time;
+          
+          if (shouldBeRunning && enhancedPersistenceData) {
+            const savedTimer = enhancedPersistenceData.timers.find(saved => saved.id === timer.id);
+            if (savedTimer) {
+              // Calculate time since last snapshot
+              const timeSinceSnapshot = currentTime - savedTimer.snapshotTime;
+              // Use saved elapsed time + time since snapshot
+              calculatedElapsedTime = Math.max(
+                timer.elapsed_time, // Never go below database value
+                savedTimer.elapsedTime + (timeSinceSnapshot > 0 ? timeSinceSnapshot : 0)
+              );
+              console.log(`⏱️ Calculated elapsed time for ${timer.name}:`, {
+                database: timer.elapsed_time,
+                saved: savedTimer.elapsedTime,
+                timeSince: timeSinceSnapshot,
+                calculated: calculatedElapsedTime
+              });
+            }
+          }
           
           return {
             id: timer.id,
             name: timer.name,
-            elapsedTime: timer.elapsed_time,
+            elapsedTime: calculatedElapsedTime,
             isRunning: shouldBeRunning, // ONLY use local persistence
             createdAt: new Date(timer.created_at),
             deadline: timer.deadline ? new Date(timer.deadline) : undefined,
@@ -103,9 +136,15 @@ export const useTimerState = () => {
             });
           }
         }
+
+        // Apply enhanced restoration if available
+        let finalTimers = processedTimers;
+        if (enhancedPersistenceData) {
+          finalTimers = restoreEnhancedTimerElapsedTime(processedTimers, enhancedPersistenceData);
+        }
         
-        console.log(`✅ Loaded ${processedTimers.length} timers with ${runningTimerIds.length} running`);
-        setTimers(processedTimers);
+        console.log(`✅ Loaded ${finalTimers.length} timers with ${runningTimerIds.length} running (enhanced restoration applied)`);
+        setTimers(finalTimers);
         hasLoadedRef.current = true;
         
       } catch (error) {
@@ -117,9 +156,9 @@ export const useTimerState = () => {
     };
 
     loadTimers();
-  }, [user, loadRunningTimers, clearRunningTimers, batchSyncTimers]);
+  }, [user, loadRunningTimers, clearRunningTimers, clearEnhancedTimerState, loadEnhancedTimerState, restoreEnhancedTimerElapsedTime]);
 
-  // Auto-save running timers whenever timers change
+  // Enhanced auto-save for both simple and enhanced persistence
   useEffect(() => {
     if (!hasLoadedRef.current) return; // Don't save until we've loaded
     
@@ -127,8 +166,12 @@ export const useTimerState = () => {
       .filter(t => t.isRunning)
       .map(t => ({ id: t.id, name: t.name }));
     
+    // Save to simple persistence (for backward compatibility)
     saveRunningTimers(runningTimers);
-  }, [timers, saveRunningTimers]);
+    
+    // Save to enhanced persistence (for better restoration)
+    saveEnhancedTimerState(timers, 'auto-save');
+  }, [timers, saveRunningTimers, saveEnhancedTimerState]);
 
   return {
     timers,

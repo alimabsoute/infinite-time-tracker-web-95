@@ -1,83 +1,163 @@
-import { useEffect, useRef } from 'react';
-import { Timer } from '../types';
-import { useAuth } from '../contexts/AuthContext';
-import { useTimerPersistenceFixed } from './useTimerPersistenceFixed';
-import { useTimerStateValidator } from './useTimerStateValidator';
 
-interface UseTimerEffectsFixedProps {
+import { useEffect, useRef, useCallback } from 'react';
+import { Timer } from '../types';
+import { useTimerPersistenceEnhanced } from './useTimerPersistenceEnhanced';
+import { useBrowserEventsFixed } from './useBrowserEventsFixed';
+
+interface UseTimerEffectsProps {
   timers: Timer[];
   setTimers: React.Dispatch<React.SetStateAction<Timer[]>>;
   timersRef: React.MutableRefObject<Timer[]>;
 }
 
-export const useTimerEffectsFixed = ({ timers, setTimers, timersRef }: UseTimerEffectsFixedProps) => {
-  const { user } = useAuth();
+export const useTimerEffectsFixed = ({ timers, setTimers, timersRef }: UseTimerEffectsProps) => {
+  const { saveEnhancedTimerState } = useTimerPersistenceEnhanced();
   const isPageVisibleRef = useRef(true);
-  const { saveTimerState } = useTimerPersistenceFixed();
-  const { validateTimerState } = useTimerStateValidator();
-  const lastAutoSaveRef = useRef(0);
-  const isUpdatingRef = useRef(false);
+  const intervalRef = useRef<NodeJS.Timeout>();
+  const lastUpdateRef = useRef(Date.now());
 
-  // Enhanced timer update with validation
-  useEffect(() => {
-    if (!user) return;
+  // Enhanced timer update function with protection
+  const updateRunningTimers = useCallback(() => {
+    const now = Date.now();
+    const deltaTime = now - lastUpdateRef.current;
     
-    const interval = setInterval(async () => {
-      if (isUpdatingRef.current) return;
-      isUpdatingRef.current = true;
-
-      try {
-        setTimers((currentTimers) => {
-          const updatedTimers = currentTimers.map((timer) => {
-            if (timer.isRunning) {
-              return {
-                ...timer,
-                elapsedTime: timer.elapsedTime + 1000,
-              };
-            }
-            return timer;
-          });
-
-          // Update timers ref for other hooks
-          timersRef.current = updatedTimers;
-          
-          return updatedTimers;
-        });
-
-        // Auto-save every 10 seconds
-        const now = Date.now();
-        if (now - lastAutoSaveRef.current > 10000) {
-          const runningTimers = timersRef.current.filter(t => t.isRunning);
-          if (runningTimers.length > 0) {
-            await saveTimerState(timersRef.current, 'auto-save');
-            lastAutoSaveRef.current = now;
-          }
+    // Skip updates if delta is too large (indicates system sleep/pause)
+    if (deltaTime > 5000) {
+      console.log(`⚠️ Large time delta detected (${deltaTime}ms), skipping update to prevent jumps`);
+      lastUpdateRef.current = now;
+      return;
+    }
+    
+    lastUpdateRef.current = now;
+    
+    setTimers(prevTimers => {
+      const updatedTimers = prevTimers.map(timer => {
+        if (timer.isRunning && isPageVisibleRef.current) {
+          return {
+            ...timer,
+            elapsedTime: timer.elapsedTime + deltaTime
+          };
         }
-      } finally {
-        isUpdatingRef.current = false;
+        return timer;
+      });
+      
+      // Check if any timers were actually updated
+      const hasUpdates = updatedTimers.some((timer, index) => 
+        timer.elapsedTime !== prevTimers[index].elapsedTime
+      );
+      
+      return hasUpdates ? updatedTimers : prevTimers;
+    });
+  }, [setTimers]);
+
+  // Enhanced browser event handlers
+  const browserEventHandlers = {
+    onVisibilityChange: (isVisible: boolean) => {
+      isPageVisibleRef.current = isVisible;
+      console.log(`👁️ Enhanced visibility: ${isVisible ? 'visible' : 'hidden'}`);
+      
+      if (isVisible) {
+        // Page became visible - restart interval and save state
+        lastUpdateRef.current = Date.now();
+        const runningTimers = timersRef.current.filter(t => t.isRunning);
+        console.log(`🏃 Page visible: ${runningTimers.length} timers running`);
+        
+        if (runningTimers.length > 0) {
+          saveEnhancedTimerState(timersRef.current, 'visibility-visible');
+        }
+      } else {
+        // Page became hidden - save current state
+        saveEnhancedTimerState(timersRef.current, 'visibility-hidden');
       }
-    }, 1000);
+    },
 
-    return () => clearInterval(interval);
-  }, [user, setTimers, timersRef, saveTimerState]);
+    onBeforeUnload: () => {
+      console.log('💾 Enhanced before unload - saving timer state');
+      saveEnhancedTimerState(timersRef.current, 'before-unload');
+    },
 
-  // DISABLED: Periodic validation that could interfere with timer running states
+    onPageHide: () => {
+      console.log('💾 Enhanced page hide - saving timer state');
+      saveEnhancedTimerState(timersRef.current, 'page-hide');
+    },
+
+    onPageShow: () => {
+      console.log('🔄 Enhanced page show - restarting timers');
+      lastUpdateRef.current = Date.now();
+      const runningTimers = timersRef.current.filter(t => t.isRunning);
+      if (runningTimers.length > 0) {
+        saveEnhancedTimerState(timersRef.current, 'page-show');
+      }
+    },
+
+    onFocus: () => {
+      console.log('🎯 Enhanced focus - restarting timer updates');
+      lastUpdateRef.current = Date.now();
+    },
+
+    onBlur: () => {
+      console.log('😴 Enhanced blur - saving timer state');
+      saveEnhancedTimerState(timersRef.current, 'blur');
+    }
+  };
+
+  // Register enhanced browser events
+  useBrowserEventsFixed(browserEventHandlers);
+
+  // Enhanced timer interval management
   useEffect(() => {
-    console.log('🚫 Timer effects validation disabled to preserve running states');
-    // No periodic validation needed - focus only on timer updates and saves
-  }, [user]);
+    const runningTimers = timers.filter(timer => timer.isRunning);
+    
+    if (runningTimers.length > 0) {
+      console.log(`⏱️ Starting enhanced timer interval for ${runningTimers.length} running timers`);
+      
+      // Clear existing interval
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      
+      // Reset last update time
+      lastUpdateRef.current = Date.now();
+      
+      // Start new interval with more frequent updates (500ms for smoother updates)
+      intervalRef.current = setInterval(updateRunningTimers, 500);
+    } else {
+      console.log('⏹️ No running timers - clearing interval');
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = undefined;
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [timers, updateRunningTimers]);
+
+  // Enhanced auto-save for running timers
+  useEffect(() => {
+    const runningTimers = timers.filter(t => t.isRunning);
+    if (runningTimers.length > 0) {
+      const autoSaveInterval = setInterval(() => {
+        saveEnhancedTimerState(timers, 'auto-save-interval');
+      }, 10000); // Save every 10 seconds
+
+      return () => clearInterval(autoSaveInterval);
+    }
+  }, [timers, saveEnhancedTimerState]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      const runningTimers = timersRef.current.filter(t => t.isRunning);
-      if (runningTimers.length > 0) {
-        saveTimerState(timersRef.current, 'cleanup');
+      console.log('🧹 Enhanced timer effects cleanup');
+      saveEnhancedTimerState(timersRef.current, 'cleanup');
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     };
-  }, [saveTimerState, timersRef]);
+  }, [saveEnhancedTimerState]);
 
-  return {
-    isPageVisibleRef
-  };
+  return { isPageVisibleRef };
 };

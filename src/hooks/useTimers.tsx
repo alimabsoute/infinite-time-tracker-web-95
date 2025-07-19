@@ -27,13 +27,13 @@ export const useTimers = () => {
     clearCelebrationTrigger
   } = useTimerAnimations();
 
-  // Timer effects (auto-save, timer updates, cleanup) - FIXED VERSION
+  // Enhanced timer effects with comprehensive persistence
   const { isPageVisibleRef } = useTimerEffectsFixed({ timers, setTimers, timersRef });
 
-  // Timer state preservation (simple save-only approach)
+  // Timer state preservation (simple save-only approach for backward compatibility)
   useTimerStatePreservation({ timersRef, setTimers, isPageVisibleRef });
 
-  // NEW: Comprehensive state monitoring
+  // Comprehensive state monitoring
   useTimerStateMonitoring(timers);
 
   // Update notification data for running timers
@@ -52,14 +52,20 @@ export const useTimers = () => {
     clearConfettiTrigger 
   });
 
-  // Real-time updates
+  // Real-time updates with enhanced protection
   useTimerRealtime({ timers, setTimers });
 
   // Enhanced logging for debugging
   useEffect(() => {
     const runningCount = timers.filter(t => t.isRunning).length;
     if (runningCount > 0) {
-      console.log(`🏃 useTimers: ${runningCount} timers running out of ${timers.length} total`);
+      console.log(`🏃 Enhanced useTimers: ${runningCount} timers running out of ${timers.length} total`);
+      console.log('🔍 Running timer details:', timers.filter(t => t.isRunning).map(t => ({
+        id: t.id,
+        name: t.name,
+        elapsedTime: t.elapsedTime,
+        sessionId: t.currentSessionId
+      })));
     }
   }, [timers]);
 
