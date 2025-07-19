@@ -17,10 +17,10 @@ const HeroMainContent = () => {
   };
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-6xl w-full">
       {/* Main headline */}
       <motion.h1 
-        className="text-6xl lg:text-7xl font-bold text-foreground mb-8 leading-tight"
+        className="text-7xl lg:text-8xl xl:text-9xl font-bold text-foreground mb-10 leading-tight max-w-5xl"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
@@ -41,7 +41,7 @@ const HeroMainContent = () => {
 
       {/* Subtitle */}
       <motion.p 
-        className="text-xl text-muted-foreground mb-12 max-w-2xl leading-relaxed"
+        className="text-2xl lg:text-3xl text-muted-foreground mb-16 max-w-4xl leading-relaxed"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.8 }}
@@ -53,31 +53,37 @@ const HeroMainContent = () => {
 
       {/* CTA Buttons */}
       <motion.div 
-        className="flex flex-col sm:flex-row gap-4 mb-8"
+        className="flex flex-col sm:flex-row gap-6 mb-12"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.8 }}
       >
         <Link to="/signup">
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button 
               size="lg" 
-              className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 text-2xl px-12 py-8 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 glow-primary"
+              style={{
+                boxShadow: "0 0 40px rgba(var(--primary-rgb), 0.4), 0 0 80px rgba(var(--primary-rgb), 0.2)"
+              }}
             >
-              Start for free
-              <ArrowRight className="ml-2 h-5 w-5" />
+              Start for Free
+              <ArrowRight className="ml-3 h-7 w-7" />
             </Button>
           </motion.div>
         </Link>
 
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button 
             variant="outline" 
             size="lg"
-            className="text-lg px-8 py-6 rounded-xl border-2 hover:bg-accent/10 transition-all duration-300"
+            className="text-2xl px-12 py-8 rounded-2xl border-2 hover:bg-accent/10 transition-all duration-300 glow-secondary"
+            style={{
+              boxShadow: "0 0 30px rgba(255, 255, 255, 0.2), 0 0 60px rgba(255, 255, 255, 0.1)"
+            }}
           >
-            <Play className="mr-2 h-5 w-5" />
-            Watch demo
+            <Play className="mr-3 h-7 w-7" />
+            Watch Demo
           </Button>
         </motion.div>
       </motion.div>
