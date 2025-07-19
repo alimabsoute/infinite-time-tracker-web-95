@@ -67,17 +67,40 @@ export const useTimerCreation = ({
       let finalName = name;
       if (!name || name.trim() === '' || name === 'New Timer') {
         console.log('🏷️ [TIMER CREATION] Generating unique timer name...');
-        const { data: uniqueName, error: nameError } = await (supabase as any)
-          .rpc('generate_unique_timer_name', { p_user_id: user.id });
         
-        if (nameError) {
-          console.error("❌ Error generating unique timer name:", nameError);
-          toast.error("Failed to generate timer name");
-          return "";
+        try {
+          const { data: uniqueName, error: nameError } = await (supabase as any)
+            .rpc('generate_unique_timer_name', { p_user_id: user.id });
+          
+          if (nameError) {
+            console.warn("⚠️ Database function failed, using fallback:", nameError);
+            // Fallback: generate unique name client-side
+            const existingNames = timers.map(t => t.name);
+            let counter = 1;
+            let testName = `Timer ${counter}`;
+            while (existingNames.includes(testName)) {
+              counter++;
+              testName = `Timer ${counter}`;
+            }
+            finalName = testName;
+          } else {
+            finalName = uniqueName || 'Timer 1';
+          }
+          
+          console.log('✅ Generated unique timer name:', finalName);
+        } catch (error) {
+          console.warn("⚠️ RPC call failed, using fallback:", error);
+          // Fallback: generate unique name client-side
+          const existingNames = timers.map(t => t.name);
+          let counter = 1;
+          let testName = `Timer ${counter}`;
+          while (existingNames.includes(testName)) {
+            counter++;
+            testName = `Timer ${counter}`;
+          }
+          finalName = testName;
+          console.log('✅ Fallback generated unique timer name:', finalName);
         }
-        
-        finalName = uniqueName || 'Timer 1';
-        console.log('✅ Generated unique timer name:', finalName);
       }
 
       const now = new Date();
