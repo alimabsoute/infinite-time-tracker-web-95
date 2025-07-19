@@ -77,32 +77,10 @@ export const useTimerState = () => {
         const processedTimers = data.map(timer => {
           const shouldBeRunning = persistedRunningIds.includes(timer.id);
           
-          // For running timers, calculate current elapsed time using session data
-          let calculatedElapsedTime = timer.elapsed_time;
-          
-          if (shouldBeRunning && enhancedPersistenceData) {
-            const savedTimer = enhancedPersistenceData.timers.find(saved => saved.id === timer.id);
-            if (savedTimer) {
-              // Calculate time since last snapshot
-              const timeSinceSnapshot = currentTime - savedTimer.snapshotTime;
-              // Use saved elapsed time + time since snapshot
-              calculatedElapsedTime = Math.max(
-                timer.elapsed_time, // Never go below database value
-                savedTimer.elapsedTime + (timeSinceSnapshot > 0 ? timeSinceSnapshot : 0)
-              );
-              console.log(`⏱️ Calculated elapsed time for ${timer.name}:`, {
-                database: timer.elapsed_time,
-                saved: savedTimer.elapsedTime,
-                timeSince: timeSinceSnapshot,
-                calculated: calculatedElapsedTime
-              });
-            }
-          }
-          
           return {
             id: timer.id,
             name: timer.name,
-            elapsedTime: calculatedElapsedTime,
+            elapsedTime: timer.elapsed_time, // Use database value initially
             isRunning: shouldBeRunning, // ONLY use local persistence
             createdAt: new Date(timer.created_at),
             deadline: timer.deadline ? new Date(timer.deadline) : undefined,
@@ -137,11 +115,10 @@ export const useTimerState = () => {
           }
         }
 
-        // Apply enhanced restoration if available
-        let finalTimers: Timer[] = processedTimers;
-        if (enhancedPersistenceData) {
-          finalTimers = restoreEnhancedTimerElapsedTime(processedTimers, enhancedPersistenceData);
-        }
+        // Apply enhanced restoration to correctly calculate elapsed time
+        const finalTimers = enhancedPersistenceData 
+          ? restoreEnhancedTimerElapsedTime(processedTimers, enhancedPersistenceData)
+          : processedTimers;
         
         console.log(`✅ Loaded ${finalTimers.length} timers with ${runningTimerIds.length} running (enhanced restoration applied)`);
         setTimers(finalTimers);
