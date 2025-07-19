@@ -116,36 +116,36 @@ const PricingCard = ({ plan, index }: { plan: typeof pricingPlans[0], index: num
       
       <motion.div 
         className={`
-          relative h-full backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 
+          relative h-full backdrop-blur-2xl bg-white/25 border-2 border-white/40 rounded-2xl p-8 
           shadow-2xl hover:shadow-3xl transition-all duration-500 group-hover:scale-105
-          ${plan.recommended ? 'ring-2 ring-amber-400/50 bg-gradient-to-br from-white/15 to-white/5' : ''}
-          overflow-hidden
+          ${plan.recommended ? 'ring-2 ring-amber-400/70 bg-gradient-to-br from-white/35 to-white/20 border-white/50' : 'hover:bg-white/30'}
+          overflow-hidden hover:border-white/60
         `}
         whileHover={{ y: -5 }}
         transition={{ type: "spring", stiffness: 300 }}
       >
-        {/* Glassmorphism background elements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 rounded-2xl" />
-        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-pink-400/20 to-orange-600/20 rounded-full blur-2xl translate-x-1/2 translate-y-1/2" />
+        {/* Enhanced glassmorphism background elements */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-white/10 to-white/15 rounded-2xl" />
+        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-400/30 to-purple-600/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-pink-400/30 to-orange-600/30 rounded-full blur-2xl translate-x-1/2 translate-y-1/2" />
         
         <div className="relative z-10 flex flex-col h-full">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
               <div className={`
-                p-3 rounded-xl backdrop-blur-sm
-                ${plan.recommended ? 'bg-amber-500/20 text-amber-300' : 'bg-white/20 text-white/80'}
+                p-3 rounded-xl backdrop-blur-sm border border-white/30
+                ${plan.recommended ? 'bg-amber-500/30 text-amber-800 border-amber-400/50' : 'bg-white/30 text-slate-700 border-white/40'}
               `}>
                 <IconComponent className="h-6 w-6" />
               </div>
-              <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
+              <h3 className="text-2xl font-bold text-slate-800">{plan.name}</h3>
             </div>
           </div>
           
           <div className="mb-8">
             <div className="flex items-baseline">
-              <span className="text-5xl font-bold text-white">${plan.price}</span>
-              <span className="text-white/70 ml-2">/month</span>
+              <span className="text-5xl font-bold text-slate-800">${plan.price}</span>
+              <span className="text-slate-600 ml-2">/month</span>
             </div>
           </div>
           
@@ -158,8 +158,8 @@ const PricingCard = ({ plan, index }: { plan: typeof pricingPlans[0], index: num
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
               >
-                <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
-                <span className="text-white/90">{feature}</span>
+                <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                <span className="text-slate-700">{feature}</span>
               </motion.li>
             ))}
           </ul>
@@ -185,7 +185,7 @@ const PricingCard = ({ plan, index }: { plan: typeof pricingPlans[0], index: num
               <Link to="/signup" className="block w-full">
                 <Button 
                   variant="outline" 
-                  className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50 font-semibold py-3 rounded-xl backdrop-blur-sm transition-all duration-300"
+                  className="w-full bg-white/20 border-slate-500 text-slate-700 hover:bg-white/30 hover:border-slate-600 font-semibold py-3 rounded-xl backdrop-blur-sm transition-all duration-300"
                 >
                   Get Started
                 </Button>
@@ -213,7 +213,7 @@ const PricingSection = () => {
         <FadeInWhenVisible>
           <div className="text-center mb-16">
             <motion.h2 
-              className="text-5xl font-bold text-white mb-6"
+              className="text-5xl font-bold text-slate-800 mb-6"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
@@ -221,7 +221,7 @@ const PricingSection = () => {
               Choose Your Plan
             </motion.h2>
             <motion.p 
-              className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed"
+              className="text-xl text-slate-700 max-w-3xl mx-auto leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -245,7 +245,7 @@ const PricingSection = () => {
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <p className="text-white/70 text-lg">
+            <p className="text-slate-600 text-lg">
               All plans include a 14-day free trial. No credit card required.
             </p>
           </motion.div>
