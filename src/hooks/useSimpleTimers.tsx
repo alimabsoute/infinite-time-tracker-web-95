@@ -73,11 +73,14 @@ export const useSimpleTimers = () => {
       const currentlyRunning: SimpleRunningTimer[] = [];
       processedTimers.forEach(timer => {
         if (timer.isRunning) {
-          // Start tracking from now (page load)
+          // Calculate when this timer must have started based on its stored elapsed time
+          // If it has been running continuously, startTime = now - elapsed_time
+          const calculatedStartTime = Date.now() - timer.elapsedTime;
           currentlyRunning.push({
             id: timer.id,
-            startTime: Date.now()
+            startTime: calculatedStartTime
           });
+          console.log(`🔄 Restored running timer ${timer.name}: elapsed=${timer.elapsedTime}ms, calculated start=${new Date(calculatedStartTime).toLocaleTimeString()}`);
         }
       });
 
