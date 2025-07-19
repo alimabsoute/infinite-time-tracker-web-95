@@ -11,7 +11,7 @@ import TimerLimitIndicator from '../components/premium/TimerLimitIndicator';
 import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitIndicator';
 
 const Dashboard = () => {
-  console.log('🔥 Dashboard - Component mounting/rendering');
+  console.log('🔥 Dashboard - Component rendering with rebuilt timer system');
   
   const { user } = useAuth();
   const { 
@@ -34,25 +34,13 @@ const Dashboard = () => {
 
   console.log('📊 Dashboard - Current state:', { 
     timersCount: timers.length, 
+    runningCount: timers.filter(t => t.isRunning).length,
     sessionsCount: sessions.length, 
     sessionsLoading,
     sessionsError,
-    newTimerId,
     user: user?.id || 'none'
   });
 
-  // Enhanced debug logging
-  React.useEffect(() => {
-    if (confettiTrigger || celebrationTrigger.type) {
-      console.log('🚀 Dashboard - Animation triggers active:', {
-        confetti: !!confettiTrigger,
-        celebration: celebrationTrigger.type,
-        timersCount: timers.length
-      });
-    }
-  }, [confettiTrigger, celebrationTrigger.type, timers.length]);
-
-  // Create a wrapper function that matches the expected signature
   const handleCreateTimer = async (name: string) => {
     console.log('🎯 Dashboard - Creating timer with name:', name);
     const id = await addTimer(name);
@@ -64,9 +52,6 @@ const Dashboard = () => {
       console.error('❌ Dashboard - Failed to create timer');
     }
   };
-
-  // Always render dashboard - don't block on sessions loading
-  console.log('📊 Dashboard - Always rendering dashboard, sessions loading will not block');
 
   return (
     <PageLayout 

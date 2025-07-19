@@ -28,16 +28,11 @@ const Index = () => {
   
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
-  // Enhanced debug logging
-  React.useEffect(() => {
-    if (confettiTrigger || celebrationTrigger.type) {
-      console.log('🚀 Index - Animation triggers active:', {
-        confetti: !!confettiTrigger,
-        celebration: celebrationTrigger.type,
-        timersCount: timers.length
-      });
-    }
-  }, [confettiTrigger, celebrationTrigger.type, timers.length]);
+  console.log('📊 Index - Timer state:', { 
+    count: timers.length, 
+    running: timers.filter(t => t.isRunning).length,
+    loading 
+  });
 
   const handleAddTimer = async (name: string) => {
     console.log('🎯 Index - Creating timer with name:', name);
