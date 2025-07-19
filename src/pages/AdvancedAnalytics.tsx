@@ -5,6 +5,8 @@ import { useTimers } from '../hooks/useTimers';
 import { useTimerSessions } from '../hooks/useTimerSessions';
 import DateRangeVisualizationController from '../components/calendar/visualization/DateRangeVisualizationController';
 import { formatTime } from '../components/calendar/CalendarUtils';
+import AnalysisSection from '../components/analytics/AnalysisSection';
+import OptimizationTips from '../components/analytics/OptimizationTips';
 
 const AdvancedAnalytics = () => {
   const { timers } = useTimers();
@@ -132,6 +134,12 @@ const AdvancedAnalytics = () => {
         sessions={sessions}
         formatTime={formatTime}
       />
+      
+      {/* Always visible analysis sections */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AnalysisSection sessions={sessions} />
+        <OptimizationTips sessions={sessions} />
+      </div>
     </PageLayout>
   );
 };
