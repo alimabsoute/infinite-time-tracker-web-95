@@ -68,46 +68,48 @@ const Header = () => {
 
   return (
     <header className="bg-white sticky top-0 z-30 w-full border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo section */}
-          <div className="flex items-center space-x-3">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-3 items-center h-16">
+          {/* Left: Logo section - fixed width */}
+          <div className="flex items-center space-x-3 justify-start">
             <Link to="/dashboard" className="flex items-center space-x-3">
-              <PhynxTimerLogo width={40} height={40} />
+              <PhynxTimerLogo width={32} height={32} />
               <span className="text-xl font-semibold text-gray-900">PhynxTimer</span>
             </Link>
           </div>
           
-          {/* Center Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'text-blue-600 bg-blue-50 rounded-md'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  <Icon size={16} />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
+          {/* Center: Navigation - perfectly centered */}
+          <nav className="hidden lg:flex items-center justify-center">
+            <div className="flex items-center space-x-6">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                      isActive
+                        ? 'text-blue-600 bg-blue-50 rounded-md'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <Icon size={16} />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </nav>
 
-          {/* Right side actions */}
-          <div className="flex items-center space-x-4">
+          {/* Right: Actions - fixed width */}
+          <div className="flex items-center space-x-3 justify-end">
             {/* Upgrade to Pro Button */}
             {user && !subscribed && (
               <Button 
                 onClick={handleUpgradeClick}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-sm font-medium"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-sm font-medium rounded-md"
               >
                 <Crown size={16} className="mr-2" />
                 Upgrade to Pro
@@ -118,9 +120,9 @@ const Header = () => {
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-blue-500 text-white font-medium">
+                      <AvatarFallback className="bg-blue-500 text-white font-medium text-sm">
                         {getUserInitial()}
                       </AvatarFallback>
                     </Avatar>
