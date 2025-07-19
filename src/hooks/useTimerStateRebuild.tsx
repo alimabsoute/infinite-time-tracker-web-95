@@ -104,7 +104,7 @@ export const useTimerStateRebuild = () => {
         id: timer.id,
         name: timer.name,
         elapsedTime: timer.elapsed_time, // Database is source of truth for saved time
-        isRunning: runningIds.includes(timer.id), // Only use persistence for running state
+        isRunning: false, // Start with false, will be set based on persistence + session validation
         createdAt: new Date(timer.created_at),
         deadline: timer.deadline ? new Date(timer.deadline) : undefined,
         category: timer.category || undefined,
@@ -114,29 +114,81 @@ export const useTimerStateRebuild = () => {
         sessionStartTime: undefined,
       }));
 
-      // For running timers, load their active sessions
-      const runningTimerIds = processedTimers.filter(t => t.isRunning).map(t => t.id);
-      if (runningTimerIds.length > 0) {
+      // For persisted running timers, validate and restore sessions
+      if (runningIds.length > 0) {
+        console.log('🔍 Validating running timers:', runningIds);
+        
         const { data: sessions, error: sessionError } = await supabase
           .from('timer_sessions')
           .select('*')
-          .in('timer_id', runningTimerIds)
+          .in('timer_id', runningIds)
           .is('end_time', null);
 
         if (!sessionError && sessions) {
+          console.log('📋 Found active sessions:', sessions.length);
+          
+          // Restore running state only for timers with valid active sessions
           processedTimers.forEach(timer => {
-            if (timer.isRunning) {
+            if (runningIds.includes(timer.id)) {
               const activeSession = sessions.find(s => s.timer_id === timer.id);
               if (activeSession) {
+                console.log(`✅ Restoring timer: ${timer.name} with session from ${activeSession.start_time}`);
+                timer.isRunning = true;
                 timer.currentSessionId = activeSession.id;
                 timer.sessionStartTime = new Date(activeSession.start_time);
+                
+                // Start new session if the session is too old (over 1 hour suggests tab was closed long ago)
+                const sessionAge = Date.now() - new Date(activeSession.start_time).getTime();
+                if (sessionAge > 60 * 60 * 1000) { // 1 hour
+                  console.log(`⚠️ Session too old for ${timer.name}, will create new session`);
+                  // This will be handled by creating a fresh session below
+                }
+              } else {
+                console.log(`⚠️ No active session found for running timer: ${timer.name}, creating new session`);
+                // Create new session for this timer since it was marked as running but has no session
+                timer.isRunning = true;
+                timer.sessionStartTime = new Date(); // Start from now
               }
             }
           });
+
+          // Create missing sessions for timers that should be running but don't have sessions
+          const timersNeedingSessions = processedTimers.filter(t => 
+            t.isRunning && !t.currentSessionId
+          );
+
+          for (const timer of timersNeedingSessions) {
+            try {
+              const sessionId = crypto.randomUUID();
+              const now = new Date();
+              
+              await supabase
+                .from('timer_sessions')
+                .insert({
+                  id: sessionId,
+                  timer_id: timer.id,
+                  start_time: now.toISOString(),
+                  user_id: user.id
+                });
+
+              timer.currentSessionId = sessionId;
+              timer.sessionStartTime = now;
+              console.log(`🆕 Created new session for ${timer.name}`);
+            } catch (error) {
+              console.error(`❌ Failed to create session for ${timer.name}:`, error);
+              // If we can't create a session, mark timer as not running
+              timer.isRunning = false;
+            }
+          }
+        } else {
+          console.warn('❌ Failed to load sessions, clearing running state');
+          // If we can't load sessions, clear all running states
+          runningIds.length = 0;
         }
       }
 
-      console.log(`✅ Loaded ${processedTimers.length} timers (${runningTimerIds.length} running)`);
+      const finalRunningCount = processedTimers.filter(t => t.isRunning).length;
+      console.log(`✅ Loaded ${processedTimers.length} timers (${finalRunningCount} running)`);
       setTimers(processedTimers);
     } catch (error) {
       console.error('❌ Error loading timers:', error);
