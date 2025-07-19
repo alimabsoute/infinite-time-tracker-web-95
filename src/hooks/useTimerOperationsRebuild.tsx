@@ -103,6 +103,13 @@ export const useTimerOperationsRebuild = ({
         }
 
         // Create new session for the timer we're starting
+        // First, clean up any existing orphaned sessions for this timer
+        await supabase
+          .from('timer_sessions')
+          .update({ end_time: now.toISOString() })
+          .eq('timer_id', timerId)
+          .is('end_time', null);
+
         const sessionId = crypto.randomUUID();
         await supabase
           .from('timer_sessions')

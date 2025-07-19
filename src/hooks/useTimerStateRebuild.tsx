@@ -238,34 +238,37 @@ export const useTimerStateRebuild = () => {
     };
   }, [timers, calculateSessionElapsedTime]);
 
-  // Page visibility handling
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        console.log('👋 Page hidden - saving state');
-        const runningIds = timersRef.current.filter(t => t.isRunning).map(t => t.id);
-        saveSimpleState(runningIds);
-      } else {
-        console.log('👁️ Page visible - reloading timers');
-        loadTimers();
-      }
-    };
+  // Page visibility handling - REMOVED as it's causing issues
+  // The visibility change handler was causing timers to reload incorrectly
+  // which was stopping running timers
+  // useEffect(() => {
+  //   const handleVisibilityChange = () => {
+  //     if (document.hidden) {
+  //       console.log('👋 Page hidden - saving state');
+  //       const runningIds = timersRef.current.filter(t => t.isRunning).map(t => t.id);
+  //       saveSimpleState(runningIds);
+  //     } else {
+  //       console.log('👁️ Page visible - reloading timers');
+  //       loadTimers();
+  //     }
+  //   };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [loadTimers, saveSimpleState]);
+  //   document.addEventListener('visibilitychange', handleVisibilityChange);
+  //   return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  // }, [loadTimers, saveSimpleState]);
 
-  // Before unload handling
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      console.log('💾 Before unload - saving state');
-      const runningIds = timersRef.current.filter(t => t.isRunning).map(t => t.id);
-      saveSimpleState(runningIds);
-    };
+  // Before unload handling - REMOVED to prevent interference
+  // This could cause state persistence issues during timer operations
+  // useEffect(() => {
+  //   const handleBeforeUnload = () => {
+  //     console.log('💾 Before unload - saving state');
+  //     const runningIds = timersRef.current.filter(t => t.isRunning).map(t => t.id);
+  //     saveSimpleState(runningIds);
+  //   };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [saveSimpleState]);
+  //   window.addEventListener('beforeunload', handleBeforeUnload);
+  //   return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  // }, [saveSimpleState]);
 
   // Initial load
   useEffect(() => {
