@@ -138,7 +138,7 @@ export const useTimerState = () => {
         }
 
         // Apply enhanced restoration if available
-        let finalTimers = processedTimers;
+        let finalTimers: Timer[] = processedTimers;
         if (enhancedPersistenceData) {
           finalTimers = restoreEnhancedTimerElapsedTime(processedTimers, enhancedPersistenceData);
         }
