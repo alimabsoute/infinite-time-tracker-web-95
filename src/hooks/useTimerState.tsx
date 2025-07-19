@@ -47,19 +47,29 @@ export const useTimerState = () => {
           return;
         }
 
-        const processedTimers = data.map(timer => ({
-          id: timer.id,
-          name: timer.name,
-          elapsedTime: timer.elapsed_time,
-          isRunning: timer.is_running,
-          createdAt: new Date(timer.created_at),
-          deadline: timer.deadline ? new Date(timer.deadline) : undefined,
-          category: timer.category || undefined,
-          tags: timer.tags || undefined,
-          priority: timer.priority || undefined,
-          currentSessionId: undefined,
-          sessionStartTime: undefined,
-        }));
+        // Preserve current running states from local storage before loading database state
+        const preservedState = loadTimerState();
+        const preservedRunningIds = preservedState?.timers?.filter(t => t.isRunning).map(t => t.id) || [];
+        
+        const processedTimers = data.map(timer => {
+          // Check if this timer was running locally
+          const wasRunningLocally = preservedRunningIds.includes(timer.id);
+          const shouldBeRunning = wasRunningLocally || timer.is_running;
+          
+          return {
+            id: timer.id,
+            name: timer.name,
+            elapsedTime: timer.elapsed_time,
+            isRunning: shouldBeRunning, // Preserve local running state
+            createdAt: new Date(timer.created_at),
+            deadline: timer.deadline ? new Date(timer.deadline) : undefined,
+            category: timer.category || undefined,
+            tags: timer.tags || undefined,
+            priority: timer.priority || undefined,
+            currentSessionId: undefined,
+            sessionStartTime: undefined,
+          };
+        });
         
         // Find any open sessions for the loaded timers
         const runningTimerIds = processedTimers.filter(t => t.isRunning).map(t => t.id);
