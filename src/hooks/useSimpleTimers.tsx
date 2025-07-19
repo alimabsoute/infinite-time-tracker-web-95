@@ -259,12 +259,31 @@ export const useSimpleTimers = () => {
     }
   }, [user]);
 
-  // Simple interval for display updates
+  // Enhanced interval for display updates AND periodic persistence
   useEffect(() => {
     if (runningTimers.length > 0) {
       intervalRef.current = setInterval(() => {
         // Force re-render for display updates
         setTimers(prev => [...prev]);
+        
+        // Periodic persistence every 30 seconds to prevent data loss
+        const now = Date.now();
+        runningTimers.forEach(async (runningTimer) => {
+          const timer = timers.find(t => t.id === runningTimer.id);
+          if (timer && timer.isRunning) {
+            const sessionDuration = now - runningTimer.startTime;
+            const currentElapsedTime = timer.elapsedTime + sessionDuration;
+            
+            // Save to database every 30 seconds (30000ms)
+            if (sessionDuration % 30000 < 1000) {
+              console.log(`💾 Auto-saving timer ${timer.name}: ${currentElapsedTime}ms`);
+              await supabase
+                .from('timers')
+                .update({ elapsed_time: Math.floor(currentElapsedTime) })
+                .eq('id', timer.id);
+            }
+          }
+        });
       }, 1000);
     } else {
       if (intervalRef.current) {
@@ -277,7 +296,7 @@ export const useSimpleTimers = () => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [runningTimers.length]);
+  }, [runningTimers.length, runningTimers, timers]);
 
   // Load timers on mount
   useEffect(() => {
