@@ -2,7 +2,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import Header from "@/components/Header";
+import LandingHeader from "@/components/landing/LandingHeader";
 import HeroSection from "@/components/landing/HeroSection";
 import AnalyticsPreviewSection from "@/components/landing/AnalyticsPreviewSection";
 import ScreenshotCarousel from "@/components/landing/ScreenshotCarousel";
@@ -103,7 +103,7 @@ const LandingPage = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <Header />
+        <LandingHeader />
       </motion.div>
       
       <motion.div
