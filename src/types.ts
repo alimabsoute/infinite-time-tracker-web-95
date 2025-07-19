@@ -4,12 +4,13 @@ export interface Timer {
   name: string;
   elapsedTime: number; // in milliseconds
   isRunning: boolean;
+  startTime?: Date; // When timer was started (for running timers)
   createdAt: Date;
   category?: string; // Optional category for grouping timers
   tags?: string[]; // Optional tags for filtering
   deadline?: Date; // Optional deadline for timer completion
   priority?: number; // Optional priority level (1-5, with 1 being highest)
-  // Local state for session management
+  // Legacy fields - keeping for compatibility during transition
   currentSessionId?: string;
   sessionStartTime?: Date;
 }

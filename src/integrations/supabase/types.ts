@@ -273,6 +273,7 @@ export type Database = {
           last_accessed_at: string | null
           name: string
           priority: number | null
+          start_time: string | null
           tags: string[] | null
           user_id: string
         }
@@ -288,6 +289,7 @@ export type Database = {
           last_accessed_at?: string | null
           name: string
           priority?: number | null
+          start_time?: string | null
           tags?: string[] | null
           user_id: string
         }
@@ -303,6 +305,7 @@ export type Database = {
           last_accessed_at?: string | null
           name?: string
           priority?: number | null
+          start_time?: string | null
           tags?: string[] | null
           user_id?: string
         }

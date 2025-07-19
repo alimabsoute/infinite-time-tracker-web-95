@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
 import PageLayout from '../components/layout/PageLayout';
-import { useTimers } from '../hooks/useTimers';
-import { useTimerSessions } from '../hooks/useTimerSessions';
+import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
 import { useAuth } from '../contexts/AuthContext';
 import TimerList from '../components/TimerList';
 import CreateTimerForm from '../components/CreateTimerForm';
@@ -19,40 +18,23 @@ const Dashboard = () => {
     timers, 
     toggleTimer, 
     resetTimer, 
-    deleteTimer, 
-    renameTimer, 
-    updateDeadline, 
-    updatePriority, 
-    reorderTimers,
     addTimer,
-    confettiTrigger,
-    celebrationTrigger,
-    clearConfettiTrigger,
-    clearCelebrationTrigger,
-    calculateSessionElapsedTime,
-  } = useTimers();
-  const { sessions, loading: sessionsLoading, error: sessionsError } = useTimerSessions();
+    getDisplayTime,
+    loading
+  } = useDeadSimpleTimers();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
   console.log('📊 Dashboard - Current state:', { 
     timersCount: timers.length, 
     runningCount: timers.filter(t => t.isRunning).length,
-    sessionsCount: sessions.length, 
-    sessionsLoading,
-    sessionsError,
+    loading,
     user: user?.id || 'none'
   });
 
   const handleCreateTimer = async (name: string) => {
     console.log('🎯 Dashboard - Creating timer with name:', name);
-    const id = await addTimer(name);
-    if (id) {
-      setNewTimerId(id);
-      setTimeout(() => setNewTimerId(null), 3000);
-      console.log('✅ Dashboard - Timer created successfully with ID:', id);
-    } else {
-      console.error('❌ Dashboard - Failed to create timer');
-    }
+    await addTimer(name);
+    console.log('✅ Dashboard - Timer created successfully');
   };
 
   return (
@@ -79,8 +61,10 @@ const Dashboard = () => {
         </div>
         
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Total Sessions</h3>
-          <p className="text-3xl font-bold text-green-600">{sessions.length}</p>
+          <h3 className="text-lg font-semibold mb-2">Running Time</h3>
+          <p className="text-3xl font-bold text-green-600">
+            {Math.floor(timers.reduce((total, timer) => total + getDisplayTime(timer), 0) / 1000 / 60)}m
+          </p>
         </div>
         
         <div className="bg-white rounded-lg shadow p-6">
@@ -98,12 +82,12 @@ const Dashboard = () => {
           timers={timers}
           onToggle={toggleTimer}
           onReset={resetTimer}
-          onDelete={deleteTimer}
-          onRename={renameTimer}
-          onUpdateDeadline={updateDeadline}
-          onUpdatePriority={updatePriority}
-          onReorder={reorderTimers}
-          calculateSessionElapsedTime={calculateSessionElapsedTime}
+          onDelete={() => console.log('Delete not implemented in simple version')}
+          onRename={() => console.log('Rename not implemented in simple version')}
+          onUpdateDeadline={() => console.log('Update deadline not implemented in simple version')}
+          onUpdatePriority={() => console.log('Update priority not implemented in simple version')}
+          onReorder={() => console.log('Reorder not implemented in simple version')}
+          calculateSessionElapsedTime={getDisplayTime}
           newTimerId={newTimerId}
           onCreateTimer={() => handleCreateTimer("New Timer")}
         />
@@ -115,13 +99,7 @@ const Dashboard = () => {
         currentTimerCount={timers.length}
       />
 
-      {/* Enhanced Animation Manager - Centralized control */}
-      <EnhancedAnimationManager
-        confettiTrigger={confettiTrigger}
-        celebrationTrigger={celebrationTrigger}
-        onConfettiComplete={clearConfettiTrigger}
-        onCelebrationComplete={clearCelebrationTrigger}
-      />
+      {/* Animation manager removed for simplicity */}
     </PageLayout>
   );
 };
