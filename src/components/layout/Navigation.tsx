@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -6,7 +5,6 @@ import {
   BarChart3, 
   Calendar, 
   FileText, 
-  Play,
   User,
   LogOut,
   Settings,
@@ -34,7 +32,8 @@ const Navigation = () => {
 
   const navigationItems = [
     { path: '/dashboard', label: 'Dashboard', icon: Timer },
-    { path: '/active-timers', label: 'Active Timers', icon: Play },
+    // REMOVED: Active Timers tab to simplify timer state management
+    // { path: '/active-timers', label: 'Active Timers', icon: Play },
     { path: '/insights', label: 'Insights', icon: BarChart3 },
     { path: '/analytics', label: 'Analytics', icon: TrendingUp },
     { path: '/advanced-analytics', label: 'Advanced Analytics', icon: Activity },

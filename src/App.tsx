@@ -3,7 +3,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import ActiveTimers from "./pages/ActiveTimers";
+// REMOVED: ActiveTimers import - simplifying state management
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -37,7 +37,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/active-timers" element={<ActiveTimers />} />
+                {/* REMOVED: Active Timers route - simplifying timer state management */}
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/insights" element={<Insights />} />
                 <Route path="/analytics" element={<Analytics />} />

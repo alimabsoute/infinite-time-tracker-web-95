@@ -8,13 +8,13 @@ import { useTimerRealtime } from "./useTimerRealtime";
 import { useTimerAnimations } from "./useTimerAnimations";
 import { useTimerEffectsFixed } from "./useTimerEffectsFixed";
 import { useTimerStatePreservation } from "./useTimerStatePreservation";
-import { useTimerMonitoring } from "./useTimerMonitoring";
+import { useTimerStateMonitoring } from "./useTimerStateMonitoring";
 
 export const useTimers = () => {
   const { user } = useAuth();
   const { updateTimerData } = useNotifications();
   
-  // Core state management
+  // Core state management with robust persistence
   const { timers, setTimers, loading, timersRef } = useTimerState();
   
   // Animation state management
@@ -32,6 +32,9 @@ export const useTimers = () => {
 
   // Timer state preservation (simple save-only approach)
   useTimerStatePreservation({ timersRef, setTimers, isPageVisibleRef });
+
+  // NEW: Comprehensive state monitoring
+  useTimerStateMonitoring(timers);
 
   // Update notification data for running timers
   useEffect(() => {
@@ -51,9 +54,14 @@ export const useTimers = () => {
 
   // Real-time updates
   useTimerRealtime({ timers, setTimers });
-  
-  // Monitoring and debugging
-  useTimerMonitoring(timers);
+
+  // Enhanced logging for debugging
+  useEffect(() => {
+    const runningCount = timers.filter(t => t.isRunning).length;
+    if (runningCount > 0) {
+      console.log(`🏃 useTimers: ${runningCount} timers running out of ${timers.length} total`);
+    }
+  }, [timers]);
 
   return {
     timers,
