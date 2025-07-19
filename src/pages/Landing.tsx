@@ -11,6 +11,7 @@ import PricingSection from "@/components/landing/PricingSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
+import HeaderSpacingTest from "@/components/HeaderSpacingTest";
 
 const LandingPage = () => {
   const { user, loading } = useAuth();
@@ -96,16 +97,14 @@ const LandingPage = () => {
         ))}
       </div>
 
-      {/* Show Header for authenticated users */}
-      {user && (
-        <motion.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <Header />
-        </motion.div>
-      )}
+      {/* Always show Header - regardless of auth status */}
+      <motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <Header />
+      </motion.div>
       
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -177,6 +176,9 @@ const LandingPage = () => {
       >
         <Footer />
       </motion.div>
+      
+      {/* Temporary spacing test component */}
+      <HeaderSpacingTest />
     </motion.div>
   );
 };

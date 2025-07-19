@@ -68,19 +68,19 @@ const Header = () => {
 
   return (
     <header className="bg-white sticky top-0 z-30 w-full border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-3 items-center h-16">
-          {/* Left: Logo section - fixed width */}
-          <div className="flex items-center space-x-3 justify-start">
-            <Link to="/dashboard" className="flex items-center space-x-3">
-              <PhynxTimerLogo width={32} height={32} />
-              <span className="text-xl font-semibold text-gray-900">PhynxTimer</span>
+      <div className="w-full px-8">
+        <div className="flex items-center h-16" style={{ minHeight: '64px' }}>
+          {/* Left: Logo section - EXACT width */}
+          <div className="flex items-center space-x-4" style={{ width: '200px', minWidth: '200px' }}>
+            <Link to="/dashboard" className="flex items-center space-x-4">
+              <PhynxTimerLogo width={28} height={28} />
+              <span className="text-xl font-semibold text-gray-900 whitespace-nowrap">PhynxTimer</span>
             </Link>
           </div>
           
-          {/* Center: Navigation - perfectly centered */}
-          <nav className="hidden lg:flex items-center justify-center">
-            <div className="flex items-center space-x-6">
+          {/* Center: Navigation - PERFECTLY centered with exact spacing */}
+          <div className="flex-1 flex justify-center">
+            <nav className="hidden lg:flex items-center" style={{ gap: '32px' }}>
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -100,19 +100,19 @@ const Header = () => {
                   </Link>
                 );
               })}
-            </div>
-          </nav>
+            </nav>
+          </div>
 
-          {/* Right: Actions - fixed width */}
-          <div className="flex items-center space-x-3 justify-end">
+          {/* Right: Actions - EXACT width to match left */}
+          <div className="flex items-center space-x-3 justify-end" style={{ width: '200px', minWidth: '200px' }}>
             {/* Upgrade to Pro Button */}
             {user && !subscribed && (
               <Button 
                 onClick={handleUpgradeClick}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-sm font-medium rounded-md"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-sm font-medium rounded-md flex items-center space-x-2"
               >
-                <Crown size={16} className="mr-2" />
-                Upgrade to Pro
+                <Crown size={16} />
+                <span className="whitespace-nowrap">Upgrade to Pro</span>
               </Button>
             )}
             
@@ -160,8 +160,8 @@ const Header = () => {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden border-t border-gray-200 py-2">
-          <div className="flex overflow-x-auto space-x-1 px-2">
+        <div className="lg:hidden border-t border-gray-200 py-3">
+          <div className="flex overflow-x-auto space-x-4 px-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -170,13 +170,13 @@ const Header = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                     isActive
                       ? 'text-blue-600 bg-blue-50'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  <Icon size={14} />
+                  <Icon size={16} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -186,10 +186,10 @@ const Header = () => {
             {user && !subscribed && (
               <Button 
                 onClick={handleUpgradeClick}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 text-xs font-medium whitespace-nowrap"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 text-sm font-medium whitespace-nowrap rounded-md flex items-center space-x-2"
               >
-                <Crown size={14} className="mr-1" />
-                Upgrade
+                <Crown size={16} />
+                <span>Upgrade</span>
               </Button>
             )}
           </div>
