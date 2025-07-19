@@ -202,12 +202,12 @@ const PricingSection = () => {
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Enhanced background with glassmorphism */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:60px_60px] opacity-40" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-400 via-purple-400 to-slate-400" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:60px_60px] opacity-30" />
       
       {/* Floating background elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-pink-500/20 to-orange-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-500/15 to-purple-600/15 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-pink-500/15 to-orange-600/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       
       <div className="container mx-auto px-4 relative z-10">
         <FadeInWhenVisible>
