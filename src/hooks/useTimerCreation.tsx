@@ -63,10 +63,27 @@ export const useTimerCreation = ({
     try {
       console.log('🔍 [TIMER CREATION] Phase 1: Database state audit - DISABLED to prevent state conflicts');
 
+      // Generate unique timer name if needed
+      let finalName = name;
+      if (!name || name.trim() === '' || name === 'New Timer') {
+        console.log('🏷️ [TIMER CREATION] Generating unique timer name...');
+        const { data: uniqueName, error: nameError } = await (supabase as any)
+          .rpc('generate_unique_timer_name', { p_user_id: user.id });
+        
+        if (nameError) {
+          console.error("❌ Error generating unique timer name:", nameError);
+          toast.error("Failed to generate timer name");
+          return "";
+        }
+        
+        finalName = uniqueName || 'Timer 1';
+        console.log('✅ Generated unique timer name:', finalName);
+      }
+
       const now = new Date();
       const newTimer: Timer = {
         id: crypto.randomUUID(),
-        name,
+        name: finalName,
         elapsedTime: 0,
         isRunning: false,
         createdAt: now,
