@@ -74,7 +74,7 @@ const HeroMainContent = () => {
           <Button 
             variant="outline" 
             size="lg"
-            className="text-2xl px-12 py-8 rounded-2xl border-4 border-white/60 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 hover:border-white/80 transition-all duration-300 glow-secondary"
+            className="text-2xl px-12 py-8 rounded-2xl border-4 border-slate-800 bg-white/90 backdrop-blur-sm text-slate-800 hover:bg-white hover:border-slate-900 transition-all duration-300 glow-secondary"
           >
             <Play className="mr-3 h-7 w-7" />
             Watch Demo
