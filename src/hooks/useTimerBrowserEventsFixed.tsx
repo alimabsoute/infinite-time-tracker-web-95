@@ -159,15 +159,17 @@ export const useTimerBrowserEventsFixed = ({
   // Register browser events
   useBrowserEvents(browserEventHandlers);
 
-  // Periodic validation when page is visible
+  // Reduced frequency periodic validation when page is visible - only for severe issues
   useEffect(() => {
     const interval = setInterval(async () => {
       if (isPageVisibleRef.current && !restorationInProgressRef.current) {
         const runningTimers = timersRef.current.filter(t => t.isRunning);
+        // Only validate if we have running timers and it's been a while
         if (runningTimers.length > 0) {
-          const validation = await validateTimerState(timersRef.current, true);
-          if (!validation.isValid) {
-            console.log('🔧 Periodic validation found issues, correcting...');
+          const validation = await validateTimerState(timersRef.current, false); // Don't validate against database frequently
+          // Only correct severe local issues, not database mismatches
+          if (!validation.isValid && validation.errors.some(error => error.includes('Invalid elapsed times'))) {
+            console.log('🔧 Periodic validation found severe local issues, correcting...');
             const correctedTimers = await autoCorrectTimerState(timersRef.current);
             if (correctedTimers !== timersRef.current) {
               setTimers(correctedTimers);
@@ -176,7 +178,7 @@ export const useTimerBrowserEventsFixed = ({
           }
         }
       }
-    }, 30000); // Check every 30 seconds
+    }, 120000); // Check every 2 minutes instead of 30 seconds
 
     return () => clearInterval(interval);
   }, [validateTimerState, autoCorrectTimerState, setTimers, timersRef, isPageVisibleRef]);

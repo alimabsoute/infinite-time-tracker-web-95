@@ -171,30 +171,20 @@ export const useTimerStateValidator = () => {
         const localOnlyRunning = localRunningIds.filter(id => !dbRunningIds.includes(id));
         const dbOnlyRunning = dbRunningIds.filter(id => !localRunningIds.includes(id));
 
+        // Only log mismatches, don't auto-correct them to prevent unwanted timer stopping
         if (localOnlyRunning.length > 0) {
-          errors.push(`Timers running locally but stopped in database: ${localOnlyRunning.join(', ')}`);
-          
-          // Correct local state to match database
-          correctedTimers = correctedTimers.map(timer => 
-            localOnlyRunning.includes(timer.id) 
-              ? { ...timer, isRunning: false }
-              : timer
-          );
+          console.log(`ℹ️ Timers running locally but stopped in database: ${localOnlyRunning.join(', ')} - keeping local state`);
         }
 
         if (dbOnlyRunning.length > 0) {
-          errors.push(`Timers running in database but stopped locally: ${dbOnlyRunning.join(', ')}`);
-          
-          // Correct local state to match database
-          correctedTimers = correctedTimers.map(timer => 
-            dbOnlyRunning.includes(timer.id) 
-              ? { ...timer, isRunning: true }
-              : timer
-          );
+          console.log(`ℹ️ Timers running in database but stopped locally: ${dbOnlyRunning.join(', ')} - keeping local state`);
         }
 
-        if (dbState.hasMultipleRunning) {
-          errors.push(`Multiple timers running in database: ${dbRunningIds.length}`);
+        // Only log multiple running timers in database, don't treat as error unless it's severe
+        if (dbState.hasMultipleRunning && dbRunningIds.length > 3) {
+          errors.push(`Too many timers running in database: ${dbRunningIds.length}`);
+        } else if (dbState.hasMultipleRunning) {
+          console.log(`ℹ️ Multiple timers running in database: ${dbRunningIds.length} - within limits`);
         }
       }
     }

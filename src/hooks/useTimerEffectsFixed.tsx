@@ -14,7 +14,7 @@ export const useTimerEffectsFixed = ({ timers, setTimers, timersRef }: UseTimerE
   const { user } = useAuth();
   const isPageVisibleRef = useRef(true);
   const { saveTimerState } = useTimerPersistenceFixed();
-  const { autoCorrectTimerState } = useTimerStateValidator();
+  const { validateTimerState } = useTimerStateValidator();
   const lastAutoSaveRef = useRef(0);
   const isUpdatingRef = useRef(false);
 
@@ -61,7 +61,7 @@ export const useTimerEffectsFixed = ({ timers, setTimers, timersRef }: UseTimerE
     return () => clearInterval(interval);
   }, [user, setTimers, timersRef, saveTimerState]);
 
-  // Periodic validation and correction
+  // Reduced periodic validation - only for severe local issues
   useEffect(() => {
     if (!user) return;
 
@@ -71,16 +71,13 @@ export const useTimerEffectsFixed = ({ timers, setTimers, timersRef }: UseTimerE
       const runningTimers = timersRef.current.filter(t => t.isRunning);
       if (runningTimers.length > 0) {
         try {
-          const correctedTimers = await autoCorrectTimerState(timersRef.current);
+          // Only validate locally, don't interfere with database mismatches
+          const validation = await validateTimerState(timersRef.current, false);
           
-          // Check if corrections were made
-          const hasChanges = correctedTimers.some((timer, index) => {
-            const original = timersRef.current[index];
-            return !original || timer.isRunning !== original.isRunning;
-          });
-
-          if (hasChanges) {
-            console.log('🔧 Applied periodic corrections');
+          // Only correct severe local issues like invalid elapsed times
+          if (!validation.isValid && validation.errors.some(error => error.includes('Invalid elapsed times'))) {
+            console.log('🔧 Applied periodic corrections for severe local issues only');
+            const correctedTimers = validation.correctedTimers || timersRef.current;
             setTimers(correctedTimers);
             timersRef.current = correctedTimers;
           }
@@ -88,10 +85,10 @@ export const useTimerEffectsFixed = ({ timers, setTimers, timersRef }: UseTimerE
           console.error('❌ Periodic validation failed:', error);
         }
       }
-    }, 60000); // Validate every minute
+    }, 300000); // Validate every 5 minutes instead of 1 minute
 
     return () => clearInterval(validationInterval);
-  }, [user, autoCorrectTimerState, setTimers, timersRef]);
+  }, [user, validateTimerState, setTimers, timersRef]);
 
   // Cleanup on unmount
   useEffect(() => {
