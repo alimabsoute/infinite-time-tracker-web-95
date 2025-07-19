@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useSessionManager } from './useSessionManager';
 import { useTimerPersistenceFixed } from './useTimerPersistenceFixed';
-import { useTimerStateValidator } from './useTimerStateValidator';
+// import { useTimerStateValidator } from './useTimerStateValidator'; // DISABLED to prevent timer state interference
 import { toast } from 'sonner';
 
 interface UseTimerCreationProps {
@@ -28,7 +28,7 @@ export const useTimerCreation = ({
   const { canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit } = useSubscription();
   const { createSession, endSession } = useSessionManager();
   const { clearTimerState, saveTimerState } = useTimerPersistenceFixed();
-  const { fixDatabaseInconsistencies, validateDatabaseConsistency } = useTimerStateValidator();
+  // const { fixDatabaseInconsistencies, validateDatabaseConsistency } = useTimerStateValidator(); // DISABLED
 
   const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
     console.log('🚀 Starting SUPER ENHANCED addTimer function with name:', name);
@@ -61,16 +61,7 @@ export const useTimerCreation = ({
     }
 
     try {
-      console.log('🔍 [TIMER CREATION] Phase 1: Database state audit');
-      // PHASE 1: Audit current database state
-      const preAudit = await validateDatabaseConsistency();
-      if (preAudit) {
-        console.log('📊 [TIMER CREATION] Pre-creation database state:', {
-          runningInDB: preAudit.runningCount,
-          runningInUI: runningTimers.length,
-          hasConflict: preAudit.hasMultipleRunning
-        });
-      }
+      console.log('🔍 [TIMER CREATION] Phase 1: Database state audit - DISABLED to prevent state conflicts');
 
       const now = new Date();
       const newTimer: Timer = {
@@ -85,16 +76,8 @@ export const useTimerCreation = ({
       console.log('➕ [TIMER CREATION] Phase 2: Creating new timer:', newTimer.name, 'with ID:', newTimer.id);
       console.log('⏸️ [TIMER CREATION] Found', runningTimers.length, 'running timers in UI to pause');
 
-      // PHASE 2: Clean up database state BEFORE creating new timer
-      console.log('🛑 [TIMER CREATION] Phase 2a: Ensuring database consistency');
-      const cleanupResult = await fixDatabaseInconsistencies();
-      if (!cleanupResult) {
-        console.error('❌ [TIMER CREATION] Database cleanup failed');
-        toast.error("Failed to create timer - database cleanup failed");
-        return "";
-      }
-      
-      console.log('✅ [TIMER CREATION] Database cleanup completed');
+      // PHASE 2: Database cleanup - DISABLED to prevent state conflicts  
+      console.log('🛑 [TIMER CREATION] Phase 2a: Database cleanup DISABLED to preserve timer states');
       
       // End all running sessions for UI timers
       console.log('⏹️ [TIMER CREATION] Phase 2b: Ending UI timer sessions');
@@ -177,24 +160,8 @@ export const useTimerCreation = ({
       
       console.log('✅ [TIMER CREATION] Atomic update completed - only new timer is running');
 
-      // PHASE 6: Verify database state
-      const postCreationAudit = await validateDatabaseConsistency();
-      if (postCreationAudit) {
-        const runningTimers = postCreationAudit.timers.filter(t => t.is_running);
-        console.log('📊 [TIMER CREATION] Post-creation database state:', {
-          runningCount: runningTimers.length,
-          runningTimerIds: runningTimers.map(t => t.id),
-          newTimerIsRunning: runningTimers.some(t => t.id === newTimer.id)
-        });
-        
-        if (runningTimers.length !== 1) {
-          console.warn('⚠️ [TIMER CREATION] WARNING: Expected 1 running timer, found:', runningTimers.length);
-        }
-        
-        if (!runningTimers.some(t => t.id === newTimer.id)) {
-          console.error('❌ [TIMER CREATION] CRITICAL: New timer is not running in database!');
-        }
-      }
+      // PHASE 6: Database state verification - DISABLED to prevent state conflicts
+      console.log('📊 [TIMER CREATION] Post-creation audit DISABLED to preserve timer states');
 
       // PHASE 7: Update local state to match database
       console.log('🔄 [TIMER CREATION] Phase 7: Updating local UI state');
@@ -291,7 +258,7 @@ export const useTimerCreation = ({
       toast.error("Failed to create timer");
       return "";
     }
-  }, [user, timers, clearConfettiTrigger, canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit, setTimers, setConfettiTrigger, setCelebrationTrigger, createSession, endSession, validateDatabaseConsistency, fixDatabaseInconsistencies, clearTimerState, saveTimerState]);
+  }, [user, timers, clearConfettiTrigger, canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit, setTimers, setConfettiTrigger, setCelebrationTrigger, createSession, endSession, clearTimerState, saveTimerState]);
 
   return {
     addTimer

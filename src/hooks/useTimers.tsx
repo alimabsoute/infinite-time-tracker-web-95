@@ -7,7 +7,7 @@ import { useTimerActions } from "./useTimerActions";
 import { useTimerRealtime } from "./useTimerRealtime";
 import { useTimerAnimations } from "./useTimerAnimations";
 import { useTimerEffectsFixed } from "./useTimerEffectsFixed";
-import { useTimerBrowserEventsFixed } from "./useTimerBrowserEventsFixed";
+import { useTimerStatePreservation } from "./useTimerStatePreservation";
 import { useTimerMonitoring } from "./useTimerMonitoring";
 
 export const useTimers = () => {
@@ -30,8 +30,8 @@ export const useTimers = () => {
   // Timer effects (auto-save, timer updates, cleanup) - FIXED VERSION
   const { isPageVisibleRef } = useTimerEffectsFixed({ timers, setTimers, timersRef });
 
-  // Browser events handling (visibility, focus, blur, etc.) - FIXED VERSION
-  useTimerBrowserEventsFixed({ timersRef, setTimers, isPageVisibleRef });
+  // Timer state preservation (simple save-only approach)
+  useTimerStatePreservation({ timersRef, setTimers, isPageVisibleRef });
 
   // Update notification data for running timers
   useEffect(() => {

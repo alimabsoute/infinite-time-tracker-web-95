@@ -83,22 +83,16 @@ export const useTimerState = () => {
           }
         }
         
-        // Check for saved running timer states from previous session
+        // PRESERVE LOCAL RUNNING STATES: Don't restore from persistence on initial load 
+        // This was causing timers to be paused when switching tabs
+        console.log('🔒 Preserving local timer running states - not restoring from persistence');
+        setTimers(processedTimers);
+        
+        // Clear old persistence data since we're loading fresh from database
         const persistenceData = loadTimerState();
         if (persistenceData) {
-          const restoredTimers = restoreTimerElapsedTime(processedTimers, persistenceData);
+          console.log('🧹 Clearing old persistence data to prevent state conflicts');
           clearTimerState();
-          batchSyncTimers(restoredTimers, true);
-          setTimers(restoredTimers);
-          
-          const restoredCount = persistenceData.timers.length;
-          if (restoredCount > 0) {
-            toast.success(`Welcome back!`, {
-              description: `${restoredCount} timer${restoredCount > 1 ? 's were' : ' was'} running while you were away`
-            });
-          }
-        } else {
-          setTimers(processedTimers);
         }
       } catch (error) {
         console.error("Error loading timers:", error);

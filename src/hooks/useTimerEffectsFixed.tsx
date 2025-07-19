@@ -61,34 +61,11 @@ export const useTimerEffectsFixed = ({ timers, setTimers, timersRef }: UseTimerE
     return () => clearInterval(interval);
   }, [user, setTimers, timersRef, saveTimerState]);
 
-  // Reduced periodic validation - only for severe local issues
+  // DISABLED: Periodic validation that could interfere with timer running states
   useEffect(() => {
-    if (!user) return;
-
-    const validationInterval = setInterval(async () => {
-      if (isUpdatingRef.current) return;
-      
-      const runningTimers = timersRef.current.filter(t => t.isRunning);
-      if (runningTimers.length > 0) {
-        try {
-          // Only validate locally, don't interfere with database mismatches
-          const validation = await validateTimerState(timersRef.current, false);
-          
-          // Only correct severe local issues like invalid elapsed times
-          if (!validation.isValid && validation.errors.some(error => error.includes('Invalid elapsed times'))) {
-            console.log('🔧 Applied periodic corrections for severe local issues only');
-            const correctedTimers = validation.correctedTimers || timersRef.current;
-            setTimers(correctedTimers);
-            timersRef.current = correctedTimers;
-          }
-        } catch (error) {
-          console.error('❌ Periodic validation failed:', error);
-        }
-      }
-    }, 300000); // Validate every 5 minutes instead of 1 minute
-
-    return () => clearInterval(validationInterval);
-  }, [user, validateTimerState, setTimers, timersRef]);
+    console.log('🚫 Timer effects validation disabled to preserve running states');
+    // No periodic validation needed - focus only on timer updates and saves
+  }, [user]);
 
   // Cleanup on unmount
   useEffect(() => {

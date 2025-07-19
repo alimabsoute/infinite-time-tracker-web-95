@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useNotifications } from './useNotifications';
 import { useSessionManager } from './useSessionManager';
-import { useTimerStateValidator } from './useTimerStateValidator';
+// import { useTimerStateValidator } from './useTimerStateValidator'; // DISABLED to prevent timer state interference
 import { toast } from 'sonner';
 
 interface UseTimerOperationsProps {
@@ -18,7 +18,7 @@ export const useTimerOperations = ({ timers, setTimers }: UseTimerOperationsProp
   const { canStartTimer, getRunningTimerLimit } = useSubscription();
   const { notifyTimerCompletion } = useNotifications();
   const { createSession, endSession } = useSessionManager();
-  const { fixDatabaseInconsistencies } = useTimerStateValidator();
+  // const { fixDatabaseInconsistencies } = useTimerStateValidator(); // DISABLED
 
   const toggleTimer = useCallback(async (id: string) => {
     if (!user) return;
@@ -41,8 +41,8 @@ export const useTimerOperations = ({ timers, setTimers }: UseTimerOperationsProp
           return;
         }
 
-        // Ensure database consistency before starting timer
-        await fixDatabaseInconsistencies(id);
+        // Database consistency check - DISABLED to prevent timer state interference
+        console.log('🚫 Database consistency check disabled to preserve timer states');
 
         // Starting timer
         const sessionId = await createSession(id, now);

@@ -29,69 +29,14 @@ export const useTimerBrowserEventsFixed = ({
   const restorationInProgressRef = useRef(false);
   const lastVisibilityChangeRef = useRef(Date.now());
 
-  // Enhanced validation and restoration
+  // DISABLED: Validation and restoration function that was causing timer pausing
+  // This function was overwriting timer running states when switching tabs
   const validateAndRestoreTimerState = async (reason: string): Promise<boolean> => {
-    if (restorationInProgressRef.current) {
-      console.log('🔄 Restoration already in progress, skipping');
-      return false;
-    }
-
-    restorationInProgressRef.current = true;
-
-    try {
-      console.log(`🔍 Starting validation and restoration (${reason})`);
-      
-      // Load persistence data
-      const persistenceData = loadTimerState();
-      if (!persistenceData) {
-        console.log('📥 No persistence data to restore');
-        restorationInProgressRef.current = false;
-        return false;
-      }
-
-      // Validate current timer state
-      const currentTimers = timersRef.current;
-      const validation = await validateTimerState(currentTimers, true);
-      
-      let correctedTimers = currentTimers;
-      
-      if (!validation.isValid) {
-        console.log('🔧 Applying corrections before restoration');
-        correctedTimers = await autoCorrectTimerState(currentTimers);
-      }
-
-      // Restore elapsed time
-      const restoredTimers = await restoreTimerElapsedTime(correctedTimers, persistenceData);
-      
-      // Check if we actually need to update
-      const hasChanges = restoredTimers.some((timer, index) => {
-        const original = currentTimers[index];
-        return !original || 
-               timer.elapsedTime !== original.elapsedTime || 
-               timer.isRunning !== original.isRunning;
-      });
-
-      if (hasChanges) {
-        console.log('✅ Applying timer state changes');
-        setTimers(restoredTimers);
-        timersRef.current = restoredTimers;
-        
-        // Save the corrected state
-        await saveTimerState(restoredTimers, `${reason}-corrected`);
-      } else {
-        console.log('✅ No changes needed after validation');
-      }
-
-      restorationInProgressRef.current = false;
-      return hasChanges;
-    } catch (error) {
-      console.error('❌ Error in validation and restoration:', error);
-      restorationInProgressRef.current = false;
-      return false;
-    }
+    console.log(`🚫 Validation and restoration disabled to preserve timer running state (${reason})`);
+    return false;
   };
 
-  // Enhanced browser event handlers
+  // Simplified event handlers that preserve timer running state
   const browserEventHandlers = {
     onVisibilityChange: async (isVisible: boolean) => {
       const now = Date.now();
@@ -99,59 +44,86 @@ export const useTimerBrowserEventsFixed = ({
       lastVisibilityChangeRef.current = now;
       
       isPageVisibleRef.current = isVisible;
+      console.log(`🔍 Visibility changed: ${isVisible ? 'visible' : 'hidden'}, time since last: ${timeSinceLastChange}ms`);
       
-      console.log(`👁️ Visibility changed: ${isVisible ? 'visible' : 'hidden'}`);
-
-      if (isVisible) {
-        // Page became visible - restore state
-        console.log('📱 Page visible - starting restoration...');
-        
-        // Small delay to ensure state is stable
-        setTimeout(async () => {
-          await validateAndRestoreTimerState('visibility-visible');
-        }, 100);
-        
-      } else {
-        // Page became hidden - save state immediately
-        console.log('💾 Page hidden - saving state...');
-        const correctedTimers = await saveTimerState(timersRef.current, 'visibility-hidden');
-        if (correctedTimers && correctedTimers !== timersRef.current) {
-          setTimers(correctedTimers);
-          timersRef.current = correctedTimers;
+      try {
+        if (isVisible) {
+          console.log('👁️ Page became visible - preserving timer states');
+          // DO NOT restore state on visibility change - this was causing the bug
+          // Only update elapsed time for running timers without changing running state
+          const currentTimers = timersRef.current;
+          if (currentTimers && currentTimers.length > 0) {
+            const runningTimers = currentTimers.filter(t => t.isRunning);
+            console.log(`🏃 Found ${runningTimers.length} running timers - preserving their state`);
+            
+            // Just preserve running timers - don't modify elapsed time as it's handled elsewhere
+            console.log(`🏃 Keeping ${runningTimers.length} timers in running state`);
+            // No state modification needed - the timer effects handle elapsed time updates
+          }
+        } else {
+          console.log('👋 Page became hidden - saving current state');
+          const currentTimers = timersRef.current;
+          if (currentTimers && currentTimers.length > 0) {
+            await saveTimerState(currentTimers, 'visibility-hide');
+          }
         }
+      } catch (error) {
+        console.error('❌ Error in visibility change handler:', error);
       }
     },
 
     onBeforeUnload: async () => {
-      console.log('🔄 Before unload - final save');
-      await saveTimerState(timersRef.current, 'beforeunload');
+      console.log('⚠️ Before unload - final state save');
+      try {
+        const currentTimers = timersRef.current;
+        if (currentTimers && currentTimers.length > 0) {
+          await saveTimerState(currentTimers, 'before-unload');
+        }
+      } catch (error) {
+        console.error('❌ Error in before unload handler:', error);
+      }
     },
 
     onPageHide: async () => {
-      console.log('👋 Page hide - saving state');
-      await saveTimerState(timersRef.current, 'pagehide');
+      console.log('👋 Page hide - emergency state save');
+      try {
+        const currentTimers = timersRef.current;
+        if (currentTimers && currentTimers.length > 0) {
+          await saveTimerState(currentTimers, 'page-hide');
+        }
+      } catch (error) {
+        console.error('❌ Error in page hide handler:', error);
+      }
     },
 
     onPageShow: async () => {
-      console.log('👋 Page show - restoring state');
-      await validateAndRestoreTimerState('pageshow');
+      console.log('👁️ Page show - preserving timer states');
+      try {
+        // DO NOT restore state - just preserve current running timers
+        const currentTimers = timersRef.current;
+        if (currentTimers && currentTimers.length > 0) {
+          const runningTimers = currentTimers.filter(t => t.isRunning);
+          console.log(`🏃 Page show: preserving ${runningTimers.length} running timers`);
+        }
+      } catch (error) {
+        console.error('❌ Error in page show handler:', error);
+      }
     },
 
     onFocus: async () => {
-      console.log('🎯 Window focus - checking state');
-      // Only restore if it's been a while since last visibility change
-      const timeSinceVisibilityChange = Date.now() - lastVisibilityChangeRef.current;
-      if (timeSinceVisibilityChange > 2000) {
-        await validateAndRestoreTimerState('focus');
-      }
+      console.log('🎯 Window focus - preserving timer states');
+      // DO NOT auto-correct or validate - just preserve current state
     },
 
     onBlur: async () => {
       console.log('😴 Window blur - saving state');
-      const correctedTimers = await saveTimerState(timersRef.current, 'blur');
-      if (correctedTimers && correctedTimers !== timersRef.current) {
-        setTimers(correctedTimers);
-        timersRef.current = correctedTimers;
+      try {
+        const currentTimers = timersRef.current;
+        if (currentTimers && currentTimers.length > 0) {
+          await saveTimerState(currentTimers, 'blur');
+        }
+      } catch (error) {
+        console.error('❌ Error in blur handler:', error);
       }
     }
   };
@@ -159,29 +131,12 @@ export const useTimerBrowserEventsFixed = ({
   // Register browser events
   useBrowserEvents(browserEventHandlers);
 
-  // Reduced frequency periodic validation when page is visible - only for severe issues
+  // DISABLED: Periodic validation that could interfere with timer running states
+  // This was potentially causing timers to be paused by auto-correction
   useEffect(() => {
-    const interval = setInterval(async () => {
-      if (isPageVisibleRef.current && !restorationInProgressRef.current) {
-        const runningTimers = timersRef.current.filter(t => t.isRunning);
-        // Only validate if we have running timers and it's been a while
-        if (runningTimers.length > 0) {
-          const validation = await validateTimerState(timersRef.current, false); // Don't validate against database frequently
-          // Only correct severe local issues, not database mismatches
-          if (!validation.isValid && validation.errors.some(error => error.includes('Invalid elapsed times'))) {
-            console.log('🔧 Periodic validation found severe local issues, correcting...');
-            const correctedTimers = await autoCorrectTimerState(timersRef.current);
-            if (correctedTimers !== timersRef.current) {
-              setTimers(correctedTimers);
-              timersRef.current = correctedTimers;
-            }
-          }
-        }
-      }
-    }, 120000); // Check every 2 minutes instead of 30 seconds
-
-    return () => clearInterval(interval);
-  }, [validateTimerState, autoCorrectTimerState, setTimers, timersRef, isPageVisibleRef]);
+    console.log('🚫 Periodic validation disabled to preserve timer running state');
+    // No periodic validation needed - timer effects handle state updates
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
