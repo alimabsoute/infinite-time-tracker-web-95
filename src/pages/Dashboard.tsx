@@ -28,6 +28,7 @@ const Dashboard = () => {
     celebrationTrigger,
     clearConfettiTrigger,
     clearCelebrationTrigger,
+    calculateSessionElapsedTime,
   } = useTimers();
   const { sessions, loading: sessionsLoading, error: sessionsError } = useTimerSessions();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
@@ -96,6 +97,7 @@ const Dashboard = () => {
           onUpdateDeadline={updateDeadline}
           onUpdatePriority={updatePriority}
           onReorder={reorderTimers}
+          calculateSessionElapsedTime={calculateSessionElapsedTime}
           newTimerId={newTimerId}
           onCreateTimer={() => handleCreateTimer("New Timer")}
         />

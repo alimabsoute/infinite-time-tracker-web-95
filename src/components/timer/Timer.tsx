@@ -12,6 +12,7 @@ interface TimerProps {
   onRename: (id: string, newName: string, category?: string) => void;
   onUpdateDeadline: (id: string, deadline: Date | undefined) => void;
   onUpdatePriority: (id: string, priority: number | undefined) => void;
+  calculateSessionElapsedTime: (timer: TimerType) => number;
   isNew?: boolean;
 }
 
@@ -23,6 +24,7 @@ const Timer: React.FC<TimerProps> = ({
   onRename,
   onUpdateDeadline,
   onUpdatePriority,
+  calculateSessionElapsedTime,
   isNew = false,
 }) => {
   const [isEditing, setIsEditing] = useState(isNew);
@@ -91,10 +93,13 @@ const Timer: React.FC<TimerProps> = ({
     onUpdateDeadline(timer.id, newDate);
   };
 
+  // Calculate display time correctly
+  const displayTime = calculateSessionElapsedTime(timer);
+
   return (
     <TimerCard
       timer={timer}
-      currentTime={timer.elapsedTime}
+      currentTime={displayTime}
       isEditing={isEditing}
       editedName={editedName}
       editedCategory={editedCategory}

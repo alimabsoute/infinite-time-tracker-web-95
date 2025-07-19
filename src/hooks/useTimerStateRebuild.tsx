@@ -212,17 +212,9 @@ export const useTimerStateRebuild = () => {
       console.log(`⏱️ Starting interval for ${runningTimers.length} running timers`);
       
       intervalRef.current = setInterval(() => {
-        setTimers(prevTimers => 
-          prevTimers.map(timer => {
-            if (timer.isRunning && timer.sessionStartTime) {
-              return {
-                ...timer,
-                elapsedTime: calculateSessionElapsedTime(timer)
-              };
-            }
-            return timer;
-          })
-        );
+        // Force re-render to update display - but don't modify elapsedTime
+        // The TimerDisplay component will call calculateSessionElapsedTime for display
+        setTimers(prevTimers => [...prevTimers]);
       }, 1000);
     } else {
       if (intervalRef.current) {

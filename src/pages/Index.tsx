@@ -24,6 +24,7 @@ const Index = () => {
     celebrationTrigger,
     clearConfettiTrigger,
     clearCelebrationTrigger,
+    calculateSessionElapsedTime,
   } = useTimers();
   
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
@@ -82,6 +83,7 @@ const Index = () => {
           onUpdateDeadline={updateDeadline}
           onUpdatePriority={updatePriority}
           onReorder={reorderTimers}
+          calculateSessionElapsedTime={calculateSessionElapsedTime}
           newTimerId={newTimerId}
           onCreateTimer={() => handleAddTimer("New Timer")}
         />

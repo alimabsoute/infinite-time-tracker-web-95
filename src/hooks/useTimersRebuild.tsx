@@ -63,5 +63,6 @@ export const useTimersRebuild = () => {
     celebrationTrigger,
     clearConfettiTrigger,
     clearCelebrationTrigger,
+    calculateSessionElapsedTime,
   };
 };

@@ -12,6 +12,7 @@ interface DraggableTimerGridProps {
   onUpdateDeadline: (id: string, deadline: Date | undefined) => void;
   onUpdatePriority: (id: string, priority: number | undefined) => void;
   onReorder: (reorderedTimers: TimerType[]) => void;
+  calculateSessionElapsedTime: (timer: TimerType) => number;
   newTimerId: string | null;
 }
 
@@ -24,6 +25,7 @@ const DraggableTimerGrid = ({
   onUpdateDeadline,
   onUpdatePriority,
   onReorder,
+  calculateSessionElapsedTime,
   newTimerId,
 }: DraggableTimerGridProps) => {
   const handleDragEnd = (result: DropResult) => {
@@ -62,6 +64,7 @@ const DraggableTimerGrid = ({
                     onRename={onRename}
                     onUpdateDeadline={onUpdateDeadline}
                     onUpdatePriority={onUpdatePriority}
+                    calculateSessionElapsedTime={calculateSessionElapsedTime}
                     newTimerId={newTimerId}
                   />
                 </div>

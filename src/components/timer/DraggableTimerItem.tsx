@@ -14,6 +14,7 @@ interface DraggableTimerItemProps {
   onRename: (id: string, newName: string, category?: string) => void;
   onUpdateDeadline: (id: string, deadline: Date | undefined) => void;
   onUpdatePriority: (id: string, priority: number | undefined) => void;
+  calculateSessionElapsedTime: (timer: TimerType) => number;
   newTimerId: string | null;
 }
 
@@ -26,6 +27,7 @@ const DraggableTimerItem = ({
   onRename,
   onUpdateDeadline,
   onUpdatePriority,
+  calculateSessionElapsedTime,
   newTimerId,
 }: DraggableTimerItemProps) => {
   const [animationState, setAnimationState] = useState<{
@@ -56,6 +58,7 @@ const DraggableTimerItem = ({
       onRename={onRename}
       onUpdateDeadline={onUpdateDeadline}
       onUpdatePriority={onUpdatePriority}
+      calculateSessionElapsedTime={calculateSessionElapsedTime}
     />
   );
 
