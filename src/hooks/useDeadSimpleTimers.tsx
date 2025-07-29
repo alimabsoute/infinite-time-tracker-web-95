@@ -100,22 +100,8 @@ export const useDeadSimpleTimers = () => {
         ));
 
       } else {
-        // START: Stop all others first, then start this one
+        // START: Start this timer (allow multiple simultaneous timers)
         console.log(`▶️ Starting timer ${timer.name}`);
-
-        // Stop all running timers
-        const runningTimers = timers.filter(t => t.isRunning);
-        for (const runningTimer of runningTimers) {
-          const finalTime = getDisplayTime(runningTimer);
-          await supabase
-            .from('timers')
-            .update({
-              elapsed_time: Math.floor(finalTime),
-              is_running: false,
-              start_time: null
-            })
-            .eq('id', runningTimer.id);
-        }
 
         // Start the selected timer
         const startTime = new Date();
@@ -128,15 +114,11 @@ export const useDeadSimpleTimers = () => {
           .eq('id', timerId);
 
         // Update local state
-        setTimers(prev => prev.map(t => {
-          if (t.id === timerId) {
-            return { ...t, isRunning: true, startTime };
-          } else if (t.isRunning) {
-            const finalTime = getDisplayTime(t);
-            return { ...t, isRunning: false, elapsedTime: finalTime, startTime: undefined };
-          }
-          return t;
-        }));
+        setTimers(prev => prev.map(t => 
+          t.id === timerId 
+            ? { ...t, isRunning: true, startTime }
+            : t
+        ));
       }
 
       toast.success(`Timer "${timer.name}" ${timer.isRunning ? 'stopped' : 'started'}`);
