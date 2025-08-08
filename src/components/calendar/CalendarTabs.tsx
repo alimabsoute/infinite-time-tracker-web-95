@@ -2,7 +2,7 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarIcon, Activity } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface CalendarTabsProps {
   children: React.ReactNode;
@@ -25,11 +25,25 @@ const CalendarTabs: React.FC<CalendarTabsProps> = ({ children, analyticsContent 
       
       <AnimatePresence mode="wait">
         <TabsContent value="calendar" className="mt-0">
-          {children}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {children}
+          </motion.div>
         </TabsContent>
         
-        <TabsContent value="analytics">
-          {analyticsContent}
+        <TabsContent value="analytics" className="mt-0">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {analyticsContent}
+          </motion.div>
         </TabsContent>
       </AnimatePresence>
     </Tabs>

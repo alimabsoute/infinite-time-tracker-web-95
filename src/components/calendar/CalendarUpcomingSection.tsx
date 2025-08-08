@@ -9,7 +9,7 @@ interface CalendarUpcomingSectionProps {
 
 const CalendarUpcomingSection: React.FC<CalendarUpcomingSectionProps> = ({ timers }) => {
   return (
-    <div className="col-span-full">
+    <div className="lg:col-span-4 col-span-1">
       <UpcomingDeadlines timers={timers} />
     </div>
   );
