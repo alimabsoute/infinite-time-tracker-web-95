@@ -19,6 +19,11 @@ const Dashboard = () => {
     toggleTimer, 
     resetTimer, 
     addTimer,
+    deleteTimer,
+    renameTimer,
+    updateDeadline,
+    updatePriority,
+    reorderTimers,
     getDisplayTime,
     loading
   } = useDeadSimpleTimers();
@@ -82,11 +87,11 @@ const Dashboard = () => {
           timers={timers}
           onToggle={toggleTimer}
           onReset={resetTimer}
-          onDelete={() => console.log('Delete not implemented in simple version')}
-          onRename={() => console.log('Rename not implemented in simple version')}
-          onUpdateDeadline={() => console.log('Update deadline not implemented in simple version')}
-          onUpdatePriority={() => console.log('Update priority not implemented in simple version')}
-          onReorder={() => console.log('Reorder not implemented in simple version')}
+          onDelete={deleteTimer}
+          onRename={renameTimer}
+          onUpdateDeadline={updateDeadline}
+          onUpdatePriority={updatePriority}
+          onReorder={reorderTimers}
           calculateSessionElapsedTime={getDisplayTime}
           newTimerId={newTimerId}
           onCreateTimer={() => handleCreateTimer("New Timer")}

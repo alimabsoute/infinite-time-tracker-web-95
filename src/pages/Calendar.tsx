@@ -2,12 +2,43 @@
 import React from 'react';
 import PageLayout from '../components/layout/PageLayout';
 import CalendarContent from '../components/calendar/CalendarContent';
-import { useTimers } from '../hooks/useTimers';
-import { useTimerSessions } from '../hooks/useTimerSessions';
+import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
+import { supabase } from '@/integrations/supabase/client';
 
 const Calendar = () => {
-  const { timers } = useTimers();
-  const { sessions, loading: sessionsLoading } = useTimerSessions();
+  const { timers } = useDeadSimpleTimers();
+  const [sessions, setSessions] = React.useState<any[]>([]);
+  const [sessionsLoading, setSessionsLoading] = React.useState(true);
+
+  // Fetch sessions for calendar
+  React.useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('timer_sessions')
+          .select(`
+            *,
+            timers!inner(
+              id,
+              name,
+              category
+            )
+          `)
+          .not('end_time', 'is', null)
+          .order('start_time', { ascending: false });
+
+        if (error) throw error;
+        setSessions(data || []);
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+        setSessions([]);
+      } finally {
+        setSessionsLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, []);
   
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());

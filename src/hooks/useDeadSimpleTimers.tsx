@@ -83,6 +83,16 @@ export const useDeadSimpleTimers = () => {
 
         console.log(`⏹️ Stopping timer ${timer.name}: final time = ${finalElapsedTime}ms`);
 
+        // End the current session
+        await supabase
+          .from('timer_sessions')
+          .update({
+            end_time: new Date().toISOString(),
+            duration_ms: Math.floor(finalElapsedTime - timer.elapsedTime)
+          })
+          .eq('timer_id', timerId)
+          .is('end_time', null);
+
         await supabase
           .from('timers')
           .update({
@@ -103,8 +113,16 @@ export const useDeadSimpleTimers = () => {
         // START: Start this timer (allow multiple simultaneous timers)
         console.log(`▶️ Starting timer ${timer.name}`);
 
-        // Start the selected timer
+        // Create new session
         const startTime = new Date();
+        await supabase
+          .from('timer_sessions')
+          .insert({
+            timer_id: timerId,
+            user_id: user.id,
+            start_time: startTime.toISOString()
+          });
+
         await supabase
           .from('timers')
           .update({
@@ -200,6 +218,141 @@ export const useDeadSimpleTimers = () => {
     }
   }, [user]);
 
+  // Rename timer
+  const renameTimer = useCallback(async (id: string, newName: string, category?: string) => {
+    if (!user) return;
+
+    try {
+      console.log(`✏️ Renaming timer ${id}: "${newName}" category: ${category}`);
+
+      await supabase
+        .from('timers')
+        .update({
+          name: newName,
+          category: category || null
+        })
+        .eq('id', id);
+
+      setTimers(prev => prev.map(t => 
+        t.id === id 
+          ? { ...t, name: newName, category }
+          : t
+      ));
+
+      toast.success(`Timer renamed to "${newName}"`);
+    } catch (error) {
+      console.error('❌ Error renaming timer:', error);
+      toast.error('Failed to rename timer');
+    }
+  }, [user]);
+
+  // Delete timer
+  const deleteTimer = useCallback(async (id: string) => {
+    if (!user) return;
+
+    const timer = timers.find(t => t.id === id);
+    if (!timer) return;
+
+    try {
+      console.log(`🗑️ Deleting timer ${timer.name}`);
+
+      // Stop timer if running and end its session
+      if (timer.isRunning) {
+        const finalElapsedTime = getDisplayTime(timer);
+        
+        await supabase
+          .from('timers')
+          .update({
+            elapsed_time: Math.floor(finalElapsedTime),
+            is_running: false,
+            start_time: null
+          })
+          .eq('id', id);
+
+        // End current session if exists
+        await supabase
+          .from('timer_sessions')
+          .update({
+            end_time: new Date().toISOString(),
+            duration_ms: Math.floor(finalElapsedTime)
+          })
+          .eq('timer_id', id)
+          .is('end_time', null);
+      }
+
+      // Soft delete timer
+      await supabase
+        .from('timers')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id);
+
+      setTimers(prev => prev.filter(t => t.id !== id));
+      toast.success(`Timer "${timer.name}" deleted`);
+    } catch (error) {
+      console.error('❌ Error deleting timer:', error);
+      toast.error('Failed to delete timer');
+    }
+  }, [user, timers, getDisplayTime]);
+
+  // Update deadline
+  const updateDeadline = useCallback(async (id: string, deadline: Date | undefined) => {
+    if (!user) return;
+
+    try {
+      console.log(`📅 Updating deadline for timer ${id}`);
+
+      await supabase
+        .from('timers')
+        .update({
+          deadline: deadline ? deadline.toISOString() : null
+        })
+        .eq('id', id);
+
+      setTimers(prev => prev.map(t => 
+        t.id === id 
+          ? { ...t, deadline }
+          : t
+      ));
+
+      toast.success('Deadline updated');
+    } catch (error) {
+      console.error('❌ Error updating deadline:', error);
+      toast.error('Failed to update deadline');
+    }
+  }, [user]);
+
+  // Update priority
+  const updatePriority = useCallback(async (id: string, priority: number | undefined) => {
+    if (!user) return;
+
+    try {
+      console.log(`⭐ Updating priority for timer ${id}: ${priority}`);
+
+      await supabase
+        .from('timers')
+        .update({
+          priority: priority || null
+        })
+        .eq('id', id);
+
+      setTimers(prev => prev.map(t => 
+        t.id === id 
+          ? { ...t, priority }
+          : t
+      ));
+
+      toast.success('Priority updated');
+    } catch (error) {
+      console.error('❌ Error updating priority:', error);
+      toast.error('Failed to update priority');
+    }
+  }, [user]);
+
+  // Reorder timers
+  const reorderTimers = useCallback(async (reorderedTimers: Timer[]) => {
+    setTimers(reorderedTimers);
+  }, []);
+
   // Simple interval for display updates only
   useEffect(() => {
     const hasRunningTimers = timers.some(t => t.isRunning);
@@ -233,6 +386,11 @@ export const useDeadSimpleTimers = () => {
     addTimer,
     toggleTimer,
     resetTimer,
+    deleteTimer,
+    renameTimer,
+    updateDeadline,
+    updatePriority,
+    reorderTimers,
     getDisplayTime,
   };
 };

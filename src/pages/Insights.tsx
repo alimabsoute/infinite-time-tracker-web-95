@@ -1,13 +1,41 @@
 
 import React from 'react';
-import { useTimers } from '../hooks/useTimers';
-import { useTimerSessions } from '../hooks/useTimerSessions';
+import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
+import { supabase } from '@/integrations/supabase/client';
 import PageLayout from '../components/layout/PageLayout';
 import QuickInsightsDashboard from '../components/insights/QuickInsightsDashboard';
 
 const Insights = () => {
-  const { timers, loading } = useTimers();
-  const { sessions } = useTimerSessions();
+  const { timers, loading } = useDeadSimpleTimers();
+  const [sessions, setSessions] = React.useState<any[]>([]);
+
+  // Fetch sessions for insights
+  React.useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('timer_sessions')
+          .select(`
+            *,
+            timers!inner(
+              id,
+              name,
+              category
+            )
+          `)
+          .not('end_time', 'is', null)
+          .order('start_time', { ascending: false });
+
+        if (error) throw error;
+        setSessions(data || []);
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+        setSessions([]);
+      }
+    };
+
+    fetchSessions();
+  }, []);
 
   if (loading) {
     return (

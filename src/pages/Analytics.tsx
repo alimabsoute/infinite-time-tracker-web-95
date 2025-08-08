@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import PageLayout from '@/components/layout/PageLayout';
-import { useTimers } from '@/hooks/useTimers';
-import { useTimerSessions } from '@/hooks/useTimerSessions';
+import { useDeadSimpleTimers } from '@/hooks/useDeadSimpleTimers';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,8 +14,40 @@ import { format, subDays, startOfDay, endOfDay, isWithinInterval } from 'date-fn
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
 const Analytics = () => {
-  const { timers, loading } = useTimers();
-  const { sessions, loading: sessionsLoading } = useTimerSessions();
+  const { timers, loading } = useDeadSimpleTimers();
+  // Create sessions hook that works with dead simple timers
+  const [sessions, setSessions] = React.useState<any[]>([]);
+  const [sessionsLoading, setSessionsLoading] = React.useState(true);
+
+  // Fetch sessions for analytics
+  React.useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('timer_sessions')
+          .select(`
+            *,
+            timers!inner(
+              id,
+              name,
+              category
+            )
+          `)
+          .not('end_time', 'is', null)
+          .order('start_time', { ascending: false });
+
+        if (error) throw error;
+        setSessions(data || []);
+      } catch (error) {
+        console.error('Error fetching sessions:', error);
+        setSessions([]);
+      } finally {
+        setSessionsLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, []);
   const [timeRange, setTimeRange] = useState('7');
   const [selectedTimer, setSelectedTimer] = useState<string>('all');
 
