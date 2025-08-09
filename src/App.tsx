@@ -1,6 +1,7 @@
 
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 // REMOVED: ActiveTimers import - simplifying state management
@@ -15,7 +16,7 @@ import Analytics from "./pages/Analytics";
 import Insights from "./pages/Insights";
 import { AuthProvider } from "./contexts/AuthContext";
 import { QueryClient } from "./components/QueryClient";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import FoodManufacturerDemo from "./pages/FoodManufacturerDemo";
@@ -26,12 +27,13 @@ function App() {
   
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <QueryClient>
-          <AuthProvider>
-            <SubscriptionProvider>
-              <Toaster />
-              <Routes>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <BrowserRouter>
+          <QueryClient>
+            <AuthProvider>
+              <SubscriptionProvider>
+                <Toaster />
+                <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/landing" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
@@ -45,11 +47,12 @@ function App() {
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/food-demo" element={<FoodManufacturerDemo />} />
-              </Routes>
-            </SubscriptionProvider>
-          </AuthProvider>
-        </QueryClient>
-      </BrowserRouter>
+                </Routes>
+              </SubscriptionProvider>
+            </AuthProvider>
+          </QueryClient>
+        </BrowserRouter>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
