@@ -66,20 +66,56 @@ export const getHeatMapColor = (date: Date, sessions: TimerSessionWithTimer[]): 
 export const getTimersWithDeadlinesForDate = (date: Date | undefined, timers: Timer[]): Timer[] => {
   if (!date) return [];
   
-  const targetDateStr = date.getFullYear() + '-' + 
-    String(date.getMonth() + 1).padStart(2, '0') + '-' + 
-    String(date.getDate()).padStart(2, '0');
+  const targetDateStr = format(date, 'yyyy-MM-dd');
   
   return timers.filter(timer => {
     if (!timer.deadline) return false;
     
-    const deadlineDate = new Date(timer.deadline);
-    const deadlineDateStr = deadlineDate.getFullYear() + '-' + 
-      String(deadlineDate.getMonth() + 1).padStart(2, '0') + '-' + 
-      String(deadlineDate.getDate()).padStart(2, '0');
-    
-    return deadlineDateStr === targetDateStr;
+    try {
+      const deadlineDate = new Date(timer.deadline);
+      if (!isValid(deadlineDate)) return false;
+      
+      const deadlineDateStr = format(deadlineDate, 'yyyy-MM-dd');
+      return deadlineDateStr === targetDateStr;
+    } catch (error) {
+      console.error('Error parsing deadline date:', timer.deadline, error);
+      return false;
+    }
   });
+};
+
+// Format deadline display information
+export const formatDeadlineDisplay = (timer: Timer): string => {
+  return timer.name.length > 8 ? `${timer.name.substring(0, 8)}...` : timer.name;
+};
+
+// Get deadline urgency level based on priority
+export const getDeadlineUrgencyLevel = (timers: Timer[]): 'high' | 'medium' | 'low' | 'none' => {
+  if (timers.length === 0) return 'none';
+  
+  const priorities = timers.map(t => t.priority || 0);
+  const highestPriority = Math.max(...priorities);
+  
+  if (highestPriority >= 4) return 'high';
+  if (highestPriority >= 3) return 'medium';
+  return 'low';
+};
+
+// Get deadline color based on priority level
+export const getDeadlinePriorityColor = (priority?: number): string => {
+  switch (priority) {
+    case 5:
+    case 4:
+      return 'bg-red-500'; // High priority
+    case 3:
+      return 'bg-orange-500'; // Medium-high priority
+    case 2:
+      return 'bg-yellow-500'; // Medium priority
+    case 1:
+      return 'bg-green-500'; // Low priority
+    default:
+      return 'bg-gray-500'; // No priority
+  }
 };
 
 // Get timers created on a specific date

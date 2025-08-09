@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Timer, TimerSessionWithTimer } from '../../types';
-import { getTotalTimeForDate, getSessionsForDate, formatTime } from './CalendarUtils';
+import { getTotalTimeForDate, getSessionsForDate, formatTime, getTimersWithDeadlinesForDate, formatDeadlineDisplay, getDeadlineUrgencyLevel, getDeadlinePriorityColor } from './CalendarUtils';
 import { getCategoryColor } from './visualization/utils/ColorUtils';
 import { motion } from 'framer-motion';
 
@@ -32,6 +32,7 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
     return eachDayOfInterval({ start, end }).map(date => {
       const dayTimers = getSessionsForDate(date, sessions);
       const totalTime = getTotalTimeForDate(date, sessions);
+      const deadlineTimers = getTimersWithDeadlinesForDate(date, timers);
       
       // Get category breakdown for activity dots
       const categories = dayTimers.reduce((acc, session) => {
@@ -48,6 +49,9 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
         date,
         totalTime,
         timerCount: dayTimers.length,
+        deadlineTimers,
+        deadlineCount: deadlineTimers.length,
+        deadlineUrgency: getDeadlineUrgencyLevel(deadlineTimers),
         inCurrentMonth: isSameMonth(date, currentMonth),
         isSelected: selectedDate ? isSameDay(date, selectedDate) : false,
         isToday: isSameDay(date, new Date()),
@@ -57,7 +61,7 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
                      totalTime > 0 ? 'low' : 'none'
       };
     });
-  }, [currentMonth, sessions, selectedDate]);
+  }, [currentMonth, sessions, selectedDate, timers]);
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -100,27 +104,56 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
             <div
               key={`${day.date.getDate()}-${day.date.getMonth()}`}
               className={`
-                relative p-2 h-20 cursor-pointer rounded-md transition-colors duration-200
+                relative p-2 h-24 cursor-pointer rounded-md transition-colors duration-200
                 ${day.inCurrentMonth ? 'hover:bg-muted/50' : 'opacity-50'}
                 ${day.isSelected ? 'bg-primary/10 border-2 border-primary' : 'border border-border/20'}
                 ${day.isToday ? 'ring-2 ring-primary/50' : ''}
               `}
               onClick={() => setSelectedDate(day.date)}
+              title={`${format(day.date, 'MMMM d, yyyy')}${day.timerCount > 0 ? `\n${day.timerCount} session${day.timerCount !== 1 ? 's' : ''} - ${formatTime(day.totalTime)}` : ''}${day.deadlineCount > 0 ? `\nDeadlines: ${day.deadlineTimers.map(t => t.name).join(', ')}` : ''}`}
             >
               {/* Date number */}
               <div className={`
-                text-sm font-medium
+                text-sm font-medium mb-1
                 ${day.isToday ? 'text-primary font-bold' : ''}
                 ${!day.inCurrentMonth ? 'text-muted-foreground' : ''}
               `}>
                 {format(day.date, 'd')}
               </div>
               
-              {/* Enhanced Activity indicators */}
+              {/* Deadline indicators - Top section */}
+              {day.deadlineCount > 0 && (
+                <div className="absolute top-6 left-1 right-1">
+                  <div className="flex flex-wrap gap-1 mb-1">
+                    {day.deadlineTimers.slice(0, 2).map((timer, i) => (
+                      <div
+                        key={timer.id}
+                        className={`
+                          text-xs px-1.5 py-0.5 rounded text-white font-medium
+                          ${getDeadlinePriorityColor(timer.priority)}
+                        `}
+                        title={`Deadline: ${timer.name} (Priority: ${timer.priority || 'None'})`}
+                      >
+                        {formatDeadlineDisplay(timer)}
+                      </div>
+                    ))}
+                    {day.deadlineCount > 2 && (
+                      <div 
+                        className="text-xs px-1.5 py-0.5 rounded bg-gray-500 text-white font-medium"
+                        title={`+${day.deadlineCount - 2} more deadlines`}
+                      >
+                        +{day.deadlineCount - 2}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Session activity indicators - Middle section */}
               {day.timerCount > 0 && (
-                <div className="absolute inset-1 space-y-1">
-                  {/* Top: Category dots */}
-                  <div className="flex justify-end gap-1">
+                <div className={`absolute ${day.deadlineCount > 0 ? 'top-12' : 'top-6'} right-1`}>
+                  {/* Category dots */}
+                  <div className="flex justify-end gap-1 mb-1">
                     {day.categories.slice(0, 3).map(([category], i) => (
                       <div
                         key={category}
@@ -137,15 +170,17 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
                            title={`+${day.categories.length - 3} more categories`} />
                     )}
                   </div>
-                  
-                  {/* Bottom: Session info */}
-                  <div className="absolute bottom-0 left-0 right-0">
-                    <div className="text-xs text-muted-foreground leading-tight">
-                      {day.timerCount} session{day.timerCount !== 1 ? 's' : ''}
-                    </div>
-                    <div className="text-xs font-semibold leading-tight">
-                      {formatTime(day.totalTime)}
-                    </div>
+                </div>
+              )}
+              
+              {/* Bottom: Session info */}
+              {day.timerCount > 0 && (
+                <div className="absolute bottom-1 left-1 right-1">
+                  <div className="text-xs text-muted-foreground leading-tight">
+                    {day.timerCount} session{day.timerCount !== 1 ? 's' : ''}
+                  </div>
+                  <div className="text-xs font-semibold leading-tight">
+                    {formatTime(day.totalTime)}
                   </div>
                 </div>
               )}
@@ -166,6 +201,15 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
                   absolute bottom-0 left-0 right-0 h-1.5 rounded-b-md
                   ${day.activityLevel === 'high' ? 'bg-green-500' : 
                     day.activityLevel === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'}
+                `} />
+              )}
+              
+              {/* Deadline urgency left border */}
+              {day.deadlineUrgency !== 'none' && (
+                <div className={`
+                  absolute top-0 left-0 bottom-0 w-1 rounded-l-md
+                  ${day.deadlineUrgency === 'high' ? 'bg-red-500' : 
+                    day.deadlineUrgency === 'medium' ? 'bg-orange-500' : 'bg-yellow-500'}
                 `} />
               )}
             </div>
