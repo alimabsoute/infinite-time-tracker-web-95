@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -46,6 +47,7 @@ function App() {
                 <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/food-demo" element={<FoodManufacturerDemo />} />
                 </Routes>
               </SubscriptionProvider>
