@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Cell } from 'recharts';
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { BubbleDataPoint } from './BubbleDataProcessor';
 import { BubbleTooltip } from './BubbleTooltip';
+import { CustomBubbleDot } from './CustomBubbleDot';
 
 interface BubbleChartProps {
   chartData: BubbleDataPoint[];
@@ -74,21 +75,18 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ chartData, onBubbleCli
           tickFormatter={(value) => `${value.toFixed(0)}m`}
         />
         <Tooltip content={<BubbleTooltip />} />
-        <Scatter data={chartData}>
-          {chartData.map((entry, index) => (
-            <Cell 
-              key={`cell-${index}`} 
-              fill={entry.color}
-              fillOpacity={activePoint === entry.timerId ? 1.0 : 0.7}
-              stroke={entry.isRunning ? 'rgba(34, 197, 94, 1)' : 'rgba(255, 255, 255, 0.8)'}
-              strokeWidth={entry.isRunning ? 3 : 2}
-              onClick={() => handleDotClick({ payload: entry })}
-              onMouseEnter={() => setActivePoint(entry.timerId)}
+        <Scatter 
+          data={chartData}
+          shape={(props: any) => (
+            <CustomBubbleDot
+              {...props}
+              onClick={handleDotClick}
+              onMouseEnter={setActivePoint}
               onMouseLeave={() => setActivePoint(null)}
-              style={{ cursor: 'pointer' }}
+              activePoint={activePoint}
             />
-          ))}
-        </Scatter>
+          )}
+        />
       </ScatterChart>
     </ResponsiveContainer>
   );
