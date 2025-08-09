@@ -119,41 +119,54 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
                 {format(day.date, 'd')}
               </div>
               
-              {/* Activity indicators */}
+              {/* Enhanced Activity indicators */}
               {day.timerCount > 0 && (
-                <div className="absolute top-1 right-1 space-y-1">
-                  {/* Category dots */}
-                  <div className="flex gap-1">
-                    {day.categories.map(([category], i) => (
+                <div className="absolute inset-1 space-y-1">
+                  {/* Top: Category dots */}
+                  <div className="flex justify-end gap-1">
+                    {day.categories.slice(0, 3).map(([category], i) => (
                       <div
                         key={category}
-                        className="w-2 h-2 rounded-full"
+                        className="w-2.5 h-2.5 rounded-full border border-white/50"
                         style={{ 
                           backgroundColor: getCategoryColor(category, false),
-                          opacity: 0.8 
+                          opacity: 0.9
                         }}
+                        title={`${category}`}
                       />
                     ))}
+                    {day.categories.length > 3 && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-gray-400 border border-white/50" 
+                           title={`+${day.categories.length - 3} more categories`} />
+                    )}
+                  </div>
+                  
+                  {/* Bottom: Session info */}
+                  <div className="absolute bottom-0 left-0 right-0">
+                    <div className="text-xs text-muted-foreground leading-tight">
+                      {day.timerCount} session{day.timerCount !== 1 ? 's' : ''}
+                    </div>
+                    <div className="text-xs font-semibold leading-tight">
+                      {formatTime(day.totalTime)}
+                    </div>
                   </div>
                 </div>
               )}
               
-              {/* Timer count and time */}
-              {day.timerCount > 0 && (
-                <div className="absolute bottom-1 left-1 right-1">
-                  <div className="text-xs text-muted-foreground">
-                    {day.timerCount} timer{day.timerCount !== 1 ? 's' : ''}
-                  </div>
-                  <div className="text-xs font-medium">
-                    {formatTime(day.totalTime)}
-                  </div>
-                </div>
-              )}
-              
-              {/* Activity level indicator */}
+              {/* Activity level background indicator */}
               {day.activityLevel !== 'none' && (
                 <div className={`
-                  absolute bottom-0 left-0 right-0 h-1 rounded-b-md
+                  absolute inset-0 rounded-md border-2 pointer-events-none
+                  ${day.activityLevel === 'high' ? 'bg-green-500/10 border-green-500/30' : 
+                    day.activityLevel === 'medium' ? 'bg-yellow-500/10 border-yellow-500/30' : 
+                    'bg-blue-500/10 border-blue-500/30'}
+                `} />
+              )}
+              
+              {/* Strong activity intensity bar */}
+              {day.activityLevel !== 'none' && (
+                <div className={`
+                  absolute bottom-0 left-0 right-0 h-1.5 rounded-b-md
                   ${day.activityLevel === 'high' ? 'bg-green-500' : 
                     day.activityLevel === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'}
                 `} />

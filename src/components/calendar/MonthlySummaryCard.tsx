@@ -134,15 +134,21 @@ const MonthlySummaryCard: React.FC<MonthlySummaryCardProps> = ({
           ))}
         </div>
         
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+        {/* Enhanced Quick Stats */}
+        <div className="grid grid-cols-3 gap-3 pt-4 border-t">
           <div className="text-center">
             <div className="text-lg font-bold text-blue-600">{timers.length}</div>
-            <div className="text-xs text-muted-foreground">Total Timers</div>
+            <div className="text-xs text-muted-foreground">Timers</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-bold text-green-600">{sessions.length}</div>
             <div className="text-xs text-muted-foreground">Sessions</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-purple-600">
+              {Math.round((monthlyStats.activeDays / monthlyStats.totalDays) * 100)}%
+            </div>
+            <div className="text-xs text-muted-foreground">Activity</div>
           </div>
         </div>
       </CardContent>

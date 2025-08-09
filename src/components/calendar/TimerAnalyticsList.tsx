@@ -82,10 +82,25 @@ const TimerAnalyticsList: React.FC<TimerAnalyticsListProps> = ({
           <div className="text-center py-8 text-muted-foreground">
             <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p>No timer activity this month</p>
+            <p className="text-xs mt-1">Start some timers to see analytics here</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {timerAnalytics.slice(0, 8).map((timer, index) => {
+          <div className="space-y-3">
+            {/* Summary Stats */}
+            <div className="grid grid-cols-2 gap-3 p-3 bg-muted/30 rounded-lg">
+              <div className="text-center">
+                <div className="text-sm font-bold text-primary">{timerAnalytics.length}</div>
+                <div className="text-xs text-muted-foreground">Active Timers</div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-bold text-green-600">
+                  {formatTime(timerAnalytics.reduce((sum, t) => sum + t.totalTime, 0))}
+                </div>
+                <div className="text-xs text-muted-foreground">Total Time</div>
+              </div>
+            </div>
+            
+            {timerAnalytics.slice(0, 6).map((timer, index) => {
               const efficiencyBadge = getEfficiencyBadge(timer.efficiency);
               
               return (
@@ -134,10 +149,10 @@ const TimerAnalyticsList: React.FC<TimerAnalyticsListProps> = ({
               );
             })}
             
-            {timerAnalytics.length > 8 && (
+            {timerAnalytics.length > 6 && (
               <div className="text-center pt-2">
                 <Badge variant="secondary" className="text-xs">
-                  +{timerAnalytics.length - 8} more timers
+                  +{timerAnalytics.length - 6} more timers
                 </Badge>
               </div>
             )}

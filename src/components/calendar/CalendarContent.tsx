@@ -62,39 +62,44 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
       {/* Urgent Deadlines Banner */}
       <UrgentDeadlinesBanner timers={timers} />
       
-      {/* Main Calendar Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Main Calendar Grid - Takes 2 columns */}
-        <ProductivityCalendarGrid
-          currentMonth={currentMonth}
-          handleMonthChange={handleMonthChange}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          sessions={sessions}
-          timers={timers}
-        />
+      {/* 3-Column Layout to Match Reference */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left: Main Calendar Grid (6 columns - 50%) */}
+        <div className="lg:col-span-6">
+          <ProductivityCalendarGrid
+            currentMonth={currentMonth}
+            handleMonthChange={handleMonthChange}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            sessions={sessions}
+            timers={timers}
+          />
+        </div>
         
-        {/* Right Sidebar - Monthly Summary */}
-        <div className="space-y-4">
+        {/* Middle: Monthly Summary (3 columns - 25%) */}
+        <div className="lg:col-span-3 space-y-4">
           <MonthlySummaryCard
             currentMonth={currentMonth}
             sessions={sessions}
             timers={timers}
           />
           
+          {/* Daily Details for Selected Date */}
+          <DailyDetailsPanel
+            selectedDate={selectedDate}
+            sessions={sessions}
+            timers={timers}
+          />
+        </div>
+        
+        {/* Right: Timer Analytics (3 columns - 25%) */}
+        <div className="lg:col-span-3 space-y-4">
           <TimerAnalyticsList
             timers={timers}
             sessions={sessions}
             currentMonth={currentMonth}
           />
         </div>
-        
-        {/* Daily Details Panel - Full width on mobile, fixed position on larger screens */}
-        <DailyDetailsPanel
-          selectedDate={selectedDate}
-          sessions={sessions}
-          timers={timers}
-        />
       </div>
       
       {/* Quick Stats Bottom Section */}

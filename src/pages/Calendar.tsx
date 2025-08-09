@@ -10,10 +10,11 @@ const Calendar = () => {
   const [sessions, setSessions] = React.useState<any[]>([]);
   const [sessionsLoading, setSessionsLoading] = React.useState(true);
 
-  // Fetch sessions for calendar
+  // Fetch sessions for calendar with real-time updates
   React.useEffect(() => {
     const fetchSessions = async () => {
       try {
+        // Get ALL sessions (completed and running)
         const { data, error } = await supabase
           .from('timer_sessions')
           .select(`
@@ -21,14 +22,46 @@ const Calendar = () => {
             timers!inner(
               id,
               name,
-              category
+              category,
+              elapsed_time,
+              is_running,
+              start_time
             )
           `)
-          .not('end_time', 'is', null)
           .order('start_time', { ascending: false });
 
         if (error) throw error;
-        setSessions(data || []);
+        
+        // Process sessions to include running timer data
+        const processedSessions = (data || []).map(session => {
+          // For running timers without end_time, calculate virtual duration
+          if (!session.end_time && session.timers?.is_running) {
+            const now = new Date();
+            const sessionStart = new Date(session.start_time);
+            const virtualDuration = now.getTime() - sessionStart.getTime();
+            
+            return {
+              ...session,
+              duration_ms: virtualDuration,
+              isVirtual: true
+            };
+          }
+          return session;
+        });
+
+        console.log('📅 Calendar - Fetched sessions:', {
+          total: processedSessions.length,
+          completed: processedSessions.filter(s => s.end_time).length,
+          running: processedSessions.filter(s => !s.end_time && s.timers?.is_running).length,
+          sampleSessions: processedSessions.slice(0, 3).map(s => ({
+            id: s.id,
+            timer_name: s.timers?.name,
+            duration_ms: s.duration_ms,
+            has_end_time: !!s.end_time
+          }))
+        });
+        
+        setSessions(processedSessions);
       } catch (error) {
         console.error('Error fetching sessions:', error);
         setSessions([]);
@@ -38,6 +71,29 @@ const Calendar = () => {
     };
 
     fetchSessions();
+    
+    // Set up real-time subscription for session updates
+    const subscription = supabase
+      .channel('timer_sessions_calendar')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'timer_sessions' },
+        () => {
+          console.log('📅 Calendar - Session updated, refetching...');
+          fetchSessions();
+        }
+      )
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'timers' },
+        () => {
+          console.log('📅 Calendar - Timer updated, refetching sessions...');
+          fetchSessions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
   
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
@@ -54,8 +110,14 @@ const Calendar = () => {
       id: sessions[0].id,
       timer_name: sessions[0].timers?.name || 'No name',
       duration_ms: sessions[0].duration_ms,
-      start_time: sessions[0].start_time
-    } : 'No sessions'
+      start_time: sessions[0].start_time,
+      has_end_time: !!sessions[0].end_time
+    } : 'No sessions',
+    monthSessions: sessions.filter(s => {
+      const sessionDate = new Date(s.start_time);
+      return sessionDate.getMonth() === currentMonth.getMonth() && 
+             sessionDate.getFullYear() === currentMonth.getFullYear();
+    }).length
   });
 
   const handleMonthChange = (direction: 'prev' | 'next') => {
