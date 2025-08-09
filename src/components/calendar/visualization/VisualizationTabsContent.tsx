@@ -3,7 +3,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TimerSessionWithTimer } from "../../../types";
 import Enhanced2DBubbleChart from './Enhanced2DBubbleChart';
-import Enhanced3DBubbleChart from './Enhanced3DBubbleChart';
+
 import InteractiveTimelineChart from './InteractiveTimelineChart';
 import CategoryRadarChart from './CategoryRadarChart';
 import InteractiveTreemapChart from './InteractiveTreemapChart';
@@ -41,9 +41,6 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
           <TabsTrigger value="treemap" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             Treemap
           </TabsTrigger>
-          <TabsTrigger value="3d" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            3D Bubbles
-          </TabsTrigger>
           <TabsTrigger value="2d" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             2D Bubbles
           </TabsTrigger>
@@ -73,22 +70,6 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
             />
           </TabsContent>
 
-          <TabsContent value="3d" className="mt-0 space-y-6">
-            <div className="h-[400px]">
-              <Enhanced3DBubbleChart 
-                sessions={sessions} 
-                selectedCategory={selectedCategory}
-                onBubbleClick={onBubbleClick}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground text-center">
-              Enhanced 3D bubble chart with WebGL error handling • Click and drag to rotate • Scroll to zoom • Click bubbles for details
-            </p>
-            <ChartInsights 
-              sessions={sessions}
-              selectedCategory={selectedCategory}
-            />
-          </TabsContent>
           
           <TabsContent value="2d" className="mt-0 space-y-6">
             <div className="h-[400px]">

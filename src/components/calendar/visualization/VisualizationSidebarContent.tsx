@@ -62,9 +62,6 @@ const VisualizationSidebarContent: React.FC<VisualizationSidebarContentProps> = 
               <strong>Treemap:</strong> Interactive hierarchical visualization with rectangle sizes representing total time
             </div>
             <div>
-              <strong>3D Bubbles:</strong> Enhanced sphere visualization with unique timer colors and error handling
-            </div>
-            <div>
               <strong>2D Scatter:</strong> Improved bubble chart with better color differentiation
             </div>
             <div>
