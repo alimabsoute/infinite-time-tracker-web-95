@@ -70,8 +70,8 @@ const Header = () => {
     <header className="bg-white sticky top-0 z-30 w-full border-b border-gray-200 shadow-sm">
       <div className="w-full px-8">
         <div className="flex items-center h-24" style={{ minHeight: '96px' }}>
-          {/* Left: Logo section */}
-          <div className="flex items-center space-x-4">
+          {/* Left: Logo section - EXACT width */}
+          <div className="flex items-center space-x-4" style={{ width: '200px', minWidth: '200px' }}>
             <Link to="/dashboard" className="flex items-center space-x-0.5">
               <PhynxTimerLogo width={84} height={84} />
               <span className="text-xl font-semibold text-gray-900 whitespace-nowrap">PhynxTimer</span>
