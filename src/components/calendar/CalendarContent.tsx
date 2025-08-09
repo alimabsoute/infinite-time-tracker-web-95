@@ -1,4 +1,3 @@
-
 import React from "react";
 import { motion } from "framer-motion";
 import CalendarTabs from "./CalendarTabs";
@@ -39,7 +38,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
   setCategoryFilter,
   categories,
 }) => {
-  console.log('CalendarContent - Rendering new design with data:', {
+  console.log('CalendarContent - Rendering with data:', {
     timersCount: timers.length,
     sessionsCount: sessions.length,
     sessionsLoading,

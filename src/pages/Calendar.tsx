@@ -9,6 +9,9 @@ const Calendar = () => {
   const { timers } = useDeadSimpleTimers();
   const [sessions, setSessions] = React.useState<any[]>([]);
   const [sessionsLoading, setSessionsLoading] = React.useState(true);
+  
+  // Emergency mock data when no sessions exist
+  const [useMockData, setUseMockData] = React.useState(false);
 
   // Fetch sessions for calendar with real-time updates
   React.useEffect(() => {
@@ -61,6 +64,12 @@ const Calendar = () => {
           }))
         });
         
+        // If no sessions found, enable mock data for development/testing
+        if (processedSessions.length === 0 && timers.length > 0) {
+          console.log('📅 Calendar - No sessions found, enabling mock data');
+          setUseMockData(true);
+        }
+        
         setSessions(processedSessions);
       } catch (error) {
         console.error('Error fetching sessions:', error);
@@ -94,11 +103,22 @@ const Calendar = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [timers]);
   
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());
   const [categoryFilter, setCategoryFilter] = React.useState('all');
+
+  // Generate mock data when needed for testing/development
+  const displaySessions = React.useMemo(() => {
+    if (sessions.length > 0 || !useMockData) {
+      return sessions;
+    }
+    
+    // Generate mock sessions when no real data exists
+    const { generateMockSessionsForCalendar } = require('../utils/mockCalendarData');
+    return generateMockSessionsForCalendar(timers);
+  }, [sessions, useMockData, timers]);
 
   console.log('🔍 Calendar Page - Data summary:', {
     timersCount: timers.length,
@@ -113,7 +133,7 @@ const Calendar = () => {
       start_time: sessions[0].start_time,
       has_end_time: !!sessions[0].end_time
     } : 'No sessions',
-    monthSessions: sessions.filter(s => {
+    monthSessions: displaySessions.filter(s => {
       const sessionDate = new Date(s.start_time);
       return sessionDate.getMonth() === currentMonth.getMonth() && 
              sessionDate.getFullYear() === currentMonth.getFullYear();
@@ -150,7 +170,7 @@ const Calendar = () => {
         setSelectedDate={setSelectedDate}
         setCurrentMonth={setCurrentMonth}
         timers={timers}
-        sessions={sessions}
+        sessions={displaySessions}
         sessionsLoading={sessionsLoading}
         categoryFilter={categoryFilter}
         setCategoryFilter={setCategoryFilter}

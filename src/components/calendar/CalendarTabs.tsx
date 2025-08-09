@@ -23,29 +23,29 @@ const CalendarTabs: React.FC<CalendarTabsProps> = ({ children, analyticsContent 
         </TabsTrigger>
       </TabsList>
       
-      <AnimatePresence mode="wait">
-        <TabsContent value="calendar" className="mt-0">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            {children}
-          </motion.div>
-        </TabsContent>
-        
-        <TabsContent value="analytics" className="mt-0">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            {analyticsContent}
-          </motion.div>
-        </TabsContent>
-      </AnimatePresence>
+      <TabsContent value="calendar" className="mt-0">
+        <motion.div
+          key="calendar-content"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          {children}
+        </motion.div>
+      </TabsContent>
+      
+      <TabsContent value="analytics" className="mt-0">
+        <motion.div
+          key="analytics-content"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          {analyticsContent}
+        </motion.div>
+      </TabsContent>
     </Tabs>
   );
 };

@@ -62,7 +62,7 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <Card className="col-span-2">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <h3 className="text-lg font-semibold">
           {format(currentMonth, 'MMMM yyyy')}
