@@ -8,21 +8,33 @@ interface ShareData {
 }
 
 export const shareOnTwitter = (data: ShareData) => {
-  const twitterUrl = new URL('https://twitter.com/intent/tweet');
-  twitterUrl.searchParams.set('text', `${data.text} ${data.url}`);
-  window.open(twitterUrl.toString(), '_blank', 'width=550,height=420');
+  try {
+    const twitterUrl = new URL('https://twitter.com/intent/tweet');
+    twitterUrl.searchParams.set('text', `${data.text} ${data.url}`);
+    window.open(twitterUrl.toString(), '_blank', 'width=550,height=420');
+  } catch (error) {
+    console.error('Error creating Twitter share URL:', error);
+  }
 };
 
 export const shareOnLinkedIn = (data: ShareData) => {
-  const linkedInUrl = new URL('https://www.linkedin.com/sharing/share-offsite/');
-  linkedInUrl.searchParams.set('url', data.url);
-  window.open(linkedInUrl.toString(), '_blank', 'width=550,height=420');
+  try {
+    const linkedInUrl = new URL('https://www.linkedin.com/sharing/share-offsite/');
+    linkedInUrl.searchParams.set('url', data.url);
+    window.open(linkedInUrl.toString(), '_blank', 'width=550,height=420');
+  } catch (error) {
+    console.error('Error creating LinkedIn share URL:', error);
+  }
 };
 
 export const shareOnFacebook = (data: ShareData) => {
-  const facebookUrl = new URL('https://www.facebook.com/sharer/sharer.php');
-  facebookUrl.searchParams.set('u', data.url);
-  window.open(facebookUrl.toString(), '_blank', 'width=550,height=420');
+  try {
+    const facebookUrl = new URL('https://www.facebook.com/sharer/sharer.php');
+    facebookUrl.searchParams.set('u', data.url);
+    window.open(facebookUrl.toString(), '_blank', 'width=550,height=420');
+  } catch (error) {
+    console.error('Error creating Facebook share URL:', error);
+  }
 };
 
 export const copyToClipboard = async (text: string): Promise<boolean> => {

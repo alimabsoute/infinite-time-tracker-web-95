@@ -100,10 +100,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithGoogle = async () => {
     try {
       setLoading(true);
+      console.log('Starting Google OAuth flow...');
+      
+      // Use dynamic redirect URL to ensure it works in all environments
+      const redirectTo = `${window.location.origin}/dashboard`;
+      console.log('Redirect URL:', redirectTo);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://infinite-time-tracker-web-95.lovableproject.com/dashboard'
+          redirectTo
         }
       });
       if (error) {
