@@ -2,7 +2,6 @@
 import React from 'react';
 import PageLayout from '../components/layout/PageLayout';
 import TimerReportsTable from '../components/reports/TimerReportsTable';
-import MockDataControls from '../components/reports/MockDataControls';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import PremiumFeatureGate from '../components/premium/PremiumFeatureGate';
@@ -16,7 +15,6 @@ const Reports = () => {
       title="Timer Reports"
       description="View, analyze, and export your timer data in spreadsheet format"
     >
-      <MockDataControls />
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
