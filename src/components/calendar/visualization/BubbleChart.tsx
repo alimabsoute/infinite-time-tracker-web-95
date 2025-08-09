@@ -82,7 +82,6 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ chartData, onBubbleCli
               fillOpacity={activePoint === entry.timerId ? 1.0 : 0.7}
               stroke={entry.isRunning ? 'rgba(34, 197, 94, 1)' : 'rgba(255, 255, 255, 0.8)'}
               strokeWidth={entry.isRunning ? 3 : 2}
-              r={entry.size}
               onClick={() => handleDotClick({ payload: entry })}
               onMouseEnter={() => setActivePoint(entry.timerId)}
               onMouseLeave={() => setActivePoint(null)}

@@ -372,12 +372,9 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
       const totalHours = totalTime / (1000 * 60 * 60);
       const avgMinutes = avgSessionTime / (1000 * 60);
       
-      // True proportional sizing with square root scaling for better visual distinction
-      // Much larger base size for visibility, dramatic scaling based on total time
-      const minSize = 15;
-      const maxSize = 100;
-      const timeRatio = Math.sqrt(totalTime / maxTotalTime); // Square root for better visual spread
-      const size = minSize + (timeRatio * (maxSize - minSize)); // 15-100px range
+      // Recharts z-value scaling - use total time for dramatic size differences
+      // Higher z values = larger bubbles, scale based on total time duration
+      const z = Math.max(5, (totalTime / maxTotalTime) * 45 + 5); // Scale from 5-50 for proper Recharts sizing
       
       // Generate category-based colors
       const categoryColors: { [key: string]: string } = {
@@ -392,12 +389,12 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
       const categoryColor = categoryColors[timer?.category || 'Uncategorized'] || 'hsl(200, 30%, 50%)';
       const color = isRunning ? 'hsl(142, 71%, 45%)' : categoryColor;
 
-      console.log(`🔍 Timer "${timer?.name}": ${Math.round(totalTime / (1000 * 60))}min → ${Math.round(size)}px (ratio: ${(timeRatio * 100).toFixed(1)}%)`);
+      console.log(`🔍 Timer "${timer?.name}": ${Math.round(totalTime / (1000 * 60))}min → z=${z.toFixed(1)}`);
 
       return {
         id: `${timerId}-${index}`,
         position: [0, 0, 0] as [number, number, number],
-        size: size,
+        size: z, // Keep for compatibility with ProcessedData interface
         color: color,
         timerName: timer?.name || 'Unknown Timer',
         totalTime: totalTime,
@@ -413,7 +410,7 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
         sessions: timerSessions,
         x: totalHours,
         y: avgMinutes,
-        z: size // Map size to z property for Recharts bubble sizing
+        z: z // Use duration-based z value for proper Recharts bubble sizing
       };
     });
   } catch (error) {
