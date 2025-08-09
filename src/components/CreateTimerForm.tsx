@@ -2,16 +2,25 @@
 import { Plus } from "lucide-react";
 
 interface CreateTimerFormProps {
-  onAddTimer: (name: string) => void;
+  onAddTimer: (name: string, position?: { x: number; y: number }) => void;
   currentTimerCount: number;
 }
 
 const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps) => {
   console.log('🎨 CreateTimerForm - Rendering with timer count:', currentTimerCount);
   
-  const handleAddTimer = () => {
+  const handleAddTimer = (event: React.MouseEvent) => {
     console.log('➕ CreateTimerForm - Add button clicked');
-    onAddTimer("New Timer");
+    
+    // Capture click position for animations
+    const rect = event.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    
+    console.log('🎯 CreateTimerForm - Animation position:', position);
+    onAddTimer("New Timer", position);
   };
 
   return (
@@ -24,7 +33,7 @@ const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            handleAddTimer();
+            handleAddTimer(e as any);
           }
         }}
         className="h-16 w-16 bg-blue-500 rounded-full cursor-pointer transition-all duration-300 hover:scale-110 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-500/20 flex items-center justify-center"

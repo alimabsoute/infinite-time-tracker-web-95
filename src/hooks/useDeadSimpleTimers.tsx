@@ -3,6 +3,7 @@ import { Timer } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useTimerAnimations } from './useTimerAnimations';
 
 // DEAD SIMPLE: elapsed_time + start_time (when running) = total time
 
@@ -11,6 +12,16 @@ export const useDeadSimpleTimers = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const intervalRef = useRef<NodeJS.Timeout>();
+  
+  // Animation system integration
+  const {
+    confettiTrigger,
+    celebrationTrigger,
+    setConfettiTrigger,
+    setCelebrationTrigger,
+    clearConfettiTrigger,
+    clearCelebrationTrigger
+  } = useTimerAnimations();
 
   // Get display time for any timer
   const getDisplayTime = useCallback((timer: Timer): number => {
@@ -176,8 +187,8 @@ export const useDeadSimpleTimers = () => {
     }
   }, [user]);
 
-  // Add timer
-  const addTimer = useCallback(async (name: string) => {
+  // Add timer with animation support
+  const addTimer = useCallback(async (name: string, position?: { x: number; y: number }) => {
     if (!user) return;
 
     try {
@@ -212,6 +223,14 @@ export const useDeadSimpleTimers = () => {
 
       setTimers(prev => [processedTimer, ...prev]);
       toast.success(`Timer "${name}" created`);
+      
+      // Trigger animations if position provided
+      if (position) {
+        setConfettiTrigger({ x: position.x, y: position.y, id: processedTimer.id });
+        const celebrations: ('fireworks' | 'sparkles' | 'balloons' | 'animals')[] = ['fireworks', 'sparkles', 'balloons', 'animals'];
+        const randomCelebration = celebrations[Math.floor(Math.random() * celebrations.length)];
+        setCelebrationTrigger({ type: randomCelebration });
+      }
     } catch (error) {
       console.error('❌ Error creating timer:', error);
       toast.error('Failed to create timer');
@@ -392,5 +411,10 @@ export const useDeadSimpleTimers = () => {
     updatePriority,
     reorderTimers,
     getDisplayTime,
+    // Animation state
+    confettiTrigger,
+    celebrationTrigger,
+    clearConfettiTrigger,
+    clearCelebrationTrigger,
   };
 };

@@ -25,7 +25,11 @@ const Dashboard = () => {
     updatePriority,
     reorderTimers,
     getDisplayTime,
-    loading
+    loading,
+    confettiTrigger,
+    celebrationTrigger,
+    clearConfettiTrigger,
+    clearCelebrationTrigger
   } = useDeadSimpleTimers();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
@@ -36,9 +40,9 @@ const Dashboard = () => {
     user: user?.id || 'none'
   });
 
-  const handleCreateTimer = async (name: string) => {
-    console.log('🎯 Dashboard - Creating timer with name:', name);
-    await addTimer(name);
+  const handleCreateTimer = async (name: string, position?: { x: number; y: number }) => {
+    console.log('🎯 Dashboard - Creating timer with name:', name, 'at position:', position);
+    await addTimer(name, position);
     console.log('✅ Dashboard - Timer created successfully');
   };
 
@@ -104,7 +108,13 @@ const Dashboard = () => {
         currentTimerCount={timers.length}
       />
 
-      {/* Animation manager removed for simplicity */}
+      {/* Enhanced Animation Manager */}
+      <EnhancedAnimationManager
+        confettiTrigger={confettiTrigger}
+        celebrationTrigger={celebrationTrigger}
+        onConfettiComplete={clearConfettiTrigger}
+        onCelebrationComplete={clearCelebrationTrigger}
+      />
     </PageLayout>
   );
 };
