@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -21,7 +21,7 @@ interface DbTimerRecord {
 export const useTimerReports = () => {
   const [reportData, setReportData] = useState<TimerReportData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sessionStartTimes, setSessionStartTimes] = useState<Map<string, Date>>(new Map());
+  const sessionStartTimesRef = useRef<Map<string, Date>>(new Map());
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -32,24 +32,6 @@ export const useTimerReports = () => {
     const seconds = totalSeconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
-
-  const calculateTotalTime = useCallback((timer: DbTimerRecord): { totalTime: string; totalTimeMs: number } => {
-    let totalMs = timer.elapsed_time;
-    
-    // For running timers, add the current session elapsed time
-    if (timer.is_running && !timer.deleted_at) {
-      const sessionStart = sessionStartTimes.get(timer.id);
-      if (sessionStart) {
-        const currentSessionMs = Date.now() - sessionStart.getTime();
-        totalMs += currentSessionMs;
-      }
-    }
-    
-    return {
-      totalTime: formatTime(totalMs),
-      totalTimeMs: totalMs
-    };
-  }, [sessionStartTimes]);
 
   const loadAllTimerData = useCallback(async () => {
     if (!user) {
@@ -115,9 +97,10 @@ export const useTimerReports = () => {
         }
       }
 
-      setSessionStartTimes(newSessionStartTimes);
+      // Update session start times ref
+      sessionStartTimesRef.current = newSessionStartTimes;
 
-      // Transform data for reports with enhanced time calculation
+      // Transform data for reports with inline time calculation
       const transformedData: TimerReportData[] = timersData.map((timer: DbTimerRecord) => {
         let status: 'Running' | 'Stopped' | 'Deleted' = 'Stopped';
         
@@ -128,14 +111,21 @@ export const useTimerReports = () => {
         }
 
         // Calculate total time including current session for running timers
-        const timeData = calculateTotalTime(timer);
+        let totalMs = timer.elapsed_time;
+        if (timer.is_running && !timer.deleted_at) {
+          const sessionStart = newSessionStartTimes.get(timer.id);
+          if (sessionStart) {
+            const currentSessionMs = Date.now() - sessionStart.getTime();
+            totalMs += currentSessionMs;
+          }
+        }
 
         const reportItem: TimerReportData = {
           id: timer.id,
           name: timer.name,
           category: timer.category || 'Uncategorized',
-          totalTime: timeData.totalTime,
-          totalTimeMs: timeData.totalTimeMs,
+          totalTime: formatTime(totalMs),
+          totalTimeMs: totalMs,
           status,
           createdDate: new Date(timer.created_at).toLocaleString(),
           deletedDate: timer.deleted_at ? new Date(timer.deleted_at).toLocaleString() : undefined,
@@ -144,14 +134,6 @@ export const useTimerReports = () => {
           tags: timer.tags && timer.tags.length > 0 ? timer.tags.join(', ') : 'No Tags',
           baseElapsedTime: timer.elapsed_time, // Store the database elapsed time
         };
-
-        console.log('🔍 useTimerReports - Transformed timer:', {
-          name: timer.name,
-          category: reportItem.category,
-          status: reportItem.status,
-          totalTime: reportItem.totalTime,
-          isRunning: timer.is_running
-        });
 
         return reportItem;
       });
@@ -169,14 +151,14 @@ export const useTimerReports = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, toast, calculateTotalTime]);
+  }, [user, toast]);
 
   // Update report data for running timers in real-time
   const updateRunningTimers = useCallback(() => {
     setReportData(prevData => 
       prevData.map(timer => {
         if (timer.status === 'Running' && timer.baseElapsedTime !== undefined) {
-          const sessionStart = sessionStartTimes.get(timer.id);
+          const sessionStart = sessionStartTimesRef.current.get(timer.id);
           if (sessionStart) {
             // Calculate current session time and add to base elapsed time
             const currentSessionMs = Date.now() - sessionStart.getTime();
@@ -192,7 +174,7 @@ export const useTimerReports = () => {
         return timer;
       })
     );
-  }, [sessionStartTimes]);
+  }, []);
 
   // Initial data load
   useEffect(() => {
@@ -202,13 +184,13 @@ export const useTimerReports = () => {
   // Real-time updates for running timers
   useEffect(() => {
     const interval = setInterval(() => {
-      if (sessionStartTimes.size > 0) {
+      if (sessionStartTimesRef.current.size > 0) {
         updateRunningTimers();
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [sessionStartTimes, updateRunningTimers]);
+  }, [updateRunningTimers]);
 
   return {
     reportData,
