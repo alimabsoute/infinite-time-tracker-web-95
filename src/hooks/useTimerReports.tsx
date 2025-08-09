@@ -71,27 +71,14 @@ export const useTimerReports = () => {
         return;
       }
 
-      // Get active sessions for running timers to calculate current session time
-      const runningTimerIds = timersData
-        .filter(timer => timer.is_running && !timer.deleted_at)
-        .map(timer => timer.id);
-
+      // Create session start times map using start_time from timers table
       const newSessionStartTimes = new Map<string, Date>();
-
-      if (runningTimerIds.length > 0) {
-        const { data: sessionsData, error: sessionsError } = await supabase
-          .from('timer_sessions')
-          .select('timer_id, start_time')
-          .in('timer_id', runningTimerIds)
-          .is('end_time', null)
-          .eq('user_id', user.id);
-
-        if (!sessionsError && sessionsData) {
-          sessionsData.forEach(session => {
-            newSessionStartTimes.set(session.timer_id, new Date(session.start_time));
-          });
+      
+      timersData.forEach(timer => {
+        if (timer.is_running && !timer.deleted_at && timer.start_time) {
+          newSessionStartTimes.set(timer.id, new Date(timer.start_time));
         }
-      }
+      });
 
       // Update session start times ref
       sessionStartTimesRef.current = newSessionStartTimes;
