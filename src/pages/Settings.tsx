@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import Header from '@/components/Header';
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -16,12 +17,15 @@ const Settings = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">Manage your account settings and preferences.</p>
-        </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Settings</h1>
+            <p className="text-muted-foreground">Manage your account settings and preferences.</p>
+          </div>
 
         <Card>
           <CardHeader>
@@ -51,6 +55,7 @@ const Settings = () => {
             </Button>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
