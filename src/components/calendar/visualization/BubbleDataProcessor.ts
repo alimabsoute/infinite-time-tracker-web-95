@@ -372,12 +372,12 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
       const totalHours = totalTime / (1000 * 60 * 60);
       const avgMinutes = avgSessionTime / (1000 * 60);
       
-      // 1:1 proportional sizing: bubble size directly proportional to time
-      // Base size of 30px for minimum visibility, scale up to 300px max for much better visibility
-      const minSize = 30;
-      const maxSize = 300;
-      const timeRatio = totalTime / maxTotalTime; // 0 to 1 ratio
-      const size = minSize + (timeRatio * (maxSize - minSize));
+      // True proportional sizing with square root scaling for better visual distinction
+      // Much larger base size for visibility, dramatic scaling based on total time
+      const minSize = 15;
+      const maxSize = 100;
+      const timeRatio = Math.sqrt(totalTime / maxTotalTime); // Square root for better visual spread
+      const size = minSize + (timeRatio * (maxSize - minSize)); // 15-100px range
       
       // Generate category-based colors
       const categoryColors: { [key: string]: string } = {
