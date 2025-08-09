@@ -15,7 +15,7 @@ interface VisualizationContainerProps {
   onBubbleClick?: (bubble: any) => void;
 }
 
-type VisualizationMode = '3d' | '2d' | 'bar';
+type VisualizationMode = 'timeline' | '2d' | 'bar';
 
 const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
   sessions,
@@ -23,8 +23,8 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
   endDate,
   onBubbleClick
 }) => {
-  const [currentMode, setCurrentMode] = useState<VisualizationMode>('3d');
-  const [has3DSupport, setHas3DSupport] = useState(true);
+  const [currentMode, setCurrentMode] = useState<VisualizationMode>('timeline');
+  // Removed 3D support tracking as we no longer use 3D
   const [dataValidation, setDataValidation] = useState<any>(null);
   const [fallbackHistory, setFallbackHistory] = useState<VisualizationMode[]>([]);
 
@@ -35,20 +35,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
     currentMode
   });
 
-  // Check for WebGL support
-  useEffect(() => {
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    const webglSupported = !!gl;
-    
-    console.log('🔍 VisualizationContainer - WebGL support:', webglSupported);
-    
-    if (!webglSupported) {
-      setHas3DSupport(false);
-      setCurrentMode('2d');
-      setFallbackHistory(['3d']);
-    }
-  }, []);
+  // Removed WebGL support check as we no longer use 3D visualization
 
   // Validate data on props change
   useEffect(() => {
@@ -66,10 +53,10 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
     setFallbackHistory(newFallbackHistory);
     
     // Progressive fallback logic
-    if (mode === '3d' && !newFallbackHistory.includes('2d')) {
-      console.log('🔍 VisualizationContainer - Auto-falling back from 3D to 2D');
+    if (mode === 'timeline' && !newFallbackHistory.includes('2d')) {
+      console.log('🔍 VisualizationContainer - Auto-falling back from Timeline to 2D');
       setCurrentMode('2d');
-    } else if ((mode === '2d' || mode === '3d') && !newFallbackHistory.includes('bar')) {
+    } else if ((mode === '2d' || mode === 'timeline') && !newFallbackHistory.includes('bar')) {
       console.log('🔍 VisualizationContainer - Auto-falling back to Bar Chart');
       setCurrentMode('bar');
     } else {
@@ -95,7 +82,6 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
         <VisualizationTabs
           currentMode={currentMode}
           onModeChange={handleModeChange}
-          has3DSupport={has3DSupport}
           fallbackHistory={fallbackHistory}
         >
           <VisualizationRenderer
@@ -111,7 +97,7 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
 
         <VisualizationDebugInfo
           currentMode={currentMode}
-          has3DSupport={has3DSupport}
+          has3DSupport={false}
           dataValidation={dataValidation}
           fallbackHistory={fallbackHistory}
           dateRange={{ startDate, endDate }}

@@ -11,13 +11,15 @@ interface InteractiveTimelineChartProps {
   selectedCategory?: string;
   startDate?: Date;
   endDate?: Date;
+  onBubbleClick?: (data: any) => void;
 }
 
 const InteractiveTimelineChart: React.FC<InteractiveTimelineChartProps> = ({ 
   sessions, 
   selectedCategory,
   startDate,
-  endDate 
+  endDate,
+  onBubbleClick
 }) => {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
@@ -103,6 +105,7 @@ const InteractiveTimelineChart: React.FC<InteractiveTimelineChartProps> = ({
 
   const handleBarClick = (data: any) => {
     setSelectedDay(selectedDay === data.date ? null : data.date);
+    onBubbleClick?.(data); // Call the optional callback
   };
 
   if (timelineData.length === 0) {

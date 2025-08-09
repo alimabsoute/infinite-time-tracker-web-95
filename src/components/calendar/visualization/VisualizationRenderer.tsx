@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { TimerSessionWithTimer } from "../../../types";
-import BubbleChart3DEnhanced from './BubbleChart3DEnhanced';
+import InteractiveTimelineChart from './InteractiveTimelineChart';
 import Fallback2DChart from './Fallback2DChart';
 import FallbackBarChart from './FallbackBarChart';
 
-type VisualizationMode = '3d' | '2d' | 'bar';
+type VisualizationMode = 'timeline' | '2d' | 'bar';
 
 interface VisualizationRendererProps {
   mode: VisualizationMode;
@@ -40,14 +40,13 @@ export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
 
   try {
     switch (mode) {
-      case '3d':
+      case 'timeline':
         return (
-          <BubbleChart3DEnhanced
+          <InteractiveTimelineChart
             sessions={sessions}
             startDate={startDate}
             endDate={endDate}
             onBubbleClick={onBubbleClick}
-            onError={(error) => onVisualizationError(error, '3d')}
           />
         );
       case '2d':

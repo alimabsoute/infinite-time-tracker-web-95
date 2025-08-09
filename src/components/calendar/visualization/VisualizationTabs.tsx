@@ -1,15 +1,14 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Box, ScatterChart, BarChart3, AlertCircle } from 'lucide-react';
+import { TrendingUp, ScatterChart, BarChart3, AlertCircle } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 
-type VisualizationMode = '3d' | '2d' | 'bar';
+type VisualizationMode = 'timeline' | '2d' | 'bar';
 
 interface VisualizationTabsProps {
   currentMode: VisualizationMode;
   onModeChange: (mode: VisualizationMode) => void;
-  has3DSupport: boolean;
   fallbackHistory?: string[];
   children: React.ReactNode;
 }
@@ -17,21 +16,20 @@ interface VisualizationTabsProps {
 const VisualizationTabs: React.FC<VisualizationTabsProps> = ({
   currentMode,
   onModeChange,
-  has3DSupport,
   fallbackHistory = [],
   children
 }) => {
   const tabConfigs = [
     {
-      value: '3d' as const,
-      label: '3D Bubbles',
-      icon: Box,
-      disabled: !has3DSupport,
-      failed: fallbackHistory.includes('3d')
+      value: 'timeline' as const,
+      label: 'Timeline',
+      icon: TrendingUp,
+      disabled: false,
+      failed: fallbackHistory.includes('timeline')
     },
     {
       value: '2d' as const,
-      label: '2D Scatter',
+      label: '2D Bubbles',
       icon: ScatterChart,
       disabled: false,
       failed: fallbackHistory.includes('2d')

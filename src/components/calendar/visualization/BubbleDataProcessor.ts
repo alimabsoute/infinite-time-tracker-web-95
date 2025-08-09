@@ -347,7 +347,19 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
       }
     });
 
-    // Process each timer group
+    // Calculate total times for all timers to find the maximum for proper 1:1 scaling
+    const allTotalTimes = Object.values(timerGroups).map(timerSessions => 
+      timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0)
+    );
+    const maxTotalTime = Math.max(...allTotalTimes, 1);
+    
+    console.log('🔍 processBubbleData - 1:1 Scaling info:', {
+      timerCount: allTotalTimes.length,
+      maxTotalTime: Math.round(maxTotalTime / (1000 * 60)) + ' minutes',
+      scalingFactor: maxTotalTime / 100 // Base scale factor
+    });
+
+    // Process each timer group with proportional sizing
     return Object.entries(timerGroups).map(([timerId, timerSessions], index) => {
       const totalTime = timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
       const sessionCount = timerSessions.length;
@@ -357,13 +369,34 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
 
       const totalHours = totalTime / (1000 * 60 * 60);
       const avgMinutes = avgSessionTime / (1000 * 60);
-      const size = Math.max(500, Math.min(8000, totalTime / 1000)); // Size in pixels for 2D
+      
+      // 1:1 proportional sizing: bubble size directly proportional to time
+      // Base size of 20px for minimum visibility, scale up to 200px max
+      const minSize = 20;
+      const maxSize = 200;
+      const timeRatio = totalTime / maxTotalTime; // 0 to 1 ratio
+      const size = minSize + (timeRatio * (maxSize - minSize));
+      
+      // Generate category-based colors
+      const categoryColors: { [key: string]: string } = {
+        'Work': 'hsl(220, 70%, 60%)',
+        'Personal': 'hsl(140, 70%, 60%)',
+        'Health': 'hsl(10, 70%, 60%)',
+        'Learning': 'hsl(280, 70%, 60%)',
+        'Entertainment': 'hsl(45, 70%, 60%)',
+        'Uncategorized': 'hsl(200, 30%, 50%)'
+      };
+      
+      const categoryColor = categoryColors[timer?.category || 'Uncategorized'] || 'hsl(200, 30%, 50%)';
+      const color = isRunning ? 'hsl(142, 71%, 45%)' : categoryColor;
+
+      console.log(`🔍 Timer "${timer?.name}": ${Math.round(totalTime / (1000 * 60))}min → ${Math.round(size)}px (ratio: ${(timeRatio * 100).toFixed(1)}%)`);
 
       return {
         id: `${timerId}-${index}`,
         position: [0, 0, 0] as [number, number, number],
         size: size,
-        color: isRunning ? 'rgba(34, 197, 94, 0.7)' : 'rgba(255, 182, 193, 0.7)',
+        color: color,
         timerName: timer?.name || 'Unknown Timer',
         totalTime: totalTime,
         sessionCount: sessionCount,
