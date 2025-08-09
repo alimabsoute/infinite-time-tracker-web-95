@@ -33,10 +33,10 @@ const LandingHeader = () => {
       transition={{ duration: 0.6 }}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-24">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <PhynxTimerLogo width={60} height={60} />
+            <PhynxTimerLogo width={84} height={84} />
             <span className="text-xl font-semibold text-foreground">PhynxTimer</span>
           </Link>
 
