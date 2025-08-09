@@ -8,7 +8,7 @@ import CreateTimerForm from '../components/CreateTimerForm';
 import EnhancedAnimationManager from '../components/animations/EnhancedAnimationManager';
 import TimerLimitIndicator from '../components/premium/TimerLimitIndicator';
 import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitIndicator';
-import { PDFExportButton } from '@/components/ui/pdf-export-button';
+
 
 
 const Dashboard = () => {
@@ -49,15 +49,6 @@ const Dashboard = () => {
 
   return (
     <PageLayout>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <PDFExportButton 
-          elementId="dashboard-content" 
-          fileName="dashboard-export"
-          className="ml-auto"
-        />
-      </div>
-
       <div id="dashboard-content">
         {/* Timer Limit Indicators */}
         <div className="mb-6 space-y-4">
