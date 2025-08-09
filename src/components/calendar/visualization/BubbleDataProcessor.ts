@@ -20,6 +20,7 @@ export interface BubbleDataPoint {
   sessions: TimerSessionWithTimer[];
   x: number;
   y: number;
+  z: number; // For Recharts bubble sizing
 }
 
 export interface BubbleData extends BubbleDataPoint {}
@@ -277,7 +278,8 @@ export const useBubbleDataProcessor = ({
             avgSessionTime: timer.avgSessionTime,
             sessions: timer.sessions,
             x: totalHours,
-            y: avgMinutes
+            y: avgMinutes,
+            z: size // Map size to z property for Recharts bubble sizing
           };
 
           console.log(`🔍 BubbleDataProcessor - Generated bubble for ${timer.name}:`, {
@@ -410,7 +412,8 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
         avgSessionTime: avgSessionTime,
         sessions: timerSessions,
         x: totalHours,
-        y: avgMinutes
+        y: avgMinutes,
+        z: size // Map size to z property for Recharts bubble sizing
       };
     });
   } catch (error) {

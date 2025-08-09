@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ComposedChart, Scatter, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell, Tooltip } from 'recharts';
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { BubbleDataPoint } from './BubbleDataProcessor';
 import { BubbleTooltip } from './BubbleTooltip';
 
@@ -19,9 +19,25 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ chartData, onBubbleCli
     }
   };
 
+  console.log('🔍 BubbleChart - Data received:', {
+    bubbleCount: chartData.length,
+    sampleBubble: chartData[0] ? {
+      name: chartData[0].name,
+      x: chartData[0].x,
+      y: chartData[0].y,
+      z: chartData[0].z,
+      size: chartData[0].size,
+      color: chartData[0].color
+    } : 'no data',
+    zRange: chartData.length > 0 ? {
+      min: Math.min(...chartData.map(d => d.z)),
+      max: Math.max(...chartData.map(d => d.z))
+    } : 'no range'
+  });
+
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart
+      <ScatterChart
         margin={{
           top: 20,
           right: 30,
@@ -59,24 +75,18 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ chartData, onBubbleCli
         />
         <Tooltip content={<BubbleTooltip />} />
         <Scatter 
-          data={chartData}
+          dataKey="z"
+          fill="transparent"
           onClick={handleDotClick}
-        >
-          {chartData.map((entry, index) => (
-            <Cell 
-              key={`cell-${index}`} 
-              fill={entry.color}
-              fillOpacity={activePoint === entry.timerId ? 1.0 : 0.7}
-              stroke={entry.isRunning ? 'rgba(34, 197, 94, 1)' : 'rgba(255, 255, 255, 0.8)'}
-              strokeWidth={entry.isRunning ? 3 : 2}
-              r={Math.max(30, Math.min(300, entry.size))}
-              onMouseEnter={() => setActivePoint(entry.timerId)}
-              onMouseLeave={() => setActivePoint(null)}
-              style={{ cursor: 'pointer' }}
-            />
-          ))}
-        </Scatter>
-      </ComposedChart>
+          onMouseEnter={(data: any) => {
+            if (data && data.payload) {
+              setActivePoint(data.payload.timerId);
+            }
+          }}
+          onMouseLeave={() => setActivePoint(null)}
+          style={{ cursor: 'pointer' }}
+        />
+      </ScatterChart>
     </ResponsiveContainer>
   );
 };
