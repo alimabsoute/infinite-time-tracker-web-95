@@ -1,5 +1,6 @@
 
 import React from 'react';
+import Navigation from '../components/layout/Navigation';
 import CalendarContent from '../components/calendar/CalendarContent';
 import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
 import { supabase } from '@/integrations/supabase/client';
@@ -135,20 +136,23 @@ const Calendar = () => {
   }, [timers]);
 
   return (
-    <div className="w-full">
-      <CalendarContent
-        currentMonth={currentMonth}
-        handleMonthChange={handleMonthChange}
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-        setCurrentMonth={setCurrentMonth}
-        timers={timers}
-        sessions={displaySessions}
-        sessionsLoading={sessionsLoading}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-        categories={categories}
-      />
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <main role="main" aria-label="Main content">
+        <CalendarContent
+          currentMonth={currentMonth}
+          handleMonthChange={handleMonthChange}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          setCurrentMonth={setCurrentMonth}
+          timers={timers}
+          sessions={displaySessions}
+          sessionsLoading={sessionsLoading}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+          categories={categories}
+        />
+      </main>
     </div>
   );
 };
