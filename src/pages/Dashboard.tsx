@@ -8,7 +8,7 @@ import CreateTimerForm from '../components/CreateTimerForm';
 import EnhancedAnimationManager from '../components/animations/EnhancedAnimationManager';
 import TimerLimitIndicator from '../components/premium/TimerLimitIndicator';
 import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitIndicator';
-import SimpleTimerTest from '../components/timer/SimpleTimerTest';
+
 
 const Dashboard = () => {
   console.log('🔥 Dashboard - Component rendering with rebuilt timer system');
@@ -51,11 +51,6 @@ const Dashboard = () => {
       title="Dashboard"
       description="Overview of your timers and recent activity"
     >
-      {/* Simple Timer Test Section - VALIDATION */}
-      <div className="mb-8">
-        <SimpleTimerTest />
-      </div>
-
       {/* Timer Limit Indicators */}
       <div className="mb-6 space-y-4">
         <TimerLimitIndicator currentCount={timers.length} />
