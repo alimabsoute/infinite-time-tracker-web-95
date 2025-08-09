@@ -4,15 +4,11 @@ import PageLayout from '../components/layout/PageLayout';
 import CalendarContent from '../components/calendar/CalendarContent';
 import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
 import { supabase } from '@/integrations/supabase/client';
-import { generateStableMockSessionsForCalendar } from '../utils/mockCalendarDataStable';
 
 const Calendar = () => {
   const { timers } = useDeadSimpleTimers();
   const [sessions, setSessions] = React.useState<any[]>([]);
   const [sessionsLoading, setSessionsLoading] = React.useState(true);
-  
-  // Emergency mock data when no sessions exist
-  const [useMockData, setUseMockData] = React.useState(false);
 
   // Fetch sessions for calendar with debounced updates
   React.useEffect(() => {
@@ -62,11 +58,6 @@ const Calendar = () => {
           }))
         });
         
-        // If no sessions found, enable mock data for development/testing
-        if (processedSessions.length === 0 && timers.length > 0) {
-          console.log('📅 Calendar - No sessions found, enabling mock data');
-          setUseMockData(true);
-        }
         
         setSessions(processedSessions);
       } catch (error) {
@@ -100,15 +91,8 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());
   const [categoryFilter, setCategoryFilter] = React.useState('all');
 
-  // Generate mock data when needed for testing/development - memoize with stable dependencies
-  const displaySessions = React.useMemo(() => {
-    if (sessions.length > 0 || !useMockData) {
-      return sessions;
-    }
-    
-    // Generate stable mock sessions when no real data exists
-    return generateStableMockSessionsForCalendar(timers);
-  }, [sessions.length, useMockData, timers.length]); // Use stable dependencies
+  // Use only real sessions - no mock data
+  const displaySessions = sessions;
 
   // Memoize month sessions to prevent constant recalculation
   const monthSessions = React.useMemo(() => {
