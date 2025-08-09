@@ -46,7 +46,7 @@ export const useTimerSessions = () => {
 
       const fetchRunningTimersPromise = supabase
         .from('timers')
-        .select('id, name, category, elapsed_time, created_at')
+        .select('id, name, category, elapsed_time, created_at, start_time')
         .eq('user_id', user.id)
         .eq('is_running', true);
 
@@ -92,28 +92,35 @@ export const useTimerSessions = () => {
 
       let processedSessions: TimerSessionWithTimer[] = sessionData || [];
 
-      // Create virtual sessions for running timers
+      // Create virtual sessions for running timers with real-time duration
       if (runningTimers && runningTimers.length > 0) {
         const virtualSessions: TimerSessionWithTimer[] = runningTimers.map(timer => {
           const now = new Date();
-          const startTime = new Date(timer.created_at || now);
-          const currentDuration = timer.elapsed_time || 0; // This is already in milliseconds
+          // Use timer's start_time if available, fallback to created_at
+          const timerStartTime = timer.start_time ? new Date(timer.start_time) : new Date(timer.created_at || now);
+          
+          // Calculate real-time duration: base elapsed_time + time since last start
+          const baseElapsedTime = timer.elapsed_time || 0;
+          const timeSinceStart = now.getTime() - timerStartTime.getTime();
+          const realTimeDuration = Math.max(baseElapsedTime + timeSinceStart, timeSinceStart);
           
           console.log('🔍 useTimerSessions - Creating virtual session for running timer:', {
             timerId: timer.id,
             timerName: timer.name,
-            elapsedTime: currentDuration,
-            startTime: startTime.toISOString()
+            baseElapsedTime,
+            timeSinceStart,
+            realTimeDuration,
+            startTime: timerStartTime.toISOString()
           });
 
           return {
             id: `virtual-${timer.id}`, // Unique ID for virtual session
             timer_id: timer.id,
             user_id: user.id,
-            start_time: startTime.toISOString(),
+            start_time: timerStartTime.toISOString(),
             end_time: null, // Running timer has no end time
-            duration_ms: currentDuration, // Use elapsed time as current duration
-            created_at: startTime.toISOString(), // Add required created_at field
+            duration_ms: realTimeDuration, // Use calculated real-time duration
+            created_at: timerStartTime.toISOString(),
             timers: {
               id: timer.id,
               name: timer.name,
@@ -214,8 +221,31 @@ export const useTimerSessions = () => {
       clearTimeout(loadingTimeout);
     });
 
+    // Set up real-time updates for running timers every 5 seconds
+    const interval = setInterval(() => {
+      setSessions(currentSessions => {
+        if (currentSessions.some(session => session.id.startsWith('virtual-'))) {
+          console.log('🔍 useTimerSessions - Updating real-time durations for virtual sessions');
+          return currentSessions.map(session => {
+            if (session.id.startsWith('virtual-')) {
+              const now = new Date();
+              const startTime = new Date(session.start_time);
+              const newDuration = now.getTime() - startTime.getTime();
+              return {
+                ...session,
+                duration_ms: Math.max(newDuration, 0)
+              };
+            }
+            return session;
+          });
+        }
+        return currentSessions;
+      });
+    }, 5000);
+
     return () => {
       clearTimeout(loadingTimeout);
+      clearInterval(interval);
     };
   }, [user]);
 

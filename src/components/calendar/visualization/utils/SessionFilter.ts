@@ -30,9 +30,11 @@ export const filterSessionsInDateRange = (
     try {
       const sessionDate = new Date(session.start_time);
       const isInRange = isWithinInterval(sessionDate, rangeInterval);
+      // Include running timers (virtual sessions) even if duration is small
       const hasValidDuration = session.duration_ms && session.duration_ms > 0;
+      const isRunningTimer = session.id.startsWith('virtual-') && session.duration_ms && session.duration_ms >= 0;
       
-      return isInRange && hasValidDuration;
+      return isInRange && (hasValidDuration || isRunningTimer);
     } catch (error) {
       console.warn('🔍 SessionFilter - Invalid session date:', session.start_time);
       return false;

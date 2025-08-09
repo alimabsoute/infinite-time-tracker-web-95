@@ -265,9 +265,10 @@ export function processTreemapData(
     containerSize: { width: containerWidth, height: containerHeight }
   });
 
-  // Filter valid sessions with enhanced validation
+  // Filter valid sessions with enhanced validation, including running timers
   const validSessions = sessions.filter(session => {
-    const hasDuration = session.duration_ms && session.duration_ms > 0;
+    const isRunningTimer = session.id.startsWith('virtual-');
+    const hasDuration = session.duration_ms && (session.duration_ms > 0 || (isRunningTimer && session.duration_ms >= 0));
     const hasTimer = session.timers && session.timer_id && session.timers.name;
     const matchesCategory = !selectedCategory || selectedCategory === 'all' || session.timers?.category === selectedCategory;
     
