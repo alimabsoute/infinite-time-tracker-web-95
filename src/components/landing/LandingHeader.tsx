@@ -36,7 +36,7 @@ const LandingHeader = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <PhynxTimerLogo width={56} height={56} />
+            <PhynxTimerLogo width={60} height={60} />
             <span className="text-xl font-semibold text-foreground">PhynxTimer</span>
           </Link>
 
