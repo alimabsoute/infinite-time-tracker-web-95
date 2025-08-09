@@ -95,15 +95,12 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
             </div>
           ))}
           
-          {/* Calendar days */}
+          {/* Calendar days - simplified animations for performance */}
           {calendarDays.map((day, index) => (
-            <motion.div
-              key={day.date.toISOString()}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.2, delay: index * 0.01 }}
+            <div
+              key={`${day.date.getDate()}-${day.date.getMonth()}`}
               className={`
-                relative p-2 h-20 cursor-pointer rounded-md transition-all duration-200
+                relative p-2 h-20 cursor-pointer rounded-md transition-colors duration-200
                 ${day.inCurrentMonth ? 'hover:bg-muted/50' : 'opacity-50'}
                 ${day.isSelected ? 'bg-primary/10 border-2 border-primary' : 'border border-border/20'}
                 ${day.isToday ? 'ring-2 ring-primary/50' : ''}
@@ -171,7 +168,7 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
                     day.activityLevel === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'}
                 `} />
               )}
-            </motion.div>
+            </div>
           ))}
         </div>
       </CardContent>

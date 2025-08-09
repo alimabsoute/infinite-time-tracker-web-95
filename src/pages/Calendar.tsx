@@ -4,7 +4,7 @@ import PageLayout from '../components/layout/PageLayout';
 import CalendarContent from '../components/calendar/CalendarContent';
 import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
 import { supabase } from '@/integrations/supabase/client';
-import { generateMockSessionsForCalendar } from '../utils/mockCalendarData';
+import { generateStableMockSessionsForCalendar } from '../utils/mockCalendarDataStable';
 
 const Calendar = () => {
   const { timers } = useDeadSimpleTimers();
@@ -14,7 +14,7 @@ const Calendar = () => {
   // Emergency mock data when no sessions exist
   const [useMockData, setUseMockData] = React.useState(false);
 
-  // Fetch sessions for calendar with real-time updates
+  // Fetch sessions for calendar with debounced updates
   React.useEffect(() => {
     const fetchSessions = async () => {
       try {
@@ -36,17 +36,13 @@ const Calendar = () => {
 
         if (error) throw error;
         
-        // Process sessions to include running timer data
+        // Process sessions - but don't calculate virtual durations on every render
         const processedSessions = (data || []).map(session => {
-          // For running timers without end_time, calculate virtual duration
+          // For running timers, use stored elapsed_time instead of calculating
           if (!session.end_time && session.timers?.is_running) {
-            const now = new Date();
-            const sessionStart = new Date(session.start_time);
-            const virtualDuration = now.getTime() - sessionStart.getTime();
-            
             return {
               ...session,
-              duration_ms: virtualDuration,
+              duration_ms: session.timers.elapsed_time || 0,
               isVirtual: true
             };
           }
@@ -59,8 +55,9 @@ const Calendar = () => {
           running: processedSessions.filter(s => !s.end_time && s.timers?.is_running).length,
           sampleSessions: processedSessions.slice(0, 3).map(s => ({
             id: s.id,
-            timer_name: s.timers?.name,
+            timer_id: s.timer_id,
             duration_ms: s.duration_ms,
+            timer_name: s.timers?.name,
             has_end_time: !!s.end_time
           }))
         });
@@ -82,7 +79,7 @@ const Calendar = () => {
 
     fetchSessions();
     
-    // Set up real-time subscription for session updates
+    // Only subscribe to session changes, not timer changes to reduce re-renders
     const subscription = supabase
       .channel('timer_sessions_calendar')
       .on('postgres_changes', 
@@ -92,55 +89,51 @@ const Calendar = () => {
           fetchSessions();
         }
       )
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'timers' },
-        () => {
-          console.log('📅 Calendar - Timer updated, refetching sessions...');
-          fetchSessions();
-        }
-      )
       .subscribe();
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [timers]);
+  }, [timers.length]); // Only depend on timers length, not full timers array
   
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());
   const [categoryFilter, setCategoryFilter] = React.useState('all');
 
-  // Generate mock data when needed for testing/development
+  // Generate mock data when needed for testing/development - memoize with stable dependencies
   const displaySessions = React.useMemo(() => {
     if (sessions.length > 0 || !useMockData) {
       return sessions;
     }
     
-    // Generate mock sessions when no real data exists
-    return generateMockSessionsForCalendar(timers);
-  }, [sessions, useMockData, timers]);
+    // Generate stable mock sessions when no real data exists
+    return generateStableMockSessionsForCalendar(timers);
+  }, [sessions.length, useMockData, timers.length]); // Use stable dependencies
 
-  console.log('🔍 Calendar Page - Data summary:', {
-    timersCount: timers.length,
-    sessionsCount: sessions.length,
-    sessionsLoading,
-    selectedDate: selectedDate?.toISOString(),
-    sampleTimer: timers[0]?.name || 'No timers',
-    sampleSession: sessions[0] ? {
-      id: sessions[0].id,
-      timer_name: sessions[0].timers?.name || 'No name',
-      duration_ms: sessions[0].duration_ms,
-      start_time: sessions[0].start_time,
-      has_end_time: !!sessions[0].end_time
-    } : 'No sessions',
-    monthSessions: displaySessions.filter(s => {
+  // Memoize month sessions to prevent constant recalculation
+  const monthSessions = React.useMemo(() => {
+    return displaySessions.filter(s => {
       const sessionDate = new Date(s.start_time);
       return sessionDate.getMonth() === currentMonth.getMonth() && 
              sessionDate.getFullYear() === currentMonth.getFullYear();
-    }).length
-  });
+    });
+  }, [displaySessions, currentMonth.getMonth(), currentMonth.getFullYear()]);
 
-  const handleMonthChange = (direction: 'prev' | 'next') => {
+  // Reduce logging frequency to prevent console spam
+  React.useEffect(() => {
+    console.log('🔍 Calendar Page - Data summary:', {
+      timersCount: timers.length,
+      sessionsCount: sessions.length,
+      sessionsLoading,
+      selectedDate: selectedDate?.toISOString(),
+      sampleTimer: timers[0]?.name || 'No timers',
+      sampleSession: sessions[0] ? 'No sessions' : 'No sessions',
+      monthSessions: monthSessions.length
+    });
+  }, [timers.length, sessions.length, sessionsLoading, monthSessions.length]);
+
+  // Memoize month change handler to prevent unnecessary re-renders
+  const handleMonthChange = React.useCallback((direction: 'prev' | 'next') => {
     const newMonth = new Date(currentMonth);
     if (direction === 'prev') {
       newMonth.setMonth(currentMonth.getMonth() - 1);
@@ -148,7 +141,7 @@ const Calendar = () => {
       newMonth.setMonth(currentMonth.getMonth() + 1);
     }
     setCurrentMonth(newMonth);
-  };
+  }, [currentMonth]);
 
   // Get unique categories from timers
   const categories = React.useMemo(() => {
