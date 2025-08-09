@@ -4,6 +4,7 @@ import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
 import { supabase } from '@/integrations/supabase/client';
 import PageLayout from '../components/layout/PageLayout';
 import QuickInsightsDashboard from '../components/insights/QuickInsightsDashboard';
+import { PDFExportButton } from '@/components/ui/pdf-export-button';
 
 const Insights = () => {
   const { timers, loading } = useDeadSimpleTimers();
@@ -52,7 +53,18 @@ const Insights = () => {
       title="Quick Insights"
       description="Get actionable insights about your productivity patterns and performance"
     >
-      <QuickInsightsDashboard timers={timers} sessions={sessions} />
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Quick Insights</h1>
+        <PDFExportButton 
+          elementId="insights-content" 
+          fileName="insights-export"
+          className="ml-auto"
+        />
+      </div>
+
+      <div id="insights-content">
+        <QuickInsightsDashboard timers={timers} sessions={sessions} />
+      </div>
     </PageLayout>
   );
 };

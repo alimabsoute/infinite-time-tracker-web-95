@@ -4,6 +4,7 @@ import Navigation from '../components/layout/Navigation';
 import CalendarContent from '../components/calendar/CalendarContent';
 import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
 import { supabase } from '@/integrations/supabase/client';
+import { PDFExportButton } from '@/components/ui/pdf-export-button';
 
 const Calendar = () => {
   const { timers } = useDeadSimpleTimers();
@@ -139,7 +140,18 @@ const Calendar = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       <main role="main" aria-label="Main content">
-        <CalendarContent
+        <div className="container mx-auto p-4">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Calendar</h1>
+            <PDFExportButton 
+              elementId="calendar-content" 
+              fileName="calendar-export"
+              className="ml-auto"
+            />
+          </div>
+          
+          <div id="calendar-content">
+            <CalendarContent
           currentMonth={currentMonth}
           handleMonthChange={handleMonthChange}
           selectedDate={selectedDate}
@@ -148,10 +160,12 @@ const Calendar = () => {
           timers={timers}
           sessions={displaySessions}
           sessionsLoading={sessionsLoading}
-          categoryFilter={categoryFilter}
-          setCategoryFilter={setCategoryFilter}
-          categories={categories}
-        />
+              categoryFilter={categoryFilter}
+              setCategoryFilter={setCategoryFilter}
+              categories={categories}
+            />
+          </div>
+        </div>
       </main>
     </div>
   );

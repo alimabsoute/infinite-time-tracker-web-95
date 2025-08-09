@@ -7,6 +7,7 @@ import DateRangeVisualizationController from '../components/calendar/visualizati
 import { formatTime } from '../components/calendar/CalendarUtils';
 import AnalysisSection from '../components/analytics/AnalysisSection';
 import OptimizationTips from '../components/analytics/OptimizationTips';
+import { PDFExportButton } from '@/components/ui/pdf-export-button';
 
 const AdvancedAnalytics = () => {
   const { timers } = useTimers();
@@ -103,7 +104,17 @@ const AdvancedAnalytics = () => {
       title="Advanced Analytics"
       description="Explore your productivity patterns with interactive visualizations and detailed insights"
     >
-      <div className="mb-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Advanced Analytics</h1>
+        <PDFExportButton 
+          elementId="advanced-analytics-content" 
+          fileName="advanced-analytics-export"
+          className="ml-auto"
+        />
+      </div>
+
+      <div id="advanced-analytics-content">
+        <div className="mb-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm">
         <h3 className="font-semibold mb-2">Data Summary</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
@@ -135,10 +146,11 @@ const AdvancedAnalytics = () => {
         formatTime={formatTime}
       />
       
-      {/* Always visible analysis sections */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AnalysisSection sessions={sessions} />
-        <OptimizationTips sessions={sessions} />
+        {/* Always visible analysis sections */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <AnalysisSection sessions={sessions} />
+          <OptimizationTips sessions={sessions} />
+        </div>
       </div>
     </PageLayout>
   );

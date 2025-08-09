@@ -8,6 +8,7 @@ import CreateTimerForm from '../components/CreateTimerForm';
 import EnhancedAnimationManager from '../components/animations/EnhancedAnimationManager';
 import TimerLimitIndicator from '../components/premium/TimerLimitIndicator';
 import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitIndicator';
+import { PDFExportButton } from '@/components/ui/pdf-export-button';
 
 
 const Dashboard = () => {
@@ -51,8 +52,18 @@ const Dashboard = () => {
       title="Dashboard"
       description="Overview of your timers and recent activity"
     >
-      {/* Timer Limit Indicators */}
-      <div className="mb-6 space-y-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <PDFExportButton 
+          elementId="dashboard-content" 
+          fileName="dashboard-export"
+          className="ml-auto"
+        />
+      </div>
+
+      <div id="dashboard-content">
+        {/* Timer Limit Indicators */}
+        <div className="mb-6 space-y-4">
         <TimerLimitIndicator currentCount={timers.length} />
         <RunningTimerLimitIndicator currentRunningCount={timers.filter(timer => timer.isRunning).length} />
       </div>
@@ -103,13 +114,14 @@ const Dashboard = () => {
         currentTimerCount={timers.length}
       />
 
-      {/* Enhanced Animation Manager */}
-      <EnhancedAnimationManager
-        confettiTrigger={confettiTrigger}
-        celebrationTrigger={celebrationTrigger}
-        onConfettiComplete={clearConfettiTrigger}
-        onCelebrationComplete={clearCelebrationTrigger}
-      />
+        {/* Enhanced Animation Manager */}
+        <EnhancedAnimationManager
+          confettiTrigger={confettiTrigger}
+          celebrationTrigger={celebrationTrigger}
+          onConfettiComplete={clearConfettiTrigger}
+          onCelebrationComplete={clearCelebrationTrigger}
+        />
+      </div>
     </PageLayout>
   );
 };

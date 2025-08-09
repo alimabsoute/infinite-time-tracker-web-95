@@ -12,6 +12,7 @@ import { BarChart3, Clock, TrendingUp, Target, Timer as TimerIcon } from 'lucide
 import { formatTime } from '@/components/timer/TimerUtils';
 import { format, subDays, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { PDFExportButton } from '@/components/ui/pdf-export-button';
 
 const Analytics = () => {
   const { timers, loading } = useDeadSimpleTimers();
@@ -176,7 +177,16 @@ const Analytics = () => {
       title="Advanced Analytics"
       description="Deep insights into your time tracking patterns and productivity"
     >
-      <div className="space-y-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Analytics</h1>
+        <PDFExportButton 
+          elementId="analytics-content" 
+          fileName="analytics-export"
+          className="ml-auto"
+        />
+      </div>
+
+      <div id="analytics-content" className="space-y-6">
         {/* Controls */}
         <div className="flex flex-col sm:flex-row gap-4">
           <Select value={timeRange} onValueChange={setTimeRange}>
