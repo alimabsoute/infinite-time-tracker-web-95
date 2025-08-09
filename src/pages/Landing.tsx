@@ -12,6 +12,7 @@ import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
 import HeaderSpacingTest from "@/components/HeaderSpacingTest";
+import NewsletterModal from "@/components/newsletter/NewsletterModal";
 
 const LandingPage = () => {
   const { user, loading } = useAuth();
@@ -179,6 +180,9 @@ const LandingPage = () => {
       
       {/* Temporary spacing test component */}
       <HeaderSpacingTest />
+      
+      {/* Newsletter Modal */}
+      <NewsletterModal />
     </motion.div>
   );
 };

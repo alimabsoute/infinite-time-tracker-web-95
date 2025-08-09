@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import HeroEmailCapture from "@/components/newsletter/HeroEmailCapture";
 
 const HeroMainContent = () => {
   const { signInWithGoogle } = useAuth();
@@ -81,6 +82,9 @@ const HeroMainContent = () => {
           </Button>
         </motion.div>
       </motion.div>
+
+      {/* Email Capture */}
+      <HeroEmailCapture />
 
       {/* Social proof */}
       <motion.div 
