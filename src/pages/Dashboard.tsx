@@ -48,10 +48,7 @@ const Dashboard = () => {
   };
 
   return (
-    <PageLayout 
-      title="Dashboard"
-      description="Overview of your timers and recent activity"
-    >
+    <PageLayout>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <PDFExportButton 
