@@ -4,6 +4,7 @@ import PageLayout from '../components/layout/PageLayout';
 import CalendarContent from '../components/calendar/CalendarContent';
 import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
 import { supabase } from '@/integrations/supabase/client';
+import { generateMockSessionsForCalendar } from '../utils/mockCalendarData';
 
 const Calendar = () => {
   const { timers } = useDeadSimpleTimers();
@@ -116,7 +117,6 @@ const Calendar = () => {
     }
     
     // Generate mock sessions when no real data exists
-    const { generateMockSessionsForCalendar } = require('../utils/mockCalendarData');
     return generateMockSessionsForCalendar(timers);
   }, [sessions, useMockData, timers]);
 
