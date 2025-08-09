@@ -16,6 +16,7 @@ interface DbTimerRecord {
   tags?: string[];
   deadline?: string;
   priority?: number;
+  start_time?: string; // Add start_time field for running timers
 }
 
 export const useTimerReports = () => {
@@ -70,32 +71,14 @@ export const useTimerReports = () => {
         return;
       }
 
-      // Get session data for running timers
-      const runningTimerIds = timersData
-        .filter(timer => timer.is_running && !timer.deleted_at)
-        .map(timer => timer.id);
-
+      // Create session start times map using start_time from timers table
       const newSessionStartTimes = new Map<string, Date>();
-
-      if (runningTimerIds.length > 0) {
-        console.log(`🔍 useTimerReports - Fetching sessions for ${runningTimerIds.length} running timers`);
-        
-        const { data: sessionsData, error: sessionsError } = await supabase
-          .from('timer_sessions')
-          .select('timer_id, start_time')
-          .in('timer_id', runningTimerIds)
-          .is('end_time', null)
-          .eq('user_id', user.id);
-
-        if (sessionsError) {
-          console.error("❌ useTimerReports - Error loading session data:", sessionsError);
-        } else if (sessionsData) {
-          sessionsData.forEach(session => {
-            newSessionStartTimes.set(session.timer_id, new Date(session.start_time));
-          });
-          console.log(`✅ useTimerReports - Loaded ${sessionsData.length} active sessions`);
+      
+      timersData.forEach(timer => {
+        if (timer.is_running && !timer.deleted_at && timer.start_time) {
+          newSessionStartTimes.set(timer.id, new Date(timer.start_time));
         }
-      }
+      });
 
       // Update session start times ref
       sessionStartTimesRef.current = newSessionStartTimes;
