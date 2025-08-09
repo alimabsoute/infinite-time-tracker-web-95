@@ -46,6 +46,7 @@ export interface TimerReportData {
   priority: string;
   deadlineDate: string;
   tags: string;
+  baseElapsedTime?: number; // For tracking database elapsed time separately from session time
 }
 
 export interface TimerChartData {
