@@ -20,7 +20,108 @@ export interface TreemapData {
   totalValue: number;
 }
 
-// Improved treemap layout using simple grid approach
+// Proper squarified treemap algorithm
+interface Rectangle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface LayoutNode extends Omit<TreemapNodeData, 'x' | 'y' | 'width' | 'height'> {
+  area: number;
+}
+
+function calculateAspectRatio(width: number, height: number): number {
+  return Math.max(width / height, height / width);
+}
+
+function calculateWorstAspectRatio(row: LayoutNode[], width: number): number {
+  const sum = row.reduce((acc, node) => acc + node.area, 0);
+  const rowHeight = sum / width;
+  
+  let worst = 0;
+  for (const node of row) {
+    const nodeWidth = node.area / rowHeight;
+    const aspectRatio = calculateAspectRatio(nodeWidth, rowHeight);
+    worst = Math.max(worst, aspectRatio);
+  }
+  
+  return worst;
+}
+
+function layoutRow(
+  row: LayoutNode[], 
+  x: number, 
+  y: number, 
+  width: number, 
+  height: number
+): TreemapNodeData[] {
+  const sum = row.reduce((acc, node) => acc + node.area, 0);
+  const rowHeight = sum / width;
+  
+  let currentX = x;
+  const result: TreemapNodeData[] = [];
+  
+  for (const node of row) {
+    const nodeWidth = node.area / rowHeight;
+    
+    result.push({
+      ...node,
+      x: currentX,
+      y,
+      width: nodeWidth,
+      height: rowHeight
+    });
+    
+    currentX += nodeWidth;
+  }
+  
+  return result;
+}
+
+function squarify(
+  nodes: LayoutNode[],
+  row: LayoutNode[],
+  rect: Rectangle
+): TreemapNodeData[] {
+  if (nodes.length === 0) {
+    if (row.length === 0) return [];
+    return layoutRow(row, rect.x, rect.y, rect.width, rect.height);
+  }
+
+  const currentNode = nodes[0];
+  const remainingNodes = nodes.slice(1);
+  const newRow = [...row, currentNode];
+  
+  const width = Math.min(rect.width, rect.height);
+  const currentWorst = row.length > 0 ? calculateWorstAspectRatio(row, width) : Infinity;
+  const newWorst = calculateWorstAspectRatio(newRow, width);
+  
+  if (row.length === 0 || newWorst <= currentWorst) {
+    // Adding the node improves or maintains aspect ratios
+    return squarify(remainingNodes, newRow, rect);
+  } else {
+    // Layout current row and continue with remaining area
+    const rowSum = row.reduce((acc, node) => acc + node.area, 0);
+    const rowHeight = rowSum / rect.width;
+    
+    const layoutResult = layoutRow(row, rect.x, rect.y, rect.width, rect.height);
+    
+    const newRect: Rectangle = {
+      x: rect.x,
+      y: rect.y + rowHeight,
+      width: rect.width,
+      height: rect.height - rowHeight
+    };
+    
+    return [
+      ...layoutResult,
+      ...squarify(nodes, [], newRect)
+    ];
+  }
+}
+
 function calculateLayout(
   nodes: Omit<TreemapNodeData, 'x' | 'y' | 'width' | 'height'>[],
   containerWidth: number,
@@ -28,79 +129,54 @@ function calculateLayout(
 ): TreemapNodeData[] {
   if (nodes.length === 0) return [];
 
-  // Sort nodes by value (descending)
+  // Sort nodes by value (descending) for better layout
   const sortedNodes = [...nodes].sort((a, b) => b.value - a.value);
   const totalValue = sortedNodes.reduce((sum, node) => sum + node.value, 0);
+  const containerArea = containerWidth * containerHeight;
 
   console.log('🔍 TreemapLayout - Input:', {
     nodeCount: sortedNodes.length,
     containerSize: { width: containerWidth, height: containerHeight },
     totalValue,
-    nodeValues: sortedNodes.map(n => ({ name: n.name, value: n.value }))
+    containerArea
   });
 
-  const result: TreemapNodeData[] = [];
-  
-  // Calculate grid dimensions based on number of nodes
-  const cols = Math.ceil(Math.sqrt(nodes.length));
-  const rows = Math.ceil(nodes.length / cols);
-  
-  console.log('🔍 TreemapLayout - Grid:', { cols, rows });
+  // Convert to layout nodes with calculated areas
+  const layoutNodes: LayoutNode[] = sortedNodes.map(node => ({
+    ...node,
+    area: (node.value / totalValue) * containerArea
+  }));
 
-  // Calculate base cell dimensions
-  const cellWidth = containerWidth / cols;
-  const cellHeight = containerHeight / rows;
-  
-  // Minimum dimensions to ensure visibility
-  const minWidth = Math.max(cellWidth * 0.8, 60);
-  const minHeight = Math.max(cellHeight * 0.8, 40);
+  console.log('🔍 TreemapLayout - Areas:', layoutNodes.map(n => ({
+    name: n.name,
+    value: n.value,
+    area: n.area.toFixed(1),
+    percentage: ((n.value / totalValue) * 100).toFixed(1) + '%'
+  })));
 
-  for (let i = 0; i < sortedNodes.length; i++) {
-    const node = sortedNodes[i];
-    const ratio = node.value / totalValue;
-    
-    // Grid position
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-    
-    // Base position in grid
-    const baseX = col * cellWidth;
-    const baseY = row * cellHeight;
-    
-    // Scale dimensions based on value ratio
-    const scaleFactor = Math.max(0.5, Math.min(1.5, ratio * nodes.length));
-    let width = Math.max(minWidth, cellWidth * scaleFactor);
-    let height = Math.max(minHeight, cellHeight * scaleFactor);
-    
-    // Ensure we don't exceed cell boundaries
-    width = Math.min(width, cellWidth);
-    height = Math.min(height, cellHeight);
-    
-    // Center within the cell
-    const x = baseX + (cellWidth - width) / 2;
-    const y = baseY + (cellHeight - height) / 2;
+  // Apply squarified treemap algorithm
+  const result = squarify(layoutNodes, [], {
+    x: 0,
+    y: 0,
+    width: containerWidth,
+    height: containerHeight
+  });
 
-    const layoutNode = {
-      ...node,
-      x: Math.max(0, x),
-      y: Math.max(0, y),
-      width: Math.max(minWidth * 0.8, width),
-      height: Math.max(minHeight * 0.8, height)
-    };
-
-    console.log('🔍 TreemapLayout - Node:', {
-      name: node.name,
-      position: { x: layoutNode.x, y: layoutNode.y },
-      dimensions: { width: layoutNode.width, height: layoutNode.height },
-      gridPos: { col, row }
-    });
-
-    result.push(layoutNode);
-  }
+  // Validation: Check total area coverage
+  const totalCalculatedArea = result.reduce((sum, rect) => sum + (rect.width * rect.height), 0);
+  const coverage = (totalCalculatedArea / containerArea) * 100;
 
   console.log('🔍 TreemapLayout - Final result:', {
     nodeCount: result.length,
-    allVisible: result.every(n => n.width > 0 && n.height > 0)
+    totalCalculatedArea: totalCalculatedArea.toFixed(1),
+    containerArea: containerArea.toFixed(1),
+    coverage: coverage.toFixed(1) + '%',
+    allPositive: result.every(n => n.width > 0 && n.height > 0),
+    rectangles: result.map(r => ({
+      name: r.name,
+      area: (r.width * r.height).toFixed(1),
+      dimensions: `${r.width.toFixed(1)}x${r.height.toFixed(1)}`
+    }))
   });
 
   return result;
