@@ -168,18 +168,24 @@ export type Database = {
       profiles: {
         Row: {
           id: string
+          last_login_at: string | null
+          preferences: Json | null
           subscribed: boolean | null
           subscription_end: string | null
           subscription_tier: string | null
         }
         Insert: {
           id: string
+          last_login_at?: string | null
+          preferences?: Json | null
           subscribed?: boolean | null
           subscription_end?: string | null
           subscription_tier?: string | null
         }
         Update: {
           id?: string
+          last_login_at?: string | null
+          preferences?: Json | null
           subscribed?: boolean | null
           subscription_end?: string | null
           subscription_tier?: string | null
