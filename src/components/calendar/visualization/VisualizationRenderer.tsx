@@ -2,7 +2,7 @@
 import React from 'react';
 import { TimerSessionWithTimer } from "../../../types";
 import InteractiveTimelineChart from './InteractiveTimelineChart';
-import Fallback2DChart from './Fallback2DChart';
+import Enhanced2DBubbleChart from './Enhanced2DBubbleChart';
 import FallbackBarChart from './FallbackBarChart';
 
 type VisualizationMode = 'timeline' | '2d' | 'bar';
@@ -51,12 +51,10 @@ export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
         );
       case '2d':
         return (
-          <Fallback2DChart
+          <Enhanced2DBubbleChart
             sessions={sessions}
-            startDate={startDate}
-            endDate={endDate}
+            selectedCategory={undefined}
             onBubbleClick={onBubbleClick}
-            onError={(error) => onVisualizationError(error, '2d')}
           />
         );
       case 'bar':

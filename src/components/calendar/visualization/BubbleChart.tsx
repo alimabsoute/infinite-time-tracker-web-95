@@ -59,7 +59,7 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ chartData, onBubbleCli
         />
         <Tooltip content={<BubbleTooltip />} />
         <Scatter 
-          dataKey="size"
+          data={chartData}
           onClick={handleDotClick}
         >
           {chartData.map((entry, index) => (
@@ -69,6 +69,7 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ chartData, onBubbleCli
               fillOpacity={activePoint === entry.timerId ? 1.0 : 0.7}
               stroke={entry.isRunning ? 'rgba(34, 197, 94, 1)' : 'rgba(255, 255, 255, 0.8)'}
               strokeWidth={entry.isRunning ? 3 : 2}
+              r={Math.max(30, Math.min(300, entry.size))}
               onMouseEnter={() => setActivePoint(entry.timerId)}
               onMouseLeave={() => setActivePoint(null)}
               style={{ cursor: 'pointer' }}

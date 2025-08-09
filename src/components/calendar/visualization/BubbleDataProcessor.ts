@@ -371,9 +371,9 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
       const avgMinutes = avgSessionTime / (1000 * 60);
       
       // 1:1 proportional sizing: bubble size directly proportional to time
-      // Base size of 20px for minimum visibility, scale up to 200px max
-      const minSize = 20;
-      const maxSize = 200;
+      // Base size of 30px for minimum visibility, scale up to 300px max for much better visibility
+      const minSize = 30;
+      const maxSize = 300;
       const timeRatio = totalTime / maxTotalTime; // 0 to 1 ratio
       const size = minSize + (timeRatio * (maxSize - minSize));
       

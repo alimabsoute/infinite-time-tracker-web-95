@@ -32,11 +32,17 @@ const Enhanced2DBubbleChart: React.FC<Enhanced2DBubbleChartProps> = ({
   }
 
   return (
-    <div className="h-full w-full border rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 relative">
+    <div className="h-[400px] w-full border rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 relative">
       <div className="h-full">
         <BubbleChart chartData={chartData} onBubbleClick={onBubbleClick} />
       </div>
-      <BubbleLegend chartData={chartData} />
+      <div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 text-xs border">
+        <div className="font-semibold mb-2">2D Bubble Chart</div>
+        <div>• X-axis: Total time (hours)</div>
+        <div>• Y-axis: Avg session (minutes)</div>
+        <div>• Size: Total time (30-300px)</div>
+        <div className="text-muted-foreground mt-2">{chartData.length} timers</div>
+      </div>
     </div>
   );
 };
