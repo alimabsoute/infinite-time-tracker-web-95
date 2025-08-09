@@ -1,6 +1,5 @@
 
 import React from 'react';
-import PageLayout from '../components/layout/PageLayout';
 import CalendarContent from '../components/calendar/CalendarContent';
 import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
 import { supabase } from '@/integrations/supabase/client';
@@ -136,10 +135,7 @@ const Calendar = () => {
   }, [timers]);
 
   return (
-    <PageLayout 
-      title="Calendar View"
-      description="View your timer sessions and productivity patterns in a traditional calendar format"
-    >
+    <div className="w-full">
       <CalendarContent
         currentMonth={currentMonth}
         handleMonthChange={handleMonthChange}
@@ -153,7 +149,7 @@ const Calendar = () => {
         setCategoryFilter={setCategoryFilter}
         categories={categories}
       />
-    </PageLayout>
+    </div>
   );
 };
 

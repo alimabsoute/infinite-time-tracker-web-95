@@ -1,14 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
-import CalendarTabs from "./CalendarTabs";
-import UrgentDeadlinesBanner from "./UrgentDeadlinesBanner";
 import ProductivityCalendarGrid from "./ProductivityCalendarGrid";
 import MonthlySummaryCard from "./MonthlySummaryCard";
 import TimerAnalyticsList from "./TimerAnalyticsList";
-import DailyDetailsPanel from "./DailyDetailsPanel";
-import QuickStatsDashboard from "./QuickStatsDashboard";
-import ActivityVisualization from "./ActivityVisualization";
-import { formatTime } from "./CalendarUtils";
 import { Timer, TimerSessionWithTimer } from "../../types";
 
 interface CalendarContentProps {
@@ -45,23 +39,14 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
     selectedDate: selectedDate ? selectedDate.toISOString() : 'none'
   });
 
-  // Filter timers by category for analytics
-  const filteredTimers = React.useMemo(() => {
-    if (categoryFilter === 'all') return timers;
-    return timers.filter(timer => timer.category === categoryFilter);
-  }, [timers, categoryFilter]);
-
-  const calendarContent = (
+  return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6"
+      className="p-6"
     >
-      {/* Urgent Deadlines Banner */}
-      <UrgentDeadlinesBanner timers={timers} />
-      
-      {/* 3-Column Layout to Match Reference */}
+      {/* 3-Column Layout with only the main components */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Main Calendar Grid (6 columns - 50%) */}
         <div className="lg:col-span-6">
@@ -76,23 +61,16 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
         </div>
         
         {/* Middle: Monthly Summary (3 columns - 25%) */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3">
           <MonthlySummaryCard
             currentMonth={currentMonth}
-            sessions={sessions}
-            timers={timers}
-          />
-          
-          {/* Daily Details for Selected Date */}
-          <DailyDetailsPanel
-            selectedDate={selectedDate}
             sessions={sessions}
             timers={timers}
           />
         </div>
         
         {/* Right: Timer Analytics (3 columns - 25%) */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3">
           <TimerAnalyticsList
             timers={timers}
             sessions={sessions}
@@ -100,36 +78,7 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
           />
         </div>
       </div>
-      
-      {/* Quick Stats Bottom Section */}
-      <div className="border-t pt-6">
-        <QuickStatsDashboard
-          selectedDate={selectedDate}
-          timers={timers}
-        />
-      </div>
     </motion.div>
-  );
-
-  const analyticsContent = (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      <ActivityVisualization
-        filteredTimers={filteredTimers}
-        sessions={sessions}
-        formatTime={formatTime}
-      />
-    </motion.div>
-  );
-
-  return (
-    <CalendarTabs
-      children={calendarContent}
-      analyticsContent={analyticsContent}
-    />
   );
 };
 
