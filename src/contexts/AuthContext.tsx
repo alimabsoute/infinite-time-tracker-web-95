@@ -103,14 +103,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: 'https://infinite-time-tracker-web-95.lovableproject.com/dashboard'
         }
       });
-      if (error) throw error;
+      if (error) {
+        // Handle specific error cases
+        if (error.message.includes('User already registered')) {
+          toast.error('Account already exists', {
+            description: 'Please sign in with your email and password, or contact support to link your Google account.',
+          });
+        } else {
+          toast.error('Error signing in with Google', {
+            description: error.message,
+          });
+        }
+        throw error;
+      }
     } catch (error: any) {
-      toast.error('Error signing in with Google', {
-        description: error.message,
-      });
+      // Handle network or other errors
+      if (error.message && !error.message.includes('User already registered')) {
+        toast.error('Error signing in with Google', {
+          description: error.message,
+        });
+      }
       throw error;
     } finally {
       setLoading(false);
