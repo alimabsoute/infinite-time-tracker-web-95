@@ -58,23 +58,48 @@ function layoutRow(
   height: number
 ): TreemapNodeData[] {
   const sum = row.reduce((acc, node) => acc + node.area, 0);
-  const rowHeight = sum / width;
   
-  let currentX = x;
+  // Determine if we're laying out horizontally or vertically based on container shape
+  const useHorizontalLayout = width >= height;
+  
   const result: TreemapNodeData[] = [];
   
-  for (const node of row) {
-    const nodeWidth = node.area / rowHeight;
+  if (useHorizontalLayout) {
+    // Layout nodes horizontally (varying widths, same height)
+    const rowHeight = height;
+    let currentX = x;
     
-    result.push({
-      ...node,
-      x: currentX,
-      y,
-      width: nodeWidth,
-      height: rowHeight
-    });
+    for (const node of row) {
+      const nodeWidth = node.area / rowHeight;
+      
+      result.push({
+        ...node,
+        x: currentX,
+        y,
+        width: nodeWidth,
+        height: rowHeight
+      });
+      
+      currentX += nodeWidth;
+    }
+  } else {
+    // Layout nodes vertically (same width, varying heights)
+    const rowWidth = width;
+    let currentY = y;
     
-    currentX += nodeWidth;
+    for (const node of row) {
+      const nodeHeight = node.area / rowWidth;
+      
+      result.push({
+        ...node,
+        x,
+        y: currentY,
+        width: rowWidth,
+        height: nodeHeight
+      });
+      
+      currentY += nodeHeight;
+    }
   }
   
   return result;
@@ -94,26 +119,51 @@ function squarify(
   const remainingNodes = nodes.slice(1);
   const newRow = [...row, currentNode];
   
-  const width = Math.min(rect.width, rect.height);
-  const currentWorst = row.length > 0 ? calculateWorstAspectRatio(row, width) : Infinity;
-  const newWorst = calculateWorstAspectRatio(newRow, width);
+  // Use the shorter side for width calculation (proper squarified algorithm)
+  const w = Math.min(rect.width, rect.height);
   
-  if (row.length === 0 || newWorst <= currentWorst) {
-    // Adding the node improves or maintains aspect ratios
+  if (row.length === 0) {
+    // First node in row, must add it
+    return squarify(remainingNodes, newRow, rect);
+  }
+  
+  const currentWorst = calculateWorstAspectRatio(row, w);
+  const newWorst = calculateWorstAspectRatio(newRow, w);
+  
+  if (newWorst <= currentWorst) {
+    // Adding the node improves aspect ratios, continue
     return squarify(remainingNodes, newRow, rect);
   } else {
     // Layout current row and continue with remaining area
     const rowSum = row.reduce((acc, node) => acc + node.area, 0);
-    const rowHeight = rowSum / rect.width;
     
-    const layoutResult = layoutRow(row, rect.x, rect.y, rect.width, rect.height);
+    // Determine orientation based on container shape
+    const useVerticalRows = rect.width >= rect.height;
     
-    const newRect: Rectangle = {
-      x: rect.x,
-      y: rect.y + rowHeight,
-      width: rect.width,
-      height: rect.height - rowHeight
-    };
+    let layoutResult: TreemapNodeData[];
+    let newRect: Rectangle;
+    
+    if (useVerticalRows) {
+      // Layout row vertically (nodes stacked horizontally)
+      const rowWidth = rowSum / rect.height;
+      layoutResult = layoutRow(row, rect.x, rect.y, rowWidth, rect.height);
+      newRect = {
+        x: rect.x + rowWidth,
+        y: rect.y,
+        width: rect.width - rowWidth,
+        height: rect.height
+      };
+    } else {
+      // Layout row horizontally (nodes stacked vertically)
+      const rowHeight = rowSum / rect.width;
+      layoutResult = layoutRow(row, rect.x, rect.y, rect.width, rowHeight);
+      newRect = {
+        x: rect.x,
+        y: rect.y + rowHeight,
+        width: rect.width,
+        height: rect.height - rowHeight
+      };
+    }
     
     return [
       ...layoutResult,
@@ -204,15 +254,18 @@ function generateColor(index: number, intensity: number): string {
 export function processTreemapData(
   sessions: TimerSessionWithTimer[],
   selectedCategory?: string,
-  viewMode: 'category' | 'timer' = 'category'
+  viewMode: 'category' | 'timer' = 'category',
+  containerWidth: number = 800,
+  containerHeight: number = 500
 ): TreemapData | null {
   console.log('🔍 TreemapDataProcessor - Processing:', {
     sessionsCount: sessions.length,
     selectedCategory,
-    viewMode
+    viewMode,
+    containerSize: { width: containerWidth, height: containerHeight }
   });
 
-  // Filter valid sessions
+  // Filter valid sessions with enhanced validation
   const validSessions = sessions.filter(session => {
     const hasDuration = session.duration_ms && session.duration_ms > 0;
     const hasTimer = session.timers && session.timer_id && session.timers.name;
@@ -221,46 +274,71 @@ export function processTreemapData(
     return hasDuration && hasTimer && matchesCategory;
   });
 
+  console.log('🔍 TreemapDataProcessor - Valid sessions:', {
+    valid: validSessions.length,
+    total: sessions.length,
+    filtered: sessions.length - validSessions.length
+  });
+
   if (validSessions.length === 0) {
     return null;
   }
 
+  // Enhanced data grouping with better aggregation
   let groupedData: { [key: string]: { 
     name: string; 
     value: number; 
     sessions: number; 
     category?: string; 
+    lastUsed?: string;
   } } = {};
 
   if (viewMode === 'category') {
-    // Group by category
+    // Group by category with better handling
     validSessions.forEach(session => {
       const category = session.timers?.category || 'Uncategorized';
-      if (!groupedData[category]) {
-        groupedData[category] = {
+      const categoryKey = category.toLowerCase().replace(/\s+/g, '_');
+      
+      if (!groupedData[categoryKey]) {
+        groupedData[categoryKey] = {
           name: category,
           value: 0,
-          sessions: 0
+          sessions: 0,
+          lastUsed: session.start_time
         };
       }
-      groupedData[category].value += session.duration_ms || 0;
-      groupedData[category].sessions += 1;
+      
+      groupedData[categoryKey].value += session.duration_ms || 0;
+      groupedData[categoryKey].sessions += 1;
+      
+      // Track most recent usage
+      if (session.start_time > (groupedData[categoryKey].lastUsed || '')) {
+        groupedData[categoryKey].lastUsed = session.start_time;
+      }
     });
   } else {
-    // Group by timer
+    // Group by individual timer
     validSessions.forEach(session => {
       const timerId = session.timer_id;
       const timerName = session.timers?.name || 'Unknown Timer';
+      
       if (!groupedData[timerId]) {
         groupedData[timerId] = {
           name: timerName,
           value: 0,
           sessions: 0,
-          category: session.timers?.category
+          category: session.timers?.category || 'Uncategorized',
+          lastUsed: session.start_time
         };
       }
+      
       groupedData[timerId].value += session.duration_ms || 0;
       groupedData[timerId].sessions += 1;
+      
+      // Track most recent usage
+      if (session.start_time > (groupedData[timerId].lastUsed || '')) {
+        groupedData[timerId].lastUsed = session.start_time;
+      }
     });
   }
 
@@ -268,7 +346,19 @@ export function processTreemapData(
   const totalValue = entries.reduce((sum, [, data]) => sum + data.value, 0);
   const maxValue = Math.max(...entries.map(([, data]) => data.value));
 
-  // Create nodes with layout information
+  console.log('🔍 TreemapDataProcessor - Grouped data:', {
+    groups: entries.length,
+    totalValueHours: (totalValue / (1000 * 60 * 60)).toFixed(1),
+    largestValueHours: (maxValue / (1000 * 60 * 60)).toFixed(1),
+    entries: entries.map(([id, data]) => ({
+      id,
+      name: data.name,
+      valueHours: (data.value / (1000 * 60 * 60)).toFixed(1),
+      sessions: data.sessions
+    }))
+  });
+
+  // Create nodes with proper scaling
   const nodes = entries.map(([id, data], index) => ({
     id,
     name: data.name,
@@ -278,14 +368,23 @@ export function processTreemapData(
     color: generateColor(index, data.value / maxValue)
   }));
 
-  // Calculate layout (using fixed container size for SVG)
-  const containerWidth = 800;
-  const containerHeight = 500;
-  const layoutNodes = calculateLayout(nodes, containerWidth, containerHeight);
+  // Filter out nodes that are too small to be meaningful
+  const minValue = totalValue * 0.001; // 0.1% threshold
+  const filteredNodes = nodes.filter(node => node.value >= minValue);
 
-  console.log('🔍 TreemapDataProcessor - Created:', {
+  console.log('🔍 TreemapDataProcessor - Filtered nodes:', {
+    original: nodes.length,
+    filtered: filteredNodes.length,
+    minValueMinutes: (minValue / (1000 * 60)).toFixed(1)
+  });
+
+  // Calculate layout with proper container dimensions
+  const layoutNodes = calculateLayout(filteredNodes, containerWidth, containerHeight);
+
+  console.log('🔍 TreemapDataProcessor - Final layout:', {
     nodes: layoutNodes.length,
-    totalValue: (totalValue / (1000 * 60 * 60)).toFixed(1) + 'h'
+    totalValue: (totalValue / (1000 * 60 * 60)).toFixed(1) + 'h',
+    containerSize: `${containerWidth}x${containerHeight}`
   });
 
   return {

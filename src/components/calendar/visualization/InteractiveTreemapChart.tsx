@@ -32,10 +32,14 @@ const InteractiveTreemapChart: React.FC<InteractiveTreemapChartProps> = ({
     hasClickHandler: !!onBubbleClick
   });
 
-  // Process data into treemap format
+  // Process data into treemap format with dynamic container sizing
   const treemapData = useMemo(() => {
-    return processTreemapData(sessions, selectedCategory, viewMode);
-  }, [sessions, selectedCategory, viewMode]);
+    // Calculate responsive container dimensions
+    const baseWidth = isStandalone ? 768 : 800;
+    const baseHeight = isStandalone ? 320 : 500;
+    
+    return processTreemapData(sessions, selectedCategory, viewMode, baseWidth, baseHeight);
+  }, [sessions, selectedCategory, viewMode, isStandalone]);
 
   const handleNodeHover = useCallback((node: TreemapNodeData | null) => {
     setHoveredNode(node);
@@ -103,7 +107,13 @@ const InteractiveTreemapChart: React.FC<InteractiveTreemapChartProps> = ({
 
       {/* Treemap Container */}
       <div className="h-full w-full p-4 bg-gradient-to-br from-background to-muted/20 rounded-lg overflow-hidden relative">
-        <svg width="100%" height="100%" className="overflow-visible">
+        <svg 
+          width="100%" 
+          height="100%" 
+          viewBox={`0 0 ${isStandalone ? 768 : 800} ${isStandalone ? 320 : 500}`}
+          className="overflow-visible"
+          preserveAspectRatio="xMidYMid meet"
+        >
           <defs>
             <filter id="treemap-glow">
               <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -112,7 +122,23 @@ const InteractiveTreemapChart: React.FC<InteractiveTreemapChartProps> = ({
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
+            <linearGradient id="treemap-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(0,0,0,0.05)" />
+              <stop offset="100%" stopColor="rgba(0,0,0,0.1)" />
+            </linearGradient>
           </defs>
+          
+          {/* Background rectangle to show container bounds */}
+          <rect 
+            x="0" 
+            y="0" 
+            width={isStandalone ? 768 : 800} 
+            height={isStandalone ? 320 : 500}
+            fill="url(#treemap-bg)"
+            stroke="rgba(255,255,255,0.1)"
+            strokeWidth="1"
+            rx="8"
+          />
           
           <AnimatePresence mode="wait">
             <motion.g
