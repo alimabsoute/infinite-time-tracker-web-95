@@ -15,7 +15,7 @@ interface VisualizationContainerProps {
   onBubbleClick?: (bubble: any) => void;
 }
 
-type VisualizationMode = 'timeline' | '2d' | 'bar';
+type VisualizationMode = 'timeline' | '2d' | 'treemap' | 'radar';
 
 const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
   sessions,
@@ -56,9 +56,12 @@ const VisualizationContainer: React.FC<VisualizationContainerProps> = ({
     if (mode === 'timeline' && !newFallbackHistory.includes('2d')) {
       console.log('🔍 VisualizationContainer - Auto-falling back from Timeline to 2D');
       setCurrentMode('2d');
-    } else if ((mode === '2d' || mode === 'timeline') && !newFallbackHistory.includes('bar')) {
-      console.log('🔍 VisualizationContainer - Auto-falling back to Bar Chart');
-      setCurrentMode('bar');
+    } else if ((mode === '2d' || mode === 'timeline') && !newFallbackHistory.includes('treemap')) {
+      console.log('🔍 VisualizationContainer - Auto-falling back to Treemap');
+      setCurrentMode('treemap');
+    } else if (!newFallbackHistory.includes('radar')) {
+      console.log('🔍 VisualizationContainer - Auto-falling back to Radar Chart');
+      setCurrentMode('radar');
     } else {
       console.log('🔍 VisualizationContainer - All fallbacks exhausted');
     }

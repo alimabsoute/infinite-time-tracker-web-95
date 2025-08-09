@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, ScatterChart, BarChart3, AlertCircle } from 'lucide-react';
+import { TrendingUp, ScatterChart, LayoutGrid, Radar, AlertCircle } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 
-type VisualizationMode = 'timeline' | '2d' | 'bar';
+type VisualizationMode = 'timeline' | '2d' | 'treemap' | 'radar';
 
 interface VisualizationTabsProps {
   currentMode: VisualizationMode;
@@ -35,17 +34,24 @@ const VisualizationTabs: React.FC<VisualizationTabsProps> = ({
       failed: fallbackHistory.includes('2d')
     },
     {
-      value: 'bar' as const,
-      label: 'Bar Chart',
-      icon: BarChart3,
+      value: 'treemap' as const,
+      label: 'Treemap',
+      icon: LayoutGrid,
       disabled: false,
-      failed: fallbackHistory.includes('bar')
+      failed: fallbackHistory.includes('treemap')
+    },
+    {
+      value: 'radar' as const,
+      label: 'Radar Chart',
+      icon: Radar,
+      disabled: false,
+      failed: fallbackHistory.includes('radar')
     }
   ];
 
   return (
     <Tabs value={currentMode} onValueChange={(value) => onModeChange(value as VisualizationMode)}>
-      <TabsList className="grid w-full grid-cols-3 mb-4">
+      <TabsList className="grid w-full grid-cols-4 mb-4">
         {tabConfigs.map((tab) => {
           const TabIcon = tab.icon;
           return (

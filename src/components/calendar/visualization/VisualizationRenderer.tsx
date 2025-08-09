@@ -3,9 +3,10 @@ import React from 'react';
 import { TimerSessionWithTimer } from "../../../types";
 import InteractiveTimelineChart from './InteractiveTimelineChart';
 import Enhanced2DBubbleChart from './Enhanced2DBubbleChart';
-import FallbackBarChart from './FallbackBarChart';
+import InteractiveTreemapChart from './InteractiveTreemapChart';
+import CategoryRadarChart from './CategoryRadarChart';
 
-type VisualizationMode = 'timeline' | '2d' | 'bar';
+type VisualizationMode = 'timeline' | '2d' | 'treemap' | 'radar';
 
 interface VisualizationRendererProps {
   mode: VisualizationMode;
@@ -57,13 +58,19 @@ export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
             onBubbleClick={onBubbleClick}
           />
         );
-      case 'bar':
+      case 'treemap':
         return (
-          <FallbackBarChart
+          <InteractiveTreemapChart
             sessions={sessions}
-            startDate={startDate}
-            endDate={endDate}
+            selectedCategory={undefined}
             onBubbleClick={onBubbleClick}
+          />
+        );
+      case 'radar':
+        return (
+          <CategoryRadarChart
+            sessions={sessions}
+            selectedCategory={undefined}
           />
         );
       default:
