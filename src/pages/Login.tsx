@@ -32,8 +32,11 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     try {
       setIsGoogleLoading(true);
+      console.log('Starting Google sign-in...');
       await signInWithGoogle();
+      console.log('Google sign-in completed successfully');
     } catch (error) {
+      console.error('Google sign-in error:', error);
       // Error is handled in the AuthContext
       setIsGoogleLoading(false);
     }
@@ -45,7 +48,7 @@ const Login = () => {
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center">
-              <TimerIcon size={24} className="text-primary" />
+              <TimerIcon width={24} height={24} className="text-primary" />
             </div>
           </div>
           <CardTitle className="text-2xl text-center">PhynxTimer</CardTitle>
