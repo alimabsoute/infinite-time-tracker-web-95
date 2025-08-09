@@ -31,7 +31,7 @@ const Navigation = () => {
   const { subscribed, createCheckoutSession } = useSubscription();
 
   const navigationItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: Timer },
+    { path: '/dashboard', label: 'Timers', icon: Timer },
     // REMOVED: Active Timers tab to simplify timer state management
     // { path: '/active-timers', label: 'Active Timers', icon: Play },
     { path: '/insights', label: 'Insights', icon: BarChart3 },

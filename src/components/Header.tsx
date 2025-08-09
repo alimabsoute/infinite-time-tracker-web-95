@@ -30,7 +30,7 @@ const Header = () => {
   const { subscribed, createCheckoutSession } = useSubscription();
 
   const navigationItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+    { path: '/dashboard', label: 'Timers', icon: BarChart3 },
     { path: '/active-timers', label: 'Active Timers', icon: Play },
     { path: '/insights', label: 'Insights', icon: BarChart3 },
     { path: '/analytics', label: 'Analytics', icon: BarChart3 },
