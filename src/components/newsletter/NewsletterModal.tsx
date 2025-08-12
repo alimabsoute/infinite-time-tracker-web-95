@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 
+const COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+const SESSION_CAP = 2; // per session
+const DAILY_CAP = 3; // per day
+
+const SS_SESSION_COUNT_KEY = "newsletter-session-count";
+const LS_DAILY_COUNT_KEY = "newsletter-daily-count";
+const LS_DAILY_DATE_KEY = "newsletter-daily-date";
+const LS_LAST_DISMISSED_AT = "newsletter-last-dismissed-at";
+
 const NewsletterModal = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState("");
@@ -21,21 +30,87 @@ const NewsletterModal = () => {
       return;
     }
 
-    // Show modal after 30 seconds or when user scrolls down
+    // Frequency gating: cooldown, session cap, daily cap
     let timeoutId: NodeJS.Timeout;
     let hasScrolled = false;
+    let hasShown = false;
+
+    const normalizeDaily = () => {
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        const storedDate = localStorage.getItem(LS_DAILY_DATE_KEY);
+        if (storedDate !== today) {
+          localStorage.setItem(LS_DAILY_DATE_KEY, today);
+          localStorage.setItem(LS_DAILY_COUNT_KEY, "0");
+        }
+      } catch {}
+    };
+
+    const canShow = () => {
+      try {
+        const lastDismissedAt = parseInt(
+          localStorage.getItem(LS_LAST_DISMISSED_AT) || "0",
+          10
+        );
+        const now = Date.now();
+        if (lastDismissedAt && now - lastDismissedAt < COOLDOWN_MS) return false;
+
+        const sessionCount = parseInt(
+          sessionStorage.getItem(SS_SESSION_COUNT_KEY) || "0",
+          10
+        );
+        if (sessionCount >= SESSION_CAP) return false;
+
+        normalizeDaily();
+        const dailyCount = parseInt(
+          localStorage.getItem(LS_DAILY_COUNT_KEY) || "0",
+          10
+        );
+        if (dailyCount >= DAILY_CAP) return false;
+
+        return true;
+      } catch {
+        return true;
+      }
+    };
+
+    const incrementCounts = () => {
+      try {
+        const sessionCount = parseInt(
+          sessionStorage.getItem(SS_SESSION_COUNT_KEY) || "0",
+          10
+        );
+        sessionStorage.setItem(SS_SESSION_COUNT_KEY, String(sessionCount + 1));
+
+        normalizeDaily();
+        const dailyCount = parseInt(
+          localStorage.getItem(LS_DAILY_COUNT_KEY) || "0",
+          10
+        );
+        localStorage.setItem(LS_DAILY_COUNT_KEY, String(dailyCount + 1));
+      } catch {}
+    };
+
+    const showIfAllowed = () => {
+      if (hasShown) return;
+      if (canShow()) {
+        hasShown = true;
+        incrementCounts();
+        setIsVisible(true);
+      }
+    };
 
     const handleScroll = () => {
       if (!hasScrolled && window.scrollY > 300) {
         hasScrolled = true;
-        setIsVisible(true);
+        showIfAllowed();
       }
     };
 
     // Set timeout for 30 seconds
     timeoutId = setTimeout(() => {
       if (!hasScrolled) {
-        setIsVisible(true);
+        showIfAllowed();
       }
     }, 30000);
 
@@ -48,6 +123,9 @@ const NewsletterModal = () => {
   }, []);
 
   const handleClose = () => {
+    try {
+      localStorage.setItem(LS_LAST_DISMISSED_AT, String(Date.now()))
+    } catch {}
     setIsVisible(false);
   };
 
