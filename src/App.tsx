@@ -13,6 +13,7 @@ import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ResetPassword from "./pages/ResetPassword";
 import Analytics from "./pages/Analytics";
 import Insights from "./pages/Insights";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -49,6 +50,7 @@ function App() {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/food-demo" element={<FoodManufacturerDemo />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
               </SubscriptionProvider>
             </AuthProvider>

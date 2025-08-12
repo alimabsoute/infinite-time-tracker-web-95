@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,11 +7,16 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '../contexts/AuthContext';
 import { Timer as TimerIcon } from 'lucide-react';
 import ErrorBoundaryAuth from '@/components/ErrorBoundaryAuth';
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
@@ -29,6 +33,26 @@ const Login = () => {
     }
   };
 
+  const handleSendReset = async () => {
+    try {
+      setIsResetting(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success('Password reset email sent', {
+        description: 'Check your inbox for the reset link.',
+      });
+      setForgotOpen(false);
+      setResetEmail('');
+    } catch (err: any) {
+      toast.error('Could not send reset email', {
+        description: err?.message || 'Please try again.',
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   return (
     <ErrorBoundaryAuth>
@@ -70,12 +94,44 @@ const Login = () => {
                   disabled={isLoading}
                 />
               </div>
+              <div className="text-right -mt-2 mb-2">
+                <button
+                  type="button"
+                  className="text-sm text-primary hover:underline"
+                  onClick={() => setForgotOpen(true)}
+                >
+                  Forgot your password?
+                </button>
+              </div>
               <Button className="w-full" type="submit" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </div>
           </form>
           </CardContent>
+          <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reset your password</DialogTitle>
+                <DialogDescription>Enter your account email to receive a reset link.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  disabled={isResetting}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setForgotOpen(false)} disabled={isResetting}>Cancel</Button>
+                  <Button onClick={handleSendReset} disabled={!resetEmail || isResetting}>
+                    {isResetting ? 'Sending...' : 'Send reset link'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
           <CardFooter>
             <div className="text-center w-full text-sm">
               Don't have an account?{" "}
