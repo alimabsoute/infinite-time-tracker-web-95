@@ -19,48 +19,32 @@ export const useNewsletterSignup = () => {
 
     setLoading(true);
     try {
-      // Check if email already exists in subscribers table
-      const { data: existing, error: checkError } = await supabase
-        .from("subscribers")
-        .select("id")
-        .eq("email", email.toLowerCase())
-        .single();
+      // Use secure function that handles duplicates without exposing existing emails
+      const { data, error } = await supabase.rpc('safe_newsletter_signup', {
+        p_email: email.toLowerCase()
+      });
 
-      if (checkError && checkError.code !== "PGRST116") {
-        // PGRST116 is "no rows returned" which is expected for new emails
-        throw checkError;
+      if (error) {
+        throw error;
       }
 
-      if (existing) {
+      setSuccess(true);
+      
+      const result = data as { success: boolean; message: string; already_subscribed: boolean };
+      
+      if (result.already_subscribed) {
         toast({
           title: "Already subscribed",
           description: "This email is already subscribed to our newsletter.",
           variant: "default",
         });
-        setSuccess(true);
-        return;
-      }
-
-      // Insert new subscriber - using existing subscribers table with required fields
-      const { error: insertError } = await supabase
-        .from("subscribers")
-        .insert({
-          email: email.toLowerCase(),
-          user_id: crypto.randomUUID(), // Generate temp ID for newsletter signups
-          subscribed: true,
-          created_at: new Date().toISOString(),
+      } else {
+        toast({
+          title: "Successfully subscribed! 🎉",
+          description: "Thank you for subscribing! Check your email for a welcome message.",
+          variant: "default",
         });
-
-      if (insertError) {
-        throw insertError;
       }
-
-      setSuccess(true);
-      toast({
-        title: "Successfully subscribed! 🎉",
-        description: "Thank you for subscribing! Check your email for a welcome message.",
-        variant: "default",
-      });
 
       // Trigger email notifications via edge function
       try {

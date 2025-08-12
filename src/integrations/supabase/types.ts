@@ -334,6 +334,10 @@ export type Database = {
         Args: { timer_uuid: string }
         Returns: number
       }
+      safe_newsletter_signup: {
+        Args: { p_email: string; p_user_id?: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
