@@ -50,23 +50,26 @@ export const useNewsletterSignup = () => {
       }
 
       // Trigger email notifications via edge function
+      console.log("Invoking newsletter-notification function with:", { email, source });
       try {
-        const { error: emailError } = await supabase.functions.invoke("newsletter-notification", {
+        const response = await supabase.functions.invoke("newsletter-notification", {
           body: { email, source }
         });
         
-        if (emailError) {
-          console.error("Email notification failed:", emailError);
-          // Show user a toast about email issues but don't fail the subscription
+        console.log("Edge function response:", response);
+        
+        if (response.error) {
+          console.error("Email notification failed:", response.error);
           toast({
             title: "Subscribed successfully",
             description: "You're subscribed! There was a small issue sending the welcome email, but you're all set.",
             variant: "default",
           });
+        } else {
+          console.log("Email notification sent successfully");
         }
       } catch (emailError) {
-        console.error("Email notification failed:", emailError);
-        // Show user a toast about email issues but don't fail the subscription  
+        console.error("Email notification catch error:", emailError);
         toast({
           title: "Subscribed successfully", 
           description: "You're subscribed! There was a small issue sending the welcome email, but you're all set.",
