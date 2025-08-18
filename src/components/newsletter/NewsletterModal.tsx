@@ -139,16 +139,20 @@ const NewsletterModal = () => {
     e.preventDefault();
     if (email) {
       await signUpForNewsletter(email, "popup");
-      if (success) {
-        localStorage.setItem("newsletter-subscribed", "true");
-        setEmail("");
-        setTimeout(() => {
-          setIsVisible(false);
-          setIsDismissed(true);
-        }, 2000);
-      }
     }
   };
+
+  // Handle success state change
+  useEffect(() => {
+    if (success) {
+      localStorage.setItem("newsletter-subscribed", "true");
+      setEmail("");
+      setTimeout(() => {
+        setIsVisible(false);
+        setIsDismissed(true);
+      }, 2000);
+    }
+  }, [success]);
 
   if (isDismissed || !isVisible) return null;
 

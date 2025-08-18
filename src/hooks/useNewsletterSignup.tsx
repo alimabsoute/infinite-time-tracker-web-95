@@ -8,7 +8,9 @@ export const useNewsletterSignup = () => {
   const { toast } = useToast();
 
   const signUpForNewsletter = async (email: string, source: "hero" | "popup") => {
-    if (!email || !email.includes("@")) {
+    // Enhanced email validation
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!email || !emailRegex.test(email)) {
       toast({
         title: "Invalid email",
         description: "Please enter a valid email address.",
@@ -20,8 +22,10 @@ export const useNewsletterSignup = () => {
     setLoading(true);
     try {
       // Use secure function that handles duplicates without exposing existing emails
+      // Pass null for user_id to allow anonymous signups
       const { data, error } = await supabase.rpc('safe_newsletter_signup', {
-        p_email: email.toLowerCase()
+        p_email: email.toLowerCase(),
+        p_user_id: null
       });
 
       if (error) {
