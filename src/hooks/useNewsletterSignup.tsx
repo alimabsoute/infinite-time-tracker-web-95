@@ -21,11 +21,10 @@ export const useNewsletterSignup = () => {
 
     setLoading(true);
     try {
-      // Use secure function that handles duplicates without exposing existing emails
-      // Pass null for user_id to allow anonymous signups
-      const { data, error } = await supabase.rpc('safe_newsletter_signup', {
+      // Use new secure newsletter signup function with validation and rate limiting
+      const { data, error } = await supabase.rpc('secure_newsletter_signup', {
         p_email: email.toLowerCase(),
-        p_user_id: null
+        p_source: source
       });
 
       if (error) {

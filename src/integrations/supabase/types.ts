@@ -165,6 +165,39 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_signup_attempt: string | null
+          signup_attempts_count: number | null
+          source: string | null
+          subscribed: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_signup_attempt?: string | null
+          signup_attempts_count?: number | null
+          source?: string | null
+          subscribed?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_signup_attempt?: string | null
+          signup_attempts_count?: number | null
+          source?: string | null
+          subscribed?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           id: string
@@ -336,6 +369,10 @@ export type Database = {
       }
       safe_newsletter_signup: {
         Args: { p_email: string; p_user_id?: string }
+        Returns: Json
+      }
+      secure_newsletter_signup: {
+        Args: { p_email: string; p_source?: string }
         Returns: Json
       }
     }
