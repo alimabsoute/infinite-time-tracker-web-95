@@ -35,7 +35,7 @@ serve(async (req) => {
 
     // Send admin notification email
     const adminEmailData = {
-      from: 'PhynxTimer <noreply@phynxtimer.com>',
+      from: 'PhynxTimer <onboarding@resend.dev>',
       to: [adminEmail],
       subject: '🎉 New Newsletter Subscriber!',
       html: `
@@ -54,7 +54,7 @@ serve(async (req) => {
 
     // Send welcome email to subscriber
     const welcomeEmailData = {
-      from: 'PhynxTimer <noreply@phynxtimer.com>',
+      from: 'PhynxTimer <onboarding@resend.dev>',
       to: [email],
       subject: 'Welcome to PhynxTimer! 🚀',
       html: `
