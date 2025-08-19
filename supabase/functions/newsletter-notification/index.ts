@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { Resend } from 'npm:resend@2.0.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,34 +8,52 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('[NEWSLETTER-NOTIFICATION] Function started')
+  
   if (req.method === 'OPTIONS') {
+    console.log('[NEWSLETTER-NOTIFICATION] Handling CORS preflight')
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { email, source } = await req.json()
-
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseKey)
-
-    // Get admin email from environment or use default
-    const adminEmail = Deno.env.get('ADMIN_EMAIL') || 'your-email@example.com'
+    const body = await req.json()
+    const { email, source } = body
     
-    // Email service credentials (add these to Supabase secrets)
-    const resendApiKey = Deno.env.get('RESEND_API_KEY')
-    
-    if (!resendApiKey) {
-      console.error('RESEND_API_KEY not found in environment variables')
+    console.log('[NEWSLETTER-NOTIFICATION] Received request:', { email, source })
+
+    // Validate input
+    if (!email) {
+      console.error('[NEWSLETTER-NOTIFICATION] Missing email in request')
       return new Response(
-        JSON.stringify({ success: false, error: 'Email service not configured' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: false, error: 'Email is required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
 
+    // Get environment variables
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')
+    const adminEmail = Deno.env.get('ADMIN_EMAIL') || 'ali.mabsoute@hyatt.com'
+    
+    console.log('[NEWSLETTER-NOTIFICATION] Environment check:', { 
+      hasResendKey: !!resendApiKey,
+      adminEmail 
+    })
+    
+    if (!resendApiKey) {
+      console.error('[NEWSLETTER-NOTIFICATION] RESEND_API_KEY not found in environment variables')
+      return new Response(
+        JSON.stringify({ success: false, error: 'Email service not configured' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
+    }
+
+    // Initialize Resend
+    const resend = new Resend(resendApiKey)
+    console.log('[NEWSLETTER-NOTIFICATION] Resend client initialized')
+
     // Send admin notification email
-    const adminEmailData = {
+    console.log('[NEWSLETTER-NOTIFICATION] Sending admin notification email to:', adminEmail)
+    const adminEmailResult = await resend.emails.send({
       from: 'PhynxTimer <onboarding@resend.dev>',
       to: [adminEmail],
       subject: '🎉 New Newsletter Subscriber!',
@@ -50,10 +69,13 @@ serve(async (req) => {
           </p>
         </div>
       `
-    }
+    })
+
+    console.log('[NEWSLETTER-NOTIFICATION] Admin email result:', adminEmailResult)
 
     // Send welcome email to subscriber
-    const welcomeEmailData = {
+    console.log('[NEWSLETTER-NOTIFICATION] Sending welcome email to:', email)
+    const welcomeEmailResult = await resend.emails.send({
       from: 'PhynxTimer <onboarding@resend.dev>',
       to: [email],
       subject: 'Welcome to PhynxTimer! 🚀',
@@ -75,7 +97,7 @@ serve(async (req) => {
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="https://phynxtimer.com/dashboard" 
+            <a href="https://guqmcoyneloryomuukyw.supabase.co/dashboard" 
                style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
               Start Using PhynxTimer →
             </a>
@@ -84,53 +106,50 @@ serve(async (req) => {
           <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 30px; color: #64748b; font-size: 14px;">
             <p>Best regards,<br>The PhynxTimer Team</p>
             <p style="margin-top: 15px;">
-              <a href="[UNSUBSCRIBE_URL]" style="color: #64748b;">Unsubscribe</a> | 
+              <a href="#" style="color: #64748b;">Unsubscribe</a> | 
               <a href="https://phynxtimer.com" style="color: #64748b;">Visit our website</a>
             </p>
           </div>
         </div>
       `
+    })
+
+    console.log('[NEWSLETTER-NOTIFICATION] Welcome email result:', welcomeEmailResult)
+
+    // Check for errors
+    if (adminEmailResult.error) {
+      console.error('[NEWSLETTER-NOTIFICATION] Admin email failed:', adminEmailResult.error)
+    }
+    
+    if (welcomeEmailResult.error) {
+      console.error('[NEWSLETTER-NOTIFICATION] Welcome email failed:', welcomeEmailResult.error)
     }
 
-    // Send both emails using Resend
-    const responses = await Promise.allSettled([
-      // Admin notification
-      fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(adminEmailData),
-      }),
-      // Welcome email
-      fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(welcomeEmailData),
-      })
-    ])
+    const response = {
+      success: true,
+      message: 'Newsletter signup processed and emails sent',
+      adminEmailSent: !adminEmailResult.error,
+      welcomeEmailSent: !welcomeEmailResult.error,
+      adminEmailId: adminEmailResult.data?.id,
+      welcomeEmailId: welcomeEmailResult.data?.id
+    }
 
-    console.log('Email responses:', responses)
+    console.log('[NEWSLETTER-NOTIFICATION] Final response:', response)
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Newsletter signup processed and emails sent',
-        adminEmailSent: responses[0].status === 'fulfilled',
-        welcomeEmailSent: responses[1].status === 'fulfilled'
-      }),
+      JSON.stringify(response),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Error in newsletter-notification function:', error)
+    console.error('[NEWSLETTER-NOTIFICATION] Error in function:', error)
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        success: false, 
+        error: error.message,
+        stack: error.stack 
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
 })
