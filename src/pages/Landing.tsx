@@ -11,7 +11,7 @@ import PricingSection from "@/components/landing/PricingSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
-import HeaderSpacingTest from "@/components/HeaderSpacingTest";
+// import HeaderSpacingTest from "@/components/HeaderSpacingTest";
 import NewsletterModal from "@/components/newsletter/NewsletterModal";
 
 const LandingPage = () => {
@@ -179,7 +179,7 @@ const LandingPage = () => {
       </motion.div>
       
       {/* Temporary spacing test component */}
-      <HeaderSpacingTest />
+      {/* <HeaderSpacingTest /> */}
       
       {/* Newsletter Modal */}
       <NewsletterModal />
