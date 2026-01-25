@@ -359,10 +359,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: string
       }
-      get_accurate_timer_time: {
-        Args: { timer_uuid: string }
-        Returns: number
-      }
+      get_accurate_timer_time: { Args: { timer_uuid: string }; Returns: number }
       recover_missing_timer_time: {
         Args: { timer_uuid: string }
         Returns: number
