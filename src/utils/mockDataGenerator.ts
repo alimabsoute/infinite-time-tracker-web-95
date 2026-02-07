@@ -168,8 +168,6 @@ export class MockDataGenerator {
   }
 
   async generateMockData(userId: string): Promise<{ success: boolean; message: string; timersCreated: number; sessionsCreated: number }> {
-    console.log('🎭 MockDataGenerator - Starting mock data generation for user:', userId);
-    
     try {
       let timersCreated = 0;
       let sessionsCreated = 0;
@@ -187,7 +185,6 @@ export class MockDataGenerator {
       }
       
       if (existingTimers && existingTimers.length > 0) {
-        console.log('⚠️ Mock data already exists, skipping generation');
         return { success: true, message: 'Mock data already exists', timersCreated: 0, sessionsCreated: 0 };
       }
       
@@ -218,8 +215,7 @@ export class MockDataGenerator {
         }
         
         timersCreated++;
-        console.log(`✅ Created mock timer: ${mockTimer.name}`);
-        
+
         // Generate and insert sessions for this timer
         const sessions = this.calculateSessionsForTimer(mockTimer);
         
@@ -253,13 +249,9 @@ export class MockDataGenerator {
           sessionsCreated++;
         }
         
-        console.log(`✅ Created ${sessions.length} sessions for timer: ${mockTimer.name}`);
-        
         // Small delay to avoid overwhelming the database
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      
-      console.log(`🎉 Mock data generation complete: ${timersCreated} timers, ${sessionsCreated} sessions`);
       
       return {
         success: true,
@@ -280,8 +272,6 @@ export class MockDataGenerator {
   }
 
   async clearMockData(userId: string): Promise<{ success: boolean; message: string }> {
-    console.log('🧹 MockDataGenerator - Clearing mock data for user:', userId);
-    
     try {
       // Get all mock timers
       const { data: mockTimers, error: fetchError } = await supabase
@@ -322,8 +312,6 @@ export class MockDataGenerator {
         console.error('❌ Error deleting timers:', timersError);
         return { success: false, message: 'Failed to delete timers' };
       }
-      
-      console.log(`✅ Cleared ${mockTimers.length} mock timers and their sessions`);
       
       return {
         success: true,

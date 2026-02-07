@@ -42,8 +42,6 @@ export const useSimpleTimers = () => {
 
     try {
       setLoading(true);
-      console.log('🔄 Loading timers...');
-
       const { data, error } = await supabase
         .from('timers')
         .select('*')
@@ -80,14 +78,11 @@ export const useSimpleTimers = () => {
             id: timer.id,
             startTime: calculatedStartTime
           });
-          console.log(`🔄 Restored running timer ${timer.name}: elapsed=${timer.elapsedTime}ms, calculated start=${new Date(calculatedStartTime).toLocaleTimeString()}`);
         }
       });
 
       setTimers(processedTimers);
       setRunningTimers(currentlyRunning);
-      
-      console.log(`✅ Loaded ${processedTimers.length} timers, ${currentlyRunning.length} running`);
     } catch (error) {
       console.error('❌ Error loading timers:', error);
       toast.error('Failed to load timers');
@@ -110,8 +105,6 @@ export const useSimpleTimers = () => {
         const sessionDuration = runningTimer ? Date.now() - runningTimer.startTime : 0;
         const finalElapsedTime = timer.elapsedTime + sessionDuration;
 
-        console.log(`⏹️ Stopping timer ${timer.name}: ${timer.elapsedTime} + ${sessionDuration} = ${finalElapsedTime}`);
-
         // Update database with final time
         await supabase
           .from('timers')
@@ -133,7 +126,6 @@ export const useSimpleTimers = () => {
 
       } else {
         // START: Stop all other timers first, then start this one
-        console.log(`▶️ Starting timer ${timer.name}`);
 
         // Stop all currently running timers
         const updates = await Promise.all(
@@ -191,8 +183,6 @@ export const useSimpleTimers = () => {
     if (!user) return;
 
     try {
-      console.log(`🔄 Resetting timer ${timerId}`);
-
       // Update database
       await supabase
         .from('timers')
@@ -276,7 +266,6 @@ export const useSimpleTimers = () => {
             
             // Save to database every 30 seconds (30000ms)
             if (sessionDuration % 30000 < 1000) {
-              console.log(`💾 Auto-saving timer ${timer.name}: ${currentElapsedTime}ms`);
               await supabase
                 .from('timers')
                 .update({ elapsed_time: Math.floor(currentElapsedTime) })

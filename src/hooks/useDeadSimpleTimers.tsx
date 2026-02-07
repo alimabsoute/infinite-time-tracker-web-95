@@ -43,8 +43,6 @@ export const useDeadSimpleTimers = () => {
 
     try {
       setLoading(true);
-      console.log('🔄 Loading timers...');
-
       const { data, error } = await supabase
         .from('timers')
         .select('*')
@@ -71,7 +69,6 @@ export const useDeadSimpleTimers = () => {
       }));
 
       setTimers(processedTimers);
-      console.log(`✅ Loaded ${processedTimers.length} timers`);
     } catch (error) {
       console.error('❌ Error loading timers:', error);
       toast.error('Failed to load timers');
@@ -91,8 +88,6 @@ export const useDeadSimpleTimers = () => {
       if (timer.isRunning) {
         // STOP: Calculate final time and save
         const finalElapsedTime = getDisplayTime(timer);
-
-        console.log(`⏹️ Stopping timer ${timer.name}: final time = ${finalElapsedTime}ms`);
 
         // End the current session
         await supabase
@@ -122,7 +117,6 @@ export const useDeadSimpleTimers = () => {
 
       } else {
         // START: Start this timer (allow multiple simultaneous timers)
-        console.log(`▶️ Starting timer ${timer.name}`);
 
         // Create new session
         const startTime = new Date();
@@ -163,8 +157,6 @@ export const useDeadSimpleTimers = () => {
     if (!user) return;
 
     try {
-      console.log(`🔄 Resetting timer ${timerId}`);
-
       await supabase
         .from('timers')
         .update({
@@ -242,8 +234,6 @@ export const useDeadSimpleTimers = () => {
     if (!user) return;
 
     try {
-      console.log(`✏️ Renaming timer ${id}: "${newName}" category: ${category}`);
-
       await supabase
         .from('timers')
         .update({
@@ -273,8 +263,6 @@ export const useDeadSimpleTimers = () => {
     if (!timer) return;
 
     try {
-      console.log(`🗑️ Deleting timer ${timer.name}`);
-
       // Stop timer if running and end its session
       if (timer.isRunning) {
         const finalElapsedTime = getDisplayTime(timer);
@@ -318,8 +306,6 @@ export const useDeadSimpleTimers = () => {
     if (!user) return;
 
     try {
-      console.log(`📅 Updating deadline for timer ${id}`);
-
       await supabase
         .from('timers')
         .update({
@@ -345,8 +331,6 @@ export const useDeadSimpleTimers = () => {
     if (!user) return;
 
     try {
-      console.log(`⭐ Updating priority for timer ${id}: ${priority}`);
-
       await supabase
         .from('timers')
         .update({

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhynxTimer - Analytics Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FAFAF9;
+    --bg-elevated: #FFFFFF;
+    --text-primary: #1A1A1A;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --accent-light: #EFF6FF;
+    --accent-subtle: #DBEAFE;
+    --border: #E5E7EB;
+    --border-light: #F3F4F6;
+    --success: #059669;
+    --success-light: #ECFDF5;
+    --warning: #D97706;
+    --warning-light: #FEF3C7;
+    --danger: #DC2626;
+    --purple: #7C3AED;
+    --purple-light: #F3E8FF;
+    --radius: 12px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* === SIDEBAR (reused) === */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    background: var(--bg-elevated);
+    border-right: 1px solid var(--border-light);
+    padding: 20px 16px;
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 8px; margin-bottom: 32px;
+    text-decoration: none; color: var(--text-primary);
+  }
+  .sidebar-logo-icon {
+    width: 28px; height: 28px; background: var(--accent);
+    border-radius: 7px; display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 12px;
+  }
+  .sidebar-logo-text { font-weight: 700; font-size: 16px; letter-spacing: -0.02em; }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 8px;
+    text-decoration: none; color: var(--text-secondary);
+    font-size: 14px; font-weight: 500; transition: all 0.15s;
+  }
+  .sidebar-link:hover { background: var(--border-light); color: var(--text-primary); }
+  .sidebar-link.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+  .sidebar-link .icon { width: 18px; text-align: center; font-size: 16px; }
+  .sidebar-section-label {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 20px 12px 8px;
+  }
+  .sidebar-user {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; border-top: 1px solid var(--border-light); margin-top: auto;
+  }
+  .sidebar-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent-light); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .sidebar-user-name { font-size: 13px; font-weight: 600; }
+  .sidebar-user-plan { font-size: 11px; color: var(--text-tertiary); }
+
+  /* === MAIN === */
+  .main { flex: 1; padding: 32px 40px; max-width: 1100px; }
+
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+  .page-subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* Controls bar */
+  .controls-bar {
+    display: flex; gap: 12px; margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .select-control {
+    padding: 8px 14px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg-elevated);
+    font-size: 13px; font-weight: 500; color: var(--text-primary);
+    cursor: pointer; font-family: inherit;
+  }
+  .btn-export {
+    margin-left: auto;
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg-elevated);
+    font-size: 13px; font-weight: 500; color: var(--text-secondary);
+    cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-export:hover { background: var(--border-light); }
+
+  /* Stat cards */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .stat-label {
+    font-size: 12px; font-weight: 500; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-size: 24px; font-weight: 800; letter-spacing: -0.02em;
+    font-family: var(--mono);
+  }
+
+  /* Tab navigation */
+  .tabs {
+    display: flex; gap: 0; margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .tab {
+    padding: 12px 20px; font-size: 14px; font-weight: 500;
+    color: var(--text-tertiary); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    background: none; border-top: none; border-left: none; border-right: none;
+    font-family: inherit;
+  }
+  .tab:hover { color: var(--text-secondary); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  /* Chart card */
+  .chart-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .chart-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .chart-title { font-size: 16px; font-weight: 700; }
+  .chart-subtitle { font-size: 13px; color: var(--text-tertiary); margin-top: 2px; }
+
+  /* Bar chart mockup */
+  .bar-chart {
+    display: flex; align-items: flex-end; gap: 8px;
+    height: 200px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border-light);
+    position: relative;
+  }
+  .bar-chart-col {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .bar {
+    width: 100%; max-width: 48px; border-radius: 6px 6px 0 0;
+    transition: all 0.3s; cursor: pointer;
+    position: relative;
+  }
+  .bar:hover { opacity: 0.8; }
+  .bar-label {
+    font-size: 11px; color: var(--text-tertiary);
+    position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .bar-value {
+    font-size: 11px; font-weight: 600; color: var(--text-secondary);
+    text-align: center; margin-bottom: 4px;
+    font-family: var(--mono);
+  }
+
+  /* Grid axis lines */
+  .bar-chart::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 1px; background: var(--border-light);
+  }
+
+  /* Donut chart mockup */
+  .charts-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  .donut-wrapper {
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .donut-chart {
+    width: 180px; height: 180px; border-radius: 50%;
+    background: conic-gradient(
+      var(--accent) 0deg 180deg,
+      var(--warning) 180deg 252deg,
+      var(--success) 252deg 310deg,
+      var(--purple) 310deg 360deg
+    );
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .donut-hole {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: var(--bg-elevated);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .donut-total { font-size: 20px; font-weight: 800; font-family: var(--mono); }
+  .donut-label { font-size: 11px; color: var(--text-tertiary); }
+
+  /* Legend */
+  .chart-legend { list-style: none; }
+  .legend-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+  }
+  .legend-item:last-child { border-bottom: none; }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+  }
+  .legend-name { flex: 1; font-weight: 500; }
+  .legend-value { font-family: var(--mono); font-size: 12px; color: var(--text-secondary); }
+  .legend-pct { font-size: 12px; color: var(--text-tertiary); width: 40px; text-align: right; }
+
+  /* Timer breakdown */
+  .timer-breakdown { list-style: none; }
+  .breakdown-item {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .breakdown-item:last-child { border-bottom: none; }
+  .breakdown-rank {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--border-light); color: var(--text-tertiary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .breakdown-info { flex: 1; }
+  .breakdown-name { font-size: 14px; font-weight: 600; }
+  .breakdown-category { font-size: 12px; color: var(--text-tertiary); }
+  .breakdown-bar-bg {
+    height: 6px; border-radius: 3px; background: var(--border-light);
+    margin-top: 8px; overflow: hidden;
+  }
+  .breakdown-bar-fill {
+    height: 100%; border-radius: 3px;
+  }
+  .breakdown-stats { text-align: right; flex-shrink: 0; }
+  .breakdown-time { font-size: 14px; font-weight: 700; font-family: var(--mono); }
+  .breakdown-sessions { font-size: 11px; color: var(--text-tertiary); }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 20px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+
+  .mockup-banner {
+    background: #FEF3C7; border-bottom: 1px solid #FCD34D;
+    padding: 10px 24px; text-align: center;
+    font-size: 13px; font-weight: 600; color: #92400E;
+  }
+</style>
+</head>
+<body>
+
+<div class="mockup-banner">MOCKUP - Proposed Analytics Page Redesign for PhynxTimer</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="#" class="sidebar-logo">
+      <div class="sidebar-logo-icon">P</div>
+      <span class="sidebar-logo-text">PhynxTimer</span>
+    </a>
+    <nav class="sidebar-nav">
+      <a href="#" class="sidebar-link"><span class="icon">&#9201;</span> Timers</a>
+      <a href="#" class="sidebar-link active"><span class="icon">&#128200;</span> Analytics</a>
+      <a href="#" class="sidebar-link"><span class="icon">&#128197;</span> Calendar</a>
+      <a href="#" class="sidebar-link"><span class="icon">&#128161;</span> Insights</a>
+      <div class="sidebar-section-label">Account</div>
+      <a href="#" class="sidebar-link"><span class="icon">&#9881;</span> Settings</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div>
+        <div class="sidebar-user-name">Ali M.</div>
+        <div class="sidebar-user-plan">Free plan</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Analytics</div>
+        <div class="page-subtitle">Understand where your time goes</div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-bar">
+      <select class="select-control">
+        <option>Last 7 days</option>
+        <option>Last 14 days</option>
+        <option>Last 30 days</option>
+        <option>Last 90 days</option>
+      </select>
+      <select class="select-control">
+        <option>All timers</option>
+        <option>Deep Work Session</option>
+        <option>Client Project</option>
+        <option>Reading</option>
+      </select>
+      <button class="btn-export">&#128229; Export PDF</button>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Time</div>
+        <div class="stat-value" style="color:var(--accent);">18h 42m</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Sessions</div>
+        <div class="stat-value">47</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Session</div>
+        <div class="stat-value">23m</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Daily Avg</div>
+        <div class="stat-value">2h 40m</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active">Timeline</button>
+      <button class="tab">By Timer</button>
+      <button class="tab">Categories</button>
+    </div>
+
+    <!-- Daily Activity Chart -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <div class="chart-title">Daily Activity</div>
+          <div class="chart-subtitle">Minutes tracked per day</div>
+        </div>
+      </div>
+      <div class="bar-chart">
+        <div class="bar-chart-col">
+          <div class="bar-value">1h 20m</div>
+          <div class="bar" style="height:33%;background:var(--accent-subtle);"></div>
+          <span class="bar-label">Mon</span>
+        </div>
+        <div class="bar-chart-col">
+          <div class="bar-value">3h 10m</div>
+          <div class="bar" style="height:65%;background:var(--accent-subtle);"></div>
+          <span class="bar-label">Tue</span>
+        </div>
+        <div class="bar-chart-col">
+          <div class="bar-value">2h 05m</div>
+          <div class="bar" style="height:45%;background:var(--accent-subtle);"></div>
+          <span class="bar-label">Wed</span>
+        </div>
+        <div class="bar-chart-col">
+          <div class="bar-value">4h 30m</div>
+          <div class="bar" style="height:92%;background:var(--accent);"></div>
+          <span class="bar-label">Thu</span>
+        </div>
+        <div class="bar-chart-col">
+          <div class="bar-value">3h 45m</div>
+          <div class="bar" style="height:77%;background:var(--accent);"></div>
+          <span class="bar-label">Fri</span>
+        </div>
+        <div class="bar-chart-col">
+          <div class="bar-value">2h 12m</div>
+          <div class="bar" style="height:46%;background:var(--accent-subtle);"></div>
+          <span class="bar-label">Sat</span>
+        </div>
+        <div class="bar-chart-col">
+          <div class="bar-value">1h 40m</div>
+          <div class="bar" style="height:35%;background:var(--accent-subtle);"></div>
+          <span class="bar-label">Sun</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-title">Category Distribution</div>
+            <div class="chart-subtitle">Time by category</div>
+          </div>
+        </div>
+        <div class="donut-wrapper">
+          <div class="donut-chart">
+            <div class="donut-hole">
+              <div class="donut-total">18h</div>
+              <div class="donut-label">total</div>
+            </div>
+          </div>
+        </div>
+        <ul class="chart-legend">
+          <li class="legend-item">
+            <span class="legend-dot" style="background:var(--accent)"></span>
+            <span class="legend-name">Work</span>
+            <span class="legend-value">9h 20m</span>
+            <span class="legend-pct">50%</span>
+          </li>
+          <li class="legend-item">
+            <span class="legend-dot" style="background:var(--warning)"></span>
+            <span class="legend-name">Freelance</span>
+            <span class="legend-value">3h 45m</span>
+            <span class="legend-pct">20%</span>
+          </li>
+          <li class="legend-item">
+            <span class="legend-dot" style="background:var(--success)"></span>
+            <span class="legend-name">Personal</span>
+            <span class="legend-value">3h 10m</span>
+            <span class="legend-pct">17%</span>
+          </li>
+          <li class="legend-item">
+            <span class="legend-dot" style="background:var(--purple)"></span>
+            <span class="legend-name">Learning</span>
+            <span class="legend-value">2h 27m</span>
+            <span class="legend-pct">13%</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Timer Breakdown -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-title">Top Timers</div>
+            <div class="chart-subtitle">Ranked by total time</div>
+          </div>
+        </div>
+        <ul class="timer-breakdown">
+          <li class="breakdown-item">
+            <div class="breakdown-rank">1</div>
+            <div class="breakdown-info">
+              <div class="breakdown-name">Deep Work Session</div>
+              <div class="breakdown-category">Work</div>
+              <div class="breakdown-bar-bg">
+                <div class="breakdown-bar-fill" style="width:100%;background:var(--accent);"></div>
+              </div>
+            </div>
+            <div class="breakdown-stats">
+              <div class="breakdown-time">6h 20m</div>
+              <div class="breakdown-sessions">14 sessions</div>
+            </div>
+          </li>
+          <li class="breakdown-item">
+            <div class="breakdown-rank">2</div>
+            <div class="breakdown-info">
+              <div class="breakdown-name">Client - Acme</div>
+              <div class="breakdown-category">Freelance</div>
+              <div class="breakdown-bar-bg">
+                <div class="breakdown-bar-fill" style="width:60%;background:var(--warning);"></div>
+              </div>
+            </div>
+            <div class="breakdown-stats">
+              <div class="breakdown-time">3h 45m</div>
+              <div class="breakdown-sessions">8 sessions</div>
+            </div>
+          </li>
+          <li class="breakdown-item">
+            <div class="breakdown-rank">3</div>
+            <div class="breakdown-info">
+              <div class="breakdown-name">Reading</div>
+              <div class="breakdown-category">Personal</div>
+              <div class="breakdown-bar-bg">
+                <div class="breakdown-bar-fill" style="width:40%;background:var(--success);"></div>
+              </div>
+            </div>
+            <div class="breakdown-stats">
+              <div class="breakdown-time">2h 30m</div>
+              <div class="breakdown-sessions">12 sessions</div>
+            </div>
+          </li>
+          <li class="breakdown-item">
+            <div class="breakdown-rank">4</div>
+            <div class="breakdown-info">
+              <div class="breakdown-name">React Course</div>
+              <div class="breakdown-category">Learning</div>
+              <div class="breakdown-bar-bg">
+                <div class="breakdown-bar-fill" style="width:30%;background:var(--purple);"></div>
+              </div>
+            </div>
+            <div class="breakdown-stats">
+              <div class="breakdown-time">2h 15m</div>
+              <div class="breakdown-sessions">5 sessions</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

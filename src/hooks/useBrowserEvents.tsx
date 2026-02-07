@@ -22,37 +22,31 @@ export const useBrowserEvents = (handlers: BrowserEventHandlers) => {
     // Page Visibility API
     const handleVisibilityChange = () => {
       const isVisible = !document.hidden;
-      console.log('🔍 Visibility changed:', isVisible ? 'visible' : 'hidden');
       handlersRef.current.onVisibilityChange(isVisible);
     };
 
     // Before unload (page refresh, tab close)
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      console.log('⚠️ Before unload triggered');
       handlersRef.current.onBeforeUnload();
       // Don't prevent the user from leaving, just save state
     };
 
     // Page hide (more reliable than beforeunload on mobile)
     const handlePageHide = () => {
-      console.log('👋 Page hide triggered');
       handlersRef.current.onPageHide();
     };
 
     // Page show (when returning to tab)
     const handlePageShow = () => {
-      console.log('👁️ Page show triggered');
       handlersRef.current.onPageShow();
     };
 
     // Window focus/blur (tab switching)
     const handleFocus = () => {
-      console.log('🎯 Window focus triggered');
       handlersRef.current.onFocus();
     };
 
     const handleBlur = () => {
-      console.log('😴 Window blur triggered');
       handlersRef.current.onBlur();
     };
 

@@ -31,8 +31,7 @@ export const useTimerOperationsRebuild = ({
       
       if (timer.isRunning) {
         // Stop the timer
-        console.log(`⏹️ Stopping timer: ${timer.name}`);
-        
+
         // Calculate final elapsed time
         const finalElapsedTime = calculateSessionElapsedTime(timer);
         
@@ -74,8 +73,7 @@ export const useTimerOperationsRebuild = ({
         toast.success(`Timer "${timer.name}" stopped`);
       } else {
         // Start the timer - first stop all other running timers
-        console.log(`▶️ Starting timer: ${timer.name}`);
-        
+
         // Stop all currently running timers
         const runningTimers = timers.filter(t => t.isRunning);
         for (const runningTimer of runningTimers) {
@@ -164,8 +162,6 @@ export const useTimerOperationsRebuild = ({
     if (!timer) return;
 
     try {
-      console.log(`🔄 Resetting timer: ${timer.name}`);
-
       // If timer is running, stop it first
       if (timer.isRunning && timer.currentSessionId) {
         await supabase
@@ -214,8 +210,6 @@ export const useTimerOperationsRebuild = ({
     if (!timer) return;
 
     try {
-      console.log(`🗑️ Deleting timer: ${timer.name}`);
-
       // If timer is running, end its session
       if (timer.isRunning && timer.currentSessionId) {
         await supabase

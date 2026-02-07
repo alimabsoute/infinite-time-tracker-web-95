@@ -148,7 +148,7 @@ const Analytics = () => {
     );
   }
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+  const COLORS = ['hsl(221,83%,53%)', 'hsl(160,60%,45%)', 'hsl(30,80%,55%)', 'hsl(280,65%,60%)', 'hsl(340,75%,55%)', 'hsl(142,71%,45%)'];
 
   // Show empty state if no data
   if (analytics.totalSessions === 0) {
@@ -177,12 +177,10 @@ const Analytics = () => {
       title="Advanced Analytics"
       description="Deep insights into your time tracking patterns and productivity"
     >
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Analytics</h1>
-        <PDFExportButton 
-          elementId="analytics-content" 
+      <div className="flex justify-end mb-6">
+        <PDFExportButton
+          elementId="analytics-content"
           fileName="analytics-export"
-          className="ml-auto"
         />
       </div>
 
@@ -298,7 +296,7 @@ const Analytics = () => {
                     <Tooltip 
                       formatter={(value: number) => [`${value} min`, 'Time']}
                     />
-                    <Bar dataKey="time" fill="#8884d8" />
+                    <Bar dataKey="time" fill="hsl(221,83%,53%)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -318,7 +316,7 @@ const Analytics = () => {
                     <XAxis dataKey="date" />
                     <YAxis />
                     <Tooltip />
-                    <Line type="monotone" dataKey="sessions" stroke="#82ca9d" />
+                    <Line type="monotone" dataKey="sessions" stroke="hsl(160,60%,45%)" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -377,7 +375,7 @@ const Analytics = () => {
                         labelLine={false}
                         label={({ name, percentage }) => `${name} (${percentage.toFixed(1)}%)`}
                         outerRadius={80}
-                        fill="#8884d8"
+                        fill="hsl(221,83%,53%)"
                         dataKey="time"
                       >
                         {analytics.categoryData.map((entry, index) => (

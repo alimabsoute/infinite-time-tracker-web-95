@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhynxTimer - Style Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=DM+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0A0A0A;
+    color: #F5F5F5;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 24px;
+  }
+
+  .page-title {
+    text-align: center; font-size: 32px; font-weight: 800;
+    letter-spacing: -0.03em; margin-bottom: 8px;
+  }
+  .page-subtitle {
+    text-align: center; font-size: 16px; color: #71717A;
+    margin-bottom: 48px;
+  }
+
+  .style-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(540px, 1fr));
+    gap: 32px; max-width: 1400px; margin: 0 auto;
+  }
+
+  .style-card {
+    border-radius: 16px; overflow: hidden;
+    border: 1px solid #2A2A2A;
+  }
+  .style-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #2A2A2A;
+    background: #111;
+  }
+  .style-name {
+    font-size: 18px; font-weight: 700; margin-bottom: 4px;
+  }
+  .style-desc {
+    font-size: 13px; color: #71717A; margin-bottom: 12px;
+  }
+  .style-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .style-tag {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 20px; background: #1F1F1F; color: #A1A1AA;
+  }
+  .style-tag.rec { background: #1E3A5F; color: #60A5FA; }
+
+  .style-preview {
+    padding: 24px;
+    min-height: 380px;
+  }
+
+  /* ===== STYLE 1: shadcn/ui (Current stack, done right) ===== */
+  .s1 { background: #FAFAFA; }
+  .s1 .demo-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;
+    margin-bottom: 20px;
+  }
+  .s1 .demo-logo { font-weight: 700; font-size: 15px; color: #09090B; display: flex; align-items: center; gap: 8px; }
+  .s1 .demo-logo-box { width: 24px; height: 24px; background: #18181B; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 800; }
+  .s1 .demo-btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid #E5E7EB; background: white; color: #09090B; cursor: pointer; }
+  .s1 .demo-btn-primary { background: #18181B; color: white; border-color: #18181B; }
+
+  .s1 .demo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .s1 .demo-stat { background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px; }
+  .s1 .demo-stat-label { font-size: 11px; color: #71717A; font-weight: 500; }
+  .s1 .demo-stat-value { font-size: 22px; font-weight: 700; color: #09090B; font-family: 'JetBrains Mono'; }
+
+  .s1 .demo-timer { background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .s1 .demo-timer.active { border-left: 3px solid #18181B; }
+  .s1 .demo-timer-name { font-size: 13px; font-weight: 600; color: #09090B; }
+  .s1 .demo-timer-cat { font-size: 11px; color: #71717A; }
+  .s1 .demo-timer-time { font-family: 'JetBrains Mono'; font-size: 18px; font-weight: 600; color: #09090B; }
+  .s1 .demo-timer-time.running { color: #18181B; }
+  .s1 .demo-pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: #F4F4F5; color: #71717A; font-weight: 500; }
+  .s1 .demo-play { width: 28px; height: 28px; border-radius: 50%; background: #18181B; border: none; color: white; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== STYLE 2: Linear-inspired (Monochrome + Purple accent) ===== */
+  .s2 { background: #0A0A0F; }
+  .s2 .demo-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 20px;
+  }
+  .s2 .demo-logo { font-weight: 700; font-size: 15px; color: #F5F5F5; display: flex; align-items: center; gap: 8px; }
+  .s2 .demo-logo-box { width: 24px; height: 24px; background: linear-gradient(135deg, #7C3AED, #5B21B6); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 800; }
+  .s2 .demo-btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #A1A1AA; cursor: pointer; }
+  .s2 .demo-btn-primary { background: #7C3AED; color: white; border-color: #7C3AED; }
+
+  .s2 .demo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .s2 .demo-stat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px; }
+  .s2 .demo-stat-label { font-size: 11px; color: #52525B; font-weight: 500; }
+  .s2 .demo-stat-value { font-size: 22px; font-weight: 700; color: #F5F5F5; font-family: 'JetBrains Mono'; }
+
+  .s2 .demo-timer { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; transition: all 0.15s; }
+  .s2 .demo-timer:hover { background: rgba(255,255,255,0.04); }
+  .s2 .demo-timer.active { border-left: 3px solid #7C3AED; background: rgba(124,58,237,0.05); }
+  .s2 .demo-timer-name { font-size: 13px; font-weight: 600; color: #E4E4E7; }
+  .s2 .demo-timer-cat { font-size: 11px; color: #52525B; }
+  .s2 .demo-timer-time { font-family: 'JetBrains Mono'; font-size: 18px; font-weight: 600; color: #E4E4E7; }
+  .s2 .demo-timer-time.running { color: #A78BFA; }
+  .s2 .demo-pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: rgba(124,58,237,0.1); color: #A78BFA; font-weight: 500; }
+  .s2 .demo-play { width: 28px; height: 28px; border-radius: 50%; background: #7C3AED; border: none; color: white; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== STYLE 3: Notion/Calm (Warm, soft, friendly) ===== */
+  .s3 { background: #FFFCF7; font-family: 'DM Sans', sans-serif; }
+  .s3 .demo-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid #F0EAE0;
+    margin-bottom: 20px;
+  }
+  .s3 .demo-logo { font-weight: 700; font-size: 15px; color: #37352F; display: flex; align-items: center; gap: 8px; }
+  .s3 .demo-logo-box { width: 24px; height: 24px; background: #37352F; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 800; }
+  .s3 .demo-btn { padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 500; border: 1px solid #E3DDD4; background: white; color: #37352F; cursor: pointer; font-family: 'DM Sans'; }
+  .s3 .demo-btn-primary { background: #2383E2; color: white; border-color: #2383E2; border-radius: 4px; }
+
+  .s3 .demo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .s3 .demo-stat { background: #FBF8F3; border: 1px solid #F0EAE0; border-radius: 6px; padding: 14px; }
+  .s3 .demo-stat-label { font-size: 11px; color: #9B9A97; font-weight: 500; }
+  .s3 .demo-stat-value { font-size: 22px; font-weight: 700; color: #37352F; font-family: 'JetBrains Mono'; }
+
+  .s3 .demo-timer { background: white; border: 1px solid #F0EAE0; border-radius: 6px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .s3 .demo-timer.active { border-left: 3px solid #2383E2; background: #F7FBFF; }
+  .s3 .demo-timer-name { font-size: 13px; font-weight: 600; color: #37352F; }
+  .s3 .demo-timer-cat { font-size: 11px; color: #9B9A97; }
+  .s3 .demo-timer-time { font-family: 'JetBrains Mono'; font-size: 18px; font-weight: 600; color: #37352F; }
+  .s3 .demo-timer-time.running { color: #2383E2; }
+  .s3 .demo-pill { font-size: 10px; padding: 2px 8px; border-radius: 3px; background: #F1F1EF; color: #787774; font-weight: 500; }
+  .s3 .demo-play { width: 28px; height: 28px; border-radius: 4px; background: #2383E2; border: none; color: white; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== STYLE 4: Raycast/Arc (Bold, dense, premium dark) ===== */
+  .s4 { background: #161616; font-family: 'Inter', sans-serif; }
+  .s4 .demo-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid #262626;
+    margin-bottom: 20px;
+  }
+  .s4 .demo-logo { font-weight: 700; font-size: 15px; color: #FAFAFA; display: flex; align-items: center; gap: 8px; }
+  .s4 .demo-logo-box { width: 24px; height: 24px; background: linear-gradient(135deg, #FF6B6B, #FF4757); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 800; }
+  .s4 .demo-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; border: 1px solid #333; background: #1E1E1E; color: #A1A1AA; cursor: pointer; }
+  .s4 .demo-btn-primary { background: linear-gradient(135deg, #FF6B6B, #FF4757); color: white; border: none; }
+
+  .s4 .demo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .s4 .demo-stat { background: #1E1E1E; border: 1px solid #262626; border-radius: 10px; padding: 14px; }
+  .s4 .demo-stat-label { font-size: 11px; color: #525252; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+  .s4 .demo-stat-value { font-size: 22px; font-weight: 800; color: #FAFAFA; font-family: 'JetBrains Mono'; }
+
+  .s4 .demo-timer { background: #1E1E1E; border: 1px solid #262626; border-radius: 10px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .s4 .demo-timer.active { border-color: #FF4757; background: linear-gradient(135deg, #1E1E1E, rgba(255,71,87,0.05)); box-shadow: 0 0 20px rgba(255,71,87,0.08); }
+  .s4 .demo-timer-name { font-size: 13px; font-weight: 700; color: #FAFAFA; }
+  .s4 .demo-timer-cat { font-size: 11px; color: #525252; }
+  .s4 .demo-timer-time { font-family: 'JetBrains Mono'; font-size: 18px; font-weight: 700; color: #FAFAFA; }
+  .s4 .demo-timer-time.running { color: #FF6B6B; }
+  .s4 .demo-pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: rgba(255,71,87,0.1); color: #FF6B6B; font-weight: 600; }
+  .s4 .demo-play { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #FF6B6B, #FF4757); border: none; color: white; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== STYLE 5: Stripe-inspired (Blue + clean gradients) ===== */
+  .s5 { background: #F6F9FC; font-family: 'Inter', sans-serif; }
+  .s5 .demo-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid #E3E8EE;
+    margin-bottom: 20px;
+  }
+  .s5 .demo-logo { font-weight: 700; font-size: 15px; color: #0A2540; display: flex; align-items: center; gap: 8px; }
+  .s5 .demo-logo-box { width: 24px; height: 24px; background: linear-gradient(135deg, #635BFF, #0A2540); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 800; }
+  .s5 .demo-btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #E3E8EE; background: white; color: #0A2540; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .s5 .demo-btn-primary { background: #635BFF; color: white; border-color: #635BFF; box-shadow: 0 1px 3px rgba(99,91,255,0.3); }
+
+  .s5 .demo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .s5 .demo-stat { background: white; border: 1px solid #E3E8EE; border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+  .s5 .demo-stat-label { font-size: 11px; color: #697386; font-weight: 500; }
+  .s5 .demo-stat-value { font-size: 22px; font-weight: 700; color: #0A2540; font-family: 'JetBrains Mono'; }
+
+  .s5 .demo-timer { background: white; border: 1px solid #E3E8EE; border-radius: 8px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+  .s5 .demo-timer.active { border-left: 3px solid #635BFF; }
+  .s5 .demo-timer-name { font-size: 13px; font-weight: 600; color: #0A2540; }
+  .s5 .demo-timer-cat { font-size: 11px; color: #697386; }
+  .s5 .demo-timer-time { font-family: 'JetBrains Mono'; font-size: 18px; font-weight: 600; color: #0A2540; }
+  .s5 .demo-timer-time.running { color: #635BFF; }
+  .s5 .demo-pill { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: #F0EEFF; color: #635BFF; font-weight: 500; }
+  .s5 .demo-play { width: 28px; height: 28px; border-radius: 50%; background: #635BFF; border: none; color: white; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== STYLE 6: Minimal Monochrome (Black & White, ultra clean) ===== */
+  .s6 { background: #FFFFFF; font-family: 'Space Grotesk', sans-serif; }
+  .s6 .demo-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid #000;
+    margin-bottom: 20px;
+  }
+  .s6 .demo-logo { font-weight: 700; font-size: 15px; color: #000; display: flex; align-items: center; gap: 8px; letter-spacing: -0.03em; }
+  .s6 .demo-logo-box { width: 24px; height: 24px; background: #000; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 800; }
+  .s6 .demo-btn { padding: 6px 14px; border-radius: 3px; font-size: 12px; font-weight: 600; border: 1px solid #000; background: white; color: #000; cursor: pointer; font-family: 'Space Grotesk'; }
+  .s6 .demo-btn-primary { background: #000; color: white; }
+
+  .s6 .demo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .s6 .demo-stat { background: #FAFAFA; border: 1px solid #E5E5E5; border-radius: 4px; padding: 14px; }
+  .s6 .demo-stat-label { font-size: 11px; color: #999; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; }
+  .s6 .demo-stat-value { font-size: 22px; font-weight: 700; color: #000; font-family: 'Geist Mono', 'JetBrains Mono', monospace; }
+
+  .s6 .demo-timer { background: #FAFAFA; border: 1px solid #E5E5E5; border-radius: 4px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .s6 .demo-timer.active { border-left: 3px solid #000; background: white; }
+  .s6 .demo-timer-name { font-size: 13px; font-weight: 600; color: #000; }
+  .s6 .demo-timer-cat { font-size: 11px; color: #999; }
+  .s6 .demo-timer-time { font-family: 'Geist Mono', 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: #000; }
+  .s6 .demo-timer-time.running { color: #000; text-decoration: underline; text-decoration-thickness: 2px; }
+  .s6 .demo-pill { font-size: 10px; padding: 2px 8px; border-radius: 2px; background: #F0F0F0; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .s6 .demo-play { width: 28px; height: 28px; border-radius: 3px; background: #000; border: none; color: white; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+
+  /* Running dot animation */
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 5px; animation: blink 1.5s infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .dot-dark { background: #18181B; }
+  .dot-purple { background: #7C3AED; }
+  .dot-blue { background: #2383E2; }
+  .dot-red { background: #FF4757; }
+  .dot-indigo { background: #635BFF; }
+  .dot-black { background: #000; }
+
+  @media (max-width: 600px) {
+    .style-grid { grid-template-columns: 1fr; }
+    body { padding: 20px 12px; }
+  }
+
+  .mockup-banner {
+    background: #1E1E1E; border-bottom: 1px solid #333;
+    padding: 12px 24px; text-align: center;
+    font-size: 14px; font-weight: 600; color: #A1A1AA;
+    margin: -40px -24px 40px;
+  }
+</style>
+</head>
+<body>
+
+<div class="mockup-banner">Pick a style direction for PhynxTimer - all use shadcn/ui components under the hood</div>
+
+<h1 class="page-title">Choose Your Style</h1>
+<p class="page-subtitle">Same shadcn/ui components, different visual personality. Pick the vibe.</p>
+
+<div class="style-grid">
+
+  <!-- STYLE 1: shadcn/ui default -->
+  <div class="style-card">
+    <div class="style-header">
+      <div class="style-name">1. shadcn/ui Clean</div>
+      <div class="style-desc">The default shadcn look. Neutral grays, zinc palette, minimal borders. What Vercel, Cal.com, and most modern SaaS use.</div>
+      <div class="style-tags">
+        <span class="style-tag rec">Recommended</span>
+        <span class="style-tag">Professional</span>
+        <span class="style-tag">Familiar</span>
+        <span class="style-tag">Light + Dark</span>
+      </div>
+    </div>
+    <div class="style-preview s1">
+      <div class="demo-nav">
+        <div class="demo-logo"><div class="demo-logo-box">P</div> PhynxTimer</div>
+        <div><button class="demo-btn demo-btn-primary">+ New Timer</button></div>
+      </div>
+      <div class="demo-stats">
+        <div class="demo-stat"><div class="demo-stat-label">Today</div><div class="demo-stat-value">3h 24m</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Active</div><div class="demo-stat-value" style="color:#16A34A;">1</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Sessions</div><div class="demo-stat-value">12</div></div>
+      </div>
+      <div class="demo-timer active">
+        <div><div class="demo-timer-name"><span class="dot dot-dark"></span>Deep Work</div><div class="demo-timer-cat">Work</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="demo-pill">Running</span><div class="demo-timer-time running">01:47:23</div><button class="demo-play">&#10074;&#10074;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Client - Acme</div><div class="demo-timer-cat">Freelance</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">04:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Reading</div><div class="demo-timer-cat">Personal</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">00:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STYLE 2: Linear-inspired -->
+  <div class="style-card">
+    <div class="style-header">
+      <div class="style-name">2. Linear / Dark Minimal</div>
+      <div class="style-desc">Deep dark background, purple accent, ultra-subtle borders. What Linear, Raycast command bar, and Warp terminal look like.</div>
+      <div class="style-tags">
+        <span class="style-tag">Developer-focused</span>
+        <span class="style-tag">Premium feel</span>
+        <span class="style-tag">Dark-first</span>
+      </div>
+    </div>
+    <div class="style-preview s2">
+      <div class="demo-nav">
+        <div class="demo-logo"><div class="demo-logo-box">P</div> PhynxTimer</div>
+        <div><button class="demo-btn demo-btn-primary">+ New Timer</button></div>
+      </div>
+      <div class="demo-stats">
+        <div class="demo-stat"><div class="demo-stat-label">Today</div><div class="demo-stat-value">3h 24m</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Active</div><div class="demo-stat-value" style="color:#34D399;">1</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Sessions</div><div class="demo-stat-value">12</div></div>
+      </div>
+      <div class="demo-timer active">
+        <div><div class="demo-timer-name"><span class="dot dot-purple"></span>Deep Work</div><div class="demo-timer-cat">Work</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="demo-pill">Running</span><div class="demo-timer-time running">01:47:23</div><button class="demo-play">&#10074;&#10074;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Client - Acme</div><div class="demo-timer-cat">Freelance</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">04:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Reading</div><div class="demo-timer-cat">Personal</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">00:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STYLE 3: Notion/Calm -->
+  <div class="style-card">
+    <div class="style-header">
+      <div class="style-name">3. Notion / Warm Calm</div>
+      <div class="style-desc">Warm off-white background, soft borders, friendly typography (DM Sans). What Notion, Craft, and Bear use. Feels approachable.</div>
+      <div class="style-tags">
+        <span class="style-tag">Friendly</span>
+        <span class="style-tag">Non-technical users</span>
+        <span class="style-tag">Warm tones</span>
+      </div>
+    </div>
+    <div class="style-preview s3">
+      <div class="demo-nav">
+        <div class="demo-logo"><div class="demo-logo-box">P</div> PhynxTimer</div>
+        <div><button class="demo-btn demo-btn-primary">+ New Timer</button></div>
+      </div>
+      <div class="demo-stats">
+        <div class="demo-stat"><div class="demo-stat-label">Today</div><div class="demo-stat-value">3h 24m</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Active</div><div class="demo-stat-value" style="color:#2383E2;">1</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Sessions</div><div class="demo-stat-value">12</div></div>
+      </div>
+      <div class="demo-timer active">
+        <div><div class="demo-timer-name"><span class="dot dot-blue"></span>Deep Work</div><div class="demo-timer-cat">Work</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="demo-pill">Running</span><div class="demo-timer-time running">01:47:23</div><button class="demo-play">&#10074;&#10074;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Client - Acme</div><div class="demo-timer-cat">Freelance</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">04:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Reading</div><div class="demo-timer-cat">Personal</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">00:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STYLE 4: Raycast/Bold Dark -->
+  <div class="style-card">
+    <div class="style-header">
+      <div class="style-name">4. Raycast / Bold Dark</div>
+      <div class="style-desc">Dark with red/coral accent, heavier weights, subtle glows. What Raycast and Arc browser use. Feels fast and premium.</div>
+      <div class="style-tags">
+        <span class="style-tag">Bold</span>
+        <span class="style-tag">High contrast</span>
+        <span class="style-tag">Power users</span>
+      </div>
+    </div>
+    <div class="style-preview s4">
+      <div class="demo-nav">
+        <div class="demo-logo"><div class="demo-logo-box">P</div> PhynxTimer</div>
+        <div><button class="demo-btn demo-btn-primary">+ New Timer</button></div>
+      </div>
+      <div class="demo-stats">
+        <div class="demo-stat"><div class="demo-stat-label">Today</div><div class="demo-stat-value">3h 24m</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Active</div><div class="demo-stat-value" style="color:#34D399;">1</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Sessions</div><div class="demo-stat-value">12</div></div>
+      </div>
+      <div class="demo-timer active">
+        <div><div class="demo-timer-name"><span class="dot dot-red"></span>Deep Work</div><div class="demo-timer-cat">Work</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="demo-pill">Running</span><div class="demo-timer-time running">01:47:23</div><button class="demo-play">&#10074;&#10074;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Client - Acme</div><div class="demo-timer-cat">Freelance</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">04:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Reading</div><div class="demo-timer-cat">Personal</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">00:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STYLE 5: Stripe-inspired -->
+  <div class="style-card">
+    <div class="style-header">
+      <div class="style-name">5. Stripe / Polished SaaS</div>
+      <div class="style-desc">Cool blue-gray palette, indigo accent, subtle shadows. What Stripe, Clerk, and Resend use. Screams "well-funded startup."</div>
+      <div class="style-tags">
+        <span class="style-tag rec">Great for SaaS</span>
+        <span class="style-tag">Trustworthy</span>
+        <span class="style-tag">Polished</span>
+      </div>
+    </div>
+    <div class="style-preview s5">
+      <div class="demo-nav">
+        <div class="demo-logo"><div class="demo-logo-box">P</div> PhynxTimer</div>
+        <div><button class="demo-btn demo-btn-primary">+ New Timer</button></div>
+      </div>
+      <div class="demo-stats">
+        <div class="demo-stat"><div class="demo-stat-label">Today</div><div class="demo-stat-value">3h 24m</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Active</div><div class="demo-stat-value" style="color:#16A34A;">1</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Sessions</div><div class="demo-stat-value">12</div></div>
+      </div>
+      <div class="demo-timer active">
+        <div><div class="demo-timer-name"><span class="dot dot-indigo"></span>Deep Work</div><div class="demo-timer-cat">Work</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="demo-pill">Running</span><div class="demo-timer-time running">01:47:23</div><button class="demo-play">&#10074;&#10074;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Client - Acme</div><div class="demo-timer-cat">Freelance</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">04:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Reading</div><div class="demo-timer-cat">Personal</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">00:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STYLE 6: Minimal Monochrome -->
+  <div class="style-card">
+    <div class="style-header">
+      <div class="style-name">6. Minimal Monochrome</div>
+      <div class="style-desc">Pure black and white, sharp corners, Space Grotesk font. What Vercel v0, Things 3, and brutalist design use. Maximum clarity.</div>
+      <div class="style-tags">
+        <span class="style-tag">Minimalist</span>
+        <span class="style-tag">Brutalist-adjacent</span>
+        <span class="style-tag">Opinionated</span>
+      </div>
+    </div>
+    <div class="style-preview s6">
+      <div class="demo-nav">
+        <div class="demo-logo"><div class="demo-logo-box">P</div> PhynxTimer</div>
+        <div><button class="demo-btn demo-btn-primary">+ New Timer</button></div>
+      </div>
+      <div class="demo-stats">
+        <div class="demo-stat"><div class="demo-stat-label">Today</div><div class="demo-stat-value">3h 24m</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Active</div><div class="demo-stat-value">1</div></div>
+        <div class="demo-stat"><div class="demo-stat-label">Sessions</div><div class="demo-stat-value">12</div></div>
+      </div>
+      <div class="demo-timer active">
+        <div><div class="demo-timer-name"><span class="dot dot-black"></span>Deep Work</div><div class="demo-timer-cat">Work</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="demo-pill">RUNNING</span><div class="demo-timer-time running">01:47:23</div><button class="demo-play">&#10074;&#10074;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Client - Acme</div><div class="demo-timer-cat">Freelance</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">04:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+      <div class="demo-timer">
+        <div><div class="demo-timer-name">Reading</div><div class="demo-timer-cat">Personal</div></div>
+        <div style="display:flex;align-items:center;gap:10px;"><div class="demo-timer-time">00:32:15</div><button class="demo-play">&#9654;</button></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

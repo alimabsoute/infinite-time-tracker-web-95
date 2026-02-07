@@ -14,27 +14,17 @@ const TIMER_COLORS = [
 ];
 
 export const getTimerColor = (timerId: string): string => {
-  console.log('🎨 Getting timer color for ID:', timerId);
-  
-  if (!timerId) {
-    console.log('⚠️ No timer ID provided, using fallback color');
-    return TIMER_COLORS[0];
-  }
-  
-  // Create a simple hash from the timer ID
+  if (!timerId) return TIMER_COLORS[0];
+
   let hash = 0;
   for (let i = 0; i < timerId.length; i++) {
     const char = timerId.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
-  
-  // Use absolute value and modulo to get color index
+
   const colorIndex = Math.abs(hash) % TIMER_COLORS.length;
-  const selectedColor = TIMER_COLORS[colorIndex];
-  
-  console.log('✅ Selected color:', selectedColor, 'for timer:', timerId);
-  return selectedColor;
+  return TIMER_COLORS[colorIndex];
 };
 
 export const formatTime = (milliseconds: number): string => {

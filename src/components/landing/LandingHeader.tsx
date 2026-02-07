@@ -1,78 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PhynxTimerLogo from "../PhynxTimerLogo";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 
 const LandingHeader = () => {
-  const { signInWithGoogle } = useAuth();
-
-  const handleUpgradeClick = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke("create-checkout");
-      if (error) {
-        console.error("Error creating checkout session:", error);
-        return;
-      }
-      if (data.success && data.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-    }
-  };
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <motion.header 
-      className="bg-background/95 backdrop-blur-sm sticky top-0 z-50 w-full border-b border-border/10 shadow-sm"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-    >
+    <header className="bg-background/95 backdrop-blur-sm sticky top-0 z-50 w-full border-b">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-24">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-0.5">
-            <PhynxTimerLogo width={84} height={84} />
-            <span className="text-xl font-semibold text-foreground">PhynxTimer</span>
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center gap-2">
+            <PhynxTimerLogo width={32} height={32} />
+            <span className="text-lg font-semibold">PhynxTimer</span>
           </Link>
 
-          {/* Navigation - centered */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="#features" className="text-muted-foreground hover:text-foreground transition-colors">
+          <nav className="hidden md:flex items-center gap-6">
+            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Features
-            </Link>
-            <Link to="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+            </a>
+            <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Pricing
-            </Link>
-            <Link to="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">
-              Reviews
-            </Link>
-            <Link to="/help" className="text-muted-foreground hover:text-foreground transition-colors">
-              Help
-            </Link>
+            </a>
           </nav>
 
-          {/* Auth buttons */}
-          <div className="flex items-center space-x-3">
+          <div className="hidden md:flex items-center gap-2">
             <Link to="/login">
-              <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-                Sign In
-              </Button>
+              <Button variant="ghost" size="sm">Sign in</Button>
             </Link>
             <Link to="/signup">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg">
+              <Button size="sm">
                 Get started
-                <ArrowRight className="ml-1 h-4 w-4" />
+                <ArrowRight className="ml-1 h-3.5 w-3.5" />
               </Button>
             </Link>
           </div>
+
+          <button
+            className="md:hidden p-2 -mr-2"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
+
+        {mobileOpen && (
+          <div className="md:hidden border-t py-4 space-y-3">
+            <a href="#features" className="block text-sm text-muted-foreground hover:text-foreground px-1 py-2" onClick={() => setMobileOpen(false)}>
+              Features
+            </a>
+            <a href="#pricing" className="block text-sm text-muted-foreground hover:text-foreground px-1 py-2" onClick={() => setMobileOpen(false)}>
+              Pricing
+            </a>
+            <div className="flex gap-2 pt-2">
+              <Link to="/login" className="flex-1">
+                <Button variant="outline" size="sm" className="w-full">Sign in</Button>
+              </Link>
+              <Link to="/signup" className="flex-1">
+                <Button size="sm" className="w-full">Get started</Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
-    </motion.header>
+    </header>
   );
 };
 

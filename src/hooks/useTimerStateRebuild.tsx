@@ -4,8 +4,6 @@ import { Timer } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useTimerPersistenceRobust } from './useTimerPersistenceRobust';
-import { useTimerBrowserEventsRobust } from './useTimerBrowserEventsRobust';
 
 // Simple persistence - only track what's essential
 interface SimpleTimerPersistence {
@@ -19,12 +17,6 @@ export const useTimerStateRebuild = () => {
   const { user } = useAuth();
   const intervalRef = useRef<NodeJS.Timeout>();
   const timersRef = useRef<Timer[]>([]);
-  const { 
-    loadPersistedState, 
-    startAutomaticPersistence, 
-    stopAutomaticPersistence,
-    syncToDatabase: syncToDB 
-  } = useTimerPersistenceRobust();
 
   // Update ref when timers change
   useEffect(() => {
@@ -39,7 +31,6 @@ export const useTimerStateRebuild = () => {
         lastSaveTime: Date.now()
       };
       localStorage.setItem('timer-simple-state', JSON.stringify(persistenceData));
-      console.log('💾 Saved simple state:', runningIds);
     } catch (error) {
       console.warn('Failed to save simple state:', error);
     }
@@ -50,7 +41,6 @@ export const useTimerStateRebuild = () => {
       const saved = localStorage.getItem('timer-simple-state');
       if (saved) {
         const data: SimpleTimerPersistence = JSON.parse(saved);
-        console.log('📂 Loaded simple state:', data.runningTimerIds);
         return data.runningTimerIds;
       }
     } catch (error) {
@@ -62,7 +52,6 @@ export const useTimerStateRebuild = () => {
   const clearSimpleState = useCallback(() => {
     try {
       localStorage.removeItem('timer-simple-state');
-      console.log('🧹 Cleared simple state');
     } catch (error) {
       console.warn('Failed to clear simple state:', error);
     }
@@ -82,7 +71,6 @@ export const useTimerStateRebuild = () => {
   const handleTimersRestore = useCallback((restoredTimers: Timer[]) => {
     setTimers(restoredTimers);
     timersRef.current = restoredTimers;
-    console.log('🔄 Timers restored from persistent state');
   }, []);
 
   // Load timers from database
@@ -96,8 +84,6 @@ export const useTimerStateRebuild = () => {
 
     try {
       setLoading(true);
-      console.log('🔄 Loading timers from database...');
-
       const { data, error } = await supabase
         .from('timers')
         .select('*')
@@ -110,17 +96,14 @@ export const useTimerStateRebuild = () => {
         return;
       }
 
-      // Load robust persisted state with time adjustments
-      const { runningTimerIds, timeAdjustments } = loadPersistedState();
-      console.log('🏃 Persisted running timer IDs:', runningTimerIds);
+      // Load persisted running timer IDs
+      const runningTimerIds = loadSimpleState();
 
-      // Process timers with session-based approach and time adjustments
       const processedTimers: Timer[] = data.map(timer => {
-        const adjustedTime = timeAdjustments.get(timer.id);
         return {
           id: timer.id,
           name: timer.name,
-          elapsedTime: adjustedTime || timer.elapsed_time, // Use adjusted time if available
+          elapsedTime: timer.elapsed_time,
           isRunning: false, // Start with false, will be set based on persistence + session validation
           createdAt: new Date(timer.created_at),
           deadline: timer.deadline ? new Date(timer.deadline) : undefined,
@@ -134,8 +117,6 @@ export const useTimerStateRebuild = () => {
 
       // For persisted running timers, validate and restore sessions
       if (runningTimerIds.length > 0) {
-        console.log('🔍 Validating running timers:', runningTimerIds);
-        
         const { data: sessions, error: sessionError } = await supabase
           .from('timer_sessions')
           .select('*')
@@ -143,14 +124,11 @@ export const useTimerStateRebuild = () => {
           .is('end_time', null);
 
         if (!sessionError && sessions) {
-          console.log('📋 Found active sessions:', sessions.length);
-          
           // Restore running state only for timers with valid active sessions
           processedTimers.forEach(timer => {
             if (runningTimerIds.includes(timer.id)) {
               const activeSession = sessions.find(s => s.timer_id === timer.id);
               if (activeSession) {
-                console.log(`✅ Restoring timer: ${timer.name} with session from ${activeSession.start_time}`);
                 timer.isRunning = true;
                 timer.currentSessionId = activeSession.id;
                 timer.sessionStartTime = new Date(activeSession.start_time);
@@ -158,11 +136,9 @@ export const useTimerStateRebuild = () => {
                 // Start new session if the session is too old (over 1 hour suggests tab was closed long ago)
                 const sessionAge = Date.now() - new Date(activeSession.start_time).getTime();
                 if (sessionAge > 60 * 60 * 1000) { // 1 hour
-                  console.log(`⚠️ Session too old for ${timer.name}, will create new session`);
                   // This will be handled by creating a fresh session below
                 }
               } else {
-                console.log(`⚠️ No active session found for running timer: ${timer.name}, creating new session`);
                 // Create new session for this timer since it was marked as running but has no session
                 timer.isRunning = true;
                 timer.sessionStartTime = new Date(); // Start from now
@@ -191,7 +167,6 @@ export const useTimerStateRebuild = () => {
 
               timer.currentSessionId = sessionId;
               timer.sessionStartTime = now;
-              console.log(`🆕 Created new session for ${timer.name}`);
             } catch (error) {
               console.error(`❌ Failed to create session for ${timer.name}:`, error);
               // If we can't create a session, mark timer as not running
@@ -206,48 +181,27 @@ export const useTimerStateRebuild = () => {
       }
 
       const finalRunningCount = processedTimers.filter(t => t.isRunning).length;
-      console.log(`✅ Loaded ${processedTimers.length} timers (${finalRunningCount} running)`);
       setTimers(processedTimers);
       
-      // Start automatic persistence for running timers
-      if (finalRunningCount > 0) {
-        startAutomaticPersistence(processedTimers);
-        console.log(`🚀 Started automatic persistence for ${finalRunningCount} running timers`);
-      }
     } catch (error) {
       console.error('❌ Error loading timers:', error);
       toast.error('Failed to load timers');
     } finally {
       setLoading(false);
     }
-  }, [user, loadSimpleState, clearSimpleState, loadPersistedState, startAutomaticPersistence]);
+  }, [user, loadSimpleState, clearSimpleState]);
 
-  // Set up browser event handling for robust persistence
-  useTimerBrowserEventsRobust({ 
-    timers, 
-    onTimersRestore: handleTimersRestore 
-  });
-
-  // Auto-save running timer IDs (legacy + new persistence)
+  // Auto-save running timer IDs
   useEffect(() => {
     const runningIds = timers.filter(t => t.isRunning).map(t => t.id);
     saveSimpleState(runningIds);
-    
-    // Start/stop automatic persistence based on running timers
-    if (runningIds.length > 0) {
-      startAutomaticPersistence(timers);
-    } else {
-      stopAutomaticPersistence();
-    }
-  }, [timers, saveSimpleState, startAutomaticPersistence, stopAutomaticPersistence]);
+  }, [timers, saveSimpleState]);
 
   // Timer interval for UI updates
   useEffect(() => {
     const runningTimers = timers.filter(t => t.isRunning);
     
     if (runningTimers.length > 0) {
-      console.log(`⏱️ Starting interval for ${runningTimers.length} running timers`);
-      
       intervalRef.current = setInterval(() => {
         // Force re-render to update display - but don't modify elapsedTime
         // The TimerDisplay component will call calculateSessionElapsedTime for display
@@ -310,7 +264,6 @@ export const useTimerStateRebuild = () => {
     loading,
     timersRef,
     calculateSessionElapsedTime,
-    reloadTimers: loadTimers,
-    syncToDatabase: (customTimers?: Timer[]) => syncToDB(customTimers || timers)
+    reloadTimers: loadTimers
   };
 };
