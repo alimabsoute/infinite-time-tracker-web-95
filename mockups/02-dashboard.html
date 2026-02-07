@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhynxTimer - Dashboard Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FAFAF9;
+    --bg-elevated: #FFFFFF;
+    --text-primary: #1A1A1A;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --accent-light: #EFF6FF;
+    --accent-subtle: #DBEAFE;
+    --border: #E5E7EB;
+    --border-light: #F3F4F6;
+    --success: #059669;
+    --success-light: #ECFDF5;
+    --warning: #D97706;
+    --warning-light: #FEF3C7;
+    --danger: #DC2626;
+    --danger-light: #FEF2F2;
+    --radius: 12px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* === SIDEBAR === */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    background: var(--bg-elevated);
+    border-right: 1px solid var(--border-light);
+    padding: 20px 16px;
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 8px; margin-bottom: 32px;
+    text-decoration: none; color: var(--text-primary);
+  }
+  .sidebar-logo-icon {
+    width: 28px; height: 28px; background: var(--accent);
+    border-radius: 7px; display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 12px;
+  }
+  .sidebar-logo-text { font-weight: 700; font-size: 16px; letter-spacing: -0.02em; }
+
+  .sidebar-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 8px;
+    text-decoration: none; color: var(--text-secondary);
+    font-size: 14px; font-weight: 500;
+    transition: all 0.15s;
+  }
+  .sidebar-link:hover { background: var(--border-light); color: var(--text-primary); }
+  .sidebar-link.active {
+    background: var(--accent-light); color: var(--accent); font-weight: 600;
+  }
+  .sidebar-link .icon { width: 18px; text-align: center; font-size: 16px; }
+
+  .sidebar-section-label {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 20px 12px 8px;
+  }
+
+  .sidebar-user {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; border-top: 1px solid var(--border-light);
+    margin-top: auto;
+  }
+  .sidebar-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent-light); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .sidebar-user-info { flex: 1; min-width: 0; }
+  .sidebar-user-name { font-size: 13px; font-weight: 600; }
+  .sidebar-user-plan { font-size: 11px; color: var(--text-tertiary); }
+
+  /* === MAIN CONTENT === */
+  .main { flex: 1; padding: 32px 40px; max-width: 1100px; }
+
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+  .page-subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+
+  .btn-primary {
+    background: var(--accent); color: white; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    padding: 10px 20px; border-radius: 8px;
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  .btn-ghost {
+    background: none; border: 1px solid var(--border); color: var(--text-secondary);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    padding: 6px 14px; border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { background: var(--border-light); }
+
+  /* === STATS ROW === */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .stat-label {
+    font-size: 12px; font-weight: 500; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
+    font-family: var(--mono);
+  }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.success { color: var(--success); }
+  .stat-change {
+    font-size: 12px; margin-top: 6px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .stat-change.up { color: var(--success); }
+  .stat-change.down { color: var(--danger); }
+
+  /* === TIMER GRID === */
+  .timer-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .timer-section-title {
+    font-size: 16px; font-weight: 700;
+  }
+  .timer-section-count {
+    font-size: 13px; color: var(--text-tertiary);
+    background: var(--border-light); padding: 2px 10px;
+    border-radius: 20px;
+  }
+
+  .timer-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px; margin-bottom: 40px;
+  }
+
+  .timer-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .timer-card:hover {
+    border-color: var(--border);
+    box-shadow: var(--shadow-md);
+  }
+  .timer-card.running {
+    border-color: var(--accent);
+    border-left: 3px solid var(--accent);
+  }
+
+  .timer-card-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .timer-name { font-size: 15px; font-weight: 600; }
+  .timer-category {
+    font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+    margin-top: 3px;
+  }
+  .timer-menu-btn {
+    background: none; border: none; color: var(--text-tertiary);
+    cursor: pointer; padding: 4px; font-size: 16px;
+    border-radius: 4px;
+  }
+  .timer-menu-btn:hover { background: var(--border-light); color: var(--text-secondary); }
+
+  .timer-time {
+    font-family: var(--mono);
+    font-size: 36px; font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+  .timer-time.running { color: var(--accent); }
+
+  .timer-footer {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .timer-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 6px;
+    font-size: 12px; font-weight: 500;
+  }
+  .tag-blue { background: var(--accent-light); color: var(--accent); }
+  .tag-amber { background: var(--warning-light); color: var(--warning); }
+  .tag-green { background: var(--success-light); color: var(--success); }
+  .tag-rose { background: var(--danger-light); color: var(--danger); }
+
+  .timer-controls {
+    display: flex; gap: 8px;
+  }
+  .timer-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s;
+    font-size: 14px; border: none;
+  }
+  .timer-btn-play {
+    background: var(--accent); color: white;
+  }
+  .timer-btn-play:hover { background: var(--accent-hover); }
+  .timer-btn-pause {
+    background: var(--warning-light); color: var(--warning);
+  }
+  .timer-btn-reset {
+    background: var(--border-light); color: var(--text-secondary);
+  }
+  .timer-btn-reset:hover { background: var(--border); }
+
+  .running-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success);
+    animation: blink 1.5s infinite;
+    display: inline-block; margin-right: 6px;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* === ADD TIMER === */
+  .add-timer-card {
+    background: var(--bg);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 180px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-tertiary);
+  }
+  .add-timer-card:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+  .add-timer-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--border-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 8px;
+    transition: all 0.2s;
+  }
+  .add-timer-card:hover .add-timer-icon {
+    background: var(--accent-subtle);
+  }
+  .add-timer-text { font-size: 14px; font-weight: 500; }
+
+  /* === QUICK INSIGHTS === */
+  .insights-section { margin-top: 40px; }
+  .insights-row {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 16px;
+  }
+  .insights-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .insights-title {
+    font-size: 14px; font-weight: 700; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Mini chart placeholder */
+  .mini-chart {
+    display: flex; align-items: flex-end; gap: 4px;
+    height: 80px;
+  }
+  .mini-bar {
+    flex: 1; border-radius: 4px 4px 0 0;
+    transition: all 0.3s;
+  }
+  .mini-bar:hover { opacity: 0.8; }
+
+  .mini-chart-labels {
+    display: flex; justify-content: space-between;
+    margin-top: 8px;
+  }
+  .mini-chart-labels span {
+    font-size: 10px; color: var(--text-tertiary);
+  }
+
+  /* Top categories list */
+  .top-categories { list-style: none; }
+  .top-category-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+  }
+  .top-category-item:last-child { border-bottom: none; }
+  .top-category-name { font-weight: 500; }
+  .top-category-time { color: var(--text-secondary); font-family: var(--mono); font-size: 12px; }
+  .top-category-bar {
+    height: 4px; border-radius: 2px;
+    margin-top: 6px;
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 20px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .insights-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .timer-grid { grid-template-columns: 1fr; }
+  }
+
+  /* === MOCKUP BANNER === */
+  .mockup-banner {
+    background: #FEF3C7; border-bottom: 1px solid #FCD34D;
+    padding: 10px 24px; text-align: center;
+    font-size: 13px; font-weight: 600; color: #92400E;
+  }
+</style>
+</head>
+<body>
+
+<div class="mockup-banner">MOCKUP - Proposed Dashboard Redesign for PhynxTimer</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="#" class="sidebar-logo">
+      <div class="sidebar-logo-icon">P</div>
+      <span class="sidebar-logo-text">PhynxTimer</span>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="sidebar-link active">
+        <span class="icon">&#9201;</span> Timers
+      </a>
+      <a href="#" class="sidebar-link">
+        <span class="icon">&#128200;</span> Analytics
+      </a>
+      <a href="#" class="sidebar-link">
+        <span class="icon">&#128197;</span> Calendar
+      </a>
+      <a href="#" class="sidebar-link">
+        <span class="icon">&#128161;</span> Insights
+      </a>
+
+      <div class="sidebar-section-label">Account</div>
+      <a href="#" class="sidebar-link">
+        <span class="icon">&#9881;</span> Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">Ali M.</div>
+        <div class="sidebar-user-plan">Free plan</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Timers</div>
+        <div class="page-subtitle">Thursday, February 6</div>
+      </div>
+      <button class="btn-primary">+ New timer</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Today</div>
+        <div class="stat-value accent">3h 24m</div>
+        <div class="stat-change up">&#8593; 12% vs yesterday</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">This Week</div>
+        <div class="stat-value">18h 42m</div>
+        <div class="stat-change up">&#8593; 8% vs last week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active</div>
+        <div class="stat-value success">1</div>
+        <div class="stat-change" style="color: var(--text-tertiary);">of 5 timers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Sessions</div>
+        <div class="stat-value">12</div>
+        <div class="stat-change" style="color: var(--text-tertiary);">today</div>
+      </div>
+    </div>
+
+    <!-- ACTIVE TIMERS -->
+    <div class="timer-section-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="timer-section-title">Active</span>
+        <span class="timer-section-count">1 running</span>
+      </div>
+    </div>
+
+    <div class="timer-grid">
+      <!-- Running Timer -->
+      <div class="timer-card running">
+        <div class="timer-card-header">
+          <div>
+            <div class="timer-name"><span class="running-dot"></span>Deep Work Session</div>
+            <div class="timer-category">Work &middot; High Priority</div>
+          </div>
+          <button class="timer-menu-btn">&middot;&middot;&middot;</button>
+        </div>
+        <div class="timer-time running">01:47:23</div>
+        <div class="timer-footer">
+          <span class="timer-tag tag-blue">&#128188; Work</span>
+          <div class="timer-controls">
+            <button class="timer-btn timer-btn-pause" title="Pause">&#10074;&#10074;</button>
+            <button class="timer-btn timer-btn-reset" title="Reset">&#8635;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL TIMERS -->
+    <div class="timer-section-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="timer-section-title">All Timers</span>
+        <span class="timer-section-count">5 total</span>
+      </div>
+      <button class="btn-ghost">Sort by recent</button>
+    </div>
+
+    <div class="timer-grid">
+      <div class="timer-card">
+        <div class="timer-card-header">
+          <div>
+            <div class="timer-name">Client Project - Acme</div>
+            <div class="timer-category">Freelance</div>
+          </div>
+          <button class="timer-menu-btn">&middot;&middot;&middot;</button>
+        </div>
+        <div class="timer-time">04:32:15</div>
+        <div class="timer-footer">
+          <span class="timer-tag tag-amber">&#128176; Freelance</span>
+          <div class="timer-controls">
+            <button class="timer-btn timer-btn-play" title="Start">&#9654;</button>
+            <button class="timer-btn timer-btn-reset" title="Reset">&#8635;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="timer-card">
+        <div class="timer-card-header">
+          <div>
+            <div class="timer-name">Reading</div>
+            <div class="timer-category">Personal</div>
+          </div>
+          <button class="timer-menu-btn">&middot;&middot;&middot;</button>
+        </div>
+        <div class="timer-time">00:32:15</div>
+        <div class="timer-footer">
+          <span class="timer-tag tag-green">&#127793; Personal</span>
+          <div class="timer-controls">
+            <button class="timer-btn timer-btn-play" title="Start">&#9654;</button>
+            <button class="timer-btn timer-btn-reset" title="Reset">&#8635;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="timer-card">
+        <div class="timer-card-header">
+          <div>
+            <div class="timer-name">React Course</div>
+            <div class="timer-category">Learning</div>
+          </div>
+          <button class="timer-menu-btn">&middot;&middot;&middot;</button>
+        </div>
+        <div class="timer-time">02:15:40</div>
+        <div class="timer-footer">
+          <span class="timer-tag tag-rose">&#128218; Learning</span>
+          <div class="timer-controls">
+            <button class="timer-btn timer-btn-play" title="Start">&#9654;</button>
+            <button class="timer-btn timer-btn-reset" title="Reset">&#8635;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="timer-card">
+        <div class="timer-card-header">
+          <div>
+            <div class="timer-name">Exercise</div>
+            <div class="timer-category">Health</div>
+          </div>
+          <button class="timer-menu-btn">&middot;&middot;&middot;</button>
+        </div>
+        <div class="timer-time">00:45:00</div>
+        <div class="timer-footer">
+          <span class="timer-tag tag-green">&#127939; Health</span>
+          <div class="timer-controls">
+            <button class="timer-btn timer-btn-play" title="Start">&#9654;</button>
+            <button class="timer-btn timer-btn-reset" title="Reset">&#8635;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add new timer -->
+      <div class="add-timer-card">
+        <div class="add-timer-icon">+</div>
+        <span class="add-timer-text">New timer</span>
+      </div>
+    </div>
+
+    <!-- QUICK INSIGHTS -->
+    <div class="insights-section">
+      <div class="insights-row">
+        <div class="insights-card">
+          <div class="insights-title">&#128200; This Week</div>
+          <div class="mini-chart">
+            <div class="mini-bar" style="height:30%;background:var(--accent-subtle);"></div>
+            <div class="mini-bar" style="height:65%;background:var(--accent-subtle);"></div>
+            <div class="mini-bar" style="height:45%;background:var(--accent-subtle);"></div>
+            <div class="mini-bar" style="height:80%;background:var(--accent);"></div>
+            <div class="mini-bar" style="height:70%;background:var(--accent);"></div>
+            <div class="mini-bar" style="height:20%;background:var(--border);border:1px dashed var(--border);"></div>
+            <div class="mini-bar" style="height:20%;background:var(--border);border:1px dashed var(--border);"></div>
+          </div>
+          <div class="mini-chart-labels">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+          </div>
+        </div>
+
+        <div class="insights-card">
+          <div class="insights-title">&#127991; Top Categories</div>
+          <ul class="top-categories">
+            <li class="top-category-item">
+              <div style="flex:1">
+                <div class="top-category-name">Work</div>
+                <div class="top-category-bar" style="width:80%;background:var(--accent);"></div>
+              </div>
+              <span class="top-category-time">12h 30m</span>
+            </li>
+            <li class="top-category-item">
+              <div style="flex:1">
+                <div class="top-category-name">Learning</div>
+                <div class="top-category-bar" style="width:35%;background:var(--warning);"></div>
+              </div>
+              <span class="top-category-time">3h 45m</span>
+            </li>
+            <li class="top-category-item">
+              <div style="flex:1">
+                <div class="top-category-name">Personal</div>
+                <div class="top-category-bar" style="width:20%;background:var(--success);"></div>
+              </div>
+              <span class="top-category-time">2h 27m</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

@@ -23,8 +23,6 @@ export const useTimerCreationRebuild = ({
   const { canCreateTimer, canStartTimer, getTimerLimit, getRunningTimerLimit } = useSubscription();
 
   const addTimer = useCallback(async (name: string, category?: string): Promise<string> => {
-    console.log('🚀 Creating new timer:', name);
-    
     if (!user) {
       toast.error('You must be logged in to create timers');
       return '';
@@ -168,7 +166,6 @@ export const useTimerCreationRebuild = ({
         description: `"${finalName}" is now running`
       });
 
-      console.log('✅ Timer created successfully:', newTimerId);
       return newTimerId;
     } catch (error) {
       console.error('❌ Error creating timer:', error);

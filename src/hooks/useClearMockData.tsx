@@ -124,8 +124,6 @@ export const useClearMockData = () => {
         return;
       }
 
-      console.log(`Found ${mockTimers.length} mock timers to delete:`, mockTimers.map(t => t.name));
-
       // Show confirmation with timer count
       const confirmed = window.confirm(
         `Are you sure you want to delete ${mockTimers.length} mock timer${mockTimers.length > 1 ? 's' : ''}?\n\n` +
@@ -178,7 +176,6 @@ export const useClearMockData = () => {
             toast.error(`Failed to delete some timers in batch ${Math.floor(i / batchSize) + 1}`);
           } else {
             deletedCount += batch.length;
-            console.log(`Successfully deleted batch ${Math.floor(i / batchSize) + 1}: ${batch.length} timers`);
           }
         } catch (batchError) {
           console.error('Batch processing error:', batchError);

@@ -14,13 +14,10 @@ export const useTimerSessions = () => {
 
   const fetchSessions = async () => {
     if (!user) {
-      console.log('🔍 useTimerSessions - No user, skipping fetch');
       setLoading(false);
       return;
     }
 
-    console.log('🔍 useTimerSessions - Starting fetch for user:', user.id);
-    
     try {
       setLoading(true);
       setError(null);
@@ -50,8 +47,6 @@ export const useTimerSessions = () => {
         .eq('user_id', user.id)
         .eq('is_running', true);
 
-      console.log('🔍 useTimerSessions - Making database queries...');
-
       // Execute both queries with timeout
       const [sessionsResult, runningTimersResult] = await Promise.race([
         Promise.all([fetchSessionsPromise, fetchRunningTimersPromise]),
@@ -62,33 +57,13 @@ export const useTimerSessions = () => {
       const { data: runningTimers, error: timersError } = runningTimersResult;
 
       if (sessionError) {
-        console.error('🔍 useTimerSessions - Session query error:', sessionError);
+        console.error('Session query error:', sessionError);
         throw sessionError;
       }
       if (timersError) {
-        console.error('🔍 useTimerSessions - Running timers query error:', timersError);
+        console.error('Running timers query error:', timersError);
         throw timersError;
       }
-
-      console.log('🔍 useTimerSessions - Database queries completed successfully');
-
-      console.log('🔍 useTimerSessions - Raw data:', {
-        sessionsCount: sessionData?.length || 0,
-        runningTimersCount: runningTimers?.length || 0,
-        sampleSession: sessionData?.[0] ? {
-          id: sessionData[0].id,
-          timer_id: sessionData[0].timer_id,
-          duration_ms: sessionData[0].duration_ms,
-          start_time: sessionData[0].start_time,
-          end_time: sessionData[0].end_time,
-          timer_name: sessionData[0].timers?.name
-        } : null,
-        sampleRunningTimer: runningTimers?.[0] ? {
-          id: runningTimers[0].id,
-          name: runningTimers[0].name,
-          elapsed_time: runningTimers[0].elapsed_time
-        } : null
-      });
 
       let processedSessions: TimerSessionWithTimer[] = sessionData || [];
 
@@ -104,15 +79,6 @@ export const useTimerSessions = () => {
           const timeSinceStart = now.getTime() - timerStartTime.getTime();
           const realTimeDuration = Math.max(baseElapsedTime + timeSinceStart, timeSinceStart);
           
-          console.log('🔍 useTimerSessions - Creating virtual session for running timer:', {
-            timerId: timer.id,
-            timerName: timer.name,
-            baseElapsedTime,
-            timeSinceStart,
-            realTimeDuration,
-            startTime: timerStartTime.toISOString()
-          });
-
           return {
             id: `virtual-${timer.id}`, // Unique ID for virtual session
             timer_id: timer.id,
@@ -129,16 +95,6 @@ export const useTimerSessions = () => {
           } as TimerSessionWithTimer;
         });
 
-        console.log('🔍 useTimerSessions - Created virtual sessions:', {
-          count: virtualSessions.length,
-          samples: virtualSessions.slice(0, 2).map(vs => ({
-            id: vs.id,
-            timer_id: vs.timer_id,
-            duration_ms: vs.duration_ms,
-            timer_name: vs.timers?.name
-          }))
-        });
-
         // Add virtual sessions to the beginning of the array
         processedSessions = [...virtualSessions, ...processedSessions];
       }
@@ -152,13 +108,6 @@ export const useTimerSessions = () => {
           const startTime = new Date(session.start_time);
           const endTime = new Date(session.end_time);
           calculatedDuration = endTime.getTime() - startTime.getTime();
-          
-          console.log('🔍 useTimerSessions - Calculated duration from timestamps:', {
-            sessionId: session.id,
-            startTime: session.start_time,
-            endTime: session.end_time,
-            calculatedDuration
-          });
         }
 
         return {
@@ -168,23 +117,9 @@ export const useTimerSessions = () => {
         };
       });
 
-      console.log('🔍 useTimerSessions - Final processed sessions:', {
-        totalCount: finalSessions.length,
-        withDuration: finalSessions.filter(s => s.duration_ms && s.duration_ms > 0).length,
-        withoutDuration: finalSessions.filter(s => !s.duration_ms || s.duration_ms <= 0).length,
-        sampleProcessed: finalSessions.slice(0, 3).map(s => ({
-          id: s.id,
-          timer_id: s.timer_id,
-          duration_ms: s.duration_ms,
-          timer_name: s.timers?.name,
-          isVirtual: s.id.startsWith('virtual-')
-        }))
-      });
-
       setSessions(finalSessions);
-      console.log('🔍 useTimerSessions - Successfully loaded sessions');
     } catch (error) {
-      console.error('🔍 useTimerSessions - Error fetching sessions:', error);
+      console.error('Error fetching sessions:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setError(errorMessage);
       
@@ -201,17 +136,13 @@ export const useTimerSessions = () => {
       setSessions([]);
     } finally {
       setLoading(false);
-      console.log('🔍 useTimerSessions - Fetch complete');
     }
   };
 
   useEffect(() => {
-    console.log('🔍 useTimerSessions - useEffect triggered, user:', user?.id || 'none');
-    
     // Set a maximum loading time of 15 seconds
     const loadingTimeout = setTimeout(() => {
       if (loading) {
-        console.log('🔍 useTimerSessions - Loading timeout reached, forcing completion');
         setLoading(false);
         setError('Loading timeout - dashboard will show with limited data');
       }
@@ -225,7 +156,6 @@ export const useTimerSessions = () => {
     const interval = setInterval(() => {
       setSessions(currentSessions => {
         if (currentSessions.some(session => session.id.startsWith('virtual-'))) {
-          console.log('🔍 useTimerSessions - Updating real-time durations for virtual sessions');
           return currentSessions.map(session => {
             if (session.id.startsWith('virtual-')) {
               const now = new Date();

@@ -63,15 +63,6 @@ export const generateStableMockSessionsForCalendar = (timers: Timer[]): TimerSes
   // Cache the result
   mockDataCache.set(cacheKey, sortedSessions);
   
-  console.log('🎯 Generated stable mock calendar data:', {
-    timers: timers.length,
-    sessions: sortedSessions.length,
-    cached: true,
-    daysWithActivity: sortedSessions.reduce((days, session) => {
-      const day = new Date(session.start_time).toDateString();
-      return days.add(day);
-    }, new Set()).size
-  });
   
   return sortedSessions;
 };
