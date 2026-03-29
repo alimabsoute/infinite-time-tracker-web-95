@@ -42,7 +42,6 @@ class Visualization3DErrorBoundary extends Component<Props, State> {
   }
 
   handleRetry = (): void => {
-    console.log('🔄 Retrying 3D visualization');
     this.setState({ hasError: false, error: undefined, errorDetails: undefined });
   };
 

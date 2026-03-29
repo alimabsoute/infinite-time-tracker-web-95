@@ -31,7 +31,6 @@ const SessionDataValidator: React.FC<SessionDataValidatorProps> = ({
 
     const validSessions: TimerSessionWithTimer[] = [];
 
-    console.log('🔍 SessionDataValidator - Starting validation of', sessions.length, 'sessions');
 
     sessions.forEach((session, index) => {
       const sessionId = session.id || `session-${index}`;
@@ -103,17 +102,16 @@ const SessionDataValidator: React.FC<SessionDataValidatorProps> = ({
       stats.validSessions++;
     });
 
-    console.log('🔍 SessionDataValidator - Validation complete:', {
       ...stats,
       validationRate: `${((stats.validSessions / stats.totalSessions) * 100).toFixed(1)}%`
     });
 
     if (stats.errors.length > 0) {
-      console.error('❌ SessionDataValidator - Errors found:', stats.errors);
+      console.error('SessionDataValidator - Errors found:', stats.errors);
     }
 
     if (stats.warnings.length > 0) {
-      console.warn('⚠️ SessionDataValidator - Warnings:', stats.warnings);
+      console.warn('SessionDataValidator - Warnings:', stats.warnings);
     }
 
     onValidationComplete(validSessions, stats);

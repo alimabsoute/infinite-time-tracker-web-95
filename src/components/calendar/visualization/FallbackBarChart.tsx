@@ -27,7 +27,6 @@ const FallbackBarChart: React.FC<FallbackBarChartProps> = ({
 
   // Process data for bar chart
   const barData = useMemo(() => {
-    console.log('🔍 FallbackBarChart - Processing data for bar chart');
     
     if (!processedData || processedData.length === 0) {
       return [];
@@ -45,7 +44,6 @@ const FallbackBarChart: React.FC<FallbackBarChartProps> = ({
       .sort((a, b) => b.hours - a.hours) // Sort by hours descending
       .slice(0, 10); // Show top 10 timers
 
-    console.log('🔍 FallbackBarChart - Generated bar data:', data.length);
     return data;
   }, [processedData]);
 

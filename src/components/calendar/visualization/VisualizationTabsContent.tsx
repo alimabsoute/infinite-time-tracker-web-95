@@ -27,13 +27,6 @@ const VisualizationTabsContent: React.FC<VisualizationTabsContentProps> = ({
   setActiveTab,
   onBubbleClick
 }) => {
-  console.log('🔍 VisualizationTabsContent - Rendering with:', {
-    sessionsCount: sessions.length,
-    selectedCategory,
-    activeTab,
-    hasClickHandler: !!onBubbleClick
-  });
-
   return (
     <div className="h-full pr-2">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">

@@ -9,7 +9,6 @@ export const useTimerAnimations = () => {
 
   // Clear confetti trigger function
   const clearConfettiTrigger = useCallback(() => {
-    console.log('🧹 Clearing confetti trigger');
     if (confettiTimeoutRef.current) {
       clearTimeout(confettiTimeoutRef.current);
     }
@@ -18,7 +17,6 @@ export const useTimerAnimations = () => {
 
   // Clear celebration trigger function
   const clearCelebrationTrigger = useCallback(() => {
-    console.log('🧹 Clearing celebration trigger');
     if (celebrationTimeoutRef.current) {
       clearTimeout(celebrationTimeoutRef.current);
     }

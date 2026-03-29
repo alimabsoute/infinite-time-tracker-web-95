@@ -39,28 +39,19 @@ export const useBubbleDataProcessor = ({
   onError 
 }: BubbleDataProcessorProps): BubbleData[] => {
   return useMemo(() => {
-    const startTime = performance.now();
-    console.log('🔍 BubbleDataProcessor - Starting enhanced processing:', {
-      totalSessions: sessions?.length || 0,
-      startDate: startDate?.toISOString(),
-      endDate: endDate?.toISOString(),
-      timestamp: new Date().toISOString()
-    });
-
     try {
       // Enhanced validation with detailed logging
       if (!Array.isArray(sessions)) {
-        console.error('❌ BubbleDataProcessor - Sessions is not an array:', typeof sessions);
+        console.error('BubbleDataProcessor - Sessions is not an array:', typeof sessions);
         throw new Error('Sessions must be an array');
       }
 
       if (sessions.length === 0) {
-        console.log('🔍 BubbleDataProcessor - No sessions to process');
         return [];
       }
 
       if (!startDate || !endDate || !(startDate instanceof Date) || !(endDate instanceof Date)) {
-        console.error('❌ BubbleDataProcessor - Invalid date range:', { startDate, endDate });
+        console.error('BubbleDataProcessor - Invalid date range:', { startDate, endDate });
         throw new Error('Invalid date range provided');
       }
 
@@ -69,13 +60,13 @@ export const useBubbleDataProcessor = ({
         try {
           // Basic session validation
           if (!session || typeof session !== 'object') {
-            console.warn(`🔍 BubbleDataProcessor - Invalid session at index ${index}:`, session);
+            console.warn(`BubbleDataProcessor - Invalid session at index ${index}:`, session);
             return false;
           }
           
           // Timer validation with detailed logging
           if (!session.timers || !session.timer_id) {
-            console.warn(`🔍 BubbleDataProcessor - Session ${index} missing timer data:`, {
+            console.warn(`BubbleDataProcessor - Session ${index} missing timer data:`, {
               hasTimers: !!session.timers,
               hasTimerId: !!session.timer_id,
               timerId: session.timer_id
@@ -85,7 +76,7 @@ export const useBubbleDataProcessor = ({
           
           // Duration validation with detailed logging
           if (!session.duration_ms || typeof session.duration_ms !== 'number' || session.duration_ms <= 0) {
-            console.warn(`🔍 BubbleDataProcessor - Session ${index} invalid duration:`, {
+            console.warn(`BubbleDataProcessor - Session ${index} invalid duration:`, {
               duration_ms: session.duration_ms,
               type: typeof session.duration_ms
             });
@@ -94,40 +85,26 @@ export const useBubbleDataProcessor = ({
           
           // Date validation with detailed logging
           if (!session.start_time) {
-            console.warn(`🔍 BubbleDataProcessor - Session ${index} missing start_time`);
+            console.warn(`BubbleDataProcessor - Session ${index} missing start_time`);
             return false;
           }
           
           const sessionDate = new Date(session.start_time);
           if (isNaN(sessionDate.getTime())) {
-            console.warn(`🔍 BubbleDataProcessor - Session ${index} invalid start_time:`, session.start_time);
+            console.warn(`BubbleDataProcessor - Session ${index} invalid start_time:`, session.start_time);
             return false;
           }
           
           const inRange = sessionDate >= startDate && sessionDate <= endDate;
-          if (!inRange) {
-            console.log(`🔍 BubbleDataProcessor - Session ${index} outside date range:`, {
-              sessionDate: sessionDate.toISOString(),
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString()
-            });
-          }
-          
           return inRange;
         } catch (error) {
-          console.warn(`🔍 BubbleDataProcessor - Session validation error at index ${index}:`, error, session);
+          console.warn(`BubbleDataProcessor - Session validation error at index ${index}:`, error, session);
           return false;
         }
       });
 
-      console.log('🔍 BubbleDataProcessor - Enhanced filtering results:', {
-        original: sessions.length,
-        filtered: filteredSessions.length,
-        filterRatio: `${((filteredSessions.length / sessions.length) * 100).toFixed(1)}%`
-      });
 
       if (filteredSessions.length === 0) {
-        console.log('🔍 BubbleDataProcessor - No sessions passed filtering');
         return [];
       }
 
@@ -139,7 +116,7 @@ export const useBubbleDataProcessor = ({
         try {
           const timerId = session.timer_id;
           if (!timerId || typeof timerId !== 'string') {
-            console.warn(`🔍 BubbleDataProcessor - Invalid timer ID at session ${index}:`, timerId);
+            console.warn(`BubbleDataProcessor - Invalid timer ID at session ${index}:`, timerId);
             return;
           }
           
@@ -149,18 +126,13 @@ export const useBubbleDataProcessor = ({
           }
           timerGroups[timerId].push(session);
         } catch (error) {
-          console.warn(`🔍 BubbleDataProcessor - Grouping error at session ${index}:`, error);
+          console.warn(`BubbleDataProcessor - Grouping error at session ${index}:`, error);
         }
       });
 
-      console.log('🔍 BubbleDataProcessor - Enhanced grouping results:', {
-        timerGroups: validGroupCount,
-        totalSessions: Object.values(timerGroups).reduce((sum, group) => sum + group.length, 0)
-      });
 
       const timerGroupEntries = Object.entries(timerGroups);
       if (timerGroupEntries.length === 0) {
-        console.log('🔍 BubbleDataProcessor - No timer groups created');
         return [];
       }
 
@@ -170,7 +142,7 @@ export const useBubbleDataProcessor = ({
           const validSessions = timerSessions.filter(s => s.duration_ms && s.duration_ms > 0);
           
           if (validSessions.length === 0) {
-            console.warn(`🔍 BubbleDataProcessor - No valid sessions for timer ${timerId}`);
+            console.warn(`BubbleDataProcessor - No valid sessions for timer ${timerId}`);
             return null;
           }
 
@@ -194,23 +166,15 @@ export const useBubbleDataProcessor = ({
             creationDate: new Date()
           };
 
-          console.log(`🔍 BubbleDataProcessor - Timer stats for ${timerId}:`, {
-            name: stats.name,
-            totalTime: Math.round(stats.totalTime / (1000 * 60 * 60 * 100)) / 100, // hours
-            sessionCount: stats.sessionCount,
-            avgSessionTime: Math.round(stats.avgSessionTime / (1000 * 60 * 100)) / 100, // minutes
-            isRunning: stats.isRunning
-          });
 
           return stats;
         } catch (error) {
-          console.warn(`🔍 BubbleDataProcessor - Timer stats error for ${timerId}:`, error);
+          console.warn(`BubbleDataProcessor - Timer stats error for ${timerId}:`, error);
           return null;
         }
       }).filter(Boolean);
 
       if (timerStats.length === 0) {
-        console.log('🔍 BubbleDataProcessor - No timer stats generated');
         return [];
       }
 
@@ -223,12 +187,6 @@ export const useBubbleDataProcessor = ({
       const maxSessionCount = Math.max(...sessionCounts, 1);
       const maxAvgTime = Math.max(...avgTimes, 1);
 
-      console.log('🔍 BubbleDataProcessor - Enhanced scaling factors:', {
-        maxTotalTime: Math.round(maxTotalTime / (1000 * 60 * 60 * 100)) / 100, // hours
-        maxSessionCount,
-        maxAvgTime: Math.round(maxAvgTime / (1000 * 60 * 100)) / 100, // minutes
-        timerCount: timerStats.length
-      });
 
       // Enhanced bubble generation with detailed position validation
       const bubbles: BubbleData[] = timerStats.map((timer, index) => {
@@ -282,35 +240,21 @@ export const useBubbleDataProcessor = ({
             z: size // Map size to z property for Recharts bubble sizing
           };
 
-          console.log(`🔍 BubbleDataProcessor - Generated bubble for ${timer.name}:`, {
-            position: bubble.position,
-            size: bubble.size,
-            color: bubble.color,
-            isRunning: bubble.isRunning
-          });
 
           return bubble;
         } catch (error) {
-          console.warn(`🔍 BubbleDataProcessor - Bubble generation error for timer ${index}:`, error);
+          console.warn(`BubbleDataProcessor - Bubble generation error for timer ${index}:`, error);
           return null;
         }
       }).filter((bubble): bubble is BubbleData => bubble !== null);
 
       const processingTime = performance.now() - startTime;
-      console.log('✅ BubbleDataProcessor - Enhanced processing complete:', {
-        inputSessions: sessions.length,
-        filteredSessions: filteredSessions.length,
-        timerGroups: timerGroupEntries.length,
-        generatedBubbles: bubbles.length,
-        processingTime: `${processingTime.toFixed(2)}ms`,
-        successRate: `${((bubbles.length / timerStats.length) * 100).toFixed(1)}%`
-      });
 
       return bubbles;
 
     } catch (error) {
       const processingTime = performance.now() - startTime;
-      console.error('❌ BubbleDataProcessor - Critical processing error:', {
+      console.error('BubbleDataProcessor - Critical processing error:', {
         error: error.message,
         stack: error.stack,
         processingTime: `${processingTime.toFixed(2)}ms`,
@@ -354,12 +298,7 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
       timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0)
     );
     const maxTotalTime = Math.max(...allTotalTimes, 1);
-    
-    console.log('🔍 processBubbleData - 1:1 Scaling info:', {
-      timerCount: allTotalTimes.length,
-      maxTotalTime: Math.round(maxTotalTime / (1000 * 60)) + ' minutes',
-      scalingFactor: maxTotalTime / 100 // Base scale factor
-    });
+
 
     // Process each timer group with proportional sizing
     return Object.entries(timerGroups).map(([timerId, timerSessions], index) => {
@@ -389,7 +328,6 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
       const categoryColor = categoryColors[timer?.category || 'Uncategorized'] || 'hsl(200, 30%, 50%)';
       const color = isRunning ? 'hsl(142, 71%, 45%)' : categoryColor;
 
-      console.log(`🔍 Timer "${timer?.name}": ${Math.round(totalTime / (1000 * 60))}min → z=${z.toFixed(1)}`);
 
       return {
         id: `${timerId}-${index}`,
@@ -414,7 +352,7 @@ export const processBubbleData = (sessions: TimerSessionWithTimer[], selectedCat
       };
     });
   } catch (error) {
-    console.error('🔍 processBubbleData - Error:', error);
+    console.error('processBubbleData - Error:', error);
     return [];
   }
 };

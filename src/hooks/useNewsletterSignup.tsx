@@ -50,13 +50,11 @@ export const useNewsletterSignup = () => {
       }
 
       // Trigger email notifications via edge function
-      console.log("Invoking newsletter-notification function with:", { email, source });
       try {
         const response = await supabase.functions.invoke("newsletter-notification", {
           body: { email, source }
         });
         
-        console.log("Edge function response:", response);
         
         if (response.error) {
           console.error("Email notification failed:", response.error);
@@ -66,7 +64,6 @@ export const useNewsletterSignup = () => {
             variant: "default",
           });
         } else {
-          console.log("Email notification sent successfully");
         }
       } catch (emailError) {
         console.error("Email notification catch error:", emailError);

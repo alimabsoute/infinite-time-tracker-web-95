@@ -20,14 +20,6 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
   const [activeTab, setActiveTab] = useState<string>('treemap');
   const [selectedTimer, setSelectedTimer] = useState<any | null>(null);
 
-  console.log('🔍 ResizableActivityVisualization - Rendering with:', {
-    filteredTimersCount: filteredTimers.length,
-    sessionsCount: sessions.length,
-    selectedCategory,
-    activeTab,
-    selectedTimer: selectedTimer ? { id: selectedTimer.id, name: selectedTimer.name } : null
-  });
-
   // Get unique categories from sessions
   const categories = ['all', ...new Set(
     sessions
@@ -37,7 +29,6 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
   )];
 
   const handleBubbleClick = useCallback((timer: any) => {
-    console.log('🔍 ResizableActivityVisualization - Bubble clicked:', timer);
     setSelectedTimer(timer);
   }, []);
 

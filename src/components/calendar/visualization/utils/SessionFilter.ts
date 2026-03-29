@@ -7,19 +7,16 @@ export const filterSessionsInDateRange = (
   startDate: Date,
   endDate: Date
 ): TimerSessionWithTimer[] => {
-  console.log('🔍 SessionFilter - Filtering sessions:', {
     totalSessions: sessions.length,
     startDate: startDate.toISOString(),
     endDate: endDate.toISOString()
   });
 
   if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
-    console.log('🔍 SessionFilter - No valid sessions data');
     return [];
   }
 
   if (!startDate || !endDate || !(startDate instanceof Date) || !(endDate instanceof Date)) {
-    console.log('🔍 SessionFilter - Invalid date range');
     return [];
   }
 
@@ -36,16 +33,11 @@ export const filterSessionsInDateRange = (
       
       return isInRange && (hasValidDuration || isRunningTimer);
     } catch (error) {
-      console.warn('🔍 SessionFilter - Invalid session date:', session.start_time);
+      console.warn('SessionFilter - Invalid session date:', session.start_time);
       return false;
     }
   });
 
-  console.log('🔍 SessionFilter - Filtered sessions:', {
-    originalCount: sessions.length,
-    filteredCount: filteredSessions.length,
-    withValidDuration: filteredSessions.filter(s => s.duration_ms && s.duration_ms > 0).length
-  });
 
   return filteredSessions;
 };

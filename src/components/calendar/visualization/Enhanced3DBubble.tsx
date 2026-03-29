@@ -34,7 +34,7 @@ const Enhanced3DBubble: React.FC<Enhanced3DBubbleProps> = ({
       
       // Validate bubble position
       if (!Array.isArray(bubble.position) || bubble.position.length !== 3) {
-        console.warn('🔍 Enhanced3DBubble - Invalid bubble position:', bubble.position);
+        console.warn('Enhanced3DBubble - Invalid bubble position:', bubble.position);
         return;
       }
 
@@ -63,7 +63,7 @@ const Enhanced3DBubble: React.FC<Enhanced3DBubbleProps> = ({
         setIsInitialized(true);
       }
     } catch (error) {
-      console.warn('🔍 Enhanced3DBubble - Animation error:', error);
+      console.warn('Enhanced3DBubble - Animation error:', error);
     }
   });
 
@@ -90,7 +90,7 @@ const Enhanced3DBubble: React.FC<Enhanced3DBubbleProps> = ({
 
   // Validate required props
   if (!bubble || !Array.isArray(bubble.position) || bubble.position.length !== 3) {
-    console.warn('🔍 Enhanced3DBubble - Invalid bubble data:', bubble);
+    console.warn('Enhanced3DBubble - Invalid bubble data:', bubble);
     return null;
   }
 
@@ -178,7 +178,7 @@ const Enhanced3DBubble: React.FC<Enhanced3DBubbleProps> = ({
       </group>
     );
   } catch (error) {
-    console.error('🔍 Enhanced3DBubble - Render error:', error);
+    console.error('Enhanced3DBubble - Render error:', error);
     return null;
   }
 };

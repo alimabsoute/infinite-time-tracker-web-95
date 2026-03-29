@@ -15,26 +15,10 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ chartData, onBubbleCli
 
   const handleDotClick = (data: any) => {
     if (data && data.payload) {
-      console.log('🔍 BubbleChart - Bubble clicked:', data.payload.name);
       onBubbleClick?.(data.payload);
     }
   };
 
-  console.log('🔍 BubbleChart - Data received:', {
-    bubbleCount: chartData.length,
-    sampleBubble: chartData[0] ? {
-      name: chartData[0].name,
-      x: chartData[0].x,
-      y: chartData[0].y,
-      z: chartData[0].z,
-      size: chartData[0].size,
-      color: chartData[0].color
-    } : 'no data',
-    zRange: chartData.length > 0 ? {
-      min: Math.min(...chartData.map(d => d.z)),
-      max: Math.max(...chartData.map(d => d.z))
-    } : 'no range'
-  });
 
   return (
     <ResponsiveContainer width="100%" height="100%">

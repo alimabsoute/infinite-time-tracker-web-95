@@ -23,7 +23,6 @@ const VisualizationSidebarContent: React.FC<VisualizationSidebarContentProps> = 
   formatTime,
   selectedTimer
 }) => {
-  console.log('🔍 VisualizationSidebarContent - Selected timer:', selectedTimer);
 
   return (
     <div className="pl-2 h-full flex flex-col">

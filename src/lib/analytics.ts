@@ -8,7 +8,6 @@ export const GA_TRACKING_ID = process.env.REACT_APP_GA_TRACKING_ID || '';
 export const initGA = () => {
   if (typeof window !== 'undefined' && GA_TRACKING_ID) {
     // Google Analytics will be loaded via gtag script in index.html
-    console.log('Analytics initialized');
   }
 };
 

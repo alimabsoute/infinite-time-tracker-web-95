@@ -32,7 +32,6 @@ export const WeeklyAnalysis: React.FC<WeeklyAnalysisProps> = ({
   currentWeekStart
 }) => {
   const analysis = useMemo((): AnalysisData => {
-    console.log('🔍 WeeklyAnalysis - Processing sessions:', sessions.length);
     
     // Filter sessions for current week
     const weekEnd = addDays(currentWeekStart, 7);
@@ -41,7 +40,6 @@ export const WeeklyAnalysis: React.FC<WeeklyAnalysisProps> = ({
       return sessionDate >= currentWeekStart && sessionDate < weekEnd;
     });
     
-    console.log('🔍 WeeklyAnalysis - Week sessions:', weekSessions.length);
     
     // Basic metrics
     const totalTime = weekSessions.reduce((sum, session) => sum + (session.duration_ms || 0), 0);

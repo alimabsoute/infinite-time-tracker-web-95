@@ -13,7 +13,7 @@ const GeometryValidator: React.FC<GeometryValidatorProps> = ({
   try {
     return <>{children}</>;
   } catch (error) {
-    console.warn('🔍 GeometryValidator - Geometry error caught:', error);
+    console.warn('GeometryValidator - Geometry error caught:', error);
     return <>{fallback}</>;
   }
 };

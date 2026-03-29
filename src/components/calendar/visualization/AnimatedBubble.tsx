@@ -26,7 +26,7 @@ export const AnimatedBubble: React.FC<AnimatedBubbleProps> = ({
         meshRef.current.position.y = bubble.position[1] + floatOffset;
         meshRef.current.rotation.y += 0.005;
       } catch (error) {
-        console.error('🔍 AnimatedBubble - Animation error:', error);
+        console.error('AnimatedBubble - Animation error:', error);
       }
     }
   });

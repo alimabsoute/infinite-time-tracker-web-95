@@ -22,11 +22,6 @@ export const useProductivityInsights = (
   sessions: TimerSessionWithTimer[]
 ): ProductivityInsights => {
   return useMemo(() => {
-    console.log('useProductivityInsights - Processing:', {
-      timersCount: timers.length,
-      sessionsCount: sessions.length
-    });
-
     const now = new Date();
     const thisWeekStart = startOfWeek(now);
     const thisWeekEnd = endOfWeek(now);
@@ -42,11 +37,6 @@ export const useProductivityInsights = (
     const lastWeekSessions = sessions.filter(session => {
       const sessionDate = parseISO(session.start_time);
       return sessionDate >= lastWeekStart && sessionDate <= lastWeekEnd;
-    });
-
-    console.log('useProductivityInsights - Week filtering:', {
-      thisWeekSessions: thisWeekSessions.length,
-      lastWeekSessions: lastWeekSessions.length
     });
 
     // Calculate totals from sessions
@@ -126,14 +116,6 @@ export const useProductivityInsights = (
       new Date(timer.deadline) >= now && 
       new Date(timer.deadline) <= nextWeek
     ).sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime());
-
-    console.log('useProductivityInsights - Final insights:', {
-      totalTimeThisWeek: totalTimeThisWeek / 3600000, // in hours
-      totalTimeLastWeek: totalTimeLastWeek / 3600000,
-      weeklyGrowth,
-      averageSessionTime: averageSessionTime / 60000, // in minutes
-      categoryBreakdown: categoryBreakdown.slice(0, 3)
-    });
 
     return {
       totalTimeThisWeek,

@@ -138,7 +138,7 @@ export const renderDay = (
               hasTodayDeadlines ? "text-red-700 dark:text-red-300" :
               "text-red-600 dark:text-red-400"
             )}>
-              {hasOverdueDeadlines ? "⚠️ Overdue Deadlines" :
+              {hasOverdueDeadlines ? "Overdue Deadlines" :
                hasTodayDeadlines ? "🔥 Today's Deadlines" :
                "📅 Upcoming Deadlines"}
             </div>

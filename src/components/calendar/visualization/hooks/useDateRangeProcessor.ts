@@ -20,7 +20,6 @@ export const useDateRangeProcessor = ({
   onError
 }: UseDateRangeProcessorProps): ProcessedData[] => {
   return useMemo(() => {
-    console.log('🔍 useDateRangeProcessor - Processing sessions:', {
       totalSessions: sessions.length,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
@@ -43,15 +42,10 @@ export const useDateRangeProcessor = ({
       // Convert to processed data using the aggregator
       const processedData = aggregateTimerData(timerGroups, startDate, endDate, onError);
 
-      console.log('🔍 useDateRangeProcessor - Generated processed data:', {
-        total: processedData.length,
-        running: processedData.filter(b => b.isRunning).length,
-        stopped: processedData.filter(b => !b.isRunning).length
-      });
       
       return processedData;
     } catch (error) {
-      console.error('🔍 useDateRangeProcessor - Critical error:', error);
+      console.error('useDateRangeProcessor - Critical error:', error);
       onError?.(error as Error);
       return [];
     }

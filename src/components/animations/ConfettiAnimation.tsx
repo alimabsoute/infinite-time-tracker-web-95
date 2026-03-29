@@ -37,10 +37,8 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
   const startTimeRef = useRef<number>();
 
   useEffect(() => {
-    console.log('🎉 OPTIMIZED Confetti animation starting at:', { x, y });
     
     if (isAnimatingRef.current) {
-      console.log('⚠️ Animation already running, skipping');
       return;
     }
     
@@ -66,7 +64,6 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
       });
     }
     setPieces(newPieces);
-    console.log('✨ Created', newPieces.length, 'OPTIMIZED confetti pieces');
 
     const animate = () => {
       if (!isAnimatingRef.current) return;
@@ -76,7 +73,6 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
       
       // OPTIMIZED: Reduced duration from 6s to 3s
       if (elapsed > 3000) {
-        console.log('⏰ Optimized confetti animation timeout reached');
         cleanup();
         return;
       }
@@ -96,7 +92,6 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ x, y, onComplete 
     };
 
     const cleanup = () => {
-      console.log('🧹 Cleaning up OPTIMIZED confetti animation');
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = undefined;

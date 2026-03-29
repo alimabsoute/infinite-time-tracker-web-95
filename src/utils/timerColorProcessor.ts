@@ -9,7 +9,6 @@ export interface ProcessedTimerColors {
 }
 
 export const processTimerColor = (rawColor: string, timerId: string): ProcessedTimerColors => {
-  console.log('🎨 Processing timer color for:', timerId, 'Raw color:', rawColor);
   
   // Validate and process the color
   let processedColor = rawColor;
@@ -23,7 +22,6 @@ export const processTimerColor = (rawColor: string, timerId: string): ProcessedT
     const saturation = parseInt(s);
     const lightness = parseInt(l);
     
-    console.log('🔧 Parsed HSL values:', { hue, saturation, lightness });
     
     // Create strong, visible colors optimized for circular borders
     const primaryBorder = `hsl(${hue}, ${Math.max(85, saturation)}%, ${Math.min(50, Math.max(40, lightness))}%)`;
@@ -38,12 +36,10 @@ export const processTimerColor = (rawColor: string, timerId: string): ProcessedT
       shadowColor
     };
     
-    console.log('✅ Processed colors for perfect circles:', result);
     return result;
   }
   
   // Enhanced fallback colors if parsing fails
-  console.log('⚠️ Color parsing failed, using enhanced fallback colors');
   return {
     primaryBorder: '#3B82F6',
     secondaryBorder: '#60A5FA',

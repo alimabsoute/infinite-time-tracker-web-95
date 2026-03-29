@@ -13,7 +13,6 @@ const DeletionAnimation: React.FC<DeletionAnimationProps> = ({
   animationType, 
   onComplete 
 }) => {
-  console.log('💥 Starting deletion animation:', animationType);
 
   const getAnimationVariants = () => {
     switch (animationType) {
@@ -78,7 +77,6 @@ const DeletionAnimation: React.FC<DeletionAnimationProps> = ({
   const variants = getAnimationVariants();
 
   const handleAnimationComplete = () => {
-    console.log('✅ Deletion animation completed:', animationType);
     onComplete();
   };
 

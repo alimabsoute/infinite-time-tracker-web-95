@@ -21,14 +21,7 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
   const [activeAnimations, setActiveAnimations] = useState<Set<string>>(new Set());
   const animationTimeoutRef = useRef<NodeJS.Timeout>();
 
-  console.log('🎭 OPTIMIZED EnhancedAnimationManager - Render state:', {
-    confettiTrigger: !!confettiTrigger,
-    celebrationTrigger: celebrationTrigger.type,
-    activeAnimations: Array.from(activeAnimations)
-  });
-
   const handleConfettiComplete = useCallback(() => {
-    console.log('🎉 OPTIMIZED Confetti animation completed');
     setActiveAnimations(prev => {
       const next = new Set(prev);
       next.delete('confetti');
@@ -38,7 +31,6 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
   }, [onConfettiComplete]);
 
   const handleCelebrationComplete = useCallback(() => {
-    console.log('🎊 OPTIMIZED Celebration animation completed');
     setActiveAnimations(prev => {
       const next = new Set(prev);
       next.delete('celebration');
@@ -59,7 +51,6 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
       
       // Set a timeout to automatically clean up if callback fails
       animationTimeoutRef.current = setTimeout(() => {
-        console.log('⚠️ Confetti animation timeout - force cleanup');
         handleConfettiComplete();
       }, 4000);
     }
@@ -71,22 +62,10 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
       
       // Set a timeout to automatically clean up if callback fails
       animationTimeoutRef.current = setTimeout(() => {
-        console.log('⚠️ Celebration animation timeout - force cleanup');
         handleCelebrationComplete();
       }, 3500);
     }
   }, [celebrationTrigger.type, handleCelebrationComplete]);
-
-  // Debug logging
-  React.useEffect(() => {
-    if (confettiTrigger || celebrationTrigger.type) {
-      console.log('🎨 Starting OPTIMIZED animation sequence:', {
-        confetti: !!confettiTrigger,
-        celebration: celebrationTrigger.type,
-        position: confettiTrigger ? { x: confettiTrigger.x, y: confettiTrigger.y } : null
-      });
-    }
-  }, [confettiTrigger, celebrationTrigger.type]);
 
   // Cleanup timeout on unmount
   React.useEffect(() => {

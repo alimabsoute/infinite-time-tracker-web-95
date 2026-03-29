@@ -7,10 +7,8 @@ interface CreateTimerFormProps {
 }
 
 const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps) => {
-  console.log('🎨 CreateTimerForm - Rendering with timer count:', currentTimerCount);
   
   const handleAddTimer = (event: React.MouseEvent) => {
-    console.log('➕ CreateTimerForm - Add button clicked');
     
     // Capture click position for animations
     const rect = event.currentTarget.getBoundingClientRect();
@@ -19,7 +17,6 @@ const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps
       y: rect.top + rect.height / 2
     };
     
-    console.log('🎯 CreateTimerForm - Animation position:', position);
     onAddTimer("New Timer", position);
   };
 

@@ -13,7 +13,6 @@ const CreationAnimation: React.FC<CreationAnimationProps> = ({
   animationType, 
   onComplete 
 }) => {
-  console.log('✨ Starting creation animation:', animationType);
 
   const getAnimationVariants = () => {
     switch (animationType) {
@@ -103,7 +102,6 @@ const CreationAnimation: React.FC<CreationAnimationProps> = ({
   const variants = getAnimationVariants();
 
   const handleAnimationComplete = () => {
-    console.log('✅ Creation animation completed:', animationType);
     onComplete();
   };
 

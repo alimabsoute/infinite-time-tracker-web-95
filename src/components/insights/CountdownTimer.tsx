@@ -64,7 +64,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
         {formatTime()}
       </span>
       {isExpired && (
-        <span className="animate-pulse">⚠️</span>
+        <span className="animate-pulse"></span>
       )}
     </div>
   );

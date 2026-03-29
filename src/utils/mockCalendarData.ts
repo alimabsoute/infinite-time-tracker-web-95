@@ -58,15 +58,7 @@ export const generateMockSessionsForCalendar = (timers: Timer[]): TimerSessionWi
       }
     }
   }
-  
-  console.log('🎯 Generated mock calendar data:', {
-    timers: timers.length,
-    sessions: sessions.length,
-    daysWithActivity: sessions.reduce((days, session) => {
-      const day = new Date(session.start_time).toDateString();
-      return days.add(day);
-    }, new Set()).size
-  });
+
   
   return sessions.sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime());
 };

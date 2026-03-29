@@ -60,7 +60,6 @@ export const nativeShare = async (data: ShareData): Promise<boolean> => {
       await navigator.share(data);
       return true;
     } catch (error) {
-      console.log('Native sharing failed:', error);
       return false;
     }
   }

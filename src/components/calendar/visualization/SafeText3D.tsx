@@ -57,7 +57,7 @@ const SafeText3D: React.FC<SafeText3DProps> = ({
 
     return <Text {...textProps}>{children}</Text>;
   } catch (error) {
-    console.warn('🔍 SafeText3D - Failed to render text:', error);
+    console.warn('SafeText3D - Failed to render text:', error);
     return null;
   }
 };

@@ -25,7 +25,6 @@ interface BubbleMetricsProps {
 
 export const useBubbleMetrics = ({ sessions, selectedCategory }: BubbleMetricsProps): BubbleMetric[] => {
   return React.useMemo(() => {
-    console.log('🔍 BubbleMetrics - Processing sessions:', {
       totalSessions: sessions.length,
       selectedCategory,
       sampleSession: sessions[0] ? {
@@ -42,13 +41,8 @@ export const useBubbleMetrics = ({ sessions, selectedCategory }: BubbleMetricsPr
       return hasValidData && categoryMatch;
     });
 
-    console.log('🔍 BubbleMetrics - Filtered sessions:', {
-      filteredCount: filteredSessions.length,
-      originalCount: sessions.length
-    });
 
     if (filteredSessions.length === 0) {
-      console.log('🔍 BubbleMetrics - No valid sessions found');
       return [];
     }
 
@@ -81,7 +75,6 @@ export const useBubbleMetrics = ({ sessions, selectedCategory }: BubbleMetricsPr
     });
 
     if (timerMetrics.length === 0) {
-      console.log('🔍 BubbleMetrics - No timer metrics calculated');
       return [];
     }
 
@@ -89,7 +82,6 @@ export const useBubbleMetrics = ({ sessions, selectedCategory }: BubbleMetricsPr
     const maxSessionCount = Math.max(...timerMetrics.map(t => t.sessionCount));
     const maxAvgTime = Math.max(...timerMetrics.map(t => t.avgSessionTime));
 
-    console.log('🔍 BubbleMetrics - Calculated maximums:', {
       maxTotalTime,
       maxSessionCount,
       maxAvgTime,
@@ -113,15 +105,6 @@ export const useBubbleMetrics = ({ sessions, selectedCategory }: BubbleMetricsPr
       };
     });
 
-    console.log('🔍 BubbleMetrics - Generated bubbles:', {
-      bubblesCount: bubbles.length,
-      sampleBubble: bubbles[0] ? {
-        position: bubbles[0].position,
-        size: bubbles[0].size,
-        color: bubbles[0].color,
-        timerName: bubbles[0].timer.name
-      } : null
-    });
 
     return bubbles;
   }, [sessions, selectedCategory]);

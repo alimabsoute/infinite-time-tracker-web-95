@@ -81,7 +81,7 @@ export const VisualizationRenderer: React.FC<VisualizationRendererProps> = ({
         );
     }
   } catch (error) {
-    console.error('🔍 VisualizationRenderer - Render error:', error);
+    console.error('VisualizationRenderer - Render error:', error);
     onVisualizationError(error as Error, mode);
     return (
       <div className="h-[400px] flex items-center justify-center text-red-500">

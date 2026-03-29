@@ -88,7 +88,6 @@ class ErrorBoundary extends Component<Props, State> {
   handleRetry = (): void => {
     const newRetryCount = this.state.retryCount + 1;
     
-    console.log(`🔄 ErrorBoundary - Retry attempt ${newRetryCount}/${this.maxRetries}`);
     
     this.setState({ 
       hasError: false, 
@@ -99,12 +98,10 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   handleGoHome = (): void => {
-    console.log('🏠 ErrorBoundary - Navigating to home');
     window.location.href = '/';
   };
 
   handleReload = (): void => {
-    console.log('🔄 ErrorBoundary - Reloading page');
     window.location.reload();
   };
 

@@ -98,7 +98,7 @@ class ErrorMonitoringService {
 
     // Log to console with enhanced details
     const logLevel = this.getConsoleLogLevel(errorLog.severity);
-    console[logLevel]('🔍 ErrorMonitoring - Captured error:', {
+    console[logLevel]('ErrorMonitoring - Captured error:', {
       id: errorId,
       message: error.message,
       category: errorLog.category,
@@ -176,7 +176,7 @@ class ErrorMonitoringService {
         });
       }
     } catch (analyticsError) {
-      console.warn('🔍 ErrorMonitoring - Failed to send to analytics:', analyticsError);
+      console.warn('ErrorMonitoring - Failed to send to analytics:', analyticsError);
     }
   }
 
@@ -210,14 +210,12 @@ class ErrorMonitoringService {
     const error = this.errors.find(e => e.id === errorId);
     if (error) {
       error.resolved = true;
-      console.log('🔍 ErrorMonitoring - Marked error as resolved:', errorId);
       return true;
     }
     return false;
   }
 
   clearErrors(): void {
-    console.log('🔍 ErrorMonitoring - Clearing all errors');
     this.errors = [];
   }
 }

@@ -43,7 +43,6 @@ export const useDeadSimpleTimers = () => {
 
     try {
       setLoading(true);
-      console.log('🔄 Loading timers...');
 
       const { data, error } = await supabase
         .from('timers')
@@ -52,7 +51,7 @@ export const useDeadSimpleTimers = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ Error loading timers:', error);
+        console.error('Error loading timers:', error);
         toast.error('Failed to load timers');
         return;
       }
@@ -71,9 +70,8 @@ export const useDeadSimpleTimers = () => {
       }));
 
       setTimers(processedTimers);
-      console.log(`✅ Loaded ${processedTimers.length} timers`);
     } catch (error) {
-      console.error('❌ Error loading timers:', error);
+      console.error('Error loading timers:', error);
       toast.error('Failed to load timers');
     } finally {
       setLoading(false);
@@ -92,7 +90,6 @@ export const useDeadSimpleTimers = () => {
         // STOP: Calculate final time and save
         const finalElapsedTime = getDisplayTime(timer);
 
-        console.log(`⏹️ Stopping timer ${timer.name}: final time = ${finalElapsedTime}ms`);
 
         // End the current session
         await supabase
@@ -122,7 +119,6 @@ export const useDeadSimpleTimers = () => {
 
       } else {
         // START: Start this timer (allow multiple simultaneous timers)
-        console.log(`▶️ Starting timer ${timer.name}`);
 
         // Create new session
         const startTime = new Date();
@@ -152,7 +148,7 @@ export const useDeadSimpleTimers = () => {
 
       toast.success(`Timer "${timer.name}" ${timer.isRunning ? 'stopped' : 'started'}`);
     } catch (error) {
-      console.error('❌ Error toggling timer:', error);
+      console.error('Error toggling timer:', error);
       toast.error('Failed to toggle timer');
       loadTimers(); // Reload on error
     }
@@ -163,7 +159,6 @@ export const useDeadSimpleTimers = () => {
     if (!user) return;
 
     try {
-      console.log(`🔄 Resetting timer ${timerId}`);
 
       await supabase
         .from('timers')
@@ -182,7 +177,7 @@ export const useDeadSimpleTimers = () => {
 
       toast.success('Timer reset');
     } catch (error) {
-      console.error('❌ Error resetting timer:', error);
+      console.error('Error resetting timer:', error);
       toast.error('Failed to reset timer');
     }
   }, [user]);
@@ -232,7 +227,7 @@ export const useDeadSimpleTimers = () => {
         setCelebrationTrigger({ type: randomCelebration });
       }
     } catch (error) {
-      console.error('❌ Error creating timer:', error);
+      console.error('Error creating timer:', error);
       toast.error('Failed to create timer');
     }
   }, [user]);
@@ -242,7 +237,6 @@ export const useDeadSimpleTimers = () => {
     if (!user) return;
 
     try {
-      console.log(`✏️ Renaming timer ${id}: "${newName}" category: ${category}`);
 
       await supabase
         .from('timers')
@@ -260,7 +254,7 @@ export const useDeadSimpleTimers = () => {
 
       toast.success(`Timer renamed to "${newName}"`);
     } catch (error) {
-      console.error('❌ Error renaming timer:', error);
+      console.error('Error renaming timer:', error);
       toast.error('Failed to rename timer');
     }
   }, [user]);
@@ -273,7 +267,6 @@ export const useDeadSimpleTimers = () => {
     if (!timer) return;
 
     try {
-      console.log(`🗑️ Deleting timer ${timer.name}`);
 
       // Stop timer if running and end its session
       if (timer.isRunning) {
@@ -308,7 +301,7 @@ export const useDeadSimpleTimers = () => {
       setTimers(prev => prev.filter(t => t.id !== id));
       toast.success(`Timer "${timer.name}" deleted`);
     } catch (error) {
-      console.error('❌ Error deleting timer:', error);
+      console.error('Error deleting timer:', error);
       toast.error('Failed to delete timer');
     }
   }, [user, timers, getDisplayTime]);
@@ -318,7 +311,6 @@ export const useDeadSimpleTimers = () => {
     if (!user) return;
 
     try {
-      console.log(`📅 Updating deadline for timer ${id}`);
 
       await supabase
         .from('timers')
@@ -335,7 +327,7 @@ export const useDeadSimpleTimers = () => {
 
       toast.success('Deadline updated');
     } catch (error) {
-      console.error('❌ Error updating deadline:', error);
+      console.error('Error updating deadline:', error);
       toast.error('Failed to update deadline');
     }
   }, [user]);
@@ -345,7 +337,6 @@ export const useDeadSimpleTimers = () => {
     if (!user) return;
 
     try {
-      console.log(`⭐ Updating priority for timer ${id}: ${priority}`);
 
       await supabase
         .from('timers')
@@ -362,7 +353,7 @@ export const useDeadSimpleTimers = () => {
 
       toast.success('Priority updated');
     } catch (error) {
-      console.error('❌ Error updating priority:', error);
+      console.error('Error updating priority:', error);
       toast.error('Failed to update priority');
     }
   }, [user]);

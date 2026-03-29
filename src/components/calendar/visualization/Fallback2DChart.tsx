@@ -34,7 +34,6 @@ const Fallback2DChart: React.FC<Fallback2DChartProps> = ({
   // Convert processed data to scatter format
   const scatterData = useMemo(() => {
     try {
-      console.log('🔍 Fallback2DChart - Converting processed data to scatter format');
       
       if (!processedData || processedData.length === 0) {
         return [];
@@ -58,10 +57,9 @@ const Fallback2DChart: React.FC<Fallback2DChartProps> = ({
         };
       });
 
-      console.log('🔍 Fallback2DChart - Generated scatter data:', data.length);
       return data;
     } catch (error) {
-      console.error('🔍 Fallback2DChart - Data conversion error:', error);
+      console.error('Fallback2DChart - Data conversion error:', error);
       onError?.(error as Error);
       return [];
     }

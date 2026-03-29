@@ -28,9 +28,6 @@ const DayView: React.FC<DayViewProps> = ({
   setCategoryFilter,
   categories
 }) => {
-  console.log('=== DayView Debug ===');
-  console.log('DayView - selectedDate:', selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none');
-  console.log('DayView - total available timers:', timers.length);
 
   if (!selectedDate) {
     return (
@@ -52,9 +49,6 @@ const DayView: React.FC<DayViewProps> = ({
     return getTimersWithDeadlinesForDate(selectedDate, timers);
   }, [selectedDate, timers]);
 
-  console.log('DayView - Final data for', format(selectedDate, 'yyyy-MM-dd'), ':');
-  console.log('  - deadlineTimers:', deadlineTimers.length);
-  console.log('  - daySessions:', daySessions.length);
 
   // Filter sessions by category
   const filteredSessions = React.useMemo(() => {

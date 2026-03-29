@@ -14,7 +14,6 @@ interface BubbleProps {
 const AnimatedBubble: React.FC<BubbleProps> = ({ position, size, color, timer, onClick }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   
-  console.log('🔍 AnimatedBubble - Rendering ENHANCED bubble:', {
     position,
     size,
     color,
@@ -31,14 +30,13 @@ const AnimatedBubble: React.FC<BubbleProps> = ({ position, size, color, timer, o
         meshRef.current.rotation.y = state.clock.elapsedTime * 0.3; // Faster rotation
         meshRef.current.scale.setScalar(pulseScale);
       } catch (error) {
-        console.error('🔍 AnimatedBubble - Enhanced animation error:', error);
+        console.error('AnimatedBubble - Enhanced animation error:', error);
       }
     }
   });
 
   const handleClick = (event: any) => {
     event.stopPropagation();
-    console.log('🔍 AnimatedBubble - ENHANCED bubble clicked:', timer?.name || 'Unknown');
     onClick(timer);
   };
 
@@ -53,12 +51,12 @@ const AnimatedBubble: React.FC<BubbleProps> = ({ position, size, color, timer, o
 
   // Validate position and size
   if (!position || position.length !== 3 || position.some(p => typeof p !== 'number' || !isFinite(p))) {
-    console.warn('🔍 AnimatedBubble - Invalid position:', position);
+    console.warn('AnimatedBubble - Invalid position:', position);
     return null;
   }
 
   if (typeof size !== 'number' || !isFinite(size) || size <= 0) {
-    console.warn('🔍 AnimatedBubble - Invalid size:', size);
+    console.warn('AnimatedBubble - Invalid size:', size);
     return null;
   }
 

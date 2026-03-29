@@ -184,12 +184,6 @@ function calculateLayout(
   const totalValue = sortedNodes.reduce((sum, node) => sum + node.value, 0);
   const containerArea = containerWidth * containerHeight;
 
-  console.log('🔍 TreemapLayout - Input:', {
-    nodeCount: sortedNodes.length,
-    containerSize: { width: containerWidth, height: containerHeight },
-    totalValue,
-    containerArea
-  });
 
   // Convert to layout nodes with calculated areas
   const layoutNodes: LayoutNode[] = sortedNodes.map(node => ({
@@ -197,12 +191,6 @@ function calculateLayout(
     area: (node.value / totalValue) * containerArea
   }));
 
-  console.log('🔍 TreemapLayout - Areas:', layoutNodes.map(n => ({
-    name: n.name,
-    value: n.value,
-    area: n.area.toFixed(1),
-    percentage: ((n.value / totalValue) * 100).toFixed(1) + '%'
-  })));
 
   // Apply squarified treemap algorithm
   const result = squarify(layoutNodes, [], {
@@ -216,18 +204,6 @@ function calculateLayout(
   const totalCalculatedArea = result.reduce((sum, rect) => sum + (rect.width * rect.height), 0);
   const coverage = (totalCalculatedArea / containerArea) * 100;
 
-  console.log('🔍 TreemapLayout - Final result:', {
-    nodeCount: result.length,
-    totalCalculatedArea: totalCalculatedArea.toFixed(1),
-    containerArea: containerArea.toFixed(1),
-    coverage: coverage.toFixed(1) + '%',
-    allPositive: result.every(n => n.width > 0 && n.height > 0),
-    rectangles: result.map(r => ({
-      name: r.name,
-      area: (r.width * r.height).toFixed(1),
-      dimensions: `${r.width.toFixed(1)}x${r.height.toFixed(1)}`
-    }))
-  });
 
   return result;
 }
@@ -258,13 +234,6 @@ export function processTreemapData(
   containerWidth: number = 800,
   containerHeight: number = 500
 ): TreemapData | null {
-  console.log('🔍 TreemapDataProcessor - Processing:', {
-    sessionsCount: sessions.length,
-    selectedCategory,
-    viewMode,
-    containerSize: { width: containerWidth, height: containerHeight }
-  });
-
   // Filter valid sessions with enhanced validation, including running timers
   const validSessions = sessions.filter(session => {
     const isRunningTimer = session.id.startsWith('virtual-');
@@ -275,11 +244,6 @@ export function processTreemapData(
     return hasDuration && hasTimer && matchesCategory;
   });
 
-  console.log('🔍 TreemapDataProcessor - Valid sessions:', {
-    valid: validSessions.length,
-    total: sessions.length,
-    filtered: sessions.length - validSessions.length
-  });
 
   if (validSessions.length === 0) {
     return null;
@@ -347,17 +311,6 @@ export function processTreemapData(
   const totalValue = entries.reduce((sum, [, data]) => sum + data.value, 0);
   const maxValue = Math.max(...entries.map(([, data]) => data.value));
 
-  console.log('🔍 TreemapDataProcessor - Grouped data:', {
-    groups: entries.length,
-    totalValueHours: (totalValue / (1000 * 60 * 60)).toFixed(1),
-    largestValueHours: (maxValue / (1000 * 60 * 60)).toFixed(1),
-    entries: entries.map(([id, data]) => ({
-      id,
-      name: data.name,
-      valueHours: (data.value / (1000 * 60 * 60)).toFixed(1),
-      sessions: data.sessions
-    }))
-  });
 
   // Create nodes with proper scaling
   const nodes = entries.map(([id, data], index) => ({
@@ -373,20 +326,10 @@ export function processTreemapData(
   const minValue = totalValue * 0.001; // 0.1% threshold
   const filteredNodes = nodes.filter(node => node.value >= minValue);
 
-  console.log('🔍 TreemapDataProcessor - Filtered nodes:', {
-    original: nodes.length,
-    filtered: filteredNodes.length,
-    minValueMinutes: (minValue / (1000 * 60)).toFixed(1)
-  });
 
   // Calculate layout with proper container dimensions
   const layoutNodes = calculateLayout(filteredNodes, containerWidth, containerHeight);
 
-  console.log('🔍 TreemapDataProcessor - Final layout:', {
-    nodes: layoutNodes.length,
-    totalValue: (totalValue / (1000 * 60 * 60)).toFixed(1) + 'h',
-    containerSize: `${containerWidth}x${containerHeight}`
-  });
 
   return {
     name: viewMode === 'category' ? 'Categories' : 'Timers',

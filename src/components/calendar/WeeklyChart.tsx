@@ -36,7 +36,6 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
   const config = getChartConfig(averageHours);
 
   // Enhanced debug logging with data validation
-  console.log('🔍 WeeklyChart - Comprehensive Data Analysis:', {
     weekDataLength: weekData.length,
     averageHours: averageHours.toFixed(4),
     chartType,
@@ -68,7 +67,7 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
   );
 
   if (!hasValidData) {
-    console.error('❌ WeeklyChart - Invalid data detected:', {
+    console.error('WeeklyChart - Invalid data detected:', {
       weekDataLength: weekData.length,
       invalidItems: weekData.filter(d => 
         !(d.date instanceof Date) || 
@@ -88,7 +87,6 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
   const maxHours = Math.max(...weekData.map(d => d.totalHours), 0);
   
   if (!hasAnyData) {
-    console.log('⚠️ WeeklyChart - No data to display for this week');
     return (
       <div className="h-[330px] flex items-center justify-center">
         <p className="text-muted-foreground">No activity data for this week</p>
@@ -97,10 +95,8 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
   }
 
   const handleChartClick = (data: any) => {
-    console.log('🔍 WeeklyChart - Chart clicked:', data);
     if (data?.activePayload?.[0]?.payload) {
       const payload = data.activePayload[0].payload;
-      console.log('🔍 WeeklyChart - Clicking with payload:', {
         date: payload.date,
         day: payload.day,
         totalHours: payload.totalHours,
@@ -111,7 +107,6 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
   };
 
   const handleBarMouseEnter = (data: any) => {
-    console.log('🔍 WeeklyChart - Bar hover enter:', {
       date: data?.date,
       day: data?.day,
       totalHours: data?.totalHours
@@ -122,7 +117,6 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
   };
 
   const handleBarMouseLeave = () => {
-    console.log('🔍 WeeklyChart - Bar hover leave');
     onHoverDay(null);
   };
 

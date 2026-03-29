@@ -10,7 +10,6 @@ export const aggregateTimerData = (
   endDate: Date,
   onError?: (error: Error) => void
 ): ProcessedData[] => {
-  console.log('🔍 DataAggregator - Aggregating timer data:', {
     groupCount: Object.keys(timerGroups).length
   });
 
@@ -24,7 +23,7 @@ export const aggregateTimerData = (
       
       // Validate values
       if (!isFinite(position[0]) || !isFinite(position[1]) || !isFinite(position[2]) || !isFinite(size)) {
-        console.warn('🔍 DataAggregator - Invalid values for timer:', timerName);
+        console.warn('DataAggregator - Invalid values for timer:', timerName);
         return null;
       }
       
@@ -58,27 +57,16 @@ export const aggregateTimerData = (
         x: data.totalTime / (1000 * 60 * 60), // Total hours for X axis
         y: avgSessionTime / (1000 * 60) // Avg session minutes for Y axis
       };
-      
-      console.log('🔍 DataAggregator - Created processed data:', {
-        timerName: processedItem.timerName,
-        totalTime: processedItem.totalTime,
-        sessionCount: processedItem.sessionCount,
-        isRunning: processedItem.isRunning,
-        color: processedItem.color
-      });
+
       
       return processedItem;
     } catch (error) {
-      console.error('🔍 DataAggregator - Error creating processed data for timer:', timerName, error);
+      console.error('DataAggregator - Error creating processed data for timer:', timerName, error);
       onError?.(error as Error);
       return null;
     }
   }).filter((item): item is ProcessedData => item !== null);
 
-  console.log('🔍 DataAggregator - Aggregation complete:', {
-    totalProcessed: processedData.length,
-    runningTimers: processedData.filter(item => item.isRunning).length
-  });
 
   return processedData;
 };

@@ -37,8 +37,6 @@ const CalendarMainView: React.FC<CalendarMainViewProps> = ({
 }) => {
   const [calendarView, setCalendarView] = useState<'month' | 'year'>('month');
 
-  console.log('CalendarMainView - timers:', timers.length);
-  console.log('CalendarMainView - sessions:', sessions.length);
 
   useEffect(() => {
     const today = new Date();

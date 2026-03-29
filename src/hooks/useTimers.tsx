@@ -1,3 +1,2 @@
-
-// Import the rebuilt timer system
-export { useTimersRebuild as useTimers } from './useTimersRebuild';
+// Single source of truth: re-export useDeadSimpleTimers as useTimers
+export { useDeadSimpleTimers as useTimers } from './useDeadSimpleTimers';

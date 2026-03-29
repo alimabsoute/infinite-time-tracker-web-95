@@ -37,13 +37,11 @@ const DraggableTimerItem = ({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = (id: string) => {
-    console.log('🗑️ Starting deletion animation for timer:', id);
     setIsDeleting(true);
     setAnimationState({ type: 'deletion' });
   };
 
   const handleDeletionComplete = () => {
-    console.log('✅ Deletion animation completed, calling onDelete');
     onDelete(timer.id);
     setIsDeleting(false);
     setAnimationState({ type: null });

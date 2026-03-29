@@ -59,7 +59,6 @@ const TimerCard: React.FC<TimerCardProps> = ({
   const { id, name, isRunning, category, deadline } = timer;
   const isOverdue = deadline && new Date(deadline) < new Date();
 
-  console.log('🔍 TimerCard render - Timer:', id, 'Running:', isRunning);
 
   // Get processed colors using the new utility
   const colors = getProcessedTimerColors(id);

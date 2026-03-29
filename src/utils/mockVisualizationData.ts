@@ -45,16 +45,7 @@ export const generateMockVisualizationData = (): TimerSessionWithTimer[] => {
     
     sessions.push(session);
   }
-  
-  console.log('🔍 Generated mock visualization data:', {
-    totalSessions: sessions.length,
-    uniqueTimers: new Set(sessions.map(s => s.timer_id)).size,
-    categories: [...new Set(sessions.map(s => s.timers?.category))],
-    dateRange: {
-      start: sessions[0]?.start_time,
-      end: sessions[sessions.length - 1]?.start_time
-    }
-  });
+
   
   return sessions;
 };

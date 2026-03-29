@@ -16,8 +16,6 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
   sessions,
   formatTime
 }) => {
-  console.log('=== HorizontalTimerDisplay Debug ===');
-  console.log('HorizontalTimerDisplay - Received sessions count:', sessions?.length || 0);
 
   const getCategoryColor = (category?: string) => {
     switch (category) {
@@ -33,7 +31,6 @@ const HorizontalTimerDisplay: React.FC<HorizontalTimerDisplayProps> = ({
   };
 
   if (!sessions || sessions.length === 0) {
-    console.log('HorizontalTimerDisplay - No sessions to display');
     return (
       <div className="text-center py-8 text-muted-foreground">
         <div className="flex flex-col items-center gap-3">

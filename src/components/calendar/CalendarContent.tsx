@@ -32,13 +32,6 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
   setCategoryFilter,
   categories,
 }) => {
-  console.log('CalendarContent - Rendering with data:', {
-    timersCount: timers.length,
-    sessionsCount: sessions.length,
-    sessionsLoading,
-    selectedDate: selectedDate ? selectedDate.toISOString() : 'none'
-  });
-
   return (
     <motion.div
       initial={{ opacity: 0 }}

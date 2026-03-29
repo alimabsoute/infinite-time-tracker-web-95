@@ -36,10 +36,8 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
   const startTimeRef = useRef<number>();
 
   useEffect(() => {
-    console.log('🎆 Starting OPTIMIZED celebration animation:', type);
     
     if (isAnimatingRef.current) {
-      console.log('⚠️ Animation already running, skipping');
       return;
     }
     
@@ -138,7 +136,6 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
     }
 
     setParticles(newParticles);
-    console.log('✨ Created', newParticles.length, 'OPTIMIZED celebration particles');
 
     const animate = () => {
       if (!isAnimatingRef.current) return;
@@ -148,7 +145,6 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
       
       // OPTIMIZED: Reduced duration from 4s to 2.5s
       if (elapsed > 2500) {
-        console.log('⏰ Optimized celebration animation timeout reached');
         cleanup();
         return;
       }
@@ -206,7 +202,6 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
     };
 
     const cleanup = () => {
-      console.log('🧹 Cleaning up OPTIMIZED celebration animation');
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = undefined;

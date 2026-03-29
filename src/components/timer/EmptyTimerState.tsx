@@ -6,7 +6,6 @@ interface EmptyTimerStateProps {
 }
 
 const EmptyTimerState = ({ onCreateTimer }: EmptyTimerStateProps) => {
-  console.log('🚫 EmptyTimerState - Rendering empty state', { hasCreateFunction: !!onCreateTimer });
   
   return (
     <div className="flex items-center justify-center min-h-[60vh] bg-blue-50 border-2 border-blue-200 rounded-lg">

@@ -24,13 +24,6 @@ const InteractiveTreemapChart: React.FC<InteractiveTreemapChartProps> = ({
   const [selectedNode, setSelectedNode] = useState<TreemapNodeData | null>(null);
   const [viewMode, setViewMode] = useState<'category' | 'timer'>('category');
 
-  console.log('🔍 InteractiveTreemapChart - Processing:', {
-    sessionsCount: sessions.length,
-    selectedCategory,
-    viewMode,
-    isStandalone,
-    hasClickHandler: !!onBubbleClick
-  });
 
   // Process data into treemap format with dynamic container sizing
   const treemapData = useMemo(() => {
@@ -54,7 +47,6 @@ const InteractiveTreemapChart: React.FC<InteractiveTreemapChartProps> = ({
 
     // Call the bubble click handler if provided
     if (onBubbleClick) {
-      console.log('🔍 InteractiveTreemapChart - Node clicked, calling onBubbleClick:', node);
       const totalHours = (node.value / (1000 * 60 * 60)).toFixed(1);
       const avgSessionTime = node.sessions > 0 ? (node.value / node.sessions / (1000 * 60)).toFixed(0) : '0';
       

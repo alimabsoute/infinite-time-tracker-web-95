@@ -12,7 +12,6 @@ import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitI
 
 
 const Dashboard = () => {
-  console.log('🔥 Dashboard - Component rendering with rebuilt timer system');
   
   const { user } = useAuth();
   const { 
@@ -34,17 +33,8 @@ const Dashboard = () => {
   } = useDeadSimpleTimers();
   const [newTimerId, setNewTimerId] = useState<string | null>(null);
 
-  console.log('📊 Dashboard - Current state:', { 
-    timersCount: timers.length, 
-    runningCount: timers.filter(t => t.isRunning).length,
-    loading,
-    user: user?.id || 'none'
-  });
-
   const handleCreateTimer = async (name: string, position?: { x: number; y: number }) => {
-    console.log('🎯 Dashboard - Creating timer with name:', name, 'at position:', position);
     await addTimer(name, position);
-    console.log('✅ Dashboard - Timer created successfully');
   };
 
   return (

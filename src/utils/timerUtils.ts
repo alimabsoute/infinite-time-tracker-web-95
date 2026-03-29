@@ -14,10 +14,8 @@ const TIMER_COLORS = [
 ];
 
 export const getTimerColor = (timerId: string): string => {
-  console.log('🎨 Getting timer color for ID:', timerId);
   
   if (!timerId) {
-    console.log('⚠️ No timer ID provided, using fallback color');
     return TIMER_COLORS[0];
   }
   
@@ -33,7 +31,6 @@ export const getTimerColor = (timerId: string): string => {
   const colorIndex = Math.abs(hash) % TIMER_COLORS.length;
   const selectedColor = TIMER_COLORS[colorIndex];
   
-  console.log('✅ Selected color:', selectedColor, 'for timer:', timerId);
   return selectedColor;
 };
 

@@ -14,11 +14,6 @@ const ActivityVisualization: React.FC<ActivityVisualizationProps> = ({
   sessions, 
   formatTime 
 }) => {
-  console.log('ActivityVisualization - Rendering with enhanced components:', {
-    sessionsCount: sessions.length,
-    timersCount: filteredTimers.length
-  });
-
   return (
     <ResizableActivityVisualization
       filteredTimers={filteredTimers}

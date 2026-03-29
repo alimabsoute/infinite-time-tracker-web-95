@@ -32,12 +32,6 @@ const DateRangeVisualizationController: React.FC<DateRangeVisualizationControlle
     return sessionDate >= startDate && sessionDate <= endDate;
   });
 
-  console.log('🔍 DateRangeVisualizationController - Filtering sessions:', {
-    originalCount: sessions.length,
-    filteredCount: filteredSessions.length,
-    dateRange: { startDate: startDate.toISOString(), endDate: endDate.toISOString() }
-  });
-
   return (
     <div className="space-y-6">
       {/* Date Range Selector at the top */}

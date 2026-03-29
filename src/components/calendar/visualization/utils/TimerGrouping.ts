@@ -14,7 +14,6 @@ export const groupSessionsByTimer = (
   sessions: TimerSessionWithTimer[],
   onError?: (error: Error) => void
 ): Record<string, TimerGroup> => {
-  console.log('🔍 TimerGrouping - Grouping sessions by timer:', sessions.length);
 
   const timerGroups: Record<string, TimerGroup> = {};
 
@@ -30,7 +29,7 @@ export const groupSessionsByTimer = (
       }
       
       if (!timerName || typeof timerName !== 'string' || timerName.trim() === '') {
-        console.warn('🔍 TimerGrouping - Skipping session with invalid timer name:', session.id);
+        console.warn('TimerGrouping - Skipping session with invalid timer name:', session.id);
         return;
       }
       
@@ -67,29 +66,13 @@ export const groupSessionsByTimer = (
       }
       
       timerGroups[timerName].totalTime += sessionDuration;
-      
-      console.log('🔍 TimerGrouping - Processed session:', {
-        sessionId: session.id,
-        timerName,
-        sessionDuration,
-        isRunning: isRunningSession,
-        totalTimeNow: timerGroups[timerName].totalTime
-      });
+
     } catch (error) {
-      console.error('🔍 TimerGrouping - Error processing session:', error);
+      console.error('TimerGrouping - Error processing session:', error);
       onError?.(error as Error);
     }
   });
 
-  console.log('🔍 TimerGrouping - Timer groups created:', {
-    groupCount: Object.keys(timerGroups).length,
-    groups: Object.entries(timerGroups).map(([name, data]) => ({
-      timerName: name,
-      sessionCount: data.sessions.length,
-      totalTime: data.totalTime,
-      isRunning: data.isRunning
-    }))
-  });
 
   return timerGroups;
 };

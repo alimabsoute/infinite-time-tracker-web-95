@@ -46,20 +46,6 @@ const Calendar = () => {
           return session;
         });
 
-        console.log('📅 Calendar - Fetched sessions:', {
-          total: processedSessions.length,
-          completed: processedSessions.filter(s => s.end_time).length,
-          running: processedSessions.filter(s => !s.end_time && s.timers?.is_running).length,
-          sampleSessions: processedSessions.slice(0, 3).map(s => ({
-            id: s.id,
-            timer_id: s.timer_id,
-            duration_ms: s.duration_ms,
-            timer_name: s.timers?.name,
-            has_end_time: !!s.end_time
-          }))
-        });
-        
-        
         setSessions(processedSessions);
       } catch (error) {
         console.error('Error fetching sessions:', error);
@@ -77,7 +63,6 @@ const Calendar = () => {
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'timer_sessions' },
         () => {
-          console.log('📅 Calendar - Session updated, refetching...');
           fetchSessions();
         }
       )
@@ -104,18 +89,6 @@ const Calendar = () => {
     });
   }, [displaySessions, currentMonth.getMonth(), currentMonth.getFullYear()]);
 
-  // Reduce logging frequency to prevent console spam
-  React.useEffect(() => {
-    console.log('🔍 Calendar Page - Data summary:', {
-      timersCount: timers.length,
-      sessionsCount: sessions.length,
-      sessionsLoading,
-      selectedDate: selectedDate?.toISOString(),
-      sampleTimer: timers[0]?.name || 'No timers',
-      sampleSession: sessions[0] ? 'No sessions' : 'No sessions',
-      monthSessions: monthSessions.length
-    });
-  }, [timers.length, sessions.length, sessionsLoading, monthSessions.length]);
 
   // Memoize month change handler to prevent unnecessary re-renders
   const handleMonthChange = React.useCallback((direction: 'prev' | 'next') => {

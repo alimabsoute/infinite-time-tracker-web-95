@@ -42,7 +42,6 @@ export const useTimerReports = () => {
 
     try {
       setLoading(true);
-      console.log('🔍 useTimerReports - Starting data fetch for user:', user.id);
       
       // Fetch ALL timers including deleted ones for comprehensive reports
       const { data: timersData, error: timersError } = await supabase
@@ -52,7 +51,7 @@ export const useTimerReports = () => {
         .order('created_at', { ascending: false });
 
       if (timersError) {
-        console.error("❌ useTimerReports - Error loading timer data:", timersError);
+        console.error("useTimerReports - Error loading timer data:", timersError);
         toast({
           title: "Error",
           description: "Failed to load timer data",
@@ -62,10 +61,8 @@ export const useTimerReports = () => {
         return;
       }
 
-      console.log(`✅ useTimerReports - Loaded ${timersData?.length || 0} timers`);
 
       if (!timersData || timersData.length === 0) {
-        console.log('ℹ️ useTimerReports - No timer data found');
         setReportData([]);
         return;
       }
@@ -104,10 +101,9 @@ export const useTimerReports = () => {
         return reportItem;
       });
 
-      console.log(`✅ useTimerReports - Transformed ${transformedData.length} timer records`);
       setReportData(transformedData);
     } catch (error) {
-      console.error("❌ useTimerReports - Unexpected error:", error);
+      console.error("useTimerReports - Unexpected error:", error);
       toast({
         title: "Error",
         description: "Failed to load timer data",

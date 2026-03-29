@@ -21,12 +21,7 @@ class DataValidator {
 
   static validateSessionsForDateRange(sessions: TimerSessionWithTimer[], startDate: Date, endDate: Date): ValidationResult {
     const errors: string[] = [];
-    
-    console.log('🔍 DataValidator - Starting validation:', {
-      totalSessions: sessions.length,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString()
-    });
+
 
     // Basic validation
     if (!sessions || !Array.isArray(sessions)) {
@@ -63,16 +58,11 @@ class DataValidator {
         const sessionDate = new Date(session.start_time);
         return isWithinInterval(sessionDate, rangeInterval);
       } catch (error) {
-        console.warn('🔍 DataValidator - Invalid session date:', session.start_time);
+        console.warn('DataValidator - Invalid session date:', session.start_time);
         return false;
       }
     });
 
-    console.log('🔍 DataValidator - Date range filtering:', {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      dateRangeSessions: dateRangeSessions.length
-    });
 
     // Validate and group sessions by timer
     const timerGroups: Record<string, any> = {};
@@ -105,7 +95,7 @@ class DataValidator {
       }
 
       if (!timerName || typeof timerName !== 'string' || timerName.trim() === '') {
-        console.warn('🔍 DataValidator - Session without valid timer name:', {
+        console.warn('DataValidator - Session without valid timer name:', {
           sessionId: session.id,
           hasTimers: !!session.timers,
           sessionKeys: Object.keys(session)
@@ -126,7 +116,7 @@ class DataValidator {
       }
 
       if (duration <= 0) {
-        console.warn('🔍 DataValidator - Session with invalid duration:', {
+        console.warn('DataValidator - Session with invalid duration:', {
           sessionId: session.id,
           duration_ms: session.duration_ms,
           start_time: session.start_time,
@@ -155,7 +145,6 @@ class DataValidator {
     const timerGroupsCount = Object.keys(timerGroups).length;
     const hasValidData = validSessionsCount > 0 && timerGroupsCount > 0;
 
-    console.log('🔍 DataValidator - Validation complete:', {
       hasValidData,
       validSessionsCount,
       timerGroupsCount,
