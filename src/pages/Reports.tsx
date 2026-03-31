@@ -1,10 +1,10 @@
 
 import PageLayout from '../components/layout/PageLayout';
-import TimerReportsTable from '../components/reports/TimerReportsTable';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSubscription } from '@/contexts/SubscriptionContext';
-import PremiumFeatureGate from '../components/premium/PremiumFeatureGate';
-import PremiumBadge from '../components/premium/PremiumBadge';
+import TimerReportsTable from '@features/reports/components/TimerReportsTable';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@shared/components/ui/card';
+import { useSubscription } from '@features/billing/context/SubscriptionContext';
+import PremiumFeatureGate from '@features/billing/components/PremiumFeatureGate';
+import PremiumBadge from '@features/billing/components/PremiumBadge';
 
 const Reports = () => {
   const { subscribed } = useSubscription();

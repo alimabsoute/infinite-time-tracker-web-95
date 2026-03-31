@@ -1,6 +1,6 @@
 
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@features/auth/context/AuthContext';
 import Landing from './Landing';
 
 const Home = () => {

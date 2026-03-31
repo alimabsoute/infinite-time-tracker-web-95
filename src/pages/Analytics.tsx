@@ -1,24 +1,24 @@
 
 import React, { useState, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import PageLayout from '@/components/layout/PageLayout';
-import { useDeadSimpleTimers } from '@/hooks/useDeadSimpleTimers';
-import { useTimerSessions } from '@/hooks/useTimerSessions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { supabase } from '@shared/lib/supabase/client';
+import PageLayout from '@shared/components/layout/PageLayout';
+import { useDeadSimpleTimers } from '@features/timer/hooks/useDeadSimpleTimers';
+import { useTimerSessions } from '@features/calendar/hooks/useTimerSessions';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@shared/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select';
+import { Badge } from '@shared/components/ui/badge';
+import { Progress } from '@shared/components/ui/progress';
 import { BarChart3, Clock, TrendingUp, Target, Timer as TimerIcon } from 'lucide-react';
-import { formatTime } from '@/components/timer/TimerUtils';
+import { formatTime } from '@features/timer/components/TimerUtils';
 import { format, subDays, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { PDFExportButton } from '@/components/ui/pdf-export-button';
-import { formatTime as calendarFormatTime } from '@/components/calendar/CalendarUtils';
-import QuickInsightsDashboard from '@/components/insights/QuickInsightsDashboard';
-import DateRangeVisualizationController from '@/components/calendar/visualization/DateRangeVisualizationController';
-import AnalysisSection from '@/components/analytics/AnalysisSection';
-import OptimizationTips from '@/components/analytics/OptimizationTips';
+import { PDFExportButton } from '@shared/components/ui/pdf-export-button';
+import { formatTime as calendarFormatTime } from '@features/calendar/components/CalendarUtils';
+import QuickInsightsDashboard from '@features/analytics/components/QuickInsightsDashboard';
+import DateRangeVisualizationController from '@features/calendar/visualization/DateRangeVisualizationController';
+import AnalysisSection from '@features/analytics/components/AnalysisSection';
+import OptimizationTips from '@features/analytics/components/OptimizationTips';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 

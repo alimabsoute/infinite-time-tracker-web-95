@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
 import PageLayout from '../components/layout/PageLayout';
-import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
-import TimerList from '../components/TimerList';
-import CreateTimerForm from '../components/CreateTimerForm';
+import { useDeadSimpleTimers } from '@features/timer/hooks/useDeadSimpleTimers';
+import TimerList from '@features/timer/components/TimerList';
+import CreateTimerForm from '@features/timer/components/CreateTimerForm';
 import EnhancedAnimationManager from '../components/animations/EnhancedAnimationManager';
-import TimerLimitIndicator from '../components/premium/TimerLimitIndicator';
-import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitIndicator';
+import TimerLimitIndicator from '@features/billing/components/TimerLimitIndicator';
+import RunningTimerLimitIndicator from '@features/billing/components/RunningTimerLimitIndicator';
 
 
 

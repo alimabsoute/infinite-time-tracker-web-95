@@ -1,19 +1,19 @@
 
-import Header from '../components/Header';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Header from '@shared/components/Header';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs';
 import { User, Settings as SettingsIcon, Activity, Shield, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@shared/components/ui/button';
+import { supabase } from '@shared/lib/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
-import EmailChangeForm from '../components/profile/EmailChangeForm';
-import PasswordChangeForm from '../components/profile/PasswordChangeForm';
-import SubscriptionStatusCard from '../components/profile/SubscriptionStatusCard';
-import AccountSecurityCard from '../components/profile/AccountSecurityCard';
-import ActivityOverviewCard from '../components/profile/ActivityOverviewCard';
-import DeleteAccountModal from '../components/profile/DeleteAccountModal';
-import NotificationSettings from '../components/notifications/NotificationSettings';
+import EmailChangeForm from '@features/settings/components/EmailChangeForm';
+import PasswordChangeForm from '@features/settings/components/PasswordChangeForm';
+import SubscriptionStatusCard from '@features/settings/components/SubscriptionStatusCard';
+import AccountSecurityCard from '@features/settings/components/AccountSecurityCard';
+import ActivityOverviewCard from '@features/settings/components/ActivityOverviewCard';
+import DeleteAccountModal from '@features/settings/components/DeleteAccountModal';
+import NotificationSettings from '@features/settings/components/NotificationSettings';
 
 const Settings = () => {
   const navigate = useNavigate();

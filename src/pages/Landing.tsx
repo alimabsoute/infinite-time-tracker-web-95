@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@features/auth/context/AuthContext";
 import LandingHeader from "@/components/landing/LandingHeader";
 import HeroSection from "@/components/landing/HeroSection";
 import AnalyticsPreviewSection from "@/components/landing/AnalyticsPreviewSection";

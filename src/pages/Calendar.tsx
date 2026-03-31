@@ -1,10 +1,10 @@
 
 import React from 'react';
 import Navigation from '../components/layout/Navigation';
-import CalendarContent from '../components/calendar/CalendarContent';
-import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
-import { supabase } from '@/integrations/supabase/client';
-import { PDFExportButton } from '@/components/ui/pdf-export-button';
+import CalendarContent from '@features/calendar/components/CalendarContent';
+import { useDeadSimpleTimers } from '@features/timer/hooks/useDeadSimpleTimers';
+import { supabase } from '@shared/lib/supabase/client';
+import { PDFExportButton } from '@shared/components/ui/pdf-export-button';
 
 const Calendar = () => {
   const { timers } = useDeadSimpleTimers();
