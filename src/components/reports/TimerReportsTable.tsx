@@ -1,7 +1,6 @@
 
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTimerReports } from '../../hooks/useTimerReports';
-import { format } from 'date-fns';
 import {
   Table,
   TableBody,

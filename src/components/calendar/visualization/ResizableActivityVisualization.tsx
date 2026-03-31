@@ -12,7 +12,6 @@ interface ResizableActivityVisualizationProps {
 }
 
 const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationProps> = ({
-  filteredTimers,
   sessions,
   formatTime
 }) => {
@@ -21,10 +20,10 @@ const ResizableActivityVisualization: React.FC<ResizableActivityVisualizationPro
   const [selectedTimer, setSelectedTimer] = useState<any | null>(null);
 
   // Get unique categories from sessions
-  const categories = ['all', ...new Set(
+  const categories: string[] = ['all', ...new Set(
     sessions
       .map(session => session.timers?.category)
-      .filter(Boolean)
+      .filter((c): c is string => Boolean(c))
       .sort()
   )];
 

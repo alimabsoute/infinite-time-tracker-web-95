@@ -1,5 +1,4 @@
 
-import React from "react";
 import { motion } from "framer-motion";
 import { Clock, Play, Pause, BarChart3 } from "lucide-react";
 

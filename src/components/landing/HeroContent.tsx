@@ -1,5 +1,4 @@
 
-import React from "react";
 import { motion } from "framer-motion";
 import HeroTitle from "./hero/HeroTitle";
 import HeroSubtitle from "./hero/HeroSubtitle";

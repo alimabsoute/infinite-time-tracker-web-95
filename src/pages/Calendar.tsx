@@ -80,16 +80,6 @@ const Calendar = () => {
   // Use only real sessions - no mock data
   const displaySessions = sessions;
 
-  // Memoize month sessions to prevent constant recalculation
-  const monthSessions = React.useMemo(() => {
-    return displaySessions.filter(s => {
-      const sessionDate = new Date(s.start_time);
-      return sessionDate.getMonth() === currentMonth.getMonth() && 
-             sessionDate.getFullYear() === currentMonth.getFullYear();
-    });
-  }, [displaySessions, currentMonth.getMonth(), currentMonth.getFullYear()]);
-
-
   // Memoize month change handler to prevent unnecessary re-renders
   const handleMonthChange = React.useCallback((direction: 'prev' | 'next') => {
     const newMonth = new Date(currentMonth);

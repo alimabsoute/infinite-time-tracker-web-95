@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 
 interface ProfileData {
-  last_login_at?: string;
+  last_login_at?: string | null;
 }
 
 const AccountSecurityCard: React.FC = () => {
@@ -41,7 +41,7 @@ const AccountSecurityCard: React.FC = () => {
     fetchProfileData();
   }, [user?.id]);
 
-  const formatDate = (dateString?: string) => {
+  const formatDate = (dateString?: string | null) => {
     if (!dateString) return 'Never';
     return format(new Date(dateString), 'MMM d, yyyy \'at\' h:mm a');
   };

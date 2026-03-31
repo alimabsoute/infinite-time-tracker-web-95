@@ -1,5 +1,4 @@
 
-import React from "react";
 import { motion } from "framer-motion";
 import { Play, Pause } from "lucide-react";
 import { getProcessedTimerColors } from "../../utils/timerColorProcessor";

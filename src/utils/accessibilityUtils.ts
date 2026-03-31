@@ -55,7 +55,7 @@ export const announceToScreenReader = (message: string, priority: 'polite' | 'as
 export const getContrastRatio = (color1: string, color2: string): number => {
   // Simplified contrast ratio calculation
   // In a real implementation, you'd want a more robust color parsing solution
-  const getLuminance = (color: string): number => {
+  const getLuminance = (_color: string): number => {
     // This is a simplified version - you'd want to parse actual color values
     return 0.5; // Placeholder
   };

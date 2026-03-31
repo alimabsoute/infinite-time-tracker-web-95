@@ -1,30 +1,9 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PhynxTimerLogo from "../PhynxTimerLogo";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-
 const LandingHeader = () => {
-  const { signInWithGoogle } = useAuth();
-
-  const handleUpgradeClick = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke("create-checkout");
-      if (error) {
-        console.error("Error creating checkout session:", error);
-        return;
-      }
-      if (data.success && data.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-    }
-  };
-
   return (
     <motion.header 
       className="bg-background/95 backdrop-blur-sm sticky top-0 z-50 w-full border-b border-border/10 shadow-sm"

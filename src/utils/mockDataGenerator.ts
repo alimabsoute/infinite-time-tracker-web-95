@@ -1,5 +1,4 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Timer, TimerSession } from '../types';
 
 interface MockTimerData {
   name: string;

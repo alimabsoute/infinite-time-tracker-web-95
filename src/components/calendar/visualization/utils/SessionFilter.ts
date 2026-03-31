@@ -7,11 +7,6 @@ export const filterSessionsInDateRange = (
   startDate: Date,
   endDate: Date
 ): TimerSessionWithTimer[] => {
-    totalSessions: sessions.length,
-    startDate: startDate.toISOString(),
-    endDate: endDate.toISOString()
-  });
-
   if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
     return [];
   }

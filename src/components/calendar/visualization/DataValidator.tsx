@@ -22,7 +22,6 @@ class DataValidator {
   static validateSessionsForDateRange(sessions: TimerSessionWithTimer[], startDate: Date, endDate: Date): ValidationResult {
     const errors: string[] = [];
 
-
     // Basic validation
     if (!sessions || !Array.isArray(sessions)) {
       errors.push('Sessions is not a valid array');
@@ -144,12 +143,6 @@ class DataValidator {
 
     const timerGroupsCount = Object.keys(timerGroups).length;
     const hasValidData = validSessionsCount > 0 && timerGroupsCount > 0;
-
-      hasValidData,
-      validSessionsCount,
-      timerGroupsCount,
-      errors: errors.length
-    });
 
     return {
       hasValidData,

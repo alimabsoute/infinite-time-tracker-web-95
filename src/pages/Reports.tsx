@@ -1,5 +1,4 @@
 
-import React from 'react';
 import PageLayout from '../components/layout/PageLayout';
 import TimerReportsTable from '../components/reports/TimerReportsTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

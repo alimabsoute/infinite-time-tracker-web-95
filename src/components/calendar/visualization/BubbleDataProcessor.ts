@@ -248,22 +248,10 @@ export const useBubbleDataProcessor = ({
         }
       }).filter((bubble): bubble is BubbleData => bubble !== null);
 
-      const processingTime = performance.now() - startTime;
-
       return bubbles;
 
     } catch (error) {
-      const processingTime = performance.now() - startTime;
-      console.error('BubbleDataProcessor - Critical processing error:', {
-        error: error.message,
-        stack: error.stack,
-        processingTime: `${processingTime.toFixed(2)}ms`,
-        inputs: {
-          sessionsCount: sessions?.length,
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString()
-        }
-      });
+      console.error('BubbleDataProcessor - Critical processing error:', error);
       onError?.(error as Error);
       return [];
     }

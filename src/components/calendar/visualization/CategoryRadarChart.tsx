@@ -9,7 +9,7 @@ interface CategoryRadarChartProps {
 }
 
 const CategoryRadarChart: React.FC<CategoryRadarChartProps> = ({ sessions, selectedCategory }) => {
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [_hoveredCategory, _setHoveredCategory] = useState<string | null>(null);
 
   const radarData = useMemo(() => {
     const filteredSessions = sessions.filter(session => 

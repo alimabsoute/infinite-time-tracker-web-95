@@ -71,30 +71,30 @@ export const useTimerSessions = () => {
 
       // Create virtual sessions for running timers with real-time duration
       if (runningTimers && runningTimers.length > 0) {
-        const virtualSessions: TimerSessionWithTimer[] = runningTimers.map(timer => {
+        const virtualSessions: TimerSessionWithTimer[] = runningTimers.map((timer: { id: string; name: string; category?: string; start_time?: string; created_at?: string; elapsed_time?: number }) => {
           const now = new Date();
           // Use timer's start_time if available, fallback to created_at
           const timerStartTime = timer.start_time ? new Date(timer.start_time) : new Date(timer.created_at || now);
-          
+
           // Calculate real-time duration: base elapsed_time + time since last start
           const baseElapsedTime = timer.elapsed_time || 0;
           const timeSinceStart = now.getTime() - timerStartTime.getTime();
           const realTimeDuration = Math.max(baseElapsedTime + timeSinceStart, timeSinceStart);
 
           return {
-            id: `virtual-${timer.id}`, // Unique ID for virtual session
+            id: `virtual-${timer.id}`,
             timer_id: timer.id,
             user_id: user.id,
             start_time: timerStartTime.toISOString(),
-            end_time: null, // Running timer has no end time
-            duration_ms: realTimeDuration, // Use calculated real-time duration
+            end_time: undefined,
+            duration_ms: realTimeDuration,
             created_at: timerStartTime.toISOString(),
             timers: {
               id: timer.id,
               name: timer.name,
               category: timer.category || 'Uncategorized'
             }
-          } as TimerSessionWithTimer;
+          } satisfies TimerSessionWithTimer;
         });
 
         // Add virtual sessions to the beginning of the array

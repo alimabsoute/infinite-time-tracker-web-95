@@ -1,5 +1,4 @@
 
-import React from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 
@@ -9,7 +8,7 @@ const RealisticCalendarView = () => {
     "July", "August", "September", "October", "November", "December"];
   
   // Sample activity data for the calendar
-  const activityData = {
+  const activityData: Record<number, { hours: number; intensity: string }> = {
     5: { hours: 4.5, intensity: 'high' },
     8: { hours: 6.2, intensity: 'high' },
     12: { hours: 3.1, intensity: 'medium' },

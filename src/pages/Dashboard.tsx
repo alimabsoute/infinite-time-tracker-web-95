@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PageLayout from '../components/layout/PageLayout';
 import { useDeadSimpleTimers } from '../hooks/useDeadSimpleTimers';
-import { useAuth } from '../contexts/AuthContext';
 import TimerList from '../components/TimerList';
 import CreateTimerForm from '../components/CreateTimerForm';
 import EnhancedAnimationManager from '../components/animations/EnhancedAnimationManager';
@@ -13,7 +12,6 @@ import RunningTimerLimitIndicator from '../components/premium/RunningTimerLimitI
 
 const Dashboard = () => {
   
-  const { user } = useAuth();
   const { 
     timers, 
     toggleTimer, 
@@ -25,13 +23,12 @@ const Dashboard = () => {
     updatePriority,
     reorderTimers,
     getDisplayTime,
-    loading,
     confettiTrigger,
     celebrationTrigger,
     clearConfettiTrigger,
     clearCelebrationTrigger
   } = useDeadSimpleTimers();
-  const [newTimerId, setNewTimerId] = useState<string | null>(null);
+  const [newTimerId] = useState<string | null>(null);
 
   const handleCreateTimer = async (name: string, position?: { x: number; y: number }) => {
     await addTimer(name, position);

@@ -24,7 +24,7 @@ export const useNotifications = () => {
     milestoneNotifications: true,
     milestoneInterval: 60, // 60 minutes default
   });
-  const [timerNotificationData, setTimerNotificationData] = useState<Map<string, TimerNotificationData>>(new Map());
+  const [_timerNotificationData, setTimerNotificationData] = useState<Map<string, TimerNotificationData>>(new Map());
 
   // Check if notifications are supported
   const isNotificationSupported = 'Notification' in window;

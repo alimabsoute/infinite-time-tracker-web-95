@@ -20,18 +20,6 @@ export const useDateRangeProcessor = ({
   onError
 }: UseDateRangeProcessorProps): ProcessedData[] => {
   return useMemo(() => {
-      totalSessions: sessions.length,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      sampleSessions: sessions.slice(0, 3).map(s => ({
-        id: s.id,
-        timer_id: s.timer_id,
-        duration_ms: s.duration_ms,
-        timer_name: s.timers?.name,
-        isVirtual: s.id.startsWith('virtual-')
-      }))
-    });
-    
     try {
       // Filter sessions within the date range
       const filteredSessions = filterSessionsInDateRange(sessions, startDate, endDate);

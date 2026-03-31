@@ -15,13 +15,6 @@ import VisualizationErrorBoundary from './visualization/VisualizationErrorBounda
 import VisualizationContainer from './visualization/VisualizationContainer';
 import { useToast } from '@/hooks/use-toast';
 
-interface WeekData {
-  date: Date;
-  day: string;
-  totalHours: number;
-  timers: number;
-}
-
 interface WeekViewProps {
   selectedDate: Date;
   sessions: TimerSessionWithTimer[];
@@ -94,7 +87,7 @@ const WeekView: React.FC<WeekViewProps> = ({ selectedDate, sessions, setSelected
   };
 
   // Handle bubble click for visualization
-  const handleBubbleClick = (bubble: any) => {
+  const handleBubbleClick = (_bubble: any) => {
   };
 
   // Handle date range changes for visualization only

@@ -13,12 +13,6 @@ interface BubbleProps {
 
 const AnimatedBubble: React.FC<BubbleProps> = ({ position, size, color, timer, onClick }) => {
   const meshRef = useRef<THREE.Mesh>(null);
-  
-    position,
-    size,
-    color,
-    timerName: timer?.name || 'Unknown'
-  });
 
   useFrame((state) => {
     if (meshRef.current && position && typeof position[0] === 'number') {

@@ -1,10 +1,5 @@
 
-import React from 'react';
 import { Timer } from '../../types';
-
-interface TimerDashboardStatsProps {
-  timers: Timer[];
-}
 
 export const getTimerDashboardStats = (timers: Timer[]) => {
   const runningTimersCount = timers.filter(timer => timer.isRunning).length;

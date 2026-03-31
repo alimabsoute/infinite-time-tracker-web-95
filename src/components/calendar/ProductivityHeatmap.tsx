@@ -2,9 +2,8 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Timer } from "../../types";
-import { format, startOfWeek, addDays, subWeeks, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { format, addDays, subWeeks, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { Calendar, TrendingUp, Clock, Target } from 'lucide-react';
 
 interface ProductivityHeatmapProps {

@@ -1,5 +1,5 @@
 
-import { startOfMonth, endOfMonth, startOfWeek, addMonths, subMonths, eachWeekOfInterval } from 'date-fns';
+import { startOfMonth, endOfMonth, subMonths, eachWeekOfInterval } from 'date-fns';
 import { TimerSessionWithTimer } from "../../types";
 import { getSessionsForDateRange } from "./CalendarUtils";
 

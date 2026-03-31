@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Timer, TimerSessionWithTimer } from '../../types';
 import { getTotalTimeForDate, formatTime } from './CalendarUtils';
-import { Clock, Target, TrendingUp, Calendar as CalendarIcon } from 'lucide-react';
+import { Clock, Target, Calendar as CalendarIcon } from 'lucide-react';
 
 interface MonthlySummaryCardProps {
   currentMonth: Date;

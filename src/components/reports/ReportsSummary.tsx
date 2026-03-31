@@ -2,7 +2,7 @@
 import React from 'react';
 import { TimerReportData } from '../../types/index';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, Play, Pause, Calendar, Trash2, Crown } from 'lucide-react';
+import { Clock, Play, Pause, Calendar, Trash2 } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import PremiumFeatureGate from '../premium/PremiumFeatureGate';
 import PremiumBadge from '../premium/PremiumBadge';

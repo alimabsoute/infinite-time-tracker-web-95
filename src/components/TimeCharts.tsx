@@ -156,7 +156,7 @@ const TimeCharts: React.FC<TimeChartsProps> = ({ timers }) => {
                   fill="#8884d8"
                   label
                 >
-                  {categoryDistribution.map((entry, index) => (
+                  {categoryDistribution.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

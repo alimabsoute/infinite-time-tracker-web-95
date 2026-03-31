@@ -1,6 +1,5 @@
 
 import React, { useEffect } from "react";
-import { motion } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/components/ui/carousel";
 import { FadeInWhenVisible } from "./Animation";
 import { screenshots } from "./carousel/ScreenshotData";

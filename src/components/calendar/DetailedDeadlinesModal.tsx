@@ -8,8 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertTriangle, Clock, Calendar as CalendarIcon, Filter } from 'lucide-react';
+import { AlertTriangle, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { Timer } from '../../types';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';

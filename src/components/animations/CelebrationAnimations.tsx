@@ -157,7 +157,7 @@ const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({ type, onC
             // OPTIMIZED: Simplified trail system for better performance
             if (newParticle.trail && newParticle.trail.length > 0) {
               newParticle.trail = newParticle.trail.slice(-4); // Keep only last 4 trail points
-              newParticle.trail = newParticle.trail.map((t, index) => ({
+              newParticle.trail = newParticle.trail.map((t, _index) => ({
                 ...t,
                 opacity: t.opacity * 0.7 // Faster trail fade
               }));

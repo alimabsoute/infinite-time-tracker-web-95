@@ -57,8 +57,6 @@ function layoutRow(
   width: number, 
   height: number
 ): TreemapNodeData[] {
-  const sum = row.reduce((acc, node) => acc + node.area, 0);
-  
   // Determine if we're laying out horizontally or vertically based on container shape
   const useHorizontalLayout = width >= height;
   
@@ -199,11 +197,6 @@ function calculateLayout(
     width: containerWidth,
     height: containerHeight
   });
-
-  // Validation: Check total area coverage
-  const totalCalculatedArea = result.reduce((sum, rect) => sum + (rect.width * rect.height), 0);
-  const coverage = (totalCalculatedArea / containerArea) * 100;
-
 
   return result;
 }

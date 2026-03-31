@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
+import { startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
 import { motion } from "framer-motion";
 import { Timer, TimerSessionWithTimer } from "../../types";
 import { getTotalTimeForDate, getSessionsForDate } from "./CalendarUtils";

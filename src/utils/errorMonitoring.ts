@@ -61,7 +61,7 @@ class ErrorMonitoringService {
     });
 
     // WebGL context lost handler
-    document.addEventListener('webglcontextlost', (event) => {
+    document.addEventListener('webglcontextlost', (_event) => {
       this.captureError(new Error('WebGL context lost'), {
         component: 'webgl',
         action: 'context_lost',
@@ -129,7 +129,7 @@ class ErrorMonitoringService {
     return 'unknown';
   }
 
-  private categorizeErrorSeverity(error: Error, context: ErrorContext): ErrorLog['severity'] {
+  private categorizeErrorSeverity(error: Error, _context: ErrorContext): ErrorLog['severity'] {
     const category = this.categorizeError(error);
     
     // High severity for 3D and rendering errors

@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { isSameDay, format } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid, LineChart, Line } from 'recharts';
-import { motion } from 'framer-motion';
 import { WeeklyChartTooltip, getChartConfig } from './WeeklyChartConfig';
 
 interface WeekData {
@@ -26,37 +24,12 @@ interface WeeklyChartProps {
 const WeeklyChart: React.FC<WeeklyChartProps> = ({
   weekData,
   chartType,
-  selectedDate,
   averageHours,
-  hoveredDay,
   onHoverDay,
   onBarClick,
   formatTime
 }) => {
   const config = getChartConfig(averageHours);
-
-  // Enhanced debug logging with data validation
-    weekDataLength: weekData.length,
-    averageHours: averageHours.toFixed(4),
-    chartType,
-    selectedDate: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : 'none',
-    weekData: weekData.map(d => ({
-      day: d.day,
-      date: format(d.date, 'yyyy-MM-dd'),
-      totalHours: d.totalHours.toFixed(4),
-      totalMinutes: Math.round(d.totalHours * 60),
-      timers: d.timers,
-      hasData: d.totalHours > 0,
-      isValidDate: d.date instanceof Date && !isNaN(d.date.getTime())
-    })),
-    dataValidation: {
-      allDatesValid: weekData.every(d => d.date instanceof Date && !isNaN(d.date.getTime())),
-      allHoursNumbers: weekData.every(d => typeof d.totalHours === 'number' && !isNaN(d.totalHours)),
-      hasAnyData: weekData.some(d => d.totalHours > 0),
-      maxHours: Math.max(...weekData.map(d => d.totalHours), 0),
-      totalWeekHours: weekData.reduce((sum, d) => sum + d.totalHours, 0)
-    }
-  });
 
   // Validate data before rendering
   const hasValidData = weekData.length > 0 && weekData.every(d => 
@@ -97,20 +70,11 @@ const WeeklyChart: React.FC<WeeklyChartProps> = ({
   const handleChartClick = (data: any) => {
     if (data?.activePayload?.[0]?.payload) {
       const payload = data.activePayload[0].payload;
-        date: payload.date,
-        day: payload.day,
-        totalHours: payload.totalHours,
-        timers: payload.timers
-      });
       onBarClick(payload);
     }
   };
 
   const handleBarMouseEnter = (data: any) => {
-      date: data?.date,
-      day: data?.day,
-      totalHours: data?.totalHours
-    });
     if (data?.date) {
       onHoverDay(data.date);
     }

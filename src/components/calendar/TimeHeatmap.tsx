@@ -79,7 +79,7 @@ const TimeHeatmap: React.FC<TimeHeatmapProps> = ({ sessions, formatTime }) => {
     i % 2 === 0 ? `${i}:00` : ''
   );
 
-  const cellStyle = (hour: number, day: number, value: number) => {
+  const cellStyle = (_hour: number, _day: number, value: number) => {
     const intensity = value / maxValue;
     const opacity = Math.max(0.1, intensity);
     

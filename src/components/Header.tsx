@@ -1,14 +1,12 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  Calendar, 
-  Table, 
-  Crown, 
-  BarChart3, 
-  Activity, 
-  Play,
-  User,
+import {
+  Calendar,
+  Table,
+  Crown,
+  BarChart3,
+  Activity,
   LogOut,
   Settings
 } from "lucide-react";
@@ -31,10 +29,7 @@ const Header = () => {
 
   const navigationItems = [
     { path: '/dashboard', label: 'Timers', icon: BarChart3 },
-    { path: '/active-timers', label: 'Active Timers', icon: Play },
-    { path: '/insights', label: 'Insights', icon: BarChart3 },
-    { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-    { path: '/advanced-analytics', label: 'Advanced Analytics', icon: Activity },
+    { path: '/analytics', label: 'Analytics', icon: Activity },
     { path: '/calendar', label: 'Calendar', icon: Calendar },
     { path: '/reports', label: 'Reports', icon: Table },
   ];
@@ -136,12 +131,6 @@ const Header = () => {
                     </p>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/profile" className="cursor-pointer">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/settings" className="cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" />

@@ -11,7 +11,6 @@ interface TimerCardContainerProps {
 const TimerCardContainer: React.FC<TimerCardContainerProps> = ({
   name,
   category,
-  timerId,
   children
 }) => {
   const containerStyle: React.CSSProperties = {

@@ -25,16 +25,6 @@ interface BubbleMetricsProps {
 
 export const useBubbleMetrics = ({ sessions, selectedCategory }: BubbleMetricsProps): BubbleMetric[] => {
   return React.useMemo(() => {
-      totalSessions: sessions.length,
-      selectedCategory,
-      sampleSession: sessions[0] ? {
-        id: sessions[0].id,
-        timer_id: sessions[0].timer_id,
-        duration_ms: sessions[0].duration_ms,
-        timers: sessions[0].timers
-      } : null
-    });
-
     const filteredSessions = sessions.filter(session => {
       const hasValidData = session.duration_ms && session.duration_ms > 0 && session.timers;
       const categoryMatch = !selectedCategory || selectedCategory === 'all' || session.timers?.category === selectedCategory;
@@ -81,12 +71,6 @@ export const useBubbleMetrics = ({ sessions, selectedCategory }: BubbleMetricsPr
     const maxTotalTime = Math.max(...timerMetrics.map(t => t.totalTime));
     const maxSessionCount = Math.max(...timerMetrics.map(t => t.sessionCount));
     const maxAvgTime = Math.max(...timerMetrics.map(t => t.avgSessionTime));
-
-      maxTotalTime,
-      maxSessionCount,
-      maxAvgTime,
-      timerCount: timerMetrics.length
-    });
 
     const bubbles = timerMetrics.map((timer, index) => {
       // Ensure positions are within reasonable bounds

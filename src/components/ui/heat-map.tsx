@@ -22,7 +22,6 @@ export const HeatMapGrid: React.FC<HeatMapGridProps> = ({
   cellWidth = '30px',
   cellRadius = 4,
   xLabelsPos = 'top',
-  yLabelsPos = 'left',
   cellStyle = () => ({}),
   cellRender = (_, __, value) => value
 }) => {

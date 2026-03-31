@@ -1,15 +1,11 @@
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  Timer, 
-  BarChart3, 
-  Calendar, 
-  FileText, 
-  User,
+import {
+  Timer,
+  Calendar,
+  FileText,
   LogOut,
   Settings,
   TrendingUp,
-  Activity,
   Crown
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -32,11 +28,7 @@ const Navigation = () => {
 
   const navigationItems = [
     { path: '/dashboard', label: 'Timers', icon: Timer },
-    // REMOVED: Active Timers tab to simplify timer state management
-    // { path: '/active-timers', label: 'Active Timers', icon: Play },
-    { path: '/insights', label: 'Insights', icon: BarChart3 },
     { path: '/analytics', label: 'Analytics', icon: TrendingUp },
-    { path: '/advanced-analytics', label: 'Advanced Analytics', icon: Activity },
     { path: '/calendar', label: 'Calendar', icon: Calendar },
     { path: '/reports', label: 'Reports', icon: FileText },
   ];
@@ -136,12 +128,6 @@ const Navigation = () => {
                   </p>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/profile" className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/settings" className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />

@@ -3,7 +3,6 @@ import React, { useMemo } from 'react';
 import { TimerSessionWithTimer } from '../../../types';
 import { processBubbleData } from './BubbleDataProcessor';
 import { BubbleChart } from './BubbleChart';
-import { BubbleLegend } from './BubbleLegend';
 
 interface Enhanced2DBubbleChartProps {
   sessions: TimerSessionWithTimer[];

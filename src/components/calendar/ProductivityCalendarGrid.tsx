@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek } from 'date-fns';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Timer, TimerSessionWithTimer } from '../../types';
 import { getTotalTimeForDate, getSessionsForDate, formatTime, getTimersWithDeadlinesForDate, formatDeadlineDisplay, getDeadlineUrgencyLevel, getDeadlinePriorityColor } from './CalendarUtils';
 import { getCategoryColor } from './visualization/utils/ColorUtils';
-import { motion } from 'framer-motion';
 
 interface ProductivityCalendarGridProps {
   currentMonth: Date;
@@ -100,7 +99,7 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
           ))}
           
           {/* Calendar days - simplified animations for performance */}
-          {calendarDays.map((day, index) => (
+          {calendarDays.map((day, _index) => (
             <div
               key={`${day.date.getDate()}-${day.date.getMonth()}`}
               className={`
@@ -125,7 +124,7 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
               {day.deadlineCount > 0 && (
                 <div className="absolute top-6 left-1 right-1">
                   <div className="flex flex-wrap gap-1 mb-1">
-                    {day.deadlineTimers.slice(0, 2).map((timer, i) => (
+                    {day.deadlineTimers.slice(0, 2).map((timer, _i) => (
                       <div
                         key={timer.id}
                         className={`
@@ -154,7 +153,7 @@ const ProductivityCalendarGrid: React.FC<ProductivityCalendarGridProps> = ({
                 <div className={`absolute ${day.deadlineCount > 0 ? 'top-12' : 'top-6'} right-1`}>
                   {/* Category dots */}
                   <div className="flex justify-end gap-1 mb-1">
-                    {day.categories.slice(0, 3).map(([category], i) => (
+                    {day.categories.slice(0, 3).map(([category], _i) => (
                       <div
                         key={category}
                         className="w-2.5 h-2.5 rounded-full border border-white/50"

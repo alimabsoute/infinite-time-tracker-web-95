@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ChevronDown, ChevronRight, Search, Calendar, Users, BarChart3, Smartphone, Zap, Palette } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Search, Users, BarChart3, Smartphone, Zap, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";

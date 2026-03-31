@@ -24,13 +24,8 @@ const CalendarContent: React.FC<CalendarContentProps> = ({
   handleMonthChange,
   selectedDate,
   setSelectedDate,
-  setCurrentMonth,
   timers,
   sessions,
-  sessionsLoading,
-  categoryFilter,
-  setCategoryFilter,
-  categories,
 }) => {
   return (
     <motion.div

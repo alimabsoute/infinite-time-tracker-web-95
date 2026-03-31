@@ -18,7 +18,7 @@ const EnhancedAnimationManager: React.FC<EnhancedAnimationManagerProps> = ({
   onConfettiComplete,
   onCelebrationComplete,
 }) => {
-  const [activeAnimations, setActiveAnimations] = useState<Set<string>>(new Set());
+  const [_activeAnimations, setActiveAnimations] = useState<Set<string>>(new Set());
   const animationTimeoutRef = useRef<NodeJS.Timeout>();
 
   const handleConfettiComplete = useCallback(() => {

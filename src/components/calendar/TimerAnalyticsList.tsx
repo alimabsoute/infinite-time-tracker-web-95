@@ -4,7 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Timer, TimerSessionWithTimer } from '../../types';
 import { formatTime } from './CalendarUtils';
-import { BarChart3, TrendingUp, Clock } from 'lucide-react';
+import { BarChart3, Clock } from 'lucide-react';
 import { getCategoryColor } from './visualization/utils/ColorUtils';
 
 interface TimerAnalyticsListProps {

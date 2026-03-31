@@ -1,5 +1,5 @@
 import React from 'react';
-import { isPast, isToday, format } from 'date-fns';
+import { isPast, isToday } from 'date-fns';
 import { Timer, TimerSessionWithTimer } from "../../types";
 import DayViewHeader from './DayViewHeader';
 import DeadlinesList from './DeadlinesList';

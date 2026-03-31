@@ -1,12 +1,11 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Timer } from "../../types";
 import { Target, Clock, Brain, Zap, TrendingUp } from 'lucide-react';
-import { format, startOfWeek, addDays, differenceInMinutes } from 'date-fns';
+import { format, startOfWeek, addDays } from 'date-fns';
 
 interface FocusAnalyticsProps {
   timers: Timer[];

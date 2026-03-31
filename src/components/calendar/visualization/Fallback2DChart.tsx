@@ -21,7 +21,7 @@ const Fallback2DChart: React.FC<Fallback2DChartProps> = ({
   onBubbleClick,
   onError
 }) => {
-  const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
+  const [_hoveredPoint, _setHoveredPoint] = useState<string | null>(null);
 
   // Use the date range data processor
   const processedData = useDateRangeDataProcessor({

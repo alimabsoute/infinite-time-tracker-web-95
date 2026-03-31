@@ -16,11 +16,9 @@ interface VisualizationSidebarContentProps {
 }
 
 const VisualizationSidebarContent: React.FC<VisualizationSidebarContentProps> = ({
-  sessions,
   categories,
   selectedCategory,
   setSelectedCategory,
-  formatTime,
   selectedTimer
 }) => {
 

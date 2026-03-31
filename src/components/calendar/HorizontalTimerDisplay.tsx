@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Timer, TimerSessionWithTimer } from "../../types";
+import { TimerSessionWithTimer } from "../../types";
 import { Clock, PlayCircle, Calendar, TimerIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { cn } from "@/lib/utils";

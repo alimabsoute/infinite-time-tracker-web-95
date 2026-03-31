@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { format, addDays, addWeeks, subWeeks, startOfWeek } from 'date-fns';
+import { format, addDays, startOfWeek } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Calendar, TrendingUp } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";

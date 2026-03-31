@@ -1,21 +1,10 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import HeroEmailCapture from "@/components/newsletter/HeroEmailCapture";
 
 const HeroMainContent = () => {
-  const { signInWithGoogle } = useAuth();
-
-  const handleGoogleSignIn = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      // Error is handled in the AuthContext
-    }
-  };
 
   return (
     <div className="max-w-6xl w-full">

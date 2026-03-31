@@ -36,8 +36,6 @@ const TreemapNode: React.FC<TreemapNodeProps> = ({
 
   // Calculate display values
   const totalHours = (node.value / (1000 * 60 * 60)).toFixed(1);
-  const avgSessionTime = node.sessions > 0 ? (node.value / node.sessions / (1000 * 60)).toFixed(0) : '0';
-
   return (
     <motion.g
       initial={{ opacity: 0, scale: 0.8 }}

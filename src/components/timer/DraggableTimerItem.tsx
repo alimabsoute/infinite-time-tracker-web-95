@@ -28,15 +28,14 @@ const DraggableTimerItem = ({
   onUpdateDeadline,
   onUpdatePriority,
   calculateSessionElapsedTime,
-  newTimerId,
 }: DraggableTimerItemProps) => {
   const [animationState, setAnimationState] = useState<{
     type: 'deletion' | null;
     animationType?: DeletionAnimationType;
   }>({ type: null });
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [_isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (_id: string) => {
     setIsDeleting(true);
     setAnimationState({ type: 'deletion' });
   };

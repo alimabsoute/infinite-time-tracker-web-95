@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 import { format, subDays, startOfWeek, addDays, subWeeks } from 'date-fns';
 import { Timer } from "../../types";
-import { TrendingUp, Clock, Calendar, Target } from 'lucide-react';
+import { TrendingUp, Clock, Calendar } from 'lucide-react';
 
 interface TrendAnalysisProps {
   timers: Timer[];
   formatTime: (ms: number) => string;
 }
 
-const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ timers, formatTime }) => {
+const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ timers }) => {
   // Generate 30-day trend data
   const generateTrendData = () => {
     const now = new Date();

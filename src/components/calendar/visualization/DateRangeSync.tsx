@@ -22,7 +22,6 @@ export const DateRangeSync: React.FC<DateRangeSyncProps> = ({
   visualizationEndDate,
   weeklyActivityDate,
   onVisualizationDateChange,
-  onWeeklyActivityDateChange,
   onSyncDates
 }) => {
   const { toast } = useToast();

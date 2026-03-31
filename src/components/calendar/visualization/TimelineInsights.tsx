@@ -4,7 +4,7 @@ import { TimerSessionWithTimer } from '../../../types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Calendar, Clock, Zap } from 'lucide-react';
-import { format, parseISO, differenceInDays, isWeekend } from 'date-fns';
+import { format, parseISO, isWeekend } from 'date-fns';
 
 interface TimelineInsightsProps {
   sessions: TimerSessionWithTimer[];

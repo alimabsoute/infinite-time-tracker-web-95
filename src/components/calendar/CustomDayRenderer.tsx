@@ -60,7 +60,7 @@ export const renderDay = (
       };
     }, [deadlineTimers]);
 
-    const { overdueDeadlines, todayDeadlines, hasDeadlines, hasOverdueDeadlines, hasTodayDeadlines } = deadlineAnalysis;
+    const { hasDeadlines, hasOverdueDeadlines, hasTodayDeadlines } = deadlineAnalysis;
     const hasTimerSessions = daySessions.length > 0;
     
     // Check if this day is selected

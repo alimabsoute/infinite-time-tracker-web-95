@@ -1,5 +1,4 @@
 
-import React from "react";
 import { motion } from "framer-motion";
 import { CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 

@@ -1,6 +1,5 @@
 
 import { format } from 'date-fns';
-import { Timer } from "../../types";
 
 export interface WeeklyChartTooltipProps {
   active?: boolean;

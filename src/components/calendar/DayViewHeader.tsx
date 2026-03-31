@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { format, isToday, isTomorrow, isYesterday, isPast } from 'date-fns';
+import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
 import { Calendar as CalendarIcon, Clock, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 

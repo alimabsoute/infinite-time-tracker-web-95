@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { format, isThisWeek, addDays, isToday, isTomorrow } from 'date-fns';
-import { AlertTriangle, ArrowRight, Clock } from 'lucide-react';
+import { addDays } from 'date-fns';
+import { AlertTriangle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Timer } from '../../types';
 import { motion } from 'framer-motion';

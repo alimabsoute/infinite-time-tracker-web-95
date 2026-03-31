@@ -8,7 +8,7 @@ export interface ProcessedTimerColors {
   shadowColor: string;
 }
 
-export const processTimerColor = (rawColor: string, timerId: string): ProcessedTimerColors => {
+export const processTimerColor = (rawColor: string, _timerId: string): ProcessedTimerColors => {
   
   // Validate and process the color
   let processedColor = rawColor;

@@ -17,7 +17,6 @@ interface DailyDetailsPanelProps {
 const DailyDetailsPanel: React.FC<DailyDetailsPanelProps> = ({
   selectedDate,
   sessions,
-  timers
 }) => {
   const dailyData = useMemo(() => {
     if (!selectedDate) return null;

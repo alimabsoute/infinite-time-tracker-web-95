@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -10,13 +10,13 @@ interface DbTimerRecord {
   elapsed_time: number;
   is_running: boolean;
   created_at: string;
-  deleted_at?: string;
-  deleted_by?: string;
-  category?: string;
-  tags?: string[];
-  deadline?: string;
-  priority?: number;
-  start_time?: string; // Add start_time field for running timers
+  deleted_at?: string | null;
+  deleted_by?: string | null;
+  category?: string | null;
+  tags?: string[] | null;
+  deadline?: string | null;
+  priority?: number | null;
+  start_time?: string | null;
 }
 
 export const useTimerReports = () => {

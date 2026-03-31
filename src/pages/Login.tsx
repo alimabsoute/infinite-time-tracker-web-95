@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { useAuth } from '../contexts/AuthContext';
 import { Timer as TimerIcon } from 'lucide-react';
 import ErrorBoundaryAuth from '@/components/ErrorBoundaryAuth';

@@ -47,17 +47,7 @@ const FallbackBarChart: React.FC<FallbackBarChartProps> = ({
     return data;
   }, [processedData]);
 
-  const categoryColors: Record<string, string> = {
-    'Work': '#3b82f6',
-    'Personal': '#10b981',
-    'Study': '#f59e0b',
-    'Exercise': '#ef4444',
-    'Health': '#8b5cf6',
-    'Learning': '#06b6d4',
-    'Uncategorized': '#6b7280'
-  };
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

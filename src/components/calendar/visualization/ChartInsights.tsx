@@ -3,7 +3,7 @@ import React from 'react';
 import { TimerSessionWithTimer } from '../../../types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Clock, Target, Activity } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, Activity } from 'lucide-react';
 
 interface ChartInsightsProps {
   sessions: TimerSessionWithTimer[];
@@ -28,7 +28,6 @@ const ChartInsights: React.FC<ChartInsightsProps> = ({ sessions, selectedCategor
     // Calculate metrics
     const totalTime = filteredSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
     const avgSessionTime = totalTime / filteredSessions.length;
-    const longestSession = Math.max(...filteredSessions.map(s => s.duration_ms || 0));
     
     // Group by category
     const categoryStats: { [key: string]: { time: number; sessions: number } } = {};

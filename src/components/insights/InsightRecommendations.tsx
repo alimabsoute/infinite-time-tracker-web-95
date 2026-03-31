@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Lightbulb, TrendingUp, Clock, Target, Calendar } from 'lucide-react';
 import { Timer, TimerSessionWithTimer } from '../../types';
 import { Link } from 'react-router-dom';
-import { format, addDays, addHours } from 'date-fns';
+import { addHours } from 'date-fns';
 import CountdownTimer from './CountdownTimer';
 
 interface InsightRecommendationsProps {
@@ -17,8 +17,6 @@ interface InsightRecommendationsProps {
 
 const InsightRecommendations: React.FC<InsightRecommendationsProps> = ({
   insights,
-  timers,
-  sessions
 }) => {
   const generateRecommendations = () => {
     const recommendations = [];

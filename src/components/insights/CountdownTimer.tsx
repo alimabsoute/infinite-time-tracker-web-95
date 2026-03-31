@@ -18,7 +18,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
   onComplete,
   variant = 'default'
 }) => {
-  const { timeRemaining, formatTime, isExpired } = useCountdown({
+  const { formatTime, isExpired } = useCountdown({
     targetDate,
     onComplete
   });
@@ -43,15 +43,6 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
         return 'text-blue-600 bg-blue-50 border-blue-200';
     }
   };
-
-  const getUrgencyVariant = () => {
-    if (isExpired) return 'urgent';
-    if (timeRemaining.totalMs < 24 * 60 * 60 * 1000) return 'urgent'; // Less than 1 day
-    if (timeRemaining.totalMs < 3 * 24 * 60 * 60 * 1000) return 'warning'; // Less than 3 days
-    return 'default';
-  };
-
-  const actualVariant = variant === 'default' ? getUrgencyVariant() : variant;
 
   return (
     <div className={cn(

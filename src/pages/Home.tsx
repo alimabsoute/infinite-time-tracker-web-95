@@ -1,7 +1,7 @@
 
-import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import Landing from './Landing';
 
 const Home = () => {
   const { user, loading } = useAuth();
@@ -14,13 +14,11 @@ const Home = () => {
     );
   }
 
-  // If user is authenticated, redirect to dashboard instead of calendar
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Redirect unauthenticated users to landing page
-  return <Navigate to="/landing" replace />;
+  return <Landing />;
 };
 
 export default Home;

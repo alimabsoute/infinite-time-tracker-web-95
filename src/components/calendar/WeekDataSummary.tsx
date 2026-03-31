@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { format, addDays } from 'date-fns';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Timer, TrendingUp, TrendingDown } from 'lucide-react';
+import { Clock, Timer, TrendingUp } from 'lucide-react';
 import { TimerSessionWithTimer } from "../../types";
 import { getSessionsForDateRange } from "./CalendarUtils";
 

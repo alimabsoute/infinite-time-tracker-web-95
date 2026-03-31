@@ -36,7 +36,7 @@ const TimerBubbleChart2D: React.FC<TimerBubbleChart2DProps> = ({ sessions, selec
     });
 
     // Calculate metrics for each timer
-    return Object.entries(timerGroups).map(([timerId, timerSessions]) => {
+    return Object.entries(timerGroups).map(([_timerId, timerSessions]) => {
       const totalTime = timerSessions.reduce((sum, s) => sum + (s.duration_ms || 0), 0);
       const sessionCount = timerSessions.length;
       const avgSessionTime = totalTime / sessionCount;

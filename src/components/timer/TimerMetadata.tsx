@@ -1,5 +1,5 @@
 
-import { Clock, Calendar as CalendarIcon } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '../ui/button';
 import { Calendar } from '../ui/calendar';

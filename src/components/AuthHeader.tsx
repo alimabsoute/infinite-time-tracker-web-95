@@ -1,6 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { LogOut, User } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import {

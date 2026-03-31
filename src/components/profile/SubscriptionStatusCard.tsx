@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Crown, CreditCard, Calendar, Users, Timer } from 'lucide-react';
+import { Crown, CreditCard, Timer } from 'lucide-react';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTimers } from '@/hooks/useTimers';
 import PremiumBadge from '@/components/premium/PremiumBadge';

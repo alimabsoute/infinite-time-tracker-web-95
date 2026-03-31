@@ -1,5 +1,5 @@
-import { Timer, TimerSession, TimerSessionWithTimer } from "../../types";
-import { isSameDay, parseISO, isValid, format } from "date-fns";
+import { Timer, TimerSessionWithTimer } from "../../types";
+import { parseISO, isValid, format } from "date-fns";
 
 // Format time for display
 export const formatTime = (milliseconds: number): string => {

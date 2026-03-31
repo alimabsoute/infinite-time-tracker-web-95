@@ -6,7 +6,7 @@ import InsightCard from './InsightCard';
 import InsightRecommendations from './InsightRecommendations';
 import { Clock, TrendingUp, Target, Zap, Calendar, BarChart3, Timer as TimerIcon } from 'lucide-react';
 import { formatTime } from '../timer/TimerUtils';
-import { format, subDays, startOfWeek, endOfWeek, addDays, addHours } from 'date-fns';
+import { format, endOfWeek, addDays } from 'date-fns';
 
 interface QuickInsightsDashboardProps {
   timers: Timer[];

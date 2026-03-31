@@ -6,7 +6,7 @@ interface CreateTimerFormProps {
   currentTimerCount: number;
 }
 
-const CreateTimerForm = ({ onAddTimer, currentTimerCount }: CreateTimerFormProps) => {
+const CreateTimerForm = ({ onAddTimer }: CreateTimerFormProps) => {
   
   const handleAddTimer = (event: React.MouseEvent) => {
     

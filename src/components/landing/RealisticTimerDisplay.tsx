@@ -1,7 +1,6 @@
 
-import React from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, Square } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 
 const RealisticTimerDisplay = () => {
   const timers = [

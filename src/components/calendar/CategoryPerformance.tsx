@@ -74,7 +74,7 @@ const CategoryPerformance: React.FC<CategoryPerformanceProps> = ({ timers, forma
     fill: COLORS[index % COLORS.length]
   }));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
@@ -202,7 +202,7 @@ const CategoryPerformance: React.FC<CategoryPerformanceProps> = ({ timers, forma
           {/* Detailed Metrics Table */}
           <div className="space-y-3">
             <h4 className="font-medium">Performance Details</h4>
-            {categoryData.map((cat, index) => (
+            {categoryData.map((cat, _index) => (
               <div key={cat.category} className="grid grid-cols-5 gap-4 items-center p-3 bg-muted/30 rounded">
                 <div>
                   <div className="font-medium text-sm">{cat.category}</div>

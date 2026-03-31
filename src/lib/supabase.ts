@@ -1,7 +1,6 @@
 
 // This file is deprecated and kept for backward compatibility
 // Please use the official Supabase client from @/integrations/supabase/client.ts instead
-import { createClient } from '@supabase/supabase-js';
 import { supabase as officialClient } from '@/integrations/supabase/client';
 
 // Provide a warning when this module is imported

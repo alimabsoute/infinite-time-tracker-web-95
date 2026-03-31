@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { TimerSessionWithTimer } from '../../types';
-import { parseISO, isValid, format } from 'date-fns';
+import { parseISO, isValid } from 'date-fns';
 
 interface SessionDataValidatorProps {
   sessions: TimerSessionWithTimer[];
@@ -100,10 +100,6 @@ const SessionDataValidator: React.FC<SessionDataValidatorProps> = ({
       // If we get here, the session is valid
       validSessions.push(session);
       stats.validSessions++;
-    });
-
-      ...stats,
-      validationRate: `${((stats.validSessions / stats.totalSessions) * 100).toFixed(1)}%`
     });
 
     if (stats.errors.length > 0) {

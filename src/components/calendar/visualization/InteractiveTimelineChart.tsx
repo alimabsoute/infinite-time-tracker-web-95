@@ -15,10 +15,8 @@ interface InteractiveTimelineChartProps {
 }
 
 const InteractiveTimelineChart: React.FC<InteractiveTimelineChartProps> = ({ 
-  sessions, 
+  sessions,
   selectedCategory,
-  startDate,
-  endDate,
   onBubbleClick
 }) => {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
@@ -85,7 +83,7 @@ const InteractiveTimelineChart: React.FC<InteractiveTimelineChartProps> = ({
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [sessions, selectedCategory]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
@@ -191,7 +189,7 @@ const InteractiveTimelineChart: React.FC<InteractiveTimelineChartProps> = ({
             
             {/* Session List */}
             <div className="space-y-1 max-h-32 overflow-y-auto">
-              {selectedDayData.sessions.slice(0, 5).map((session, index) => (
+              {selectedDayData.sessions.slice(0, 5).map((session, _index) => (
                 <div key={session.id} className="flex justify-between items-center text-xs">
                   <span className="font-medium truncate">
                     {session.timers?.name || 'Unknown Timer'}

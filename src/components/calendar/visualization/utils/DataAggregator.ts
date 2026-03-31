@@ -10,9 +10,6 @@ export const aggregateTimerData = (
   endDate: Date,
   onError?: (error: Error) => void
 ): ProcessedData[] => {
-    groupCount: Object.keys(timerGroups).length
-  });
-
   const processedData: ProcessedData[] = Object.entries(timerGroups).map(([timerName, data], index) => {
     try {
       // Position calculation

@@ -1,7 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Timer as TimerType } from '../../types';
-import { formatTime } from './TimerUtils';
 import TimerCard from './TimerCard';
 
 interface TimerProps {

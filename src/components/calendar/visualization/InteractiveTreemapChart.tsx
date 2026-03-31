@@ -5,7 +5,7 @@ import { TimerSessionWithTimer } from '../../../types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TreemapNode from './TreemapNode';
 import TreemapTooltip from './TreemapTooltip';
-import { processTreemapData, TreemapData, TreemapNodeData } from './utils/TreemapDataProcessor';
+import { processTreemapData, TreemapNodeData } from './utils/TreemapDataProcessor';
 
 interface InteractiveTreemapChartProps {
   sessions: TimerSessionWithTimer[];

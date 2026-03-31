@@ -1,5 +1,4 @@
 
-import React from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -15,7 +14,7 @@ import Footer from "@/components/landing/Footer";
 import NewsletterModal from "@/components/newsletter/NewsletterModal";
 
 const LandingPage = () => {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return (

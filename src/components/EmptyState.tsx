@@ -3,7 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Timer, Play, Calendar, TrendingUp, Plus } from "lucide-react";
+import { Timer, Calendar, TrendingUp, Plus } from "lucide-react";
 
 interface EmptyStateProps {
   type: "timers" | "calendar" | "analytics";

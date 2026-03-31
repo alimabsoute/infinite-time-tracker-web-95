@@ -49,7 +49,7 @@ const OptimizationTips: React.FC<OptimizationTipsProps> = ({ sessions, selectedC
 
     // Category dominance analysis
     if (topCategory) {
-      const [categoryName, stats] = topCategory;
+      const [_categoryName, stats] = topCategory;
       const percentage = (stats.time / totalTime) * 100;
       
       if (percentage > 70) {
