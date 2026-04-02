@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TimerSessionWithTimer } from '../../../types';
+import { TimerSessionWithTimer } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/components/ui/tabs";
 import ChartInsights from './ChartInsights';
 import TimelineInsights from './TimelineInsights';

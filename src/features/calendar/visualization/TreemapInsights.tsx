@@ -1,5 +1,5 @@
 import React from 'react';
-import { TimerSessionWithTimer } from '../../../types';
+import { TimerSessionWithTimer } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from "@shared/components/ui/card";
 import { Badge } from "@shared/components/ui/badge";
 import { TreePine, PieChart, BarChart3, TrendingUp, Target } from 'lucide-react';

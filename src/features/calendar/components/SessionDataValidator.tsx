@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TimerSessionWithTimer } from '../../types';
+import { TimerSessionWithTimer } from '@/types';
 import { parseISO, isValid } from 'date-fns';
 
 interface SessionDataValidatorProps {

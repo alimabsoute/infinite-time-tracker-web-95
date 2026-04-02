@@ -9,7 +9,7 @@ import {
 import { Button } from '@shared/components/ui/button';
 import { Badge } from '@shared/components/ui/badge';
 import { AlertTriangle, Clock, Calendar as CalendarIcon } from 'lucide-react';
-import { Timer } from '../../types';
+import { Timer } from '@/types';
 import { cn } from '@shared/lib/utils';
 import { motion } from 'framer-motion';
 

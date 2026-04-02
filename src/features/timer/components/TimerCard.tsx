@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Timer as TimerType } from '../../types';
-import { getProcessedTimerColors } from '../../utils/timerColorProcessor';
+import { Timer as TimerType } from '@/types';
+import { getProcessedTimerColors } from '@/utils/timerColorProcessor';
 import TimerHeader from './TimerHeader';
 import TimerEditForm from './TimerEditForm';
 import TimerStatusIndicator from './TimerStatusIndicator';

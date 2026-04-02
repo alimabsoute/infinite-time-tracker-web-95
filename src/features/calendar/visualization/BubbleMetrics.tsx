@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TimerSessionWithTimer } from '../../../types';
+import { TimerSessionWithTimer } from '@/types';
 
 const PASTEL_COLORS_3D: { [key: string]: string } = {
   'Work': '#93C5FD',        // Light blue

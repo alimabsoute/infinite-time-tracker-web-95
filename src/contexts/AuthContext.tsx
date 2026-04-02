@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Only redirect to dashboard if coming from login/signup pages, not from landing page
           const currentPath = window.location.pathname;
           if (currentPath === '/login' || currentPath === '/signup') {
-            window.location.href = '/dashboard';
+            window.location.href = '/app/dashboard';
           }
         } else if (event === 'SIGNED_OUT') {
           toast.info('Signed out');
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email, 
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`
+          emailRedirectTo: `${window.location.origin}/app/dashboard`
         }
       });
       if (error) throw error;
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(true);
       
       // Use dynamic redirect URL to ensure it works in all environments
-      const redirectTo = `${window.location.origin}/dashboard`;
+      const redirectTo = `${window.location.origin}/app/dashboard`;
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

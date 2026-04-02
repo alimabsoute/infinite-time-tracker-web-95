@@ -1,5 +1,5 @@
 
-import { formatTime } from '../../utils/timerUtils';
+import { formatTime } from '@/utils/timerUtils';
 
 interface TimerDisplayProps {
   currentTime: number;

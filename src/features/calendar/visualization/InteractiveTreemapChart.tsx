@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TimerSessionWithTimer } from '../../../types';
+import { TimerSessionWithTimer } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from "@shared/components/ui/card";
 import TreemapNode from './TreemapNode';
 import TreemapTooltip from './TreemapTooltip';

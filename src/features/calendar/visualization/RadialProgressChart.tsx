@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TimerSessionWithTimer } from '../../../types';
+import { TimerSessionWithTimer } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from "@shared/components/ui/card";
 
 interface RadialProgressChartProps {

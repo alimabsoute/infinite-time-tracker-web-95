@@ -2,9 +2,9 @@
 import React, { useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { format, parseISO } from 'date-fns';
-import { TimerSessionWithTimer } from '../../../types';
+import { TimerSessionWithTimer } from '@/types';
 import { Badge } from "@shared/components/ui/badge";
-import { getProcessedTimerColors } from '../../../utils/timerColorProcessor';
+import { getProcessedTimerColors } from '@/utils/timerColorProcessor';
 
 interface InteractiveTimelineChartProps {
   sessions: TimerSessionWithTimer[];

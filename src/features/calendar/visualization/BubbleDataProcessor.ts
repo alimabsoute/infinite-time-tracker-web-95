@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { TimerSessionWithTimer } from '../../../types';
+import { TimerSessionWithTimer } from '@/types';
 
 export interface BubbleDataPoint {
   id: string;

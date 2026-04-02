@@ -2,7 +2,7 @@ import React from 'react';
 import { DayProps } from 'react-day-picker';
 import { cn } from "@shared/lib/utils";
 import { motion } from 'framer-motion';
-import { Timer, TimerSession } from '../../types';
+import { Timer, TimerSession } from '@/types';
 import { format, isPast, isToday } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip';
 

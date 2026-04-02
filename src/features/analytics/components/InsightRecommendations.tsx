@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/
 import { Badge } from '@shared/components/ui/badge';
 import { Button } from '@shared/components/ui/button';
 import { Lightbulb, TrendingUp, Clock, Target, Calendar } from 'lucide-react';
-import { Timer, TimerSessionWithTimer } from '../../types';
+import { Timer, TimerSessionWithTimer } from '@/types';
 import { Link } from 'react-router-dom';
 import { addHours } from 'date-fns';
 import CountdownTimer from './CountdownTimer';
@@ -184,7 +184,7 @@ const InsightRecommendations: React.FC<InsightRecommendationsProps> = ({
             <p className="text-sm text-muted-foreground">
               Want more detailed analytics?
             </p>
-            <Link to="/reports">
+            <Link to="/app/reports">
               <Button size="sm" variant="outline">
                 View Reports
               </Button>

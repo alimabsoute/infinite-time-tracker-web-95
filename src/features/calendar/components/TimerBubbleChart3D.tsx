@@ -3,7 +3,7 @@ import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Text } from '@react-three/drei';
 import * as THREE from 'three';
-import { TimerSessionWithTimer } from '../../types';
+import { TimerSessionWithTimer } from '@/types';
 
 interface BubbleProps {
   position: [number, number, number];

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@shared/components/ui/button';
 import { Input } from '@shared/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@shared/components/ui/card';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { Timer as TimerIcon } from 'lucide-react';
 import ErrorBoundaryAuth from '@shared/components/ErrorBoundaryAuth';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@shared/components/ui/dialog';
@@ -25,7 +25,7 @@ const Login = () => {
     try {
       setIsLoading(true);
       await signIn(email, password);
-      navigate('/dashboard');
+      navigate('/app/dashboard');
     } catch (error) {
       // Error is handled in the AuthContext
       setIsLoading(false);

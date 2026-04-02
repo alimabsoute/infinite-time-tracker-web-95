@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Timer } from '../types';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import { supabase } from '@shared/lib/supabase/client';
 import { toast } from 'sonner';
 import { useTimerAnimations } from './useTimerAnimations';

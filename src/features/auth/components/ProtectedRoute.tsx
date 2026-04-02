@@ -1,6 +1,6 @@
 
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { Skeleton } from '@shared/components/ui/skeleton';
 
 const ProtectedRoute = () => {

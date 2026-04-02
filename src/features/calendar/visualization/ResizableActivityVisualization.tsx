@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels';
-import { Timer, TimerSessionWithTimer } from '../../../types';
+import { Timer, TimerSessionWithTimer } from '@/types';
 import VisualizationTabsContent from './VisualizationTabsContent';
 import VisualizationSidebarContent from './VisualizationSidebarContent';
 

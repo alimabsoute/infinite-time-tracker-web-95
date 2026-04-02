@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { TimerSessionWithTimer } from '../../../types';
+import { TimerSessionWithTimer } from '@/types';
 import { processBubbleData } from './BubbleDataProcessor';
 import { BubbleChart } from './BubbleChart';
 

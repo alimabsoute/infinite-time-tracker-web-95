@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useCountdown } from '../../hooks/useCountdown';
+import { useCountdown } from '@/hooks/useCountdown';
 import { cn } from '@shared/lib/utils';
 
 interface CountdownTimerProps {

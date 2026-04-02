@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Timer } from '../../types';
+import { Timer } from '@/types';
 import ActiveTimerCard from './ActiveTimerCard';
 
 interface ActiveTimersListProps {

@@ -1,5 +1,5 @@
 
-import { TimerSessionWithTimer } from '../../../../types';
+import { TimerSessionWithTimer } from '@/types';
 
 export interface TreemapNodeData {
   id: string;

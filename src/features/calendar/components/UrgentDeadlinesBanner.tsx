@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { addDays } from 'date-fns';
 import { AlertTriangle, ArrowRight } from 'lucide-react';
 import { Button } from '@shared/components/ui/button';
-import { Timer } from '../../types';
+import { Timer } from '@/types';
 import { motion } from 'framer-motion';
 import DetailedDeadlinesModal from './DetailedDeadlinesModal';
 

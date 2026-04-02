@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ProcessedTimerColors } from '../../utils/timerColorProcessor';
+import { ProcessedTimerColors } from '@/utils/timerColorProcessor';
 
 interface TimerRunningIndicatorProps {
   isRunning: boolean;

@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
-import { TimerSessionWithTimer } from '../../../types';
+import { TimerSessionWithTimer } from '@/types';
 
 interface CategoryRadarChartProps {
   sessions: TimerSessionWithTimer[];

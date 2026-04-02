@@ -1,10 +1,10 @@
 import { ThemeProvider } from "next-themes";
 import { BrowserRouter } from "react-router-dom";
-import { QueryClient } from "@/components/QueryClient";
+import { QueryClient } from "@shared/components/QueryClient";
 import { AuthProvider } from "@/features/auth/context/AuthContext";
 import { SubscriptionProvider } from "@/features/billing/context/SubscriptionContext";
 import { Toaster } from "@shared/components/ui/sonner";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorBoundary from "@shared/components/ErrorBoundary";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

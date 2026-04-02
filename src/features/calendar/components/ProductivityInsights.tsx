@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@shared/components/ui/
 import { Progress } from "@shared/components/ui/progress";
 import { Badge } from "@shared/components/ui/badge";
 import { TrendingUp, TrendingDown, Clock, Target, Calendar, Zap } from 'lucide-react';
-import { useProductivityInsights } from '../../hooks/useProductivityInsights';
+import { useProductivityInsights } from '@/hooks/useProductivityInsights';
 import { Timer, TimerSessionWithTimer } from "../../types";
 import { format } from 'date-fns';
 

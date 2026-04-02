@@ -1,6 +1,6 @@
 
 import { useMemo, useState } from 'react';
-import { useTimerReports } from '../../hooks/useTimerReports';
+import { useTimerReports } from '@/hooks/useTimerReports';
 import {
   Table,
   TableBody,

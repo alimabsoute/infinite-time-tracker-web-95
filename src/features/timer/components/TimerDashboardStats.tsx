@@ -1,5 +1,5 @@
 
-import { Timer } from '../../types';
+import { Timer } from '@/types';
 
 export const getTimerDashboardStats = (timers: Timer[]) => {
   const runningTimersCount = timers.filter(timer => timer.isRunning).length;

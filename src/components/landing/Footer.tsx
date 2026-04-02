@@ -34,12 +34,12 @@ const Footer = () => {
             <h3 className="font-medium text-lg mb-4">Product</h3>
             <ul className="space-y-3">
               <li>
-                <Link to="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/app/dashboard" className="text-muted-foreground hover:text-primary transition-colors">
                   Dashboard
                 </Link>
               </li>
               <li>
-                <Link to="/calendar" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/app/calendar" className="text-muted-foreground hover:text-primary transition-colors">
                   Calendar
                 </Link>
               </li>

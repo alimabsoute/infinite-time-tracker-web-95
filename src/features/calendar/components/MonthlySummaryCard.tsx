@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card';
 import { Progress } from '@shared/components/ui/progress';
-import { Timer, TimerSessionWithTimer } from '../../types';
+import { Timer, TimerSessionWithTimer } from '@/types';
 import { getTotalTimeForDate, formatTime } from './CalendarUtils';
 import { Clock, Target, Calendar as CalendarIcon } from 'lucide-react';
 

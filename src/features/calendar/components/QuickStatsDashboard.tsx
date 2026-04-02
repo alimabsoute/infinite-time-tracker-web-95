@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { Timer } from '../../types';
+import { Timer } from '@/types';
 import { formatTime } from './CalendarUtils';
 import { 
   Clock, 

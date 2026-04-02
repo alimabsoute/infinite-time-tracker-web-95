@@ -184,7 +184,7 @@ const InsightRecommendations: React.FC<InsightRecommendationsProps> = ({
             <p className="text-sm text-muted-foreground">
               Want more detailed analytics?
             </p>
-            <Link to="/reports">
+            <Link to="/app/reports">
               <Button size="sm" variant="outline">
                 View Reports
               </Button>

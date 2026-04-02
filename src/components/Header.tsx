@@ -67,7 +67,7 @@ const Header = () => {
         <div className="flex items-center h-24" style={{ minHeight: '96px' }}>
           {/* Left: Logo section - EXACT width */}
           <div className="flex items-center" style={{ width: '200px', minWidth: '200px' }}>
-            <Link to="/dashboard" className="flex items-center space-x-0">
+            <Link to="/app/dashboard" className="flex items-center space-x-0">
               <PhynxTimerLogo width={84} height={84} />
               <span className="text-xl font-semibold text-gray-900 whitespace-nowrap">PhynxTimer</span>
             </Link>
@@ -132,7 +132,7 @@ const Header = () => {
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/settings" className="cursor-pointer">
+                    <Link to="/app/settings" className="cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </Link>

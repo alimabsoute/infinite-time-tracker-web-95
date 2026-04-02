@@ -1,7 +1,7 @@
 
 import React, { useMemo } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { TimerSessionWithTimer } from '../../types';
+import { TimerSessionWithTimer } from '@/types';
 
 interface TimerBubbleChart2DProps {
   sessions: TimerSessionWithTimer[];
