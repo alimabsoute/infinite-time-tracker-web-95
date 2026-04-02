@@ -1,6 +1,6 @@
 
 import { RefreshCw, Play, Pause } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Button } from '@shared/components/ui/button';
 
 interface TimerControlsProps {
   isRunning: boolean;

@@ -2,9 +2,9 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@shared/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/components/ui/select";
-import TimerChartLegend from '../TimerChartLegend';
-import TimerDetails from '../TimerDetails';
-import { TimerSessionWithTimer } from '../../../types';
+import TimerChartLegend from '../components/TimerChartLegend';
+import TimerDetails from '../components/TimerDetails';
+import { TimerSessionWithTimer } from '@/types';
 
 interface VisualizationSidebarContentProps {
   sessions: TimerSessionWithTimer[];

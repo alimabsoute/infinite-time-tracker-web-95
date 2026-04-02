@@ -11,8 +11,8 @@ import WeeklyStats from './WeeklyStats';
 import WeeklyAnalysis from './WeeklyAnalysis';
 import WeekDataSummary from './WeekDataSummary';
 import DateRangeSelector from './DateRangeSelector';
-import VisualizationErrorBoundary from './visualization/VisualizationErrorBoundary';
-import VisualizationContainer from './visualization/VisualizationContainer';
+import VisualizationErrorBoundary from '../visualization/VisualizationErrorBoundary';
+import VisualizationContainer from '../visualization/VisualizationContainer';
 import { useToast } from '@shared/hooks/use-toast';
 
 interface WeekViewProps {

@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Timer, TimerSessionWithTimer } from '../../types';
-import { useProductivityInsights } from '../../hooks/useProductivityInsights';
+import { Timer, TimerSessionWithTimer } from '@/types';
+import { useProductivityInsights } from '@/hooks/useProductivityInsights';
 import InsightCard from './InsightCard';
 import InsightRecommendations from './InsightRecommendations';
 import { Clock, TrendingUp, Target, Zap, Calendar, BarChart3, Timer as TimerIcon } from 'lucide-react';
-import { formatTime } from '../timer/TimerUtils';
+import { formatTime } from '@features/timer/components/TimerUtils';
 import { format, endOfWeek, addDays } from 'date-fns';
 
 interface QuickInsightsDashboardProps {

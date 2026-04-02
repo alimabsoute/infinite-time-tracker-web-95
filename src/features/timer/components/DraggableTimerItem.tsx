@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Timer as TimerType } from "../../types";
 import Timer from './Timer';
-import AnimationManager, { DeletionAnimationType } from '../animations/AnimationManager';
+import AnimationManager, { DeletionAnimationType } from '@shared/components/animations/AnimationManager';
 
 interface DraggableTimerItemProps {
   timer: TimerType;

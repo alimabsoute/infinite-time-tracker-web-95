@@ -1,8 +1,8 @@
 
 import React, { useState, useCallback } from 'react';
 import { subDays } from 'date-fns';
-import { Timer, TimerSessionWithTimer } from '../../../types';
-import DateRangeSelector from '../DateRangeSelector';
+import { Timer, TimerSessionWithTimer } from '@/types';
+import DateRangeSelector from '../components/DateRangeSelector';
 import ResizableActivityVisualization from './ResizableActivityVisualization';
 
 interface DateRangeVisualizationControllerProps {

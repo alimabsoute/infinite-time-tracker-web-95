@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import PhynxTimerLogo from "../../PhynxTimerLogo";
+import PhynxTimerLogo from "@shared/components/PhynxTimerLogo";
 
 const HeroTitle = () => {
   return (

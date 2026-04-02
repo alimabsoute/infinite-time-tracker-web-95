@@ -1,17 +1,16 @@
 
 import { motion } from "framer-motion";
 import { useAuth } from "@features/auth/context/AuthContext";
-import LandingHeader from "@/components/landing/LandingHeader";
-import HeroSection from "@/components/landing/HeroSection";
-import AnalyticsPreviewSection from "@/components/landing/AnalyticsPreviewSection";
-import ScreenshotCarousel from "@/components/landing/ScreenshotCarousel";
-import FeaturesSection from "@/components/landing/FeaturesSection";
-import PricingSection from "@/components/landing/PricingSection";
-import TestimonialsSection from "@/components/landing/TestimonialsSection";
-import CTASection from "@/components/landing/CTASection";
-import Footer from "@/components/landing/Footer";
-// import HeaderSpacingTest from "@/components/HeaderSpacingTest";
-import NewsletterModal from "@/components/newsletter/NewsletterModal";
+import LandingHeader from "@features/landing/components/LandingHeader";
+import HeroSection from "@features/landing/components/HeroSection";
+import AnalyticsPreviewSection from "@features/landing/components/AnalyticsPreviewSection";
+import ScreenshotCarousel from "@features/landing/components/ScreenshotCarousel";
+import FeaturesSection from "@features/landing/components/FeaturesSection";
+import PricingSection from "@features/landing/components/PricingSection";
+import TestimonialsSection from "@features/landing/components/TestimonialsSection";
+import CTASection from "@features/landing/components/CTASection";
+import Footer from "@features/landing/components/Footer";
+import NewsletterModal from "@features/landing/components/NewsletterModal";
 
 const LandingPage = () => {
   const { loading } = useAuth();

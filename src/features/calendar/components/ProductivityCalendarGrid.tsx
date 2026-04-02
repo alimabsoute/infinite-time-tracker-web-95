@@ -3,9 +3,9 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@shared/components/ui/button';
 import { Card, CardContent, CardHeader } from '@shared/components/ui/card';
-import { Timer, TimerSessionWithTimer } from '../../types';
+import { Timer, TimerSessionWithTimer } from '@/types';
 import { getTotalTimeForDate, getSessionsForDate, formatTime, getTimersWithDeadlinesForDate, formatDeadlineDisplay, getDeadlineUrgencyLevel, getDeadlinePriorityColor } from './CalendarUtils';
-import { getCategoryColor } from './visualization/utils/ColorUtils';
+import { getCategoryColor } from '../visualization/utils/ColorUtils';
 
 interface ProductivityCalendarGridProps {
   currentMonth: Date;

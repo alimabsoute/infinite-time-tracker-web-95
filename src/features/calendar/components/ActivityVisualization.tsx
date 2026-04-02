@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Timer, TimerSessionWithTimer } from "../../types";
-import ResizableActivityVisualization from './visualization/ResizableActivityVisualization';
+import ResizableActivityVisualization from '../visualization/ResizableActivityVisualization';
 
 interface ActivityVisualizationProps {
   filteredTimers: Timer[];  

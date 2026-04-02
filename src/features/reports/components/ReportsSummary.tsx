@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { TimerReportData } from '../../types/index';
+import { TimerReportData } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card';
 import { Clock, Play, Pause, Calendar, Trash2 } from 'lucide-react';
 import { useSubscription } from '@features/billing/context/SubscriptionContext';
-import PremiumFeatureGate from '../premium/PremiumFeatureGate';
-import PremiumBadge from '../premium/PremiumBadge';
+import PremiumFeatureGate from '@features/billing/components/PremiumFeatureGate';
+import PremiumBadge from '@features/billing/components/PremiumBadge';
 
 interface ReportsSummaryProps {
   reportData: TimerReportData[];

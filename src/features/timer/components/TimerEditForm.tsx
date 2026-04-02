@@ -1,8 +1,8 @@
 
 import { X, Check } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Button } from '@shared/components/ui/button';
+import { Input } from '@shared/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select';
 import { FormEvent, RefObject } from 'react';
 
 interface TimerEditFormProps {

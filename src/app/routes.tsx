@@ -1,42 +1,58 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 
-// Lazy load pages
-const HomePage = lazy(() => import("@/pages/HomePage"));
-const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
-const CalendarPage = lazy(() => import("@/pages/CalendarPage"));
-const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"));
-const ReportsPage = lazy(() => import("@/pages/ReportsPage"));
-const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
-const LoginPage = lazy(() => import("@/pages/LoginPage"));
-const SignupPage = lazy(() => import("@/pages/SignupPage"));
-const ResetPasswordPage = lazy(() => import("@/pages/ResetPasswordPage"));
-const AboutPage = lazy(() => import("@/pages/AboutPage"));
-const HelpPage = lazy(() => import("@/pages/HelpPage"));
-const ContactPage = lazy(() => import("@/pages/ContactPage"));
-const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
-const TermsPage = lazy(() => import("@/pages/TermsPage"));
-const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
+// Public pages
+const Home = lazy(() => import("@features/landing/pages/HomePage"));
+const Landing = lazy(() => import("@features/landing/pages/LandingPage"));
+const Login = lazy(() => import("@features/auth/components/Login"));
+const Signup = lazy(() => import("@features/auth/components/Signup"));
+const ResetPassword = lazy(() => import("@features/auth/components/ResetPassword"));
+const About = lazy(() => import("@features/landing/pages/AboutPage"));
+const Help = lazy(() => import("@features/landing/pages/HelpPage"));
+const Contact = lazy(() => import("@features/landing/pages/ContactPage"));
+const PrivacyPolicy = lazy(() => import("@features/landing/pages/PrivacyPolicyPage"));
+const TermsOfService = lazy(() => import("@features/landing/pages/TermsOfServicePage"));
+const NotFound = lazy(() => import("@shared/pages/NotFoundPage"));
+
+// Authenticated pages
+const Dashboard = lazy(() => import("@features/timer/pages/DashboardPage"));
+const Calendar = lazy(() => import("@features/calendar/pages/CalendarPage"));
+const Analytics = lazy(() => import("@features/analytics/pages/AnalyticsPage"));
+const Reports = lazy(() => import("@features/reports/pages/ReportsPage"));
+const Settings = lazy(() => import("@features/settings/pages/SettingsPage"));
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+  </div>
+);
 
 export function AppRoutes() {
   return (
-    <Suspense fallback={<div />}>
+    <Suspense fallback={<PageLoader />}>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/reports" element={<ReportsPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/help" element={<HelpPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        {/* Public routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+
+        {/* Authenticated routes */}
+        <Route path="/app" element={<ProtectedRoute />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="calendar" element={<Calendar />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   );

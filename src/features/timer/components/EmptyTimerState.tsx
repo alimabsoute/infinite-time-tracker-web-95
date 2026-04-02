@@ -1,5 +1,5 @@
 
-import EmptyState from "../EmptyState";
+import EmptyState from "@shared/components/EmptyState";
 
 interface EmptyTimerStateProps {
   onCreateTimer?: () => void;

@@ -6,9 +6,9 @@ import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { TimerReportData } from '../../types/index';
+import { TimerReportData } from '@/types';
 import { useSubscription } from '@features/billing/context/SubscriptionContext';
-import PremiumBadge from '../premium/PremiumBadge';
+import PremiumBadge from '@features/billing/components/PremiumBadge';
 
 interface ExportButtonsProps {
   data: TimerReportData[];

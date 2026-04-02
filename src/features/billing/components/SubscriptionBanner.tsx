@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@shared/components/ui/button";
-import TimerLimitIndicator from "../premium/TimerLimitIndicator";
+import TimerLimitIndicator from './TimerLimitIndicator';
 
 interface SubscriptionBannerProps {
   subscribed: boolean;

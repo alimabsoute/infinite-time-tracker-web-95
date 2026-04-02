@@ -1,6 +1,6 @@
 
 import React from 'react';
-import Navigation from '../components/layout/Navigation';
+import Navigation from '@shared/components/layout/Navigation';
 import CalendarContent from '@features/calendar/components/CalendarContent';
 import { useDeadSimpleTimers } from '@features/timer/hooks/useDeadSimpleTimers';
 import { supabase } from '@shared/lib/supabase/client';

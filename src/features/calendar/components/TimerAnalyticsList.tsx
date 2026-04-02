@@ -2,10 +2,10 @@ import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card';
 import { Progress } from '@shared/components/ui/progress';
 import { Badge } from '@shared/components/ui/badge';
-import { Timer, TimerSessionWithTimer } from '../../types';
+import { Timer, TimerSessionWithTimer } from '@/types';
 import { formatTime } from './CalendarUtils';
 import { BarChart3, Clock } from 'lucide-react';
-import { getCategoryColor } from './visualization/utils/ColorUtils';
+import { getCategoryColor } from '../visualization/utils/ColorUtils';
 
 interface TimerAnalyticsListProps {
   timers: Timer[];

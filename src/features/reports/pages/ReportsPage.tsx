@@ -1,5 +1,5 @@
 
-import PageLayout from '../components/layout/PageLayout';
+import PageLayout from '@shared/components/layout/PageLayout';
 import TimerReportsTable from '@features/reports/components/TimerReportsTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@shared/components/ui/card';
 import { useSubscription } from '@features/billing/context/SubscriptionContext';

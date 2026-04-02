@@ -3,10 +3,10 @@ import { format, isSameDay } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/components/ui/card';
 import { Badge } from '@shared/components/ui/badge';
 import { Progress } from '@shared/components/ui/progress';
-import { Timer, TimerSessionWithTimer } from '../../types';
+import { Timer, TimerSessionWithTimer } from '@/types';
 import { getSessionsForDate, getTotalTimeForDate, formatTime } from './CalendarUtils';
 import { Calendar as CalendarIcon, Clock, Target, TrendingUp, BarChart3 } from 'lucide-react';
-import { getCategoryColor } from './visualization/utils/ColorUtils';
+import { getCategoryColor } from '../visualization/utils/ColorUtils';
 
 interface DailyDetailsPanelProps {
   selectedDate: Date | undefined;

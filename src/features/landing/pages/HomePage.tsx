@@ -1,7 +1,7 @@
 
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@features/auth/context/AuthContext';
-import Landing from './Landing';
+import Landing from './LandingPage';
 
 const Home = () => {
   const { user, loading } = useAuth();
@@ -15,7 +15,7 @@ const Home = () => {
   }
 
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   return <Landing />;

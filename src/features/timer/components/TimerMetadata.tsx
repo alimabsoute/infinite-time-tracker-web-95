@@ -1,12 +1,12 @@
 
 import { Clock } from 'lucide-react';
 import { format } from 'date-fns';
-import { Button } from '../ui/button';
-import { Calendar } from '../ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+import { Button } from '@shared/components/ui/button';
+import { Calendar } from '@shared/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@shared/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@shared/components/ui/select';
+import { Input } from '@shared/components/ui/input';
+import { Label } from '@shared/components/ui/label';
 import { cn } from '@shared/lib/utils';
 import { useState } from 'react';
 

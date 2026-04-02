@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Timer } from '../../types';
-import { formatTime } from '../timer/TimerUtils';
-import { getProcessedTimerColors } from '../../utils/timerColorProcessor';
+import { Timer } from '@/types';
+import { formatTime } from './TimerUtils';
+import { getProcessedTimerColors } from '@/utils/timerColorProcessor';
 import { Play, Pause, RotateCcw, Calendar, Clock } from 'lucide-react';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
+import { Badge } from '@shared/components/ui/badge';
+import { Button } from '@shared/components/ui/button';
 
 interface ActiveTimerCardProps {
   timer: Timer;

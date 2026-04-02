@@ -1,7 +1,7 @@
 
 import { Timer as TimerType } from "../types";
-import EmptyTimerState from "./timer/EmptyTimerState";
-import DraggableTimerGrid from "./timer/DraggableTimerGrid";
+import EmptyTimerState from "./EmptyTimerState";
+import DraggableTimerGrid from "./DraggableTimerGrid";
 
 interface TimerListProps {
   timers: TimerType[];
