@@ -71,6 +71,8 @@ export const useDeadSimpleTimers = () => {
         category: timer.category || undefined,
         tags: timer.tags || undefined,
         priority: timer.priority || undefined,
+        billable: timer.billable ?? false,
+        hourlyRate: timer.hourly_rate ?? undefined,
       }));
 
       setTimers(processedTimers);
@@ -362,6 +364,23 @@ export const useDeadSimpleTimers = () => {
     }
   }, [user]);
 
+  // Update billable status + hourly rate
+  const updateBillable = useCallback(async (id: string, billable: boolean, hourlyRate?: number) => {
+    if (!user) return;
+    try {
+      await supabase
+        .from('timers')
+        .update({ billable, hourly_rate: hourlyRate ?? null })
+        .eq('id', id);
+      setTimers(prev => prev.map(t =>
+        t.id === id ? { ...t, billable, hourlyRate } : t
+      ));
+    } catch (error) {
+      console.error('Error updating billable:', error);
+      toast.error('Failed to update billable settings');
+    }
+  }, [user]);
+
   // Reorder timers
   const reorderTimers = useCallback(async (reorderedTimers: Timer[]) => {
     setTimers(reorderedTimers);
@@ -428,6 +447,7 @@ export const useDeadSimpleTimers = () => {
     updateDeadline,
     updatePriority,
     reorderTimers,
+    updateBillable,
     getDisplayTime,
     // Animation state
     confettiTrigger,

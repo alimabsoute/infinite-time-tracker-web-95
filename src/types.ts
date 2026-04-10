@@ -10,6 +10,8 @@ export interface Timer {
   tags?: string[]; // Optional tags for filtering
   deadline?: Date; // Optional deadline for timer completion
   priority?: number; // Optional priority level (1-5, with 1 being highest)
+  billable?: boolean; // Whether time is billable
+  hourlyRate?: number; // USD per hour for billing calculations
   // Legacy fields - keeping for compatibility during transition
   currentSessionId?: string;
   sessionStartTime?: Date;
