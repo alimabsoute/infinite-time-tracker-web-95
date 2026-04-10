@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Clock, Activity, Timer as TimerIcon } from 'lucide-react';
+import { Clock, Activity, Timer as TimerIcon, DollarSign } from 'lucide-react';
 import PageLayout from '@shared/components/layout/PageLayout';
 import { useDeadSimpleTimers } from '@features/timer/hooks/useDeadSimpleTimers';
 import TimerList from '@features/timer/components/TimerList';
@@ -65,6 +65,11 @@ const Dashboard = () => {
 
   const totalMs = timers.reduce((sum, t) => sum + getDisplayTime(t), 0);
   const activeCount = timers.filter(t => t.isRunning).length;
+  const billableEarnings = timers
+    .filter(t => t.billable && t.hourlyRate)
+    .reduce((sum, t) => sum + (getDisplayTime(t) / 3_600_000) * (t.hourlyRate ?? 0), 0);
+  const formatEarnings = (usd: number) =>
+    usd === 0 ? '$0' : `$${usd.toFixed(usd < 10 ? 2 : 0)}`;
 
   return (
     <PageLayout title="Dashboard">
@@ -76,7 +81,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             label="Total Timers"
             value={timers.length}
@@ -94,6 +99,12 @@ const Dashboard = () => {
             value={activeCount}
             icon={Activity}
             accent="bg-amber-500/10 text-amber-600"
+          />
+          <StatCard
+            label="Billable Earned"
+            value={formatEarnings(billableEarnings)}
+            icon={DollarSign}
+            accent="bg-violet-500/10 text-violet-600"
           />
         </div>
 
