@@ -1,5 +1,5 @@
 
-import Header from '@shared/components/Header';
+import Navigation from '@shared/components/layout/Navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/components/ui/tabs';
 import { User, Settings as SettingsIcon, Activity, Shield, LogOut } from 'lucide-react';
 import { Button } from '@shared/components/ui/button';
@@ -35,7 +35,7 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Navigation />
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="space-y-6">
           <div className="text-center space-y-2">
