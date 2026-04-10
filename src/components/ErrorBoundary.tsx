@@ -44,7 +44,7 @@ class ErrorBoundary extends Component<Props, State> {
       errorType = 'network';
     }
 
-    console.error('🔴 ErrorBoundary - Error categorized as:', errorType, error);
+    console.error('ErrorBoundary - Error categorized as:', errorType, error);
 
     return {
       hasError: true,
@@ -66,7 +66,7 @@ class ErrorBoundary extends Component<Props, State> {
       url: window.location.href
     };
 
-    console.error('🔴 ErrorBoundary - Comprehensive error details:', errorDetails);
+    console.error('ErrorBoundary caught:', errorDetails);
     
     this.setState({
       error,

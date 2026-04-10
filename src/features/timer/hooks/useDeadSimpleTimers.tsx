@@ -12,6 +12,7 @@ export const useDeadSimpleTimers = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const intervalRef = useRef<NodeJS.Timeout>();
+  const timersRef = useRef<Timer[]>(timers);
   
   // Animation system integration
   const {
@@ -22,6 +23,9 @@ export const useDeadSimpleTimers = () => {
     clearConfettiTrigger,
     clearCelebrationTrigger
   } = useTimerAnimations();
+
+  // Keep ref in sync with latest timers for event handlers
+  useEffect(() => { timersRef.current = timers; }, [timers]);
 
   // Get display time for any timer
   const getDisplayTime = useCallback((timer: Timer): number => {
@@ -362,6 +366,29 @@ export const useDeadSimpleTimers = () => {
   const reorderTimers = useCallback(async (reorderedTimers: Timer[]) => {
     setTimers(reorderedTimers);
   }, []);
+
+  // Checkpoint running timers: snapshot elapsed_time + reset start_time to now.
+  // Safe to call on visibility change — avoids double-counting on reload because
+  // getDisplayTime = elapsed_time + (now - start_time), and after checkpoint:
+  // elapsed_time = full time up to this moment, start_time = this moment → drift = 0.
+  const checkpointRunningTimers = useCallback(async () => {
+    const running = timersRef.current.filter(t => t.isRunning && t.startTime);
+    if (running.length === 0) return;
+    const now = new Date();
+    await Promise.all(running.map(timer => {
+      const snapshot = Math.floor(timer.elapsedTime + (Date.now() - timer.startTime!.getTime()));
+      return supabase
+        .from('timers')
+        .update({ elapsed_time: snapshot, start_time: now.toISOString() })
+        .eq('id', timer.id);
+    }));
+  }, []);
+
+  useEffect(() => {
+    const onHide = () => { if (document.visibilityState === 'hidden') checkpointRunningTimers(); };
+    document.addEventListener('visibilitychange', onHide);
+    return () => document.removeEventListener('visibilitychange', onHide);
+  }, [checkpointRunningTimers]);
 
   // Simple interval for display updates only
   useEffect(() => {

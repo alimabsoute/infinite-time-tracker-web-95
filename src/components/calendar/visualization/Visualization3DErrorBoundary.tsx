@@ -23,7 +23,7 @@ class Visualization3DErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
-    console.error('🔴 3D Visualization Error Boundary - Error caught:', error);
+    console.error('3D Visualization Error Boundary caught:', error);
     return {
       hasError: true,
       error,
@@ -32,7 +32,7 @@ class Visualization3DErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('🔴 3D Visualization Error Details:', {
+    console.error('3D Visualization Error Details:', {
       error: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack

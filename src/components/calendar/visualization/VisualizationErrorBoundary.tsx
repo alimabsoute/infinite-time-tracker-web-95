@@ -28,7 +28,7 @@ class VisualizationErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('🔴 VisualizationErrorBoundary caught an error:', error);
+    console.error('VisualizationErrorBoundary caught an error:', error);
     this.props.onError?.(error, errorInfo);
   }
 
