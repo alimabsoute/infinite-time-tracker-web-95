@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { Clock, Activity, Timer as TimerIcon } from 'lucide-react';
 import PageLayout from '@shared/components/layout/PageLayout';
 import { useDeadSimpleTimers } from '@features/timer/hooks/useDeadSimpleTimers';
 import TimerList from '@features/timer/components/TimerList';
@@ -8,14 +9,41 @@ import EnhancedAnimationManager from '@shared/components/animations/EnhancedAnim
 import TimerLimitIndicator from '@features/billing/components/TimerLimitIndicator';
 import RunningTimerLimitIndicator from '@features/billing/components/RunningTimerLimitIndicator';
 
+const formatTotalMinutes = (ms: number) => {
+  const totalMin = Math.floor(ms / 1000 / 60);
+  if (totalMin < 60) return `${totalMin}m`;
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+};
 
+const StatCard = ({
+  label,
+  value,
+  icon: Icon,
+  accent,
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ElementType;
+  accent: string;
+}) => (
+  <div className="bg-card border border-border rounded-xl p-5 flex items-start gap-4">
+    <div className={`rounded-lg p-2.5 ${accent}`}>
+      <Icon className="h-4 w-4" />
+    </div>
+    <div>
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
+      <p className="text-2xl font-semibold text-foreground leading-none">{value}</p>
+    </div>
+  </div>
+);
 
 const Dashboard = () => {
-  
-  const { 
-    timers, 
-    toggleTimer, 
-    resetTimer, 
+  const {
+    timers,
+    toggleTimer,
+    resetTimer,
     addTimer,
     deleteTimer,
     renameTimer,
@@ -26,7 +54,7 @@ const Dashboard = () => {
     confettiTrigger,
     celebrationTrigger,
     clearConfettiTrigger,
-    clearCelebrationTrigger
+    clearCelebrationTrigger,
   } = useDeadSimpleTimers();
   const [newTimerId] = useState<string | null>(null);
 
@@ -34,62 +62,65 @@ const Dashboard = () => {
     await addTimer(name, position);
   };
 
+  const totalMs = timers.reduce((sum, t) => sum + getDisplayTime(t), 0);
+  const activeCount = timers.filter(t => t.isRunning).length;
+
   return (
-    <PageLayout>
+    <PageLayout title="Dashboard">
       <div id="dashboard-content">
-        {/* Timer Limit Indicators */}
-        <div className="mb-6 space-y-4">
-        <TimerLimitIndicator currentCount={timers.length} />
-        <RunningTimerLimitIndicator currentRunningCount={timers.filter(timer => timer.isRunning).length} />
-      </div>
+        {/* Billing indicators */}
+        <div className="space-y-3">
+          <TimerLimitIndicator currentCount={timers.length} />
+          <RunningTimerLimitIndicator currentRunningCount={activeCount} />
+        </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Total Timers</h3>
-          <p className="text-3xl font-bold text-blue-600">{timers.length}</p>
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatCard
+            label="Total Timers"
+            value={timers.length}
+            icon={TimerIcon}
+            accent="bg-primary/10 text-primary"
+          />
+          <StatCard
+            label="Total Time"
+            value={formatTotalMinutes(totalMs)}
+            icon={Clock}
+            accent="bg-emerald-500/10 text-emerald-600"
+          />
+          <StatCard
+            label="Active Now"
+            value={activeCount}
+            icon={Activity}
+            accent="bg-amber-500/10 text-amber-600"
+          />
         </div>
-        
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Running Time</h3>
-          <p className="text-3xl font-bold text-green-600">
-            {Math.floor(timers.reduce((total, timer) => total + getDisplayTime(timer), 0) / 1000 / 60)}m
-          </p>
+
+        {/* Timer list */}
+        <div>
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">
+            Your Timers
+          </h2>
+          <TimerList
+            timers={timers}
+            onToggle={toggleTimer}
+            onReset={resetTimer}
+            onDelete={deleteTimer}
+            onRename={renameTimer}
+            onUpdateDeadline={updateDeadline}
+            onUpdatePriority={updatePriority}
+            onReorder={reorderTimers}
+            calculateSessionElapsedTime={getDisplayTime}
+            newTimerId={newTimerId}
+            onCreateTimer={() => handleCreateTimer('New Timer')}
+          />
         </div>
-        
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Active Timers</h3>
-          <p className="text-3xl font-bold text-orange-600">
-            {timers.filter(timer => timer.isRunning).length}
-          </p>
-        </div>
-      </div>
-      
-      {/* All Timers - The Round Clocks */}
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-6">All Timers</h3>
-        <TimerList
-          timers={timers}
-          onToggle={toggleTimer}
-          onReset={resetTimer}
-          onDelete={deleteTimer}
-          onRename={renameTimer}
-          onUpdateDeadline={updateDeadline}
-          onUpdatePriority={updatePriority}
-          onReorder={reorderTimers}
-          calculateSessionElapsedTime={getDisplayTime}
-          newTimerId={newTimerId}
-          onCreateTimer={() => handleCreateTimer("New Timer")}
+
+        <CreateTimerForm
+          onAddTimer={handleCreateTimer}
+          currentTimerCount={timers.length}
         />
-      </div>
 
-      {/* Floating Create Timer Button */}
-      <CreateTimerForm 
-        onAddTimer={handleCreateTimer}
-        currentTimerCount={timers.length}
-      />
-
-        {/* Enhanced Animation Manager */}
         <EnhancedAnimationManager
           confettiTrigger={confettiTrigger}
           celebrationTrigger={celebrationTrigger}
