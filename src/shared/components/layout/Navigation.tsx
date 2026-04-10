@@ -6,7 +6,7 @@ import {
   LogOut,
   Settings,
   TrendingUp,
-  Crown
+  Crown,
 } from 'lucide-react';
 import { useAuth } from '@features/auth/context/AuthContext';
 import { useSubscription } from '@features/billing/context/SubscriptionContext';
@@ -21,17 +21,17 @@ import {
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Button } from '../ui/button';
 
+const navItems = [
+  { path: '/app/dashboard', label: 'Timers', icon: Timer },
+  { path: '/app/analytics', label: 'Analytics', icon: TrendingUp },
+  { path: '/app/calendar', label: 'Calendar', icon: Calendar },
+  { path: '/app/reports', label: 'Reports', icon: FileText },
+];
+
 const Navigation = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { subscribed, createCheckoutSession } = useSubscription();
-
-  const navigationItems = [
-    { path: '/dashboard', label: 'Timers', icon: Timer },
-    { path: '/analytics', label: 'Analytics', icon: TrendingUp },
-    { path: '/calendar', label: 'Calendar', icon: Calendar },
-    { path: '/reports', label: 'Reports', icon: FileText },
-  ];
 
   const handleSignOut = async () => {
     try {
@@ -41,80 +41,73 @@ const Navigation = () => {
     }
   };
 
-  const getUserInitial = () => {
-    if (user?.email) {
-      return user.email.charAt(0).toUpperCase();
-    }
-    return 'U';
-  };
+  const getUserInitial = () =>
+    user?.email ? user.email.charAt(0).toUpperCase() : 'U';
 
   const handleUpgradeClick = async () => {
     try {
       const url = await createCheckoutSession();
-      if (url) {
-        window.open(url, '_blank');
-      }
+      if (url) window.open(url, '_blank');
     } catch (error) {
       console.error('Error creating checkout session:', error);
     }
   };
 
   return (
-    <header className="bg-white sticky top-0 z-30 w-full border-b border-gray-200 shadow-sm">
-      <div className="w-full pl-2 pr-8">
-        <div className="flex items-center h-24" style={{ minHeight: '96px' }}>
-          {/* Left: Logo section - EXACT width */}
-          <div className="flex items-center" style={{ width: '200px', minWidth: '200px' }}>
-            <Link to="/app/dashboard" className="flex items-center space-x-0">
-              <PhynxTimerLogo width={84} height={84} />
-              <span className="text-xl font-semibold text-gray-900 whitespace-nowrap">PhynxTimer</span>
+    <header className="bg-card sticky top-0 z-30 w-full border-b border-border">
+      <div className="w-full pl-2 pr-6">
+        <div className="flex items-center h-16">
+          {/* Logo */}
+          <div className="flex items-center" style={{ width: '180px', minWidth: '180px' }}>
+            <Link to="/app/dashboard" className="flex items-center gap-1">
+              <PhynxTimerLogo width={52} height={52} />
+              <span className="text-base font-semibold text-foreground whitespace-nowrap">
+                PhynxTimer
+              </span>
             </Link>
           </div>
-          
-          {/* Center: Navigation - PERFECTLY centered with exact spacing */}
+
+          {/* Center nav */}
           <div className="flex-1 flex justify-center">
-            <nav className="hidden lg:flex items-center" style={{ gap: '32px' }}>
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                
+            <nav className="hidden lg:flex items-center gap-1">
+              {navItems.map(({ path, label, icon: Icon }) => {
+                const isActive = location.pathname.startsWith(path);
                 return (
                   <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                    key={path}
+                    to={path}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
                       isActive
-                        ? 'text-blue-600 bg-blue-50 rounded-md'
-                        : 'text-gray-600 hover:text-gray-900'
+                        ? 'text-primary bg-primary/10'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                     }`}
                   >
-                    <Icon size={16} />
-                    <span>{item.label}</span>
+                    <Icon size={15} />
+                    {label}
                   </Link>
                 );
               })}
             </nav>
           </div>
 
-          {/* Right: Actions - EXACT width to match left */}
-          <div className="flex items-center space-x-3 justify-end" style={{ width: '200px', minWidth: '200px' }}>
-            {/* Upgrade to Pro Button */}
+          {/* Right actions */}
+          <div className="flex items-center gap-2 justify-end" style={{ width: '180px', minWidth: '180px' }}>
             {!subscribed && (
-              <Button 
+              <Button
                 onClick={handleUpgradeClick}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-sm font-medium rounded-md flex items-center space-x-2"
+                size="sm"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs px-3 gap-1.5"
               >
-                <Crown size={16} />
-                <span className="whitespace-nowrap">Upgrade to Pro</span>
+                <Crown size={13} />
+                <span className="whitespace-nowrap">Go Pro</span>
               </Button>
             )}
-            
-            {/* User Menu */}
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-blue-500 text-white font-medium text-sm">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0">
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="bg-primary text-primary-foreground font-medium text-sm">
                       {getUserInitial()}
                     </AvatarFallback>
                   </Avatar>
@@ -131,50 +124,48 @@ const Navigation = () => {
                 <DropdownMenuItem asChild>
                   <Link to="/app/settings" className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
+                  Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="lg:hidden border-t border-gray-200 py-3">
-          <div className="flex overflow-x-auto space-x-4 px-2">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              
+        {/* Mobile nav */}
+        <div className="lg:hidden border-t border-border py-2">
+          <div className="flex overflow-x-auto gap-1 px-1">
+            {navItems.map(({ path, label, icon: Icon }) => {
+              const isActive = location.pathname.startsWith(path);
               return (
                 <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
+                  key={path}
+                  to={path}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                     isActive
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'text-primary bg-primary/10'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
-                  <Icon size={16} />
-                  <span>{item.label}</span>
+                  <Icon size={15} />
+                  {label}
                 </Link>
               );
             })}
-            
-            {/* Mobile Upgrade Button */}
+
             {!subscribed && (
-              <Button 
+              <Button
                 onClick={handleUpgradeClick}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 text-sm font-medium whitespace-nowrap rounded-md flex items-center space-x-2"
+                size="sm"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs px-3 gap-1.5 whitespace-nowrap ml-1"
               >
-                <Crown size={16} />
-                <span>Upgrade</span>
+                <Crown size={13} />
+                Go Pro
               </Button>
             )}
           </div>
