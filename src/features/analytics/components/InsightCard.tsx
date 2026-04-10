@@ -42,12 +42,12 @@ const InsightCard: React.FC<InsightCardProps> = ({
           </div>
           <div className="flex items-center gap-2">
             {actionable && (
-              <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
                 Action needed
               </Badge>
             )}
             {realTimeUpdate && (
-              <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+              <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-700 border-emerald-200">
                 Live
               </Badge>
             )}

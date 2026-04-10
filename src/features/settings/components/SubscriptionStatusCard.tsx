@@ -93,7 +93,7 @@ const SubscriptionStatusCard: React.FC = () => {
               </div>
               <div className="w-full bg-secondary rounded-full h-2">
                 <div 
-                  className="bg-green-500 h-2 rounded-full transition-all"
+                  className="bg-emerald-500 h-2 rounded-full transition-all"
                   style={{ 
                     width: subscribed ? '100%' : `${Math.min((runningTimerCount / runningTimerLimit) * 100, 100)}%` 
                   }}

@@ -59,7 +59,7 @@ const EmailChangeForm: React.FC = () => {
               disabled
               className="bg-muted"
             />
-            <Check className="h-4 w-4 text-green-500" />
+            <Check className="h-4 w-4 text-emerald-500" />
           </div>
         </div>
         

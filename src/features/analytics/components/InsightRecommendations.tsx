@@ -127,7 +127,7 @@ const InsightRecommendations: React.FC<InsightRecommendationsProps> = ({
         <CardTitle className="text-lg flex items-center gap-2">
           <Lightbulb className="h-5 w-5" />
           Smart Recommendations
-          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 ml-auto">
+          <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-700 border-emerald-200 ml-auto">
             Live updates
           </Badge>
         </CardTitle>

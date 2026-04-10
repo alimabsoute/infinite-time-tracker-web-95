@@ -42,11 +42,11 @@ const ClearDataControls: React.FC<ClearDataControlsProps> = ({
   }
 
   return (
-    <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+    <div className="mb-6 p-4 bg-muted border border-border rounded-lg">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="font-medium text-blue-900">Free Plan</h3>
-          <p className="text-sm text-blue-700">
+          <h3 className="font-medium text-foreground">Free Plan</h3>
+          <p className="text-sm text-muted-foreground">
             Upgrade for unlimited timers and premium features.
           </p>
         </div>

@@ -430,7 +430,7 @@ const Analytics = () => {
                 </div>
                 <div>
                   <div className="text-muted-foreground">Running Timers</div>
-                  <div className="font-medium text-green-600">
+                  <div className="font-medium text-emerald-600">
                     {timers.filter(t => t.isRunning).length}
                   </div>
                 </div>
