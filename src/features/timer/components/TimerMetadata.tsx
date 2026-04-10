@@ -1,4 +1,3 @@
-
 import { Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@shared/components/ui/button';
@@ -18,73 +17,60 @@ interface TimerMetadataProps {
   onDateSelect: (date: Date | undefined) => void;
 }
 
-const TimerMetadata = ({ 
-  selectedPriority, 
-  date, 
-  isOverdue, 
-  onPriorityChange, 
-  onDateSelect 
+const getPriorityColor = (priority: string) => {
+  switch (priority) {
+    case '1': return 'text-emerald-600 border-emerald-300';
+    case '2': return 'text-amber-600 border-amber-300';
+    case '3': return 'text-destructive border-destructive/40';
+    default: return 'text-muted-foreground border-border';
+  }
+};
+
+const TimerMetadata = ({
+  selectedPriority,
+  date,
+  isOverdue,
+  onPriorityChange,
+  onDateSelect,
 }: TimerMetadataProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(date);
-  const [selectedTime, setSelectedTime] = useState<string>(
-    date ? format(date, 'HH:mm') : '23:59'
-  );
+  const [selectedTime, setSelectedTime] = useState<string>(date ? format(date, 'HH:mm') : '23:59');
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  // Map priority to color
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "1": return "text-green-600 border-green-300";
-      case "2": return "text-amber-600 border-amber-300";
-      case "3": return "text-red-600 border-red-300";
-      default: return "text-gray-600 border-gray-300";
-    }
-  };
-
-  // Handle date selection from calendar
   const handleDateSelect = (newDate: Date | undefined) => {
     if (newDate) {
       setSelectedDate(newDate);
-      if (selectedTime) {
-        const [hours, minutes] = selectedTime.split(':').map(Number);
-        const finalDate = new Date(newDate);
-        finalDate.setHours(hours, minutes, 0, 0);
-        onDateSelect(finalDate);
-      } else {
-        const finalDate = new Date(newDate);
-        finalDate.setHours(23, 59, 0, 0);
-        onDateSelect(finalDate);
-      }
+      const [hours, minutes] = selectedTime.split(':').map(Number);
+      const final = new Date(newDate);
+      final.setHours(hours, minutes, 0, 0);
+      onDateSelect(final);
     } else {
       setSelectedDate(undefined);
       onDateSelect(undefined);
     }
   };
 
-  // Handle time change
   const handleTimeChange = (newTime: string) => {
     setSelectedTime(newTime);
     if (selectedDate && newTime) {
       const [hours, minutes] = newTime.split(':').map(Number);
-      const finalDate = new Date(selectedDate);
-      finalDate.setHours(hours, minutes, 0, 0);
-      onDateSelect(finalDate);
+      const final = new Date(selectedDate);
+      final.setHours(hours, minutes, 0, 0);
+      onDateSelect(final);
     }
   };
 
-  // Apply current date and time
-  const handleApplyDateTime = () => {
+  const handleApply = () => {
     if (selectedDate && selectedTime) {
       const [hours, minutes] = selectedTime.split(':').map(Number);
-      const finalDate = new Date(selectedDate);
-      finalDate.setHours(hours, minutes, 0, 0);
-      onDateSelect(finalDate);
+      const final = new Date(selectedDate);
+      final.setHours(hours, minutes, 0, 0);
+      onDateSelect(final);
     }
     setIsPopoverOpen(false);
   };
 
-  // Clear deadline
-  const handleClearDeadline = () => {
+  const handleClear = () => {
     setSelectedDate(undefined);
     setSelectedTime('23:59');
     onDateSelect(undefined);
@@ -93,11 +79,10 @@ const TimerMetadata = ({
 
   return (
     <div className="flex gap-3 justify-center">
-      {/* Priority Indicator */}
       <Select value={selectedPriority} onValueChange={onPriorityChange}>
-        <SelectTrigger 
+        <SelectTrigger
           className={cn(
-            "h-7 w-20 text-xs bg-white/90 border text-gray-700 backdrop-blur-sm rounded-full",
+            'h-7 w-20 text-xs bg-card border rounded-full',
             getPriorityColor(selectedPriority)
           )}
         >
@@ -105,21 +90,20 @@ const TimerMetadata = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="none">None</SelectItem>
-          <SelectItem value="1" className="text-green-600">Low</SelectItem>
+          <SelectItem value="1" className="text-emerald-600">Low</SelectItem>
           <SelectItem value="2" className="text-amber-600">Med</SelectItem>
-          <SelectItem value="3" className="text-red-600">High</SelectItem>
+          <SelectItem value="3" className="text-destructive">High</SelectItem>
         </SelectContent>
       </Select>
-      
-      {/* Deadline Indicator */}
+
       <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverTrigger asChild>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             className={cn(
-              "h-7 px-3 text-xs bg-white/90 border text-gray-700 backdrop-blur-sm rounded-full",
-              isOverdue && "text-red-600 border-red-300"
+              'h-7 px-3 text-xs bg-card border rounded-full',
+              isOverdue ? 'text-destructive border-destructive/40' : 'text-muted-foreground'
             )}
           >
             <Clock className="mr-1 h-3 w-3" />
@@ -136,10 +120,10 @@ const TimerMetadata = ({
                 onSelect={handleDateSelect}
                 initialFocus
                 className="pointer-events-auto border rounded-md"
-                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label className="text-sm font-medium">Select Time</Label>
               <Input
@@ -149,22 +133,12 @@ const TimerMetadata = ({
                 className="w-full"
               />
             </div>
-            
+
             <div className="flex gap-2 pt-2">
-              <Button 
-                onClick={handleApplyDateTime}
-                size="sm"
-                className="flex-1"
-                disabled={!selectedDate}
-              >
+              <Button onClick={handleApply} size="sm" className="flex-1" disabled={!selectedDate}>
                 Apply
               </Button>
-              <Button 
-                onClick={handleClearDeadline}
-                variant="outline"
-                size="sm"
-                className="flex-1"
-              >
+              <Button onClick={handleClear} variant="outline" size="sm" className="flex-1">
                 Clear
               </Button>
             </div>
