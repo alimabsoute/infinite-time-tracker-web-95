@@ -11,6 +11,7 @@ interface TimerProps {
   onRename: (id: string, newName: string, category?: string) => void;
   onUpdateDeadline: (id: string, deadline: Date | undefined) => void;
   onUpdatePriority: (id: string, priority: number | undefined) => void;
+  onUpdateBillable: (id: string, billable: boolean, hourlyRate?: number) => void;
   calculateSessionElapsedTime: (timer: TimerType) => number;
   isNew?: boolean;
 }
@@ -23,6 +24,7 @@ const Timer: React.FC<TimerProps> = ({
   onRename,
   onUpdateDeadline,
   onUpdatePriority,
+  onUpdateBillable,
   calculateSessionElapsedTime,
   isNew = false,
 }) => {
@@ -31,6 +33,8 @@ const Timer: React.FC<TimerProps> = ({
   const [editedCategory, setEditedCategory] = useState(timer.category || '');
   const [selectedPriority, setSelectedPriority] = useState(timer.priority?.toString() || '');
   const [date, setDate] = useState<Date | undefined>(timer.deadline);
+  const [editedBillable, setEditedBillable] = useState(timer.billable ?? false);
+  const [editedHourlyRate, setEditedHourlyRate] = useState(timer.hourlyRate?.toString() || '');
 
   const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -57,6 +61,7 @@ const Timer: React.FC<TimerProps> = ({
       if (date) {
         onUpdateDeadline(timer.id, date);
       }
+      onUpdateBillable(timer.id, editedBillable, editedHourlyRate ? parseFloat(editedHourlyRate) : undefined);
     }
     setIsEditing(false);
   };
@@ -118,6 +123,10 @@ const Timer: React.FC<TimerProps> = ({
       onCategoryChange={setEditedCategory}
       onPriorityChange={handlePriorityChange}
       onDateSelect={handleDateSelect}
+      editedBillable={editedBillable}
+      editedHourlyRate={editedHourlyRate}
+      onBillableChange={setEditedBillable}
+      onHourlyRateChange={setEditedHourlyRate}
     />
   );
 };

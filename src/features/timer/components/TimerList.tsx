@@ -11,6 +11,7 @@ interface TimerListProps {
   onRename: (id: string, newName: string, category?: string) => void;
   onUpdateDeadline: (id: string, deadline: Date | undefined) => void;
   onUpdatePriority: (id: string, priority: number | undefined) => void;
+  onUpdateBillable: (id: string, billable: boolean, hourlyRate?: number) => void;
   onReorder: (reorderedTimers: TimerType[]) => void;
   calculateSessionElapsedTime: (timer: TimerType) => number;
   newTimerId: string | null;
@@ -25,6 +26,7 @@ const TimerList = ({
   onRename,
   onUpdateDeadline,
   onUpdatePriority,
+  onUpdateBillable,
   onReorder,
   calculateSessionElapsedTime,
   newTimerId,
@@ -43,6 +45,7 @@ const TimerList = ({
       onRename={onRename}
       onUpdateDeadline={onUpdateDeadline}
       onUpdatePriority={onUpdatePriority}
+      onUpdateBillable={onUpdateBillable}
       onReorder={onReorder}
       calculateSessionElapsedTime={calculateSessionElapsedTime}
       newTimerId={newTimerId}

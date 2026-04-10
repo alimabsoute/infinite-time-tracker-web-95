@@ -50,6 +50,7 @@ const Dashboard = () => {
     updateDeadline,
     updatePriority,
     reorderTimers,
+    updateBillable,
     getDisplayTime,
     confettiTrigger,
     celebrationTrigger,
@@ -109,6 +110,7 @@ const Dashboard = () => {
             onRename={renameTimer}
             onUpdateDeadline={updateDeadline}
             onUpdatePriority={updatePriority}
+            onUpdateBillable={updateBillable}
             onReorder={reorderTimers}
             calculateSessionElapsedTime={getDisplayTime}
             newTimerId={newTimerId}

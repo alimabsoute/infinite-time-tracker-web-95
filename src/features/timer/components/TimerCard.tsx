@@ -33,6 +33,10 @@ interface TimerCardProps {
   onCategoryChange: (value: string) => void;
   onPriorityChange: (value: string) => void;
   onDateSelect: (date: Date | undefined) => void;
+  editedBillable: boolean;
+  editedHourlyRate: string;
+  onBillableChange: (value: boolean) => void;
+  onHourlyRateChange: (value: string) => void;
 }
 
 const TimerCard: React.FC<TimerCardProps> = ({
@@ -55,6 +59,10 @@ const TimerCard: React.FC<TimerCardProps> = ({
   onCategoryChange,
   onPriorityChange,
   onDateSelect,
+  editedBillable,
+  editedHourlyRate,
+  onBillableChange,
+  onHourlyRateChange,
 }) => {
   const { id, name, isRunning, category, deadline } = timer;
   const isOverdue = deadline && new Date(deadline) < new Date();
@@ -86,8 +94,12 @@ const TimerCard: React.FC<TimerCardProps> = ({
                   nameInputRef={nameInputRef}
                   editedName={editedName}
                   editedCategory={editedCategory}
+                  editedBillable={editedBillable}
+                  editedHourlyRate={editedHourlyRate}
                   onNameChange={onNameChange}
                   onCategoryChange={onCategoryChange}
+                  onBillableChange={onBillableChange}
+                  onHourlyRateChange={onHourlyRateChange}
                   onSubmit={onSubmit}
                   onCancel={onCancel}
                 />
