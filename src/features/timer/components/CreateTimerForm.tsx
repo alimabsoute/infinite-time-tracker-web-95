@@ -21,7 +21,7 @@ const CreateTimerForm = ({ onAddTimer }: CreateTimerFormProps) => {
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-50" key={`create-timer-${Date.now()}`}>
+    <div className="fixed bottom-8 right-8 z-50">
       <div
         onClick={handleAddTimer}
         role="button"
@@ -30,16 +30,12 @@ const CreateTimerForm = ({ onAddTimer }: CreateTimerFormProps) => {
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            handleAddTimer(e as any);
+            handleAddTimer(e as unknown as React.MouseEvent);
           }
         }}
-        className="h-16 w-16 bg-blue-500 rounded-full cursor-pointer transition-all duration-300 hover:scale-110 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-500/20 flex items-center justify-center"
-        style={{ zIndex: 9999 }}
+        className="h-14 w-14 bg-primary rounded-full cursor-pointer transition-all duration-300 hover:scale-110 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 flex items-center justify-center shadow-lg"
       >
-        <Plus 
-          size={28} 
-          className="text-white" 
-        />
+        <Plus size={26} className="text-primary-foreground" />
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ const AuthHeader = () => {
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             onClick={() => signOut()}
-            className="text-red-500 focus:text-red-500"
+            className="text-destructive focus:text-destructive"
           >
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
